@@ -1,0 +1,279 @@
+name: Build & Release
+
+# Trigger on push to master branch or with a tag
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'V*'
+
+# If previous workflow is still running, we push again, we will cancel the previous workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  Build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: Android
+            os: ubuntu-latest
+            artifact_name: release-Android
+            artifact_path: build/app/outputs/flutter-apk/*.apk
+          - target: Windows
+            os: windows-latest
+            artifact_name: release-Windows
+            artifact_path: |
+              build/windows/outputs/*.zip
+              build/windows/outputs/*.exe
+          - target: Linux
+            os: ubuntu-latest
+            artifact_name: release-Linux
+            artifact_path: |
+              build/linux/*.deb
+              build/linux/*.tar.gz
+          - target: iOS
+            os: macos-latest
+            cache_pod_key: ios-pods
+            cache_pod_path: ios/Pods
+            cache_pod_restore_keys_hash_file: ios/Podfile.lock
+            artifact_name: release-iOS
+            artifact_path: build/**/*.ipa
+          - target: MacOS
+            os: macos-latest
+            cache_pod_key: macos-pods
+            cache_pod_path: macos/Pods
+            cache_pod_restore_keys_hash_file: macos/Podfile.lock
+            artifact_name: release-MacOS
+            artifact_path: /Users/runner/work/Twitee/Twitee/*.dmg
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      date: ${{ steps.get_version.outputs.date}}
+    runs-on: ${{ matrix.os }}
+    env:
+      FLUTTER_VERSION: 3.24.0
+    steps:
+      # Checkout branch
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Add Android keystore
+      - name: Setup Android keystore
+        if: matrix.target == 'Android'
+        run: |
+          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -di > android/app/cloudchewie.jks
+          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.16.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      # Cache Pod
+      - name: Cache Pod
+        if: matrix.cache_pod_key != null
+        uses: actions/cache@v4
+        with:
+          key: ${{ matrix.cache_pod_key }}
+          path: ${{ matrix.cache_pod_path }}
+          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
+
+      # Setup JDK
+      - name: Setup JDK 17 (Android)
+        if: matrix.target == 'Android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+
+      # Xcodebuild
+      - name: Build Xcode
+        if: matrix.os == 'macos-latest'
+        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
+
+      # Flutter Pub Get
+      - name: Flutter Pub Get
+        run: |
+          git config --global core.longpaths true
+          flutter doctor -v
+          flutter pub get
+          dart run intl_utils:generate
+
+      # Get app version
+      - name: Get app version
+        id: get_version
+        shell: bash
+        run: |
+          echo "version=$(head -n 2 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2 | cut -d '+' -f 1)" >> $GITHUB_OUTPUT
+          echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+
+      # Build Android .apk
+      - name: Build Android
+        if: matrix.target == 'Android'
+        run: |
+          flutter build apk --release
+          flutter build apk --release --split-per-abi
+          cd build/app/outputs/flutter-apk
+          mv app-release.apk Twitee-${{ steps.get_version.outputs.version }}-android-universal.apk
+          mv app-arm64-v8a-release.apk Twitee-${{ steps.get_version.outputs.version }}-android-arm64-v8a.apk
+          mv app-armeabi-v7a-release.apk Twitee-${{ steps.get_version.outputs.version }}-android-armeabi-v7a.apk
+          mv app-x86_64-release.apk Twitee-${{ steps.get_version.outputs.version }}-android-x86_64.apk
+
+      # Build iOS .ipa
+      - name: Build iOS
+        if: matrix.target == 'iOS'
+        run: |
+          cd ios
+          pod update
+          cd ..
+          flutter build ios --release --no-codesign
+          sh tools/ios_tools/thin_payload.sh build/ios/iphoneos/*.app
+          cd build
+          mkdir -p Payload
+          mv ios/iphoneos/*.app Payload
+          zip -9 Twitee-${{ steps.get_version.outputs.version }}-ios.ipa -r Payload
+
+      # Build MacOS .dmg
+      - name: Build MacOS
+        if: matrix.target == 'MacOS'
+        run: |
+          cd macos
+          pod update
+          cd ..
+          flutter build macos --release
+          hdiutil create -format UDZO -srcfolder build/macos/Build/Products/Release/twitee.app -volname Twitee-${{ steps.get_version.outputs.version }}-macos Twitee-${{ steps.get_version.outputs.version }}-macos.dmg
+
+      # Build Windows .zip
+      - name: Build Windows
+        if: matrix.target == 'Windows'
+        run: |
+          flutter build windows --release
+          $DestDir = "build\windows\outputs\Twitee-${{ steps.get_version.outputs.version }}-windows-x86_64"
+          $SrcDir = "build\windows\x64\runner\Release"
+          $dllDir = "tools\windows_dll"
+          
+          Copy-Item -Filter *.dll -Path $dllDir\* -Destination $SrcDir -Force
+          New-Item -Path $DestDir -ItemType Directory
+          Copy-Item $SrcDir\* -Recurse $DestDir
+          
+          Compress-Archive $DestDir build\windows\outputs\Twitee-${{ steps.get_version.outputs.version }}-windows-x86_64.zip
+          
+          (Get-Content tools/windows_tools/Twitee.iss) -replace '#define MyAppVersion ".*"', '#define MyAppVersion "${{ steps.get_version.outputs.version }}"' | Set-Content tools/windows_tools/Twitee.iss
+
+      # Build Windows .exe
+      - name: Build Windows Installer
+        if: matrix.target == 'Windows'
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
+        with:
+          path: tools/windows_tools/Twitee.iss
+
+      # Build Linux .deb
+      - name: Build Linux
+        if: matrix.target == 'Linux'
+        run: |
+          # Prepare build depends
+          sudo apt-get update -y
+          sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+          sudo apt-get install -y clang cmake ninja-build pkg-config liblzma-dev libgtk-3-dev liblzma-dev libstdc++-12-dev
+          sudo apt-get install -y libayatana-appindicator3-dev libkeybinder-3.0-dev libsecret-1-dev libnotify-dev libsqlcipher-dev
+          
+          # Compile
+          flutter config --enable-linux-desktop
+          flutter build linux --release
+
+          # Debian package
+          mkdir -p build/linux/Twitee-${{ steps.get_version.outputs.version }}-linux-amd64
+          cd build/linux/Twitee-${{ steps.get_version.outputs.version }}-linux-amd64
+          mkdir -p opt/Twitee
+          mkdir -p usr/share/metainfo
+          mkdir -p usr/share/applications
+          mkdir -p usr/share/icons/hicolor/scalable/apps
+          cp -r ../x64/release/bundle/* opt/Twitee
+          cp -r ../../../tools/linux_tools/DEBIAN .
+          chmod 0755 DEBIAN/postinst
+          chmod 0755 DEBIAN/postrm
+          
+          sed -i '50i\    <release version="${{ steps.get_version.outputs.version }}" date="${{ steps.get_version.outputs.date }}">' ../../../tools/linux_tools/com.cloudchewie.twitee.metainfo.xml
+          cp ../../../tools/linux_tools/com.cloudchewie.twitee.metainfo.xml usr/share/metainfo
+          cp ../../../tools/linux_tools/com.cloudchewie.twitee.desktop usr/share/applications
+          cp ../../../assets/logo-transparent.svg usr/share/icons/hicolor/scalable/apps/com.cloudchewie.twitee.svg
+
+          sed -i "/^Version: /s/Version: .*/Version: ${{ steps.get_version.outputs.version }}/" DEBIAN/control
+
+          cd ..
+          dpkg-deb --build --root-owner-group Twitee-${{ steps.get_version.outputs.version }}-linux-amd64
+          tar -zcvf Twitee-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz -C Twitee-${{ steps.get_version.outputs.version }}-linux-amd64 .
+
+      # Upload Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+
+  Publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get app version
+        id: get_version
+        shell: bash
+        run: |
+          echo "version=$(head -n 2 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2 | cut -d '+' -f 1)" >> $GITHUB_OUTPUT
+      - name: Make tmp dir
+        run: mkdir /tmp/artifacts
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+      - name: List and move all Artifacts
+        run: |
+          mkdir -p /tmp/artifacts/final
+          mv /tmp/artifacts/release-Android/*.apk /tmp/artifacts/final/
+          mv /tmp/artifacts/release-Windows/*.zip /tmp/artifacts/final/
+          mv /tmp/artifacts/release-Windows/*.exe /tmp/artifacts/final/
+          mv /tmp/artifacts/release-MacOS/*.dmg /tmp/artifacts/final/
+          mv /tmp/artifacts/release-iOS/*.ipa /tmp/artifacts/final/
+          mv /tmp/artifacts/release-Linux/*.deb /tmp/artifacts/final/
+          mv /tmp/artifacts/release-Linux/*.tar.gz /tmp/artifacts/final/
+
+          cd /tmp/artifacts/final
+          for file in *; do
+            if [ -f "$file" ]; then
+              sha1sum "$file" | awk '{ print $1 }' > "$file.sha1"
+            fi
+          done
+          ls -R /tmp/artifacts/final
+
+      - name: Upload to S3
+        uses: Robert-Stackflow/upload-s3-action@master
+        with:
+          endpoint: ${{ secrets.AWS_ENDPOINT }}
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: /tmp/artifacts/final
+          destination_dir: Twitee/${{ steps.get_version.outputs.version }}
+      - name: Upload to release
+        uses: Robert-Stackflow/release-action@master
+        with:
+          tag: ${{ github.ref_name }}
+          allowUpdates: true
+          generateReleaseNotes: true
+          artifacts: /tmp/artifacts/final/*
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          makeLatest: true
+          draft: true
+          updateOnlyUnreleased: true

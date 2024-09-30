@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Twitee
+GenericName=Password Manager
+Comment=An awesome two-factor authenticator which supports cloud backup.
+Exec=Twitee
+Icon=com.cloudchewie.twitee
+Categories=Utility;
+Terminal=false

@@ -1,0 +1,167 @@
+name: twitee
+version: 2.4.5+245
+description: An awesome two-factor authenticator which supports cloud storage and multiple platforms.
+publish_to: none
+
+environment:
+  sdk: '>=3.1.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # 控件
+  animations: ^2.0.11 # 动画
+  fluttertoast: ^8.2.6 # 吐司
+  lottie: ^3.1.2 # Lottie动画
+  modal_bottom_sheet: ^3.0.0 # 底部弹窗
+  palette_generator: ^0.3.3+3 # 获取主色调
+  vector_math: ^2.1.4 # 矢量数学
+  path_drawing: ^1.0.1 # 路径绘制
+  auto_size_text: ^3.0.0 # 自适应文本
+  flutter_inappwebview: ^6.0.0 # Webview
+  flutter_slidable:
+    path: third-party/flutter_slidable
+  flutter_widget_from_html: ^0.15.2 # 将HTML渲染成组件
+  group_button:
+    path: third-party/group_button
+  context_menus:
+    path: third-party/context_menus
+  # 存储
+  path:
+  path_provider: ^2.0.12
+  file_picker: ^8.0.6 # 文件选择
+  hive: ^4.0.0-dev.2 # 轻量存储
+  archive: ^3.6.1 # 压缩
+  isar_flutter_libs: ^4.0.0-dev.13
+  sqflite_sqlcipher: ^3.1.0+1 # SQLite加密
+  # 网络
+  http: ^1.2.1
+  dio: ^5.4.3+1 # 网络请求
+  dio_cache_interceptor: ^3.5.0 # dio缓存
+  dio_cookie_manager: ^3.1.1 # dio cookie管理
+  flutter_cache_manager: ^3.3.1 # 缓存管理
+  # 工具
+  intl_utils: ^2.8.7
+  html: ^0.15.0
+  uuid: ^4.4.2 # UUID
+  logger: ^2.4.0 # 日志
+  hashlib: 1.19.2 # Hash
+  pointycastle: ^3.9.1 # 加密
+  flutter_native_splash: ^2.4.1 # Splash屏
+  pretty_qr_code: ^3.3.0 # 二维码
+  # 系统
+  provider: ^6.0.5 # 状态管理
+  local_auth: ^2.2.0 # 指纹验证
+  local_auth_android: ^1.0.42 # 指纹验证
+  package_info_plus: ^8.0.0 # 应用信息
+  device_info_plus: ^10.1.0 # 设备信息
+  share_plus: ^9.0.0 # 分享
+  protocol_handler: ^0.2.0 # 协议处理
+  url_launcher: ^6.3.0 # URL跳转
+  biometric_storage:
+    path: third-party/biometric_storage
+  # 平台适配
+  saf:
+    path: third-party/saf
+  handy_window: ^0.4.0
+  native_device_orientation: ^2.0.3 # 设备方向
+  process_run: ^1.0.0+1 # 运行
+  restart_app: ^1.2.1 # 重启APP
+  tray_manager: ^0.2.3 # 托盘图标
+  hotkey_manager: ^0.2.3 # 热键
+  install_plugin: ^2.1.0 # 安装APP
+  permission_handler: ^10.2.0 # 权限管理
+  responsive_builder: ^0.7.1 # 响应式布局
+  flutter_displaymode: ^0.6.0 # 设置刷新率
+  flutter_local_notifications: ^17.2.1+2 # 本地通知
+  flutter_resizable_container: ^2.0.0 # 可调整大小的容器
+  screen_protector: ^1.4.2+1
+  flutter_windowmanager: ^0.2.0
+  move_to_background: ^1.0.2 # 移动到后台
+  launch_at_startup: ^0.3.1 # 开机启动
+  local_notifier: ^0.1.6 # 本地通知
+  shell_executor: ^0.1.6 # 执行命令
+  window_manager:
+    path: third-party/window_manager
+#  desktop_multi_window:
+#    path: third-party/desktop_multi_window
+
+dependency_overrides:
+  webview_flutter_android: 3.16.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.11
+  flutter_lints: ^4.0.0
+  json_serializable: ^6.7.1
+  msix: ^3.16.7
+  sqflite_common_ffi: ^2.3.3
+  flutter_launcher_icons: ^0.13.1
+
+msix_config:
+  display_name: Twitee
+  publisher: CN=Cloudchewie
+  publisher_display_name: Cloudchewie
+  identity_name: com.cloudchewie.twitee
+  msix_version: 2.4.5.0
+  logo_path: assets\logo-transparent.ico
+  trim_logo: false
+  languages: en, ja-jp, zh-cn, zh-tw
+  protocol_activation: twitee
+  execution_alias: twitee
+  enable_at_startup: true
+  output_path: build\windows\outputs
+  output_name: Twitee
+  build_windows: false
+  capabilities: internetClient
+  certificate_path: D:\Repositories\Twitee\certificate\twitee.pfx
+  certificate_password: CLOUDCHEWIEtwitee@123
+
+flutter_launcher_icons:
+  android: false
+  ios: true
+  image_path: "assets/logo.png"
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: true
+    image_path: "assets/logo-transparent.png"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#111111"
+  image: "assets/logo-transparent.png"
+  android: true
+  ios: true
+
+  android_12:
+    image: assets/logo-transparent.png
+    icon_background_color: "#FFFFFF"
+    image_dark: assets/logo-light-transparent.png
+    icon_background_color_dark: "#111111"
+
+flutter_intl:
+  enabled: true
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/lottie/
+    - assets/icon/
+    - assets/logo.png
+    - assets/logo.svg
+    - assets/logo-transparent.svg
+    - assets/logo-transparent.png
+    - assets/logo-transparent.ico
+    - assets/logo-light.png
+    - assets/logo-light.svg
+    - assets/logo-light-transparent.svg
+    - assets/logo-light-transparent.png
+    - assets/logo-light-transparent.ico
+    - assets/logo-round.png
+    - assets/logo-round.ico
