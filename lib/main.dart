@@ -35,7 +35,7 @@ import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/biometric_util.dart';
 import 'package:twitee/Utils/file_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
-import 'package:twitee/Utils/request_header_util.dart';
+import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -93,10 +93,10 @@ Future<void> initApp(WidgetsBinding widgetsBinding) async {
   await DatabaseManager.initDataBase();
   NotificationUtil.init();
   await BiometricUtil.initStorage();
+  await RequestUtil.init();
   ResponsiveUtil.init();
   if (ResponsiveUtil.isAndroid()) {
     await initDisplayMode();
-    await RequestHeaderUtil.initAndroidInfo();
     SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark);

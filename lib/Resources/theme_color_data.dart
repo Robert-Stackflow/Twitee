@@ -13,8 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:twitee/Resources/colors.dart';
 
 import '../generated/l10n.dart';
 import 'fonts.dart';
@@ -120,6 +120,7 @@ class ThemeColorData {
       background: const Color(0xFFF7F8F9),
       canvasBackground: const Color(0xFFFFFFFF),
       primaryColor: const Color(0xFF1F1F1F),
+      //0xFF1D9BF0
       iconColor: const Color(0xFF333333),
       splashColor: const Color(0x44c8c8c8),
       highlightColor: const Color(0x44bcbcbc),
@@ -168,7 +169,7 @@ class ThemeColorData {
       name: "极简黑",
       background: const Color(0xFF151515),
       canvasBackground: const Color(0xFF232326),
-      primaryColor: const Color(0xFFF1F1F1),
+      primaryColor: const Color(0xFFE8E8E8),//F1F1F1
       iconColor: const Color(0xFFCACACA),
       splashColor: const Color(0x12cccccc),
       highlightColor: const Color(0x12cfcfcf),

@@ -143,6 +143,17 @@ class AppProvider with ChangeNotifier {
 
   bool shownShortcutHelp = false;
 
+  SideBarChoice _sidebarChoice = SideBarChoice.fromString(
+      HiveUtil.getString(HiveUtil.sidebarChoiceKey) ?? "");
+
+  SideBarChoice get sidebarChoice => _sidebarChoice;
+
+  set sidebarChoice(SideBarChoice value) {
+    _sidebarChoice = value;
+    HiveUtil.put(HiveUtil.sidebarChoiceKey, value.key);
+    notifyListeners();
+  }
+
   bool _enableLandscapeInTablet =
       HiveUtil.getBool(HiveUtil.enableLandscapeInTabletKey);
 

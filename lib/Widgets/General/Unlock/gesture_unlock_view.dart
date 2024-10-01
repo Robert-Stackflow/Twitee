@@ -63,7 +63,7 @@ class GestureUnlockView extends StatefulWidget {
     this.roundSpaceRatio = 0.6,
     this.defaultColor = Colors.grey,
     this.selectedColor = Colors.blue,
-    this.failedColor = Colors.red,
+    this.failedColor = Colors.redAccent,
     this.disableColor = Colors.grey,
     this.lineWidth = 2,
     this.solidRadiusRatio = 0.4,

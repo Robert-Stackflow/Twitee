@@ -154,7 +154,7 @@ class WindowButton extends StatelessWidget {
             getBackgroundColor(MouseState()..isMouseOver = true).withOpacity(0);
         var padding = this.padding ?? EdgeInsets.all(defaultPadding);
         var animationMs =
-            mouseState.isMouseOver ? (animate ? 200 : 0) : (animate ? 300 : 0);
+            mouseState.isMouseOver ? (animate ? 100 : 0) : (animate ? 200 : 0);
         Widget iconWithPadding = Padding(
           padding: padding,
           child: Transform.rotate(
@@ -224,6 +224,8 @@ class ToolButton extends WindowButton {
     EdgeInsets? padding,
     WindowButtonIconBuilder? iconBuilder,
     IconData? icon,
+    IconData? selectedIcon,
+    double iconSize = 22,
     Size? buttonSize,
   }) : super(
           animate: animate ?? true,
@@ -233,9 +235,9 @@ class ToolButton extends WindowButton {
           borderRadius: BorderRadius.circular(8),
           iconBuilder: iconBuilder ??
               (buttonContext) => Icon(
-                    icon,
+                    selected ? selectedIcon ?? icon : icon,
                     color: buttonContext.iconColor,
-                    size: 22,
+                    size: iconSize,
                   ),
           onPressed: onPressed,
         );

@@ -149,7 +149,7 @@ class QrcodesDialogWidgetState extends State<QrcodesDialogWidget> {
                           //       Theme.of(context).primaryColor,
                           //       Colors.blue[200]!,
                           //       Colors.teal[200]!,
-                          //       Colors.red[200]!,
+                          //       Colors.redAccent[200]!,
                           //     ],
                           //   ),
                           // ),

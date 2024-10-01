@@ -15,19 +15,13 @@
 
 import 'dart:convert';
 
-import 'package:twitee/Database/config_dao.dart';
-import 'package:twitee/Resources/theme_color_data.dart';
-import 'package:twitee/Screens/home_screen.dart';
-import 'package:twitee/Utils/app_provider.dart';
-import 'package:twitee/Utils/enums.dart';
-import 'package:twitee/Utils/file_util.dart';
-import 'package:twitee/Utils/font_util.dart';
-import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:twitee/Resources/theme_color_data.dart';
+import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/enums.dart';
+import 'package:twitee/Utils/utils.dart';
 
-import '../Database/database_manager.dart';
 import '../Resources/fonts.dart';
 import './ilogger.dart';
 import 'constant.dart';
@@ -56,8 +50,13 @@ class HiveUtil {
   static const String autoCheckUpdateKey = "autoCheckUpdate";
   static const String inappWebviewKey = "inappWebview";
 
+  static const String filenameFormatKey = "filenameFormat";
+  static const String savePathKey = "savePath";
+
   //Appearance
   static const String expandSidebarKey = "expandSidebar";
+  static const String sidebarChoiceKey = "sidebarChoice";
+  static const String followMainColorKey = "followMainColor";
   static const String enableFrostedGlassEffectKey = "enableFrostedGlassEffect";
   static const String hideAppbarWhenScrollingKey = "hideAppbarWhenScrolling";
   static const String hideBottombarWhenScrollingKey =

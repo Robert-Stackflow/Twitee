@@ -33,6 +33,7 @@ import 'package:window_manager/window_manager.dart';
 import '../../Resources/colors.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/asset_util.dart';
+import '../../Utils/color_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/hive_util.dart';
@@ -41,6 +42,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../generated/l10n.dart';
+import '../Custom/hero_photo_view_screen.dart';
 import '../Scaffold/my_appbar.dart';
 import '../Scaffold/my_popupmenu.dart';
 import '../Selectable/my_selection_area.dart';
@@ -84,48 +86,58 @@ class ItemBuilder {
       preferredSize: const Size(0, 56),
       child: Selector<AppProvider, bool>(
         selector: (context, provider) => provider.enableFrostedGlassEffect,
-        builder: (context, enableFrostedGlassEffect, child) => MyAppBar(
-          key: key,
-          primary: !ResponsiveUtil.isWideLandscape(),
-          backgroundColor: transparent
-              ? Theme.of(context)
+        builder: (context, enableFrostedGlassEffect, child) =>
+            MyAppBar(
+              key: key,
+              primary: !ResponsiveUtil.isWideLandscape(),
+              backgroundColor: transparent
+                  ? Theme
+                  .of(context)
                   .scaffoldBackgroundColor
                   .withOpacity(enableFrostedGlassEffect ? 0.2 : 1)
-              : Theme.of(context)
+                  : Theme
+                  .of(context)
                   .appBarTheme
                   .backgroundColor!
                   .withOpacity(enableFrostedGlassEffect ? 0.2 : 1),
-          useBackdropFilter: enableFrostedGlassEffect,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leadingWidth: showLeading ? 56.0 : 0.0,
-          automaticallyImplyLeading: false,
-          leading: showLeading
-              ? Container(
-                  margin: const EdgeInsets.only(left: 5),
-                  child: buildIconButton(
-                    context: context,
-                    icon:
-                        Icon(leading, color: Theme.of(context).iconTheme.color),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+              useBackdropFilter: enableFrostedGlassEffect,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leadingWidth: showLeading ? 56.0 : 0.0,
+              automaticallyImplyLeading: false,
+              leading: showLeading
+                  ? Container(
+                margin: const EdgeInsets.only(left: 5),
+                child: buildIconButton(
+                  context: context,
+                  icon:
+                  Icon(leading, color: Theme
+                      .of(context)
+                      .iconTheme
+                      .color),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              )
+                  : null,
+              title: title.isNotEmpty
+                  ? Container(
+                margin: EdgeInsets.only(left: showLeading ? 5 : 20),
+                child: Text(
+                  title,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(
+                    fontWeightDelta: 2,
                   ),
-                )
-              : null,
-          title: title.isNotEmpty
-              ? Container(
-                  margin: EdgeInsets.only(left: showLeading ? 5 : 20),
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 2,
-                        ),
-                  ),
-                )
-              : emptyWidget,
-          actions: actions,
-        ),
+                ),
+              )
+                  : emptyWidget,
+              actions: actions,
+            ),
       ),
     );
   }
@@ -150,47 +162,52 @@ class ItemBuilder {
       preferredSize: const Size(0, kToolbarHeight),
       child: Selector<AppProvider, bool>(
         selector: (context, provider) => provider.enableFrostedGlassEffect,
-        builder: (context, enableFrostedGlassEffect, child) => MyAppBar(
-          key: key,
-          primary: !ResponsiveUtil.isWideLandscape(),
-          backgroundColor: transparent
-              ? Colors.transparent
-              : backgroundColor
-                      ?.withOpacity(enableFrostedGlassEffect ? 0.2 : 1) ??
-                  Theme.of(context)
+        builder: (context, enableFrostedGlassEffect, child) =>
+            MyAppBar(
+              key: key,
+              primary: !ResponsiveUtil.isWideLandscape(),
+              backgroundColor: transparent
+                  ? Colors.transparent
+                  : backgroundColor
+                  ?.withOpacity(enableFrostedGlassEffect ? 0.2 : 1) ??
+                  Theme
+                      .of(context)
                       .appBarTheme
                       .backgroundColor!
                       .withOpacity(enableFrostedGlassEffect ? 0.2 : 1),
-          useBackdropFilter: enableFrostedGlassEffect,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          automaticallyImplyLeading: false,
-          leadingWidth: showLeading ? 56.0 : 0.0,
-          leading: showLeading
-              ? Container(
-                  margin: const EdgeInsets.only(left: 5),
-                  child: buildIconButton(
-                    context: context,
-                    icon: Icon(leading,
-                        color:
-                            leadingColor ?? Theme.of(context).iconTheme.color),
-                    onTap: onLeadingTap,
-                  ),
-                )
-              : null,
-          title: center
-              ? Center(
+              useBackdropFilter: enableFrostedGlassEffect,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              leadingWidth: showLeading ? 56.0 : 0.0,
+              leading: showLeading
+                  ? Container(
+                margin: const EdgeInsets.only(left: 5),
+                child: buildIconButton(
+                  context: context,
+                  icon: Icon(leading,
+                      color:
+                      leadingColor ?? Theme
+                          .of(context)
+                          .iconTheme
+                          .color),
+                  onTap: onLeadingTap,
+                ),
+              )
+                  : null,
+              title: center
+                  ? Center(
                   child: Container(
                       margin: EdgeInsets.only(
                           left: center ? 0 : (showLeading ? 4 : 20)),
                       child: title))
-              : Container(
-                  margin: EdgeInsets.only(
-                      left: center ? 0 : (showLeading ? 4 : 20)),
-                  child: title,
-                ),
-          actions: actions,
-        ),
+                  : Container(
+                margin: EdgeInsets.only(
+                    left: center ? 0 : (showLeading ? 4 : 20)),
+                child: title,
+              ),
+              actions: actions,
+            ),
       ),
     );
   }
@@ -221,42 +238,48 @@ class ItemBuilder {
       systemOverlayStyle: systemOverlayStyle,
       expandedHeight: expandedHeight,
       collapsedHeight: collapsedHeight ??
-          max(100, kToolbarHeight + MediaQuery.of(context).padding.top),
+          max(100, kToolbarHeight + MediaQuery
+              .of(context)
+              .padding
+              .top),
       pinned: pinned,
       floating: floating,
       leadingWidth: showLeading ? 56 : 0,
       leading: showLeading
           ? Container(
-              margin: const EdgeInsets.only(left: 0),
-              child: ItemBuilder.buildIconButton(
-                context: context,
-                icon: leading,
-                onTap: onLeadingTap,
-              ),
-            )
+        margin: const EdgeInsets.only(left: 0),
+        child: ItemBuilder.buildIconButton(
+          context: context,
+          icon: leading,
+          onTap: onLeadingTap,
+        ),
+      )
           : null,
       automaticallyImplyLeading: false,
       backgroundWidget: backgroundWidget,
       actions: actions,
       title: showLeading
           ? center
-              ? Center(child: title)
-              : title ?? emptyWidget
+          ? Center(child: title)
+          : title ?? emptyWidget
           : center
-              ? Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 20),
-                    child: title,
-                  ),
-                )
-              : Container(
-                  margin: const EdgeInsets.only(left: 20),
-                  child: title,
-                ),
+          ? Center(
+        child: Container(
+          margin: const EdgeInsets.only(left: 20),
+          child: title,
+        ),
+      )
+          : Container(
+        margin: const EdgeInsets.only(left: 20),
+        child: title,
+      ),
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor:
-          backgroundColor ?? Theme.of(context).appBarTheme.backgroundColor,
+      backgroundColor ?? Theme
+          .of(context)
+          .appBarTheme
+          .backgroundColor,
       flexibleSpace: flexibleSpace,
       bottom: bottom,
     );
@@ -275,7 +298,7 @@ class ItemBuilder {
   }) {
     return Container(
       padding:
-          padding ?? const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      padding ?? const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -285,14 +308,17 @@ class ItemBuilder {
               margin: const EdgeInsets.only(bottom: 10),
               child: Text(
                 title,
-                style: Theme.of(context)
+                style: Theme
+                    .of(context)
                     .textTheme
                     .titleMedium
                     ?.apply(fontWeightDelta: 2, fontSizeDelta: -2),
               ),
             ),
           SizedBox(
-            width: MediaQuery.sizeOf(context).width,
+            width: MediaQuery
+                .sizeOf(context)
+                .width,
             child: buildGroupButtons(
               buttons: buttons,
               disabled: disabled,
@@ -345,10 +371,19 @@ class ItemBuilder {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             background: selected
                 ? disabled
-                    ? Theme.of(context).primaryColor.withAlpha(80)
-                    : Theme.of(context).primaryColor
+                ? Theme
+                .of(context)
+                .primaryColor
+                .withAlpha(80)
+                : Theme
+                .of(context)
+                .primaryColor
                 : null,
-            textStyle: Theme.of(context).textTheme.titleSmall?.apply(
+            textStyle: Theme
+                .of(context)
+                .textTheme
+                .titleSmall
+                ?.apply(
                 fontSizeDelta: 2, color: selected ? Colors.white : null),
           ),
         );
@@ -386,7 +421,10 @@ class ItemBuilder {
       child: ItemBuilder.buildIconButton(
           context: context,
           icon: Icon(Icons.more_vert_rounded,
-              color: Theme.of(context).iconTheme.color),
+              color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color),
           onTap: () {}),
     );
   }
@@ -431,7 +469,7 @@ class ItemBuilder {
           ? Colors.transparent
           : normalBackground ?? Colors.transparent,
       shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
@@ -512,12 +550,14 @@ class ItemBuilder {
         borderRadius: BorderRadius.vertical(
           top: topRadius ? Radius.circular(radius) : const Radius.circular(0),
           bottom:
-              bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
+          bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
         ),
       ),
       child: Ink(
         decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
+          color: Theme
+              .of(context)
+              .canvasColor,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.vertical(
             top: topRadius ? Radius.circular(radius) : const Radius.circular(0),
@@ -527,25 +567,31 @@ class ItemBuilder {
           ),
           border: ThemeColorData.isImmersive(context)
               ? Border.merge(
-                  Border.symmetric(
-                    vertical: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
-                  ),
-                  Border(
-                    top: topRadius
-                        ? BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                          )
-                        : BorderSide.none,
-                    bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
-                  ),
-                )
+            Border.symmetric(
+              vertical: BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              ),
+            ),
+            Border(
+              top: topRadius
+                  ? BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              )
+                  : BorderSide.none,
+              bottom: BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              ),
+            ),
+          )
               : const Border(),
         ),
         child: InkWell(
@@ -577,14 +623,18 @@ class ItemBuilder {
                         children: [
                           Text(
                             title,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .titleMedium,
                           ),
                           description.isNotEmpty
                               ? Text(description,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.apply(fontSizeDelta: 1))
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.apply(fontSizeDelta: 1))
                               : emptyWidget,
                         ],
                       ),
@@ -599,9 +649,9 @@ class ItemBuilder {
                           onChanged: disabled
                               ? null
                               : (_) {
-                                  HapticFeedback.lightImpact();
-                                  if (onTap != null) onTap();
-                                },
+                            HapticFeedback.lightImpact();
+                            if (onTap != null) onTap();
+                          },
                         ),
                       ),
                     ),
@@ -611,21 +661,23 @@ class ItemBuilder {
               ThemeColorData.isImmersive(context)
                   ? Container()
                   : Container(
-                      height: 0,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                            style: bottomRadius
-                                ? BorderStyle.none
-                                : BorderStyle.solid,
-                          ),
-                        ),
-                      ),
+                height: 0,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Theme
+                          .of(context)
+                          .dividerColor,
+                      width: 0.5,
+                      style: bottomRadius
+                          ? BorderStyle.none
+                          : BorderStyle.solid,
                     ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -666,12 +718,14 @@ class ItemBuilder {
         borderRadius: BorderRadius.vertical(
           top: topRadius ? Radius.circular(radius) : const Radius.circular(0),
           bottom:
-              bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
+          bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
         ),
       ),
       child: Ink(
         decoration: BoxDecoration(
-          color: backgroundColor ?? Theme.of(context).canvasColor,
+          color: backgroundColor ?? Theme
+              .of(context)
+              .canvasColor,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.vertical(
             top: topRadius ? Radius.circular(radius) : const Radius.circular(0),
@@ -681,25 +735,31 @@ class ItemBuilder {
           ),
           border: ThemeColorData.isImmersive(context)
               ? Border.merge(
-                  Border.symmetric(
-                    vertical: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
-                  ),
-                  Border(
-                    top: topRadius
-                        ? BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                          )
-                        : BorderSide.none,
-                    bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
-                  ),
-                )
+            Border.symmetric(
+              vertical: BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              ),
+            ),
+            Border(
+              top: topRadius
+                  ? BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              )
+                  : BorderSide.none,
+              bottom: BorderSide(
+                color: Theme
+                    .of(context)
+                    .dividerColor,
+                width: 0.5,
+              ),
+            ),
+          )
               : const Border(),
         ),
         child: InkWell(
@@ -732,28 +792,31 @@ class ItemBuilder {
                           Text(
                             title,
                             style: isCaption
-                                ? Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.apply(fontSizeDelta: 1)
-                                : Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.apply(
-                                      color: titleColor,
-                                    ),
+                                ? Theme
+                                .of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.apply(fontSizeDelta: 1)
+                                : Theme
+                                .of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.apply(
+                              color: titleColor,
+                            ),
                           ),
                           description.isNotEmpty
                               ? Text(
-                                  description,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.apply(
-                                        fontSizeDelta: 1,
-                                        color: descriptionColor,
-                                      ),
-                                )
+                            description,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.apply(
+                              fontSizeDelta: 1,
+                              color: descriptionColor,
+                            ),
+                          )
                               : emptyWidget,
                         ],
                       ),
@@ -769,7 +832,8 @@ class ItemBuilder {
                       child: Text(
                         tip,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context)
+                        style: Theme
+                            .of(context)
                             .textTheme
                             .labelSmall
                             ?.apply(fontSizeDelta: 1),
@@ -790,7 +854,11 @@ class ItemBuilder {
                         trailing,
                         size: 20,
                         color:
-                            Theme.of(context).iconTheme.color?.withAlpha(127),
+                        Theme
+                            .of(context)
+                            .iconTheme
+                            .color
+                            ?.withAlpha(127),
                       ),
                     ),
                   ],
@@ -799,21 +867,23 @@ class ItemBuilder {
               ThemeColorData.isImmersive(context)
                   ? Container()
                   : Container(
-                      height: 0,
-                      margin: EdgeInsets.symmetric(
-                          horizontal: dividerPadding ? 10 : 0),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                            style: bottomRadius
-                                ? BorderStyle.none
-                                : BorderStyle.solid,
-                          ),
-                        ),
-                      ),
+                height: 0,
+                margin: EdgeInsets.symmetric(
+                    horizontal: dividerPadding ? 10 : 0),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Theme
+                          .of(context)
+                          .dividerColor,
+                      width: 0.5,
+                      style: bottomRadius
+                          ? BorderStyle.none
+                          : BorderStyle.solid,
                     ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -835,7 +905,7 @@ class ItemBuilder {
       onSelected: onSelected,
       itemBuilder: itemBuilder,
       padding:
-          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
       child: buildIconButton(
         context: context,
         icon: icon,
@@ -845,10 +915,8 @@ class ItemBuilder {
     );
   }
 
-  static List<MyPopupMenuItem> buildPopupMenuItems(
-    BuildContext context,
-    GenericContextMenu menu,
-  ) {
+  static List<MyPopupMenuItem> buildPopupMenuItems(BuildContext context,
+      GenericContextMenu menu,) {
     return menu.buttonConfigs.map((config) {
       if (config == null ||
           config.type == ContextMenuButtonConfigType.divider) {
@@ -863,7 +931,10 @@ class ItemBuilder {
       }
       bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
       bool showCheck = isCheckbox && config.checked;
-      var bodyMedium = Theme.of(context).textTheme.bodyMedium;
+      var bodyMedium = Theme
+          .of(context)
+          .textTheme
+          .bodyMedium;
       Widget checkIcon = Row(
         children: [
           Opacity(
@@ -871,7 +942,10 @@ class ItemBuilder {
             child: Icon(
               Icons.check_rounded,
               size: ResponsiveUtil.isMobile() ? null : 16,
-              color: Theme.of(context).iconTheme.color,
+              color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color,
             ),
           ),
           SizedBox(width: showCheck ? 8 : 4),
@@ -919,32 +993,40 @@ class ItemBuilder {
 
   static buildContextMenuOverlay(Widget child) {
     return ContextMenuOverlay(
-      cardBuilder: (context, widgets) => Container(
-        constraints: const BoxConstraints(minWidth: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
-          color: Theme.of(context).canvasColor,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor,
-              offset: const Offset(0, 4),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ).scale(2)
-          ],
-        ),
-        child: Column(
-          children: widgets,
-        ),
-      ),
-      dividerBuilder: (context) => ItemBuilder.buildDivider(
-        context,
-        width: 1.5,
-        vertical: 6,
-        horizontal: 4,
-      ),
+      cardBuilder: (context, widgets) =>
+          Container(
+            constraints: const BoxConstraints(minWidth: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Theme
+                  .of(context)
+                  .dividerColor, width: 0.5),
+              color: Theme
+                  .of(context)
+                  .canvasColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme
+                      .of(context)
+                      .shadowColor,
+                  offset: const Offset(0, 4),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ).scale(2)
+              ],
+            ),
+            child: Column(
+              children: widgets,
+            ),
+          ),
+      dividerBuilder: (context) =>
+          ItemBuilder.buildDivider(
+            context,
+            width: 1.5,
+            vertical: 6,
+            horizontal: 4,
+          ),
       buttonBuilder: (context, config, [_]) {
         bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
         bool showCheck = isCheckbox && config.checked;
@@ -975,10 +1057,14 @@ class ItemBuilder {
                   if (config.icon != null) config.icon!,
                   Text(
                     config.label,
-                    style: Theme.of(context).textTheme.bodyMedium?.apply(
-                          fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                          color: config.textColor,
-                        ),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.apply(
+                      fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
+                      color: config.textColor,
+                    ),
                   ),
                 ],
               ),
@@ -1027,43 +1113,56 @@ class ItemBuilder {
     Color? backgroundColor,
     EdgeInsets? padding,
     Border? border,
+    double? height,
   }) {
     return Container(
+      height: height,
       padding: padding,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: backgroundColor ?? Theme.of(context).canvasColor,
+        color: backgroundColor ?? Theme
+            .of(context)
+            .canvasColor,
         borderRadius: BorderRadius.vertical(
           top: topRadius ? Radius.circular(radius) : const Radius.circular(0),
           bottom:
-              bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
+          bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
         ),
         border: ThemeColorData.isImmersive(context)
             ? Border.merge(
-                Border.symmetric(
-                  vertical: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 0.5,
-                  ),
-                ),
-                Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 0.5,
-                  ),
-                ),
-              )
+          Border.symmetric(
+            vertical: BorderSide(
+              color: Theme
+                  .of(context)
+                  .dividerColor,
+              width: 0.5,
+            ),
+          ),
+          Border(
+            bottom: BorderSide(
+              color: Theme
+                  .of(context)
+                  .dividerColor,
+              width: 0.5,
+            ),
+          ),
+        )
             : border,
       ),
       child: Container(
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Theme.of(context).dividerColor,
+              color: Theme
+                  .of(context)
+                  .dividerColor,
               width: 0.05,
               style: bottomRadius ? BorderStyle.none : BorderStyle.solid,
             ),
             top: BorderSide(
-              color: Theme.of(context).dividerColor,
+              color: Theme
+                  .of(context)
+                  .dividerColor,
               width: 0.05,
               style: topRadius ? BorderStyle.none : BorderStyle.solid,
             ),
@@ -1089,7 +1188,7 @@ class ItemBuilder {
         children: [
           Container(
             padding:
-                const EdgeInsets.only(top: 10, bottom: 0, left: 8, right: 8),
+            const EdgeInsets.only(top: 10, bottom: 0, left: 8, right: 8),
             decoration: BoxDecoration(
               color: themeColorData.background,
               borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -1124,7 +1223,10 @@ class ItemBuilder {
           const SizedBox(height: 8),
           AutoSizeText(
             themeColorData.intlName,
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodySmall,
             maxLines: 1,
           ),
         ],
@@ -1143,7 +1245,9 @@ class ItemBuilder {
     double height = 160,
   }) {
     int existState = -1;
-    TextTheme textTheme = Theme.of(context).textTheme;
+    TextTheme textTheme = Theme
+        .of(context)
+        .textTheme;
     return SizedBox(
       width: width,
       child: Column(
@@ -1152,9 +1256,11 @@ class ItemBuilder {
             width: width,
             height: height,
             padding:
-                const EdgeInsets.only(top: 10, bottom: 5, left: 10, right: 10),
+            const EdgeInsets.only(top: 10, bottom: 5, left: 10, right: 10),
             decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: Theme
+                  .of(context)
+                  .scaffoldBackgroundColor,
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
             child: Column(
@@ -1165,57 +1271,57 @@ class ItemBuilder {
                   child: FutureBuilder(
                     future: Future<CustomFont>.sync(() async {
                       existState =
-                          (await CustomFont.isFontFileExist(font)) ? 1 : 0;
+                      (await CustomFont.isFontFileExist(font)) ? 1 : 0;
                       return font;
                     }),
                     builder: (context, snapshot) {
                       return existState == 1
                           ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AutoSizeText(
-                                  S.current.fontItemCaptionLatin,
-                                  style: textTheme.titleMedium?.apply(
-                                    fontFamily: font.fontFamily,
-                                    letterSpacingDelta: 1,
-                                  ),
-                                  maxLines: 1,
-                                ),
-                                AutoSizeText(
-                                  S.current.fontItemCaptionLatin,
-                                  style: textTheme.titleLarge?.apply(
-                                    fontFamily: font.fontFamily,
-                                    letterSpacingDelta: 1,
-                                  ),
-                                  maxLines: 1,
-                                ),
-                                AutoSizeText(
-                                  S.current.fontItemCaptionNonLatin,
-                                  style: textTheme.titleMedium?.apply(
-                                    fontFamily: font.fontFamily,
-                                    letterSpacingDelta: 1,
-                                  ),
-                                  maxLines: 1,
-                                ),
-                                AutoSizeText(
-                                  S.current.fontItemCaptionNonLatin,
-                                  style: textTheme.titleLarge?.apply(
-                                    fontFamily: font.fontFamily,
-                                    letterSpacingDelta: 1,
-                                  ),
-                                  maxLines: 1,
-                                ),
-                              ],
-                            )
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            S.current.fontItemCaptionLatin,
+                            style: textTheme.titleMedium?.apply(
+                              fontFamily: font.fontFamily,
+                              letterSpacingDelta: 1,
+                            ),
+                            maxLines: 1,
+                          ),
+                          AutoSizeText(
+                            S.current.fontItemCaptionLatin,
+                            style: textTheme.titleLarge?.apply(
+                              fontFamily: font.fontFamily,
+                              letterSpacingDelta: 1,
+                            ),
+                            maxLines: 1,
+                          ),
+                          AutoSizeText(
+                            S.current.fontItemCaptionNonLatin,
+                            style: textTheme.titleMedium?.apply(
+                              fontFamily: font.fontFamily,
+                              letterSpacingDelta: 1,
+                            ),
+                            maxLines: 1,
+                          ),
+                          AutoSizeText(
+                            S.current.fontItemCaptionNonLatin,
+                            style: textTheme.titleLarge?.apply(
+                              fontFamily: font.fontFamily,
+                              letterSpacingDelta: 1,
+                            ),
+                            maxLines: 1,
+                          ),
+                        ],
+                      )
                           : AutoSizeText(
-                              existState == 0
-                                  ? S.current.fontFileNotExist
-                                  : S.current.fontFileLoading,
-                              style: textTheme.titleLarge?.apply(
-                                fontFamily: font.fontFamily,
-                                fontWeightDelta: 0,
-                              ),
-                            );
+                        existState == 0
+                            ? S.current.fontFileNotExist
+                            : S.current.fontFileLoading,
+                        style: textTheme.titleLarge?.apply(
+                          fontFamily: font.fontFamily,
+                          fontWeightDelta: 0,
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -1230,9 +1336,15 @@ class ItemBuilder {
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       fillColor: WidgetStateProperty.resolveWith((states) {
                         if (states.contains(WidgetState.selected)) {
-                          return Theme.of(context).primaryColor;
+                          return Theme
+                              .of(context)
+                              .primaryColor;
                         } else {
-                          return Theme.of(context).textTheme.bodySmall?.color;
+                          return Theme
+                              .of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.color;
                         }
                       }),
                     ),
@@ -1242,7 +1354,7 @@ class ItemBuilder {
                         context: context,
                         icon: const Icon(
                           Icons.delete_outline_rounded,
-                          color: Colors.red,
+                          color: Colors.redAccent,
                           size: 21,
                         ),
                         padding: const EdgeInsets.all(10),
@@ -1258,9 +1370,13 @@ class ItemBuilder {
           const SizedBox(height: 8),
           AutoSizeText(
             font.intlFontName,
-            style: Theme.of(context).textTheme.bodySmall?.apply(
-                  fontFamily: font.fontFamily,
-                ),
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodySmall
+                ?.apply(
+              fontFamily: font.fontFamily,
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
           ),
@@ -1288,13 +1404,19 @@ class ItemBuilder {
                 padding: const EdgeInsets.only(
                     top: 5, bottom: 5, left: 10, right: 10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
                 child: Icon(
                   Icons.add_rounded,
                   size: 40,
-                  color: Theme.of(context).textTheme.labelSmall?.color,
+                  color: Theme
+                      .of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.color,
                 ),
               ),
             ),
@@ -1302,7 +1424,10 @@ class ItemBuilder {
           const SizedBox(height: 8),
           Text(
             S.current.loadFontFamily,
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodySmall,
             textAlign: TextAlign.center,
           ),
         ],
@@ -1327,7 +1452,9 @@ class ItemBuilder {
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               border: Border.all(
-                color: Theme.of(context).dividerColor,
+                color: Theme
+                    .of(context)
+                    .dividerColor,
                 style: BorderStyle.solid,
                 width: 0.6,
               ),
@@ -1338,18 +1465,28 @@ class ItemBuilder {
                 Icon(
                   Icons.add_rounded,
                   size: 30,
-                  color: Theme.of(context).textTheme.titleSmall?.color,
+                  color: Theme
+                      .of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.color,
                 ),
                 const SizedBox(height: 6),
                 Text(S.current.newTheme,
-                    style: Theme.of(context).textTheme.titleSmall),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleSmall),
               ],
             ),
           ),
           const SizedBox(height: 6),
           Text(
             "",
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodySmall,
           ),
         ],
       ),
@@ -1422,7 +1559,9 @@ class ItemBuilder {
           borderRadius: BorderRadius.all(Radius.circular(12))),
       child: Ink(
         decoration: BoxDecoration(
-          color: backgroundColor ?? Theme.of(context).canvasColor,
+          color: backgroundColor ?? Theme
+              .of(context)
+              .canvasColor,
           shape: BoxShape.rectangle,
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
@@ -1453,21 +1592,28 @@ class ItemBuilder {
               margin: EdgeInsets.only(right: margin),
               height: 1,
               decoration: BoxDecoration(
-                color: Theme.of(context).dividerColor,
+                color: Theme
+                    .of(context)
+                    .dividerColor,
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
               ),
             ),
           ),
           Text(
             text,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleSmall,
           ),
           Expanded(
             child: Container(
               margin: EdgeInsets.only(left: margin),
               height: 1,
               decoration: BoxDecoration(
-                color: Theme.of(context).dividerColor,
+                color: Theme
+                    .of(context)
+                    .dividerColor,
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
               ),
             ),
@@ -1499,22 +1645,26 @@ class ItemBuilder {
         Text(
           text,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.labelLarge,
+          style: Theme
+              .of(context)
+              .textTheme
+              .labelLarge,
         ),
         if (showButton) const SizedBox(height: 10),
         if (showButton)
           ItemBuilder.buildRoundButton(
             context,
             text: buttonText,
-            background: Theme.of(context).primaryColor,
+            background: Theme
+                .of(context)
+                .primaryColor,
             onTap: onTap,
           ),
       ],
     );
   }
 
-  static Widget buildTransparentTag(
-    BuildContext context, {
+  static Widget buildTransparentTag(BuildContext context, {
     required String text,
     bool isCircle = false,
     int? width,
@@ -1543,18 +1693,21 @@ class ItemBuilder {
           if (icon != null && Utils.isNotEmpty(text)) const SizedBox(width: 3),
           Text(
             text,
-            style: Theme.of(context).textTheme.bodySmall?.apply(
-                  color: Colors.white,
-                  fontSizeDelta: fontSizeDelta ?? -1,
-                ),
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodySmall
+                ?.apply(
+              color: Colors.white,
+              fontSizeDelta: fontSizeDelta ?? -1,
+            ),
           ),
         ],
       ),
     );
   }
 
-  static Widget buildCopyItem(
-    BuildContext context, {
+  static Widget buildCopyItem(BuildContext context, {
     required Widget child,
     Function()? onTap,
     required String? copyText,
@@ -1572,8 +1725,7 @@ class ItemBuilder {
     );
   }
 
-  static Widget buildLoadingDialog(
-    BuildContext context, {
+  static Widget buildLoadingDialog(BuildContext context, {
     double size = 50,
     bool showText = true,
     double topPadding = 0,
@@ -1586,7 +1738,10 @@ class ItemBuilder {
     return Center(
       child: Container(
         width: double.infinity,
-        color: background ?? Theme.of(context).cardColor.withAlpha(127),
+        color: background ?? Theme
+            .of(context)
+            .cardColor
+            .withAlpha(127),
         padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -1600,49 +1755,17 @@ class ItemBuilder {
             if (showText) const SizedBox(height: 10),
             if (showText)
               Text(text ?? S.current.loading,
-                  style: Theme.of(context).textTheme.labelLarge),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .labelLarge),
           ],
         ),
       ),
     );
   }
 
-  static CachedNetworkImage buildCachedImage({
-    required String imageUrl,
-    required BuildContext context,
-    BoxFit? fit,
-    bool showLoading = true,
-    double? width,
-    double? height,
-    Color? placeholderBackground,
-    double topPadding = 0,
-    double bottomPadding = 0,
-  }) {
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      fit: fit,
-      width: width,
-      height: height,
-      filterQuality: FilterQuality.high,
-      placeholder: showLoading
-          ? (context, url) => ItemBuilder.buildLoadingDialog(
-                context,
-                topPadding: topPadding,
-                bottomPadding: bottomPadding,
-                showText: false,
-                size: 40,
-                background: placeholderBackground,
-              )
-          : (context, url) => Container(
-                color: placeholderBackground ?? Theme.of(context).cardColor,
-                width: width,
-                height: height,
-              ),
-    );
-  }
-
-  static Widget buildRoundButton(
-    BuildContext context, {
+  static Widget buildRoundButton(BuildContext context, {
     String? text,
     Function()? onTap,
     Color? background,
@@ -1658,32 +1781,47 @@ class ItemBuilder {
     bool feedback = false,
     bool reversePosition = false,
   }) {
+    Color fBackground = background ?? Theme
+        .of(context)
+        .cardColor;
+    Color? textColor = color ??
+        (background != null
+            ? Colors.white
+            : disabled
+            ? Colors.grey
+            : Theme
+            .of(context)
+            .textTheme
+            .titleSmall
+            ?.color);
+    if (ColorUtil.areColorsSimilar(textColor!.value, fBackground.value)) {
+      textColor = ColorUtil.getComplementaryColor(fBackground);
+    }
     Widget titleWidget = AutoSizeText(
       text ?? "",
       textAlign: TextAlign.center,
       style: textStyle ??
-          Theme.of(context).textTheme.titleSmall?.apply(
-                color: color ??
-                    (background != null
-                        ? Colors.white
-                        : disabled
-                            ? Colors.grey
-                            : Theme.of(context).textTheme.titleSmall?.color),
-                fontWeightDelta: 2,
-                fontSizeDelta: fontSizeDelta,
-              ),
+          Theme
+              .of(context)
+              .textTheme
+              .titleSmall
+              ?.apply(
+            color: textColor,
+            fontWeightDelta: 2,
+            fontSizeDelta: fontSizeDelta,
+          ),
       maxLines: 1,
     );
-    Color fBackground = background ?? Theme.of(context).cardColor;
+
     return Material(
       color: fBackground.withAlpha(fBackground.alpha ~/ (disabled ? 1.5 : 1)),
       borderRadius: BorderRadius.circular(radius),
       child: InkWell(
         onTap: onTap != null && !disabled
             ? () {
-                onTap();
-                if (feedback) HapticFeedback.lightImpact();
-              }
+          onTap();
+          if (feedback) HapticFeedback.lightImpact();
+        }
             : null,
         enableFeedback: true,
         borderRadius: BorderRadius.circular(radius),
@@ -1720,8 +1858,7 @@ class ItemBuilder {
     );
   }
 
-  static Widget buildFramedButton(
-    BuildContext context, {
+  static Widget buildFramedButton(BuildContext context, {
     String? text,
     Function()? onTap,
     Color? outline,
@@ -1748,7 +1885,9 @@ class ItemBuilder {
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(
-                  color: outline ?? Theme.of(context).primaryColor, width: 1),
+                  color: outline ?? Theme
+                      .of(context)
+                      .primaryColor, width: 1),
               borderRadius: BorderRadius.circular(radius),
             ),
             child: Row(
@@ -1759,11 +1898,17 @@ class ItemBuilder {
                 Text(
                   text ?? "",
                   style: textStyle ??
-                      Theme.of(context).textTheme.titleSmall?.apply(
-                            color: color ?? Theme.of(context).primaryColor,
-                            fontWeightDelta: 2,
-                            fontSizeDelta: fontSizeDelta,
-                          ),
+                      Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.apply(
+                        color: color ?? Theme
+                            .of(context)
+                            .primaryColor,
+                        fontWeightDelta: 2,
+                        fontSizeDelta: fontSizeDelta,
+                      ),
                 ),
               ],
             ),
@@ -1783,7 +1928,9 @@ class ItemBuilder {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme
+            .of(context)
+            .cardColor,
         borderRadius: BorderRadius.circular(50),
       ),
       child: Row(
@@ -1806,16 +1953,29 @@ class ItemBuilder {
                           contextMenuContext, details,
                           context: context),
                   onSubmitted: onSubmitted,
-                  cursorColor: Theme.of(context).primaryColor,
+                  cursorColor: Theme
+                      .of(context)
+                      .primaryColor,
                   cursorRadius: const Radius.circular(5),
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleSmall,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.only(left: 8),
                     border:
-                        const OutlineInputBorder(borderSide: BorderSide.none),
+                    const OutlineInputBorder(borderSide: BorderSide.none),
                     hintText: hintText,
-                    hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                        color: Theme.of(context).textTheme.labelSmall?.color),
+                    hintStyle: Theme
+                        .of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.apply(
+                        color: Theme
+                            .of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.color),
                   ),
                 ),
               ),
@@ -1840,7 +2000,9 @@ class ItemBuilder {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: background ?? Theme.of(context).cardColor,
+        color: background ?? Theme
+            .of(context)
+            .cardColor,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Row(
@@ -1856,22 +2018,36 @@ class ItemBuilder {
                           contextMenuContext, details,
                           context: context),
                   controller: controller,
-                  cursorColor: Theme.of(context).primaryColor,
+                  cursorColor: Theme
+                      .of(context)
+                      .primaryColor,
                   cursorRadius: const Radius.circular(5),
                   textInputAction: TextInputAction.search,
                   onSubmitted: onSubmitted,
-                  style: Theme.of(context).textTheme.titleSmall?.apply(
-                        fontSizeDelta: hintFontSizeDelta,
-                      ),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.apply(
+                    fontSizeDelta: hintFontSizeDelta,
+                  ),
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.only(left: 8),
                     border:
-                        const OutlineInputBorder(borderSide: BorderSide.none),
+                    const OutlineInputBorder(borderSide: BorderSide.none),
                     hintText: hintText,
-                    hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                          color: Theme.of(context).textTheme.labelSmall?.color,
-                          fontSizeDelta: hintFontSizeDelta,
-                        ),
+                    hintStyle: Theme
+                        .of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.apply(
+                      color: Theme
+                          .of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.color,
+                      fontSizeDelta: hintFontSizeDelta,
+                    ),
                   ),
                 ),
               ),
@@ -1895,8 +2071,7 @@ class ItemBuilder {
     );
   }
 
-  static Widget buildTitle(
-    BuildContext context, {
+  static Widget buildTitle(BuildContext context, {
     String? title,
     IconData? icon,
     String? suffixText,
@@ -1921,7 +2096,8 @@ class ItemBuilder {
             child: Text(
               title ?? "",
               style: textStyle ??
-                  Theme.of(context)
+                  Theme
+                      .of(context)
                       .textTheme
                       .titleSmall
                       ?.apply(fontWeightDelta: 2, fontSizeDelta: 1),
@@ -1933,7 +2109,11 @@ class ItemBuilder {
               icon: Icon(
                 icon,
                 size: 18,
-                color: Theme.of(context).textTheme.labelSmall?.color,
+                color: Theme
+                    .of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.color,
               ),
               onTap: onTap,
             ),
@@ -1944,12 +2124,19 @@ class ItemBuilder {
                 children: [
                   Text(
                     suffixText!,
-                    style: Theme.of(context).textTheme.labelMedium,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .labelMedium,
                   ),
                   Icon(
                     Icons.keyboard_arrow_right_rounded,
                     size: 18,
-                    color: Theme.of(context).textTheme.labelSmall?.color,
+                    color: Theme
+                        .of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.color,
                   ),
                 ],
               ),
@@ -1959,8 +2146,7 @@ class ItemBuilder {
     );
   }
 
-  static buildDivider(
-    BuildContext context, {
+  static buildDivider(BuildContext context, {
     double vertical = 8,
     double horizontal = 16,
     double? width,
@@ -1970,13 +2156,14 @@ class ItemBuilder {
       height: width ?? 0.5,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).dividerColor,
+        color: Theme
+            .of(context)
+            .dividerColor,
       ),
     );
   }
 
-  static buildStatisticItem(
-    BuildContext context, {
+  static buildStatisticItem(BuildContext context, {
     Color? labelColor,
     Color? countColor,
     int labelFontWeightDelta = 0,
@@ -1988,7 +2175,7 @@ class ItemBuilder {
     Map countWithScale = Utils.formatCountToMap(count ?? 0);
     return MouseRegion(
       cursor:
-          onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -1997,42 +2184,55 @@ class ItemBuilder {
             children: [
               count != null
                   ? Row(
-                      children: [
-                        Text(
-                          countWithScale['count'],
-                          style: Theme.of(context).textTheme.titleLarge?.apply(
-                              color: countColor,
-                              fontWeightDelta: countFontWeightDelta),
-                        ),
-                        if (countWithScale.containsKey("scale"))
-                          const SizedBox(width: 2),
-                        if (countWithScale.containsKey("scale"))
-                          Text(
-                            countWithScale['scale'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.apply(
-                                    fontSizeDelta: -2,
-                                    color: countColor,
-                                    fontWeightDelta: countFontWeightDelta),
-                          ),
-                      ],
-                    )
-                  : Text(
-                      "-",
-                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                children: [
+                  Text(
+                    countWithScale['count'],
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.apply(
+                        color: countColor,
+                        fontWeightDelta: countFontWeightDelta),
+                  ),
+                  if (countWithScale.containsKey("scale"))
+                    const SizedBox(width: 2),
+                  if (countWithScale.containsKey("scale"))
+                    Text(
+                      countWithScale['scale'],
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.apply(
+                          fontSizeDelta: -2,
                           color: countColor,
                           fontWeightDelta: countFontWeightDelta),
                     ),
+                ],
+              )
+                  : Text(
+                "-",
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.apply(
+                    color: countColor,
+                    fontWeightDelta: countFontWeightDelta),
+              ),
               const SizedBox(height: 4),
               Text(
                 title,
-                style: Theme.of(context).textTheme.labelMedium?.apply(
-                      fontSizeDelta: -1,
-                      color: labelColor,
-                      fontWeightDelta: labelFontWeightDelta,
-                    ),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.apply(
+                  fontSizeDelta: -1,
+                  color: labelColor,
+                  fontWeightDelta: labelFontWeightDelta,
+                ),
               ),
             ],
           ),
@@ -2041,8 +2241,7 @@ class ItemBuilder {
     );
   }
 
-  static buildIconTextButton(
-    BuildContext context, {
+  static buildIconTextButton(BuildContext context, {
     Axis direction = Axis.horizontal,
     double spacing = 2,
     Widget? icon,
@@ -2061,53 +2260,60 @@ class ItemBuilder {
         onTap: onTap,
         child: direction == Axis.horizontal
             ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (icon != null && showIcon)
-                    RotatedBox(quarterTurns: quarterTurns, child: icon),
-                  if (icon != null && showIcon) SizedBox(width: spacing),
-                  Text(
-                    text,
-                    style: Theme.of(context).textTheme.titleSmall?.apply(
-                          fontSizeDelta: fontSizeDelta,
-                          color: color,
-                          fontWeightDelta: fontWeightDelta,
-                        ),
-                  ),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (icon != null && showIcon)
-                    RotatedBox(
-                        quarterTurns: quarterTurns,
-                        child: ItemBuilder.buildIconButton(
-                            context: context, icon: icon, onTap: onTap)),
-                  if (icon != null && showIcon) SizedBox(height: spacing),
-                  if (showText)
-                    Text(
-                      text,
-                      style: Theme.of(context).textTheme.titleSmall?.apply(
-                            fontSizeDelta: fontSizeDelta,
-                            color: color,
-                            fontWeightDelta: fontWeightDelta,
-                          ),
-                    ),
-                ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (icon != null && showIcon)
+              RotatedBox(quarterTurns: quarterTurns, child: icon),
+            if (icon != null && showIcon) SizedBox(width: spacing),
+            Text(
+              text,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.apply(
+                fontSizeDelta: fontSizeDelta,
+                color: color,
+                fontWeightDelta: fontWeightDelta,
               ),
+            ),
+          ],
+        )
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (icon != null && showIcon)
+              RotatedBox(
+                  quarterTurns: quarterTurns,
+                  child: ItemBuilder.buildIconButton(
+                      context: context, icon: icon, onTap: onTap)),
+            if (icon != null && showIcon) SizedBox(height: spacing),
+            if (showText)
+              Text(
+                text,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.apply(
+                  fontSizeDelta: fontSizeDelta,
+                  color: color,
+                  fontWeightDelta: fontWeightDelta,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  static Widget buildWrapTagList(
-    BuildContext context,
-    List<String> list, {
-    Function(String)? onTap,
-    EdgeInsets? margin,
-  }) {
+  static Widget buildWrapTagList(BuildContext context,
+      List<String> list, {
+        Function(String)? onTap,
+        EdgeInsets? margin,
+      }) {
     return Container(
       margin: margin ?? const EdgeInsets.only(left: 16, right: 16, bottom: 4),
       child: Wrap(
@@ -2121,11 +2327,10 @@ class ItemBuilder {
     );
   }
 
-  static Widget buildWrapTagItem(
-    BuildContext context,
-    String str, {
-    Function(String)? onTap,
-  }) {
+  static Widget buildWrapTagItem(BuildContext context,
+      String str, {
+        Function(String)? onTap,
+      }) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -2138,13 +2343,18 @@ class ItemBuilder {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(50),
             border: Border.all(
-              color: Theme.of(context).dividerColor,
+              color: Theme
+                  .of(context)
+                  .dividerColor,
               width: 0.5,
             ),
           ),
           child: Text(
             str,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleSmall,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -2153,22 +2363,29 @@ class ItemBuilder {
     );
   }
 
-  static Tab buildAnimatedTab(
-    BuildContext context, {
+  static Tab buildAnimatedTab(BuildContext context, {
     required bool selected,
     required String text,
     bool normalUserBold = false,
     bool sameFontSize = false,
     double fontSizeDelta = 0,
   }) {
-    TextStyle normalStyle = Theme.of(context).textTheme.titleLarge!.apply(
-          color: Colors.grey,
-          fontSizeDelta: fontSizeDelta - (sameFontSize ? 0 : 1),
-          fontWeightDelta: normalUserBold ? 0 : -2,
-        );
-    TextStyle selectedStyle = Theme.of(context).textTheme.titleLarge!.apply(
-          fontSizeDelta: fontSizeDelta + (sameFontSize ? 0 : 1),
-        );
+    TextStyle normalStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge!
+        .apply(
+      color: Colors.grey,
+      fontSizeDelta: fontSizeDelta - (sameFontSize ? 0 : 1),
+      fontWeightDelta: normalUserBold ? 0 : -2,
+    );
+    TextStyle selectedStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge!
+        .apply(
+      fontSizeDelta: fontSizeDelta + (sameFontSize ? 0 : 1),
+    );
     return Tab(
       child: AnimatedDefaultTextStyle(
         style: selected ? selectedStyle : normalStyle,
@@ -2220,21 +2437,32 @@ class ItemBuilder {
           return MyMobileTextSelectionToolbar.items(
             anchorAbove: details.contextMenuAnchors.primaryAnchor,
             anchorBelow: details.contextMenuAnchors.primaryAnchor,
-            backgroundColor: Theme.of(context).canvasColor,
-            dividerColor: Theme.of(context).dividerColor,
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
+            dividerColor: Theme
+                .of(context)
+                .dividerColor,
             items: items,
             itemBuilder: (MyContextMenuItem item) {
               return Text(
                 item.label ?? "",
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleMedium,
               );
             },
           );
         } else {
           return MyDesktopTextSelectionToolbar(
             anchor: details.contextMenuAnchors.primaryAnchor,
-            backgroundColor: Theme.of(context).canvasColor,
-            dividerColor: Theme.of(context).dividerColor,
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
+            dividerColor: Theme
+                .of(context)
+                .dividerColor,
             items: items,
           );
         }
@@ -2245,11 +2473,10 @@ class ItemBuilder {
     );
   }
 
-  static Widget editTextContextMenuBuilder(
-    contextMenuContext,
-    EditableTextState details, {
-    required BuildContext context,
-  }) {
+  static Widget editTextContextMenuBuilder(contextMenuContext,
+      EditableTextState details, {
+        required BuildContext context,
+      }) {
     Map<ContextMenuButtonType, String> typeToString = {
       ContextMenuButtonType.copy: S.current.copy,
       ContextMenuButtonType.cut: S.current.cut,
@@ -2289,35 +2516,45 @@ class ItemBuilder {
       return MyMobileTextSelectionToolbar.items(
         anchorAbove: details.contextMenuAnchors.primaryAnchor,
         anchorBelow: details.contextMenuAnchors.primaryAnchor,
-        backgroundColor: Theme.of(contextMenuContext).canvasColor,
-        dividerColor: Theme.of(contextMenuContext).dividerColor,
+        backgroundColor: Theme
+            .of(contextMenuContext)
+            .canvasColor,
+        dividerColor: Theme
+            .of(contextMenuContext)
+            .dividerColor,
         items: items,
         itemBuilder: (MyContextMenuItem item) {
           return Text(
             item.label ?? "",
-            style: Theme.of(contextMenuContext).textTheme.titleMedium,
+            style: Theme
+                .of(contextMenuContext)
+                .textTheme
+                .titleMedium,
           );
         },
       );
     } else {
       return MyDesktopTextSelectionToolbar(
         anchor: details.contextMenuAnchors.primaryAnchor,
-        backgroundColor: Theme.of(contextMenuContext).canvasColor,
-        dividerColor: Theme.of(contextMenuContext).dividerColor,
+        backgroundColor: Theme
+            .of(contextMenuContext)
+            .canvasColor,
+        dividerColor: Theme
+            .of(contextMenuContext)
+            .dividerColor,
         items: items,
       );
     }
   }
 
-  static buildHtmlWidget(
-    BuildContext context,
-    String content, {
-    TextStyle? textStyle,
-    bool enableImageDetail = true,
-    bool parseImage = true,
-    bool showLoading = true,
-    Function()? onDownloadSuccess,
-  }) {
+  static buildHtmlWidget(BuildContext context,
+      String content, {
+        TextStyle? textStyle,
+        bool enableImageDetail = true,
+        bool parseImage = true,
+        bool showLoading = true,
+        Function()? onDownloadSuccess,
+      }) {
     return ItemBuilder.buildSelectableArea(
       context: context,
       child: HtmlWidget(
@@ -2325,7 +2562,8 @@ class ItemBuilder {
         enableCaching: true,
         renderMode: RenderMode.column,
         textStyle: textStyle ??
-            Theme.of(context)
+            Theme
+                .of(context)
                 .textTheme
                 .bodyMedium
                 ?.apply(fontSizeDelta: 3, heightDelta: 0.3),
@@ -2336,7 +2574,11 @@ class ItemBuilder {
           if (e.attributes.containsKey('href')) {
             return {
               'color':
-                  '#${MyColors.getLinkColor(context).value.toRadixString(16).substring(2, 8)}',
+              '#${MyColors
+                  .getLinkColor(context)
+                  .value
+                  .toRadixString(16)
+                  .substring(2, 8)}',
               'font-weight': '700',
               'text-decoration-line': 'none',
             };
@@ -2354,24 +2596,23 @@ class ItemBuilder {
         },
         onLoadingBuilder: showLoading
             ? (context, _, __) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: ItemBuilder.buildLoadingDialog(
-                    context,
-                    text: S.current.loading,
-                    size: 40,
-                    bottomPadding: 30,
-                    topPadding: 30,
-                  ),
-                );
-              }
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: ItemBuilder.buildLoadingDialog(
+              context,
+              text: S.current.loading,
+              size: 40,
+              bottomPadding: 30,
+              topPadding: 30,
+            ),
+          );
+        }
             : null,
       ),
     );
   }
 
-  static buildClickItem(
-    Widget child, {
+  static buildClickItem(Widget child, {
     bool clickable = true,
   }) {
     return MouseRegion(
@@ -2380,8 +2621,7 @@ class ItemBuilder {
     );
   }
 
-  static buildWindowTitle(
-    BuildContext context, {
+  static buildWindowTitle(BuildContext context, {
     Color? backgroundColor,
     List<Widget> leftWidgets = const [],
     List<Widget> rightButtons = const [],
@@ -2392,7 +2632,9 @@ class ItemBuilder {
     bool forceClose = false,
   }) {
     return Container(
-      color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+      color: backgroundColor ?? Theme
+          .of(context)
+          .scaffoldBackgroundColor,
       child: WindowTitleBar(
         useMoveHandle: ResponsiveUtil.isDesktop(),
         titleBarHeightDelta: 30,
@@ -2404,10 +2646,14 @@ class ItemBuilder {
               const SizedBox(width: 12),
               Text(
                 S.current.appName,
-                style: Theme.of(context).textTheme.titleSmall?.apply(
-                      fontSizeDelta: 4,
-                      fontWeightDelta: 2,
-                    ),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.apply(
+                  fontSizeDelta: 4,
+                  fontWeightDelta: 2,
+                ),
               ),
             ],
             const Spacer(),
@@ -2431,15 +2677,15 @@ class ItemBuilder {
                 const SizedBox(width: 3),
                 isMaximized
                     ? RestoreWindowButton(
-                        colors: MyColors.getNormalButtonColors(context),
-                        borderRadius: BorderRadius.circular(8),
-                        onPressed: ResponsiveUtil.maximizeOrRestore,
-                      )
+                  colors: MyColors.getNormalButtonColors(context),
+                  borderRadius: BorderRadius.circular(8),
+                  onPressed: ResponsiveUtil.maximizeOrRestore,
+                )
                     : MaximizeWindowButton(
-                        colors: MyColors.getNormalButtonColors(context),
-                        borderRadius: BorderRadius.circular(8),
-                        onPressed: ResponsiveUtil.maximizeOrRestore,
-                      ),
+                  colors: MyColors.getNormalButtonColors(context),
+                  borderRadius: BorderRadius.circular(8),
+                  onPressed: ResponsiveUtil.maximizeOrRestore,
+                ),
                 const SizedBox(width: 3),
                 CloseWindowButton(
                   colors: MyColors.getCloseButtonColors(context),
@@ -2461,6 +2707,168 @@ class ItemBuilder {
             ),
             const SizedBox(width: 6),
           ],
+        ),
+      ),
+    );
+  }
+
+  static CachedNetworkImage buildCachedImage({
+    required String imageUrl,
+    required BuildContext context,
+    BoxFit? fit,
+    bool showLoading = true,
+    double? width,
+    double? height,
+    Color? placeholderBackground,
+    double topPadding = 0,
+    double bottomPadding = 0,
+  }) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: fit,
+      width: width,
+      height: height,
+      filterQuality: FilterQuality.high,
+      placeholder: showLoading
+          ? (context, url) =>
+          ItemBuilder.buildLoadingDialog(
+            context,
+            topPadding: topPadding,
+            bottomPadding: bottomPadding,
+            showText: false,
+            size: 40,
+            background: placeholderBackground,
+          )
+          : (context, url) =>
+          Container(
+            color: placeholderBackground ?? Theme
+                .of(context)
+                .cardColor,
+            width: width,
+            height: height,
+          ),
+    );
+  }
+
+  static buildAvatar({
+    required BuildContext context,
+    required String imageUrl,
+    double size = 32,
+    bool showLoading = false,
+    bool useDefaultAvatar = false,
+    bool showBorder = true,
+    bool showDetail = false,
+    String? title,
+    String? caption,
+    String? tagPrefix,
+    String? tagSuffix,
+    bool clickable = true,
+  }) {
+    String tagUrl = imageUrl;
+    return ItemBuilder.buildClickItem(
+      Container(
+        decoration: BoxDecoration(
+          border: showBorder
+              ? Border.all(
+            color: Theme
+                .of(context)
+                .dividerColor,
+            width: 0.5,
+          )
+              : const Border.fromBorderSide(BorderSide.none),
+          shape: BoxShape.circle,
+        ),
+        child: useDefaultAvatar || tagUrl.isEmpty
+            ? ClipOval(
+          child: Image.asset(
+            "assets/avatar.png",
+            width: size,
+            height: size,
+          ),
+        )
+            : ItemBuilder.buildClickItem(
+          GestureDetector(
+            onTap: showDetail
+                ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      HeroPhotoViewScreen(
+                        tagPrefix: tagPrefix,
+                        tagSuffix: tagSuffix,
+                        imageUrls: [tagUrl],
+                        useMainColor: false,
+                        title: title,
+                        captions: [caption ?? ""],
+                      ),
+                ),
+              );
+            }
+                : null,
+            child: ClipOval(
+              child: ItemBuilder.buildCachedImage(
+                context: context,
+                imageUrl: tagUrl,
+                width: size,
+                showLoading: showLoading,
+                height: size,
+              ),
+            ),
+          ),
+        ),
+      ),
+      clickable: clickable,
+    );
+  }
+
+  static buildHeroCachedImage({
+    required String imageUrl,
+    required BuildContext context,
+    BoxFit? fit = BoxFit.cover,
+    bool showLoading = true,
+    double? width,
+    double? height,
+    Color? placeholderBackground,
+    double topPadding = 0,
+    double bottomPadding = 0,
+    String? title,
+    String? caption,
+    String? tagPrefix,
+    String? tagSuffix,
+  }) {
+    return ItemBuilder.buildClickItem(
+      GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  HeroPhotoViewScreen(
+                    tagPrefix: tagPrefix,
+                    tagSuffix: tagSuffix,
+                    imageUrls: [imageUrl],
+                    useMainColor: false,
+                    title: title,
+                    captions: [caption ?? ""],
+                  ),
+            ),
+          );
+        },
+        child: Hero(
+          tag: Utils.getHeroTag(
+              tagSuffix: tagSuffix, tagPrefix: tagPrefix, url: imageUrl),
+          child: ItemBuilder.buildCachedImage(
+            context: context,
+            imageUrl: imageUrl,
+            width: width,
+            height: height,
+            showLoading: showLoading,
+            bottomPadding: bottomPadding,
+            topPadding: topPadding,
+            placeholderBackground: placeholderBackground,
+            fit: fit,
+          ),
         ),
       ),
     );

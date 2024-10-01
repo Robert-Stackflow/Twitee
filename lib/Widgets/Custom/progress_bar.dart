@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 class ProgressBar extends StatelessWidget {
   const ProgressBar({
     super.key,
-    this.color = Colors.red,
+    this.color = Colors.redAccent,
     this.backgroundColor = Colors.grey,
     this.enableAnimation = true,
     required this.progress,

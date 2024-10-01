@@ -78,6 +78,18 @@ class Utils {
     }
   }
 
+  static String processEmpty(String? str, {String defaultValue = ""}) {
+    return isEmpty(str) ? defaultValue : str!;
+  }
+
+  static String getHeroTag({
+    String? tagPrefix,
+    String? tagSuffix,
+    String? url,
+  }) {
+    return "${Utils.processEmpty(tagPrefix)}-${Utils.processEmpty(url)}-${Utils.processEmpty(tagSuffix)}";
+  }
+
   static Future<void> enableSafeMode() async {
     await ScreenProtector.preventScreenshotOn();
     await ScreenProtector.protectDataLeakageOn();
@@ -100,10 +112,6 @@ class Utils {
   static Brightness currentBrightness(BuildContext context) {
     return appProvider.getBrightness() ??
         MediaQuery.of(context).platformBrightness;
-  }
-
-  static String processEmpty(String? str, {String defaultValue = ""}) {
-    return isEmpty(str) ? defaultValue : str!;
   }
 
   static bool isEmpty(String? str) {
@@ -554,8 +562,8 @@ class Utils {
         }
       });
     } on PlatformException catch (e, t) {
-      ILogger.error("Twitee",
-          "Failed to local authenticate by PlatformException", e, t);
+      ILogger.error(
+          "Twitee", "Failed to local authenticate by PlatformException", e, t);
       if (e.code == auth_error.notAvailable) {
         IToast.showTop(S.current.biometricNotAvailable);
       } else if (e.code == auth_error.notEnrolled) {
@@ -772,7 +780,7 @@ class Utils {
       RouteUtil.pushDialogRoute(context, const AboutSettingScreen());
     } else if (menuItem.key == TrayKey.officialWebsite.key) {
       UriUtil.launchUrlUri(context, officialWebsite);
-    }  else if (menuItem.key == TrayKey.githubRepository.key) {
+    } else if (menuItem.key == TrayKey.githubRepository.key) {
       UriUtil.launchUrlUri(context, repoUrl);
     } else if (menuItem.key == TrayKey.checkUpdates.key) {
       Utils.getReleases(

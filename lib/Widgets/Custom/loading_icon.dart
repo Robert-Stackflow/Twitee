@@ -122,12 +122,12 @@ class LoadingIconState extends State<LoadingIcon>
               case LoadingStatus.failedAndLoading:
                 return const Icon(
                   Icons.error_outline_rounded,
-                  color: Colors.red,
+                  color: Colors.redAccent,
                 );
               case LoadingStatus.failed:
                 return const Icon(
                   Icons.error_outline_rounded,
-                  color: Colors.red,
+                  color: Colors.redAccent,
                 );
             }
           },

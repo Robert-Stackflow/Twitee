@@ -15,6 +15,7 @@
 
 import 'dart:async';
 
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:protocol_handler/protocol_handler.dart';
@@ -24,12 +25,15 @@ import 'package:twitee/Screens/Setting/about_setting_screen.dart';
 import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
 import 'package:twitee/Screens/home_screen.dart';
 import 'package:twitee/Utils/constant.dart';
+import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
 import 'package:twitee/Widgets/Window/window_caption.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../Api/user_api.dart';
 import '../Utils/app_provider.dart';
 import '../Utils/enums.dart';
 import '../Utils/hive_util.dart';
@@ -41,6 +45,7 @@ import '../Widgets/General/EasyRefresh/easy_refresh.dart';
 import '../Widgets/General/LottieCupertinoRefresh/lottie_cupertino_refresh.dart';
 import '../Widgets/Scaffold/my_scaffold.dart';
 import 'Lock/pin_verify_screen.dart';
+import 'Login/login_screen.dart';
 
 const borderColor = Color(0xFF805306);
 const backgroundStartColor = Color(0xFFFFD500);
@@ -53,6 +58,41 @@ class MainScreen extends StatefulWidget {
 
   @override
   State<MainScreen> createState() => MainScreenState();
+}
+
+enum SideBarChoice {
+  Home("home"),
+  Search("search"),
+  Bookmark("bookmark"),
+  Like("like"),
+  List("list"),
+  Mention("mention"),
+  Download("donwload");
+
+  final String key;
+
+  const SideBarChoice(this.key);
+
+  static fromString(String string) {
+    switch (string) {
+      case "home":
+        return SideBarChoice.Home;
+      case "search":
+        return SideBarChoice.Search;
+      case "bookmark":
+        return SideBarChoice.Bookmark;
+      case "like":
+        return SideBarChoice.Like;
+      case "list":
+        return SideBarChoice.List;
+      case "mention":
+        return SideBarChoice.Mention;
+      case "download":
+        return SideBarChoice.Download;
+      default:
+        return SideBarChoice.Home;
+    }
+  }
 }
 
 class MainScreenState extends State<MainScreen>
@@ -317,6 +357,30 @@ class MainScreenState extends State<MainScreen>
     }
   }
 
+  _buildAvatarContextMenuButtons() {
+    return GenericContextMenu(
+      buttonConfigs: [
+        ContextMenuButtonConfig(
+          "查看个人主页",
+          onPressed: () async {},
+        ),
+        ContextMenuButtonConfig.divider(),
+        ContextMenuButtonConfig.warning(
+          "退出登录",
+          onPressed: () async {
+            DialogBuilder.showConfirmDialog(
+              context,
+              message: "是否退出登录？",
+              onTapConfirm: () async {
+                await RequestUtil.clearCookie();
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   _sideBar({
     double leftPadding = 0,
     double rightPadding = 0,
@@ -331,8 +395,9 @@ class MainScreenState extends State<MainScreen>
       child: Stack(
         children: [
           if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-          Consumer<AppProvider>(
-            builder: (context, provider, child) => Column(
+          Selector<AppProvider, SideBarChoice>(
+            selector: (context, appProvider) => appProvider.sidebarChoice,
+            builder: (context, sidebarChoice, child) => Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -341,41 +406,103 @@ class MainScreenState extends State<MainScreen>
                 const SizedBox(height: 8),
                 ToolButton(
                   context: context,
-                  selected: true,
-                  icon: Icons.home_rounded,
-                  onPressed: () async {},
+                  selected: sidebarChoice == SideBarChoice.Home,
+                  icon: Icons.home_outlined,
+                  selectedIcon: Icons.home_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Home;
+                  },
+                  iconSize: 24,
                 ),
                 const SizedBox(height: 8),
                 ToolButton(
                   context: context,
+                  selected: sidebarChoice == SideBarChoice.Search,
                   icon: Icons.search_rounded,
-                  onPressed: () async {},
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Search;
+                  },
                 ),
+                // const SizedBox(height: 8),
+                // ToolButton(
+                //   context: context,
+                //   icon: Icons.timeline_outlined,
+                //   onPressed: () async {},
+                // ),
+                // const SizedBox(height: 8),
+                // ToolButton(
+                //   context: context,
+                //   icon: Icons.trending_up_rounded,
+                //   onPressed: () async {},
+                // ),
                 const SizedBox(height: 8),
                 ToolButton(
                   context: context,
-                  icon: Icons.timeline_outlined,
-                  onPressed: () async {},
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  icon: Icons.list_alt_rounded,
-                  onPressed: () async {},
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
+                  selected: sidebarChoice == SideBarChoice.Bookmark,
                   icon: Icons.bookmark_border_rounded,
-                  onPressed: () async {},
+                  selectedIcon: Icons.bookmark_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Bookmark;
+                  },
                 ),
                 const SizedBox(height: 8),
                 ToolButton(
                   context: context,
-                  icon: Icons.download_rounded,
-                  onPressed: () async {},
+                  selected: sidebarChoice == SideBarChoice.Like,
+                  icon: Icons.favorite_border_rounded,
+                  selectedIcon: Icons.favorite_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Like;
+                  },
+                ),
+                const SizedBox(height: 8),
+                ToolButton(
+                  context: context,
+                  selected: sidebarChoice == SideBarChoice.List,
+                  icon: Icons.featured_play_list_outlined,
+                  selectedIcon: Icons.featured_play_list_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.List;
+                  },
+                  iconSize: 20,
+                ),
+                const SizedBox(height: 8),
+                ToolButton(
+                  context: context,
+                  selected: sidebarChoice == SideBarChoice.Mention,
+                  icon: Icons.notifications_none_rounded,
+                  selectedIcon: Icons.notifications_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Mention;
+                  },
+                ),
+                const SizedBox(height: 8),
+                ToolButton(
+                  context: context,
+                  selected: sidebarChoice == SideBarChoice.Download,
+                  icon: Icons.save_alt_rounded,
+                  onPressed: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Download;
+                  },
                 ),
                 const Spacer(),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () async {
+                    String? csrfToken = await RequestUtil.getCsrfToken();
+                    if (Utils.isEmpty(csrfToken)) {
+                      RouteUtil.pushDialogRoute(
+                          context, const LoginByPasswordScreen());
+                    } else {
+                      context.contextMenuOverlay
+                          .show(_buildAvatarContextMenuButtons());
+                    }
+                  },
+                  child: ItemBuilder.buildAvatar(
+                    context: context,
+                    imageUrl: "",
+                  ),
+                ),
                 const SizedBox(height: 8),
                 ItemBuilder.buildDynamicToolButton(
                   context: context,

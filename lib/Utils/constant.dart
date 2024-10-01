@@ -37,6 +37,8 @@ const defaultWindowSize = Size(1120, 740);
 
 const minimumSize = Size(640, 640);
 
+const defaultFilenameFormat = "{original_name}";
+
 const double autoCopyNextCodeProgressThrehold = 0.25;
 const int defaultHOTPPeriod = 15;
 const String placeholderText = "*";

@@ -13,7 +13,6 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -25,6 +24,12 @@ class AssetUtil {
   static const String settingLightIcon = "assets/icon/setting_light.png";
   static const String pinDarkIcon = "assets/icon/pin_dark.png";
   static const String pinLightIcon = "assets/icon/pin_light.png";
+  static const String downloadWhiteIcon = "assets/icon/download_white.png";
+  static const String linkDarkIcon = "assets/icon/link_dark.png";
+  static const String linkGreyIcon = "assets/icon/link_grey.png";
+  static const String linkLightIcon = "assets/icon/link_light.png";
+  static const String linkPrimaryIcon = "assets/icon/link_primary.png";
+  static const String linkWhiteIcon = "assets/icon/link_white.png";
 
   static const String emptyIcon = "assets/icon/empty.png";
 

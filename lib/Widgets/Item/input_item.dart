@@ -225,12 +225,14 @@ class InputItemState extends State<InputItem> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leading != null) leading,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (leading != null) const SizedBox(width: 3),
+              if (leading != null) leading,
+              if (leading != null) const SizedBox(width: 12),
               Expanded(
                 child: Material(
                   color: Colors.transparent,
@@ -288,12 +290,12 @@ class InputItemState extends State<InputItem> {
                           borderSide: BorderSide(
                               color: textTheme.bodySmall!.color!, width: 0.5)),
                       prefixIcon: null,
-                      errorStyle: textTheme.bodySmall?.apply(color: Colors.red),
+                      errorStyle: textTheme.bodySmall?.apply(color: Colors.redAccent),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 1)),
+                          borderSide: BorderSide(color: Colors.redAccent, width: 1)),
                       errorMaxLines: 1,
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 2)),
+                          borderSide: BorderSide(color: Colors.redAccent, width: 2)),
                     ),
                     contextMenuBuilder: (contextMenuContext, details) =>
                         ItemBuilder.editTextContextMenuBuilder(

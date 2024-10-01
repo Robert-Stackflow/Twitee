@@ -1,5 +1,5 @@
 name: twitee
-version: 2.4.5+245
+version: 0.0.1+1
 description: An awesome two-factor authenticator which supports cloud storage and multiple platforms.
 publish_to: none
 
@@ -21,13 +21,16 @@ dependencies:
   path_drawing: ^1.0.1 # 路径绘制
   auto_size_text: ^3.0.0 # 自适应文本
   flutter_inappwebview: ^6.0.0 # Webview
+  flutter_widget_from_html: ^0.15.2 # 将HTML渲染成组件
+  cached_network_image: ^3.4.1 # 缓存网络图片
   flutter_slidable:
     path: third-party/flutter_slidable
-  flutter_widget_from_html: ^0.15.2 # 将HTML渲染成组件
   group_button:
     path: third-party/group_button
   context_menus:
     path: third-party/context_menus
+  pinput:
+    path: third-party/pinput
   # 存储
   path:
   path_provider: ^2.0.12
@@ -35,7 +38,7 @@ dependencies:
   hive: ^4.0.0-dev.2 # 轻量存储
   archive: ^3.6.1 # 压缩
   isar_flutter_libs: ^4.0.0-dev.13
-  sqflite_sqlcipher: ^3.1.0+1 # SQLite加密
+  image_gallery_saver: ^2.0.3 # 保存图片
   # 网络
   http: ^1.2.1
   dio: ^5.4.3+1 # 网络请求
@@ -57,7 +60,7 @@ dependencies:
   local_auth_android: ^1.0.42 # 指纹验证
   package_info_plus: ^8.0.0 # 应用信息
   device_info_plus: ^10.1.0 # 设备信息
-  share_plus: ^9.0.0 # 分享
+  share_plus: ^10.0.2 # 分享
   protocol_handler: ^0.2.0 # 协议处理
   url_launcher: ^6.3.0 # URL跳转
   biometric_storage:
@@ -153,6 +156,7 @@ flutter:
   assets:
     - assets/lottie/
     - assets/icon/
+    - assets/avatar.png
     - assets/logo.png
     - assets/logo.svg
     - assets/logo-transparent.svg
