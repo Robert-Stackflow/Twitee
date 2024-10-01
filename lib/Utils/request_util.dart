@@ -49,7 +49,11 @@ class RequestUtil {
 
   static Future<String?> getCookie(String key) async {
     return await cookieJar?.loadForRequest(Uri.parse(apiUrl)).then((value) {
-      return value.firstWhere((element) => element.name == key).value;
+      try {
+        return value.firstWhere((element) => element.name == key).value;
+      } catch (e) {
+        return null;
+      }
     });
   }
 
@@ -115,7 +119,7 @@ class RequestUtil {
   }
 
   static Future<void> clearCookie() async {
-    cookieJar?.deleteAll();
+    await cookieJar?.deleteAll();
   }
 
   static shareCookie() async {

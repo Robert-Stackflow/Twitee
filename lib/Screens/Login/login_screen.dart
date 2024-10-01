@@ -228,8 +228,10 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           background: Theme.of(context).scaffoldBackgroundColor,
         );
       case 0:
-        return ItemBuilder.buildRoundButton(context,
-            text: "重试", onTap: initLogin);
+        return Center(
+          child: ItemBuilder.buildRoundButton(context,
+              text: "重试", onTap: initLogin),
+        );
       case 1:
         return _buildMainBody();
     }
