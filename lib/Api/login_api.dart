@@ -16,8 +16,10 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Utils/request_util.dart';
 
+import '../Models/login_phase.dart';
 import '../Utils/ilogger.dart';
 
 class LoginApi {
@@ -209,16 +211,88 @@ class LoginApi {
       }
       final data = response.data as Map;
       if (data.containsKey("flow_token")) {
-        return ResponseResult.success(
-          message: "Checked username",
-          data: data["flow_token"],
-        );
+        for (var subtask in data["subtasks"]) {
+          if (subtask["subtask_id"] == LoginPhase.arkoseLogin.subTaskName) {
+            return ResponseResult.success(
+              message: "To check arkose",
+              flag: LoginPhase.arkoseLogin,
+              data: data["flow_token"],
+              data2: subtask["web_modal"]['url'],
+            );
+          } else if (subtask["subtask_id"] ==
+              LoginPhase.denyLoginSubtask.subTaskName) {
+            return ResponseResult.success(
+              message: "Deny login",
+              flag: LoginPhase.denyLoginSubtask,
+              data: data["flow_token"],
+            );
+          } else if (subtask["subtask_id"] ==
+              LoginPhase.checkAlternativeUsername.subTaskName) {
+            return ResponseResult.success(
+              message: "To Check alternative username",
+              flag: LoginPhase.checkAlternativeUsername,
+              data: data["flow_token"],
+            );
+          } else if (subtask["subtask_id"] ==
+              LoginPhase.checkPassword.subTaskName) {
+            return ResponseResult.success(
+              message: "To Check password",
+              flag: LoginPhase.checkPassword,
+              data: data["flow_token"],
+            );
+          }
+        }
       }
       return ResponseResult.error(message: "Failed to check username");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check username", e, t);
     }
     return ResponseResult.error(message: "Failed to check username");
+  }
+
+  static Future<ResponseResult> checkAlternativeUsername(
+      String guestToken, String flowToken, String account) async {
+    try {
+      ILogger.info("Twitee API", "Checking alternative username $account");
+      final response = await RequestUtil.post(
+        "/1.1/onboarding/task.json",
+        data: {
+          "flow_token": flowToken,
+          "subtask_inputs": [
+            {
+              "subtask_id": "LoginEnterAlternateIdentifierSubtask",
+              "enter_text": {"text": account, "link": "next_link"}
+            }
+          ]
+        },
+        options: Options(
+          headers: {
+            "x-guest-token": guestToken,
+          },
+        ),
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: response?.data["errors"][0]["message"] ??
+              "Failed to check alternative username",
+          code: response?.data["errors"][0]["code"] ?? 500,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data as Map;
+      if (data.containsKey("flow_token")) {
+        return ResponseResult.success(
+          message: "Checked alternative username",
+          data: data["flow_token"],
+        );
+      }
+      return ResponseResult.error(
+          message: "Failed to check alternative username");
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to check alternative username", e, t);
+    }
+    return ResponseResult.error(
+        message: "Failed to check alternative username");
   }
 
   static Future<ResponseResult> checkPassword(
@@ -252,10 +326,24 @@ class LoginApi {
       }
       final data = response.data as Map;
       if (data.containsKey("flow_token")) {
-        return ResponseResult.success(
-          message: "Checked password",
-          data: data["flow_token"],
-        );
+        for (var subtask in data["subtasks"]) {
+          if (subtask["subtask_id"] == LoginPhase.check2FA.subTaskName) {
+            return ResponseResult.success(
+                message: "To check 2FA",
+                flag: LoginPhase.check2FA,
+                data: data["flow_token"],
+                data2:
+                    UserInfo.fromJson(subtask['enter_text']['header']['user']));
+          } else if (subtask["subtask_id"] ==
+              LoginPhase.loginSuccess.subTaskName) {
+            return ResponseResult.success(
+                message: "Login success",
+                flag: LoginPhase.loginSuccess,
+                data: data["flow_token"],
+                data2:
+                    UserInfo.fromJson(subtask['enter_text']['header']['user']));
+          }
+        }
       }
       return ResponseResult.error(message: "Failed to check password");
     } catch (e, t) {
@@ -320,7 +408,7 @@ class LoginApi {
             "creator_subscriptions_tweet_preview_api_enabled": true,
             "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
                 false,
-            "responsive_web_graphql_timeline_navigation_enabled": true
+            "responsive_web_graphql_timeline_navigation_enabled": true,
           }),
           "fieldToggles": jsonEncode(
               {"isDelegate": false, "withAuxiliaryUserLabels": false}),

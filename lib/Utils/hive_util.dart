@@ -20,8 +20,10 @@ import 'package:hive/hive.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/enums.dart';
+import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/utils.dart';
 
+import '../Models/user_info.dart';
 import '../Resources/fonts.dart';
 import './ilogger.dart';
 import 'constant.dart';
@@ -34,9 +36,7 @@ class HiveUtil {
   static const String settingsBox = "settings";
 
   //Auth
-  static const String deviceIdKey = "deviceId";
-  static const String defaultDatabasePasswordKey = "defaultDatabasePassword";
-  static const String cookieKey = "cookieKey";
+  static const String userInfoKey = "userInfo";
 
   //General
   static const String localeKey = "locale";
@@ -52,6 +52,7 @@ class HiveUtil {
 
   static const String filenameFormatKey = "filenameFormat";
   static const String savePathKey = "savePath";
+  static const String proxyConfigKey = "proxyConfig";
 
   //Appearance
   static const String expandSidebarKey = "expandSidebar";
@@ -96,6 +97,32 @@ class HiveUtil {
   static initConfig() async {
     await HiveUtil.put(HiveUtil.inappWebviewKey, true);
     await HiveUtil.put(HiveUtil.enableSafeModeKey, defaultEnableSafeMode);
+  }
+
+  static setUserInfo(UserInfo info) async {
+    await put(HiveUtil.userInfoKey, jsonEncode(info.toJson()));
+  }
+
+  static UserInfo? getUserInfo() {
+    try {
+      return UserInfo.fromJson(
+          jsonDecode(HiveUtil.getString(HiveUtil.userInfoKey) ?? "{}"));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static setProxyConfig(ProxyConfig config) async {
+    await put(HiveUtil.proxyConfigKey, jsonEncode(config.toMap()));
+  }
+
+  static ProxyConfig? getProxyConfig() {
+    try {
+      return ProxyConfig.fromMap(
+          jsonDecode(HiveUtil.getString(HiveUtil.proxyConfigKey) ?? "{}"));
+    } catch (e) {
+      return null;
+    }
   }
 
   static AutoLockTime getAutoLockTime() {
@@ -305,21 +332,6 @@ class HiveUtil {
   static bool canGuestureLock() =>
       HiveUtil.getBool(HiveUtil.enableGuesturePasswdKey) &&
       Utils.isNotEmpty(HiveUtil.getString(HiveUtil.guesturePasswdKey));
-
-  static Map<String, String> getCookie() {
-    Map<String, String> map = {};
-    String str = getString(cookieKey) ?? "";
-    if (str.isNotEmpty) {
-      List<String> list = str.split("; ");
-      for (String item in list) {
-        int equalIndex = item.indexOf("=");
-        if (equalIndex != -1) {
-          map[item.substring(0, equalIndex)] = item.substring(equalIndex + 1);
-        }
-      }
-    }
-    return map;
-  }
 
   static dynamic get(
     String key, {

@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   hotkey_manager_linux
   isar_flutter_libs
   local_notifier
+  local_proxy
   screen_retriever
   tray_manager
   url_launcher_linux

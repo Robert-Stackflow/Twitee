@@ -21,12 +21,14 @@ import 'package:move_to_background/move_to_background.dart';
 import 'package:protocol_handler/protocol_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Setting/about_setting_screen.dart';
 import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
-import 'package:twitee/Screens/home_screen.dart';
+import 'package:twitee/Screens/panel_screen.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/user_util.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
@@ -109,10 +111,9 @@ class MainScreenState extends State<MainScreen>
   bool _isMaximized = false;
   bool _isStayOnTop = false;
   Orientation _oldOrientation = Orientation.portrait;
-  TextEditingController searchController = TextEditingController();
-  FocusNode searchFocusNode = FocusNode();
   bool expandSidebar =
       HiveUtil.getBool(HiveUtil.expandSidebarKey, defaultValue: false);
+  UserInfo? _userInfo = HiveUtil.getUserInfo();
 
   @override
   void onWindowMinimize() {
@@ -201,13 +202,13 @@ class MainScreenState extends State<MainScreen>
     );
   }
 
-  focusSearch() {
-    searchFocusNode.requestFocus();
-    // searchFocusNode.addListener(() {
-    //   if (!searchFocusNode.hasFocus) {
-    //     keyboardHandlerState?.focus();
-    //   }
-    // });
+  fetchUserInfo() async {
+    _userInfo = HiveUtil.getUserInfo();
+    if (_userInfo == null) {
+      return;
+    }
+    var res = await UserApi.getUserInfo(_userInfo!.screenName);
+    if (res.success) {}
   }
 
   @override
@@ -235,9 +236,7 @@ class MainScreenState extends State<MainScreen>
       }
     });
     initGlobalConfig();
-    searchController.addListener(() {
-      homeScreenState?.performSearch(searchController.text);
-    });
+    panelScreenState?.jumpToPage(appProvider.sidebarChoice.index);
   }
 
   initGlobalConfig() {
@@ -322,7 +321,7 @@ class MainScreenState extends State<MainScreen>
   }
 
   _buildMobileBody() {
-    return HomeScreen(key: homeScreenKey);
+    return PanelScreen(key: panelScreenKey);
   }
 
   _buildDesktopBody() {
@@ -330,11 +329,12 @@ class MainScreenState extends State<MainScreen>
       children: [
         _sideBar(leftPadding: 8, rightPadding: 8),
         Expanded(
-          child: Column(
+          child: Stack(
             children: [
-              _titleBar(),
-              Expanded(
-                child: _desktopMainContent(rightMargin: 5),
+              _desktopMainContent(rightMargin: 5),
+              Positioned(
+                right: 0,
+                child: _titleBar(),
               ),
             ],
           ),
@@ -372,7 +372,7 @@ class MainScreenState extends State<MainScreen>
               context,
               message: "是否退出登录？",
               onTapConfirm: () async {
-                await RequestUtil.clearCookie();
+                await UserUtil.logout();
               },
             );
           },
@@ -500,7 +500,7 @@ class MainScreenState extends State<MainScreen>
                   },
                   child: ItemBuilder.buildAvatar(
                     context: context,
-                    imageUrl: "",
+                    imageUrl: _userInfo?.profileImageUrlHttps ?? "",
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -578,6 +578,7 @@ class MainScreenState extends State<MainScreen>
     return (ResponsiveUtil.isDesktop())
         ? ItemBuilder.buildWindowTitle(
             context,
+            backgroundColor: Colors.transparent,
             isStayOnTop: _isStayOnTop,
             isMaximized: _isMaximized,
             onStayOnTopTap: () {
@@ -586,7 +587,6 @@ class MainScreenState extends State<MainScreen>
                 windowManager.setAlwaysOnTop(_isStayOnTop);
               });
             },
-            leftWidgets: [],
             rightButtons: [],
           )
         : emptyWidget;
@@ -606,7 +606,7 @@ class MainScreenState extends State<MainScreen>
         child: Navigator(
           key: desktopNavigatorKey,
           onGenerateRoute: (settings) {
-            return RouteUtil.getFadeRoute(HomeScreen(key: homeScreenKey));
+            return RouteUtil.getFadeRoute(PanelScreen(key: panelScreenKey));
           },
         ),
       ),

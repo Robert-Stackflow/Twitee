@@ -86,12 +86,6 @@ class KeyboardHandlerState extends State<KeyboardHandler> {
         return null;
       },
     ),
-    SearchIntent: CallbackAction(
-      onInvoke: (_) {
-        mainScreenState?.focusSearch();
-        return null;
-      },
-    ),
     ChangeDayNightModeIntent: CallbackAction(
       onInvoke: (_) {
         mainScreenState?.changeMode();

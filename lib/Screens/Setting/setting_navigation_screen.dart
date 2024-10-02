@@ -13,10 +13,11 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Setting/setting_appearance_screen.dart';
 import 'package:twitee/Screens/Setting/setting_general_screen.dart';
+import 'package:twitee/Screens/Setting/setting_network_screen.dart';
 import 'package:twitee/Screens/Setting/setting_safe_screen.dart';
-import 'package:flutter/material.dart';
 
 import '../../Utils/app_provider.dart';
 import '../../Utils/responsive_util.dart';
@@ -101,6 +102,19 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 onTap: () {
                   RouteUtil.pushCupertinoRoute(
                       context, const AppearanceSettingScreen());
+                },
+              ),
+              const SizedBox(height: 10),
+              ItemBuilder.buildEntryItem(
+                context: context,
+                title: "网络",
+                leading: Icons.network_check_rounded,
+                showLeading: true,
+                topRadius: true,
+                bottomRadius: true,
+                onTap: () {
+                  RouteUtil.pushCupertinoRoute(
+                      context, const NetworkSettingScreen());
                 },
               ),
               const SizedBox(height: 10),

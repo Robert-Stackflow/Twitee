@@ -18,12 +18,13 @@ import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Screens/Setting/setting_general_screen.dart';
 import 'package:twitee/Screens/main_screen.dart';
 import 'package:twitee/Utils/Tuple/tuple.dart';
+import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
 
 import '../Resources/fonts.dart';
-import '../Screens/home_screen.dart';
+import '../Screens/panel_screen.dart';
 import '../Widgets/Custom/keyboard_handler.dart';
 import '../generated/l10n.dart';
 import 'enums.dart';
@@ -49,18 +50,14 @@ GlobalKey<DialogWrapperWidgetState> dialogNavigatorKey =
 DialogWrapperWidgetState? get dialogNavigatorState =>
     dialogNavigatorKey.currentState;
 
-GlobalKey<MyScaffoldState> homeScaffoldKey = GlobalKey<MyScaffoldState>();
-
-MyScaffoldState? get homeScaffoldState => homeScaffoldKey.currentState;
-
-GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
+GlobalKey<PanelScreenState> panelScreenKey = GlobalKey<PanelScreenState>();
 
 GlobalKey<MainScreenState> mainScreenKey = GlobalKey<MainScreenState>();
 
 GlobalKey<KeyboardHandlerState> keyboardHandlerKey =
     GlobalKey<KeyboardHandlerState>();
 
-HomeScreenState? get homeScreenState => homeScreenKey.currentState;
+PanelScreenState? get panelScreenState => panelScreenKey.currentState;
 
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
 
@@ -143,6 +140,18 @@ class AppProvider with ChangeNotifier {
 
   bool shownShortcutHelp = false;
 
+  ProxyConfig _proxyConfig =
+      HiveUtil.getProxyConfig() ?? ProxyConfig(proxyType: ProxyType.NoProxy);
+
+  ProxyConfig get proxyConfig => _proxyConfig;
+
+  set proxyConfig(ProxyConfig value) {
+    _proxyConfig = value;
+    HiveUtil.setProxyConfig(value);
+    notifyListeners();
+    ProxyUtil.refresh();
+  }
+
   SideBarChoice _sidebarChoice = SideBarChoice.fromString(
       HiveUtil.getString(HiveUtil.sidebarChoiceKey) ?? "");
 
@@ -152,6 +161,7 @@ class AppProvider with ChangeNotifier {
     _sidebarChoice = value;
     HiveUtil.put(HiveUtil.sidebarChoiceKey, value.key);
     notifyListeners();
+    panelScreenState?.jumpToPage(_sidebarChoice.index);
   }
 
   bool _enableLandscapeInTablet =

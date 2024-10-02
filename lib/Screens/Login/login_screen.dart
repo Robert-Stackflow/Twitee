@@ -15,29 +15,26 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:twitee/Api/login_api.dart';
-import 'package:twitee/Api/user_api.dart';
+import 'package:twitee/Models/login_phase.dart';
+import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/constant.dart';
+import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/ilogger.dart';
-import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Utils/request_util.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Widgets/Dialog/custom_dialog.dart';
+import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 
+import '../../Utils/request_util.dart';
 import '../../Widgets/Item/input_item.dart';
 import '../../Widgets/Item/item_builder.dart';
 
-enum LoginPhase {
-  checkUsername(0, "LoginEnterUserIdentifierSSO"),
-  checkAlternativeUsername(2, "LoginEnterAlternateIdentifierSubtask"),
-  checkPassword(3, "LoginEnterPassword"),
-  resetPassword(4, "RedirectToPasswordReset"),
-  check2FA(5, "LoginTwoFactorAuthChallenge"),
-  checkAnother2FA(6, "LoginTwoFactorAuthChooseMethod"),
-  cannotAccess2FA(7, "login_security_key_not_supported_cta"),
-  loginSuccess(8, "LoginSuccessSubtask");
-
-  final int phaseIndex;
-  final String subTaskName;
-
-  const LoginPhase(this.phaseIndex, this.subTaskName);
+enum ConnectState {
+  haveNotConnected,
+  connecting,
+  successful,
+  failed,
 }
 
 class LoginByPasswordScreen extends StatefulWidget {
@@ -52,22 +49,37 @@ class LoginByPasswordScreen extends StatefulWidget {
 class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
     with TickerProviderStateMixin {
   PageController controller = PageController();
-  late InputValidateAsyncController _accountValidateAsyncController;
+  late InputValidateAsyncController _identifierValidateAsyncController;
+  late InputValidateAsyncController
+      _alternativeIdentifierValidateAsyncController;
   late InputValidateAsyncController _passwordValidateAsyncController;
-  late PinPutValidateAsyncController _pinValidateAsyncController;
-  final TextEditingController _pinController = TextEditingController();
+  late InputValidateAsyncController _backupCodeValidateAsyncController;
+  late PinPutValidateAsyncController _2FAValidateAsyncController;
   String _guestToken = "";
   String _flowToken = "";
-  int _inited = -1; // -1未初始化，0初始化失败，1初始化成功
+  ConnectState _inited = ConnectState.connecting;
+  ConnectState _connected = ConnectState.haveNotConnected;
   final FocusNode _pinFocusNode = FocusNode();
+  UserInfo? _userInfo;
+  String errorMessage = "";
 
   @override
   void initState() {
     super.initState();
-    _accountValidateAsyncController = InputValidateAsyncController(
+    _identifierValidateAsyncController = InputValidateAsyncController(
       validator: (text) async {
         if (text.isEmpty) {
           return "用户名不能为空";
+        }
+        return null;
+      },
+      controller: TextEditingController(),
+    );
+    _alternativeIdentifierValidateAsyncController =
+        InputValidateAsyncController(
+      validator: (text) async {
+        if (text.isEmpty) {
+          return "验证用户名不能为空";
         }
         return null;
       },
@@ -82,7 +94,16 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       },
       controller: TextEditingController(),
     );
-    _pinValidateAsyncController = PinPutValidateAsyncController(
+    _backupCodeValidateAsyncController = InputValidateAsyncController(
+      validator: (text) async {
+        if (text.isEmpty) {
+          return "备用码不能为空";
+        }
+        return null;
+      },
+      controller: TextEditingController(),
+    );
+    _2FAValidateAsyncController = PinPutValidateAsyncController(
       listen: false,
       validator: (text) async {
         if (text.isEmpty) {
@@ -90,73 +111,152 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         }
         return null;
       },
-      controller: _pinController,
+      controller: TextEditingController(),
     );
     initLogin();
   }
 
   Future<void> initLogin() async {
-    fail() {
+    fail(message) {
+      errorMessage = message;
       if (mounted) {
         setState(() {
-          _inited = 0;
+          _inited = ConnectState.failed;
         });
       }
     }
 
     setState(() {
-      _inited = -1;
+      _inited = ConnectState.connecting;
     });
 
     var res = await LoginApi.getGuestToken();
     if (!res.success) {
-      fail();
+      fail(res.message);
       return;
     }
     _guestToken = res.data;
     res = await LoginApi.initLogin(_guestToken);
     if (!res.success) {
-      fail();
+      fail(res.message);
       return;
     }
     _flowToken = res.data;
     res = await LoginApi.checkLoginType(_guestToken, _flowToken);
     if (!res.success) {
-      fail();
+      fail(res.message);
       return;
     }
     _flowToken = res.data;
     setState(() {
-      _inited = 1;
+      _inited = ConnectState.successful;
     });
     ILogger.info("Init Login", "Get flow_token: $_flowToken");
   }
 
   Future<void> _login() async {
+    success() async {
+      setState(() {
+        _connected = ConnectState.connecting;
+      });
+      controller.animateToPage(5,
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      await LoginApi.fetchCsrfToken(_guestToken);
+      await RequestUtil.shareCookie();
+      if (_userInfo != null) {
+        await HiveUtil.setUserInfo(_userInfo!);
+      }
+      setState(() {
+        _connected = ConnectState.successful;
+      });
+      if (ResponsiveUtil.isLandscape()) {
+        dialogNavigatorState?.popPage();
+        mainScreenState?.fetchUserInfo();
+      } else {
+        Navigator.pop(context);
+      }
+    }
+
+    bool needDismissDialog = true;
+
     switch (controller.page) {
       case 0:
-        String? error = await _accountValidateAsyncController.validate();
+        String? error = await _identifierValidateAsyncController.validate();
         if (error != null) return;
         CustomLoadingDialog.showLoading(title: "验证用户中...");
-        String account = _accountValidateAsyncController.controller.text;
+        String account = _identifierValidateAsyncController.controller.text;
         var res =
             await LoginApi.checkUsername(_guestToken, _flowToken, account);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _accountValidateAsyncController.setError("用户不存在");
+            _identifierValidateAsyncController.setError("用户不存在");
           } else {
-            _accountValidateAsyncController
+            _identifierValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
           }
         } else {
           _flowToken = res.data;
           ILogger.info("Check username", "Get flow_token: $_flowToken");
-          controller.animateToPage(1,
+          switch (res.flag as LoginPhase) {
+            case LoginPhase.arkoseLogin:
+              CustomLoadingDialog.dismissLoading();
+              needDismissDialog = false;
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "登录受限",
+                message: "请前往完成人机验证后再次尝试登录",
+                onTapConfirm: () {
+                  UriUtil.launchUrlUri(context, res.data2);
+                  Navigator.pop(context);
+                },
+              );
+              break;
+            case LoginPhase.checkAlternativeUsername:
+              controller.animateToPage(1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+              break;
+            case LoginPhase.checkPassword:
+              controller.animateToPage(2,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+              break;
+            case LoginPhase.denyLoginSubtask:
+              _identifierValidateAsyncController.setError("你的帐户被暂停登录，请稍后再试");
+              break;
+            default:
+              break;
+          }
+        }
+        break;
+      case 1:
+        String? error =
+            await _alternativeIdentifierValidateAsyncController.validate();
+        if (error != null) return;
+        CustomLoadingDialog.showLoading(title: "辅助验证用户名中...");
+        String account =
+            _alternativeIdentifierValidateAsyncController.controller.text;
+        var res = await LoginApi.checkAlternativeUsername(
+            _guestToken, _flowToken, account);
+        if (!res.success || res.data.isEmpty) {
+          if (res.code == 399) {
+            _alternativeIdentifierValidateAsyncController.setError("用户名验证失败");
+          } else {
+            _alternativeIdentifierValidateAsyncController
+                .setError("未知错误（code: ${res.code}, message:${res.message}）");
+          }
+        } else {
+          _flowToken = res.data;
+          ILogger.info(
+              "Check alternative username", "Get flow_token: $_flowToken");
+          controller.animateToPage(2,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut);
         }
         break;
-      case 1:
+      case 2:
+        String? error = await _passwordValidateAsyncController.validate();
+        if (error != null) return;
         CustomLoadingDialog.showLoading(title: "验证密码中...");
         String password = _passwordValidateAsyncController.controller.text;
         var res =
@@ -170,38 +270,47 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           }
         } else {
           _flowToken = res.data;
+          if (res.data2 is UserInfo) {
+            _userInfo = res.data2;
+          }
           ILogger.info("Check password", "Get flow_token: $_flowToken");
-          controller.animateToPage(2,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
+          switch (res.flag as LoginPhase) {
+            case LoginPhase.check2FA:
+              controller.animateToPage(3,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+              break;
+            case LoginPhase.loginSuccess:
+              success();
+              break;
+            default:
+              break;
+          }
         }
         break;
-      case 2:
-        bool valid = (await _pinValidateAsyncController.validate()) == null;
+      case 3:
+        print(_userInfo);
+        bool valid = (await _2FAValidateAsyncController.validate()) == null;
         if (!valid) return;
-        String pin = _pinController.text;
+        String pin = _2FAValidateAsyncController.controller.text;
         CustomLoadingDialog.showLoading(title: "验证一次性代码中...");
         var res = await LoginApi.check2FA(_guestToken, _flowToken, pin);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _pinValidateAsyncController.setError("一次性代码错误");
+            _2FAValidateAsyncController.setError("一次性代码错误");
           } else {
-            _pinValidateAsyncController
+            _2FAValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
           }
           _pinFocusNode.requestFocus();
         } else {
           _flowToken = res.data;
           ILogger.info("Check 2FA", "Get flow_token: $_flowToken");
-          await LoginApi.fetchCsrfToken(_guestToken);
-          await LoginApi.checkLoginResult(_flowToken);
-          await RequestUtil.shareCookie();
-          await UserApi.getUserInfo("Robert-Stackflow");
-          IToast.showTop("登录成功");
+          success();
         }
         break;
     }
-    CustomLoadingDialog.dismissLoading();
+    if (needDismissDialog) CustomLoadingDialog.dismissLoading();
   }
 
   @override
@@ -221,19 +330,35 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
 
   _buildBody() {
     switch (_inited) {
-      case -1:
+      case ConnectState.connecting:
         return ItemBuilder.buildLoadingDialog(
           context,
           text: "初始化中...",
           background: Theme.of(context).scaffoldBackgroundColor,
         );
-      case 0:
+      case ConnectState.failed:
         return Center(
-          child: ItemBuilder.buildRoundButton(context,
-              text: "重试", onTap: initLogin),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                errorMessage,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+              ItemBuilder.buildRoundButton(
+                context,
+                text: "重试",
+                onTap: initLogin,
+              ),
+              const SizedBox(height: 50),
+            ],
+          ),
         );
-      case 1:
+      case ConnectState.successful:
         return _buildMainBody();
+      default:
+        return emptyWidget;
     }
   }
 
@@ -244,104 +369,137 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         children: [
           const SizedBox(height: 50),
           SizedBox(
-            height: 100,
+            height: 180,
             child: PageView.builder(
               controller: controller,
-              itemCount: 3,
+              itemCount: LoginPhase.phases.length,
               itemBuilder: (context, index) {
                 switch (index) {
                   case 0:
-                    return ItemBuilder.buildContainerItem(
-                      context: context,
-                      topRadius: true,
-                      bottomRadius: true,
-                      child: InputItem(
-                        hint: "输入手机号、邮箱或用户名",
-                        backgroundColor: Colors.transparent,
-                        tailingType: InputItemTailingType.clear,
-                        leadingIcon: Icons.phone_android_rounded,
-                        leadingType: InputItemLeadingType.icon,
-                        keyboardType: TextInputType.text,
-                        inputFormatters: [
-                          RegexInputFormatter.onlyNumberAndLetterAndSymbol,
-                        ],
-                        textInputAction: TextInputAction.done,
-                        validateAsyncController:
-                            _accountValidateAsyncController,
+                    return _buildPhasePage(
+                      title: "开始登录",
+                      message: "请输入你的手机号码、邮箱地址或用户名",
+                      body: ItemBuilder.buildContainerItem(
+                        context: context,
+                        topRadius: true,
+                        bottomRadius: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: InputItem(
+                          hint: "输入手机号码、邮箱地址或用户名",
+                          backgroundColor: Colors.transparent,
+                          tailingType: InputItemTailingType.clear,
+                          leadingIcon: Icons.phone_android_rounded,
+                          leadingType: InputItemLeadingType.icon,
+                          keyboardType: TextInputType.text,
+                          inputFormatters: [
+                            RegexInputFormatter.onlyNumberAndLetterAndSymbol,
+                          ],
+                          textInputAction: TextInputAction.done,
+                          validateAsyncController:
+                              _identifierValidateAsyncController,
+                          onSubmit: (_) {
+                            _login();
+                          },
+                        ),
                       ),
                     );
                   case 1:
-                    return ItemBuilder.buildContainerItem(
-                      context: context,
-                      topRadius: true,
-                      bottomRadius: true,
-                      child: InputItem(
-                        hint: "输入密码",
-                        textInputAction: TextInputAction.done,
-                        tailingType: InputItemTailingType.password,
-                        leadingIcon: Icons.password_rounded,
-                        leadingType: InputItemLeadingType.icon,
-                        obscureText: true,
-                        keyboardType: TextInputType.visiblePassword,
-                        validateAsyncController:
-                            _passwordValidateAsyncController,
+                    return _buildPhasePage(
+                      title: "验证用户名",
+                      message: "输入与twitter账号关联的用户名来验证你的身份",
+                      body: ItemBuilder.buildContainerItem(
+                        context: context,
+                        topRadius: true,
+                        bottomRadius: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: InputItem(
+                          hint: "输入用户名，你的用户名以 @ 符号开头",
+                          textInputAction: TextInputAction.done,
+                          tailingType: InputItemTailingType.clear,
+                          leadingIcon: Icons.alternate_email_rounded,
+                          leadingType: InputItemLeadingType.icon,
+                          keyboardType: TextInputType.text,
+                          validateAsyncController:
+                              _alternativeIdentifierValidateAsyncController,
+                          onSubmit: (_) {
+                            _login();
+                          },
+                        ),
                       ),
                     );
                   case 2:
-                    final defaultPinTheme = PinTheme(
-                      width: 56,
-                      height: 56,
-                      textStyle: Theme.of(context).textTheme.titleLarge,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    );
-                    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-                      border: Border.all(
-                          color: Theme.of(context).primaryColor, width: 1),
-                    );
-                    final errorPinTheme = defaultPinTheme.copyDecorationWith(
-                      border: Border.all(color: Colors.redAccent, width: 1),
-                    );
-                    return Pinput(
-                      length: 6,
-                      autofocus: true,
-                      cursor: Container(
-                        width: 2,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(2),
+                    return _buildPhasePage(
+                      title: "输入你的密码",
+                      message:
+                          "请输入帐户${_identifierValidateAsyncController.controller.text}的密码",
+                      body: ItemBuilder.buildContainerItem(
+                        context: context,
+                        topRadius: true,
+                        bottomRadius: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: InputItem(
+                          hint: "输入密码",
+                          textInputAction: TextInputAction.done,
+                          tailingType: InputItemTailingType.password,
+                          leadingIcon: Icons.password_rounded,
+                          leadingType: InputItemLeadingType.icon,
+                          obscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          validateAsyncController:
+                              _passwordValidateAsyncController,
+                          onSubmit: (_) {
+                            _login();
+                          },
                         ),
                       ),
-                      errorPinTheme: errorPinTheme,
-                      defaultPinTheme: defaultPinTheme,
-                      focusedPinTheme: focusedPinTheme,
-                      controller: _pinController,
-                      validateAsyncController: _pinValidateAsyncController,
-                      textInputAction: TextInputAction.done,
-                      onCompleted: (String pin) {
-                        _login();
-                      },
-                      inputFormatters: [
-                        RegexInputFormatter.onlyNumber,
-                      ],
-                      focusNode: _pinFocusNode,
-                      contextMenuBuilder: (contextMenuContext, details) =>
-                          ItemBuilder.editTextContextMenuBuilder(
-                              contextMenuContext, details,
-                              context: context),
-                      errorBuilder: (error, pin) => Padding(
-                        padding:
-                            const EdgeInsetsDirectional.only(start: 4, top: 8),
-                        child: Text(
-                          error!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.apply(color: Colors.redAccent),
+                    );
+                  case 3:
+                    return _buildPhasePage(
+                      title: "输入你的验证码",
+                      message: "使用代码生成器应用生成一个代码并在下方输入",
+                      body: Container(
+                        alignment: Alignment.center,
+                        child: ItemBuilder.buildPinPut(
+                          context: context,
+                          pinValidateAsyncController:
+                              _2FAValidateAsyncController,
+                          pinController: _2FAValidateAsyncController.controller,
+                          onCompleted: (_) {
+                            _login();
+                          },
+                          pinFocusNode: _pinFocusNode,
                         ),
+                      ),
+                    );
+                  case 4:
+                    return _buildPhasePage(
+                      title: "输入你的备用码",
+                      message: "在下方输入你的备用码",
+                      body: InputItem(
+                        hint: "输入备用码",
+                        textInputAction: TextInputAction.done,
+                        tailingType: InputItemTailingType.clear,
+                        leadingIcon: Icons.backup_outlined,
+                        leadingType: InputItemLeadingType.icon,
+                        keyboardType: TextInputType.text,
+                        validateAsyncController:
+                            _backupCodeValidateAsyncController,
+                        onSubmit: (_) {
+                          _login();
+                        },
+                      ),
+                    );
+                  case 5:
+                    return _buildPhasePage(
+                      title: "登录成功",
+                      message: "正在准备连接至Twitee...",
+                      body: ItemBuilder.buildLoadingDialog(
+                        context,
+                        text: _connected == ConnectState.successful
+                            ? "连接成功"
+                            : "连接中...",
+                        background: Colors.transparent,
+                        bottomPadding: 0,
                       ),
                     );
                 }
@@ -350,18 +508,85 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             ),
           ),
           const SizedBox(height: 30),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 50),
-            child: ItemBuilder.buildRoundButton(
-              context,
-              text: "下一步",
-              background: Theme.of(context).primaryColor,
-              onTap: _login,
-              color: Colors.white,
-              fontSizeDelta: 2,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+          if (_connected == ConnectState.haveNotConnected)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 50),
+              child: ItemBuilder.buildRoundButton(
+                context,
+                text: "下一步",
+                background: Theme.of(context).primaryColor,
+                onTap: _login,
+                color: Colors.white,
+                fontSizeDelta: 2,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
             ),
+        ],
+      ),
+    );
+  }
+
+  _buildUserInfo() {
+    return Row(
+      children: [
+        ItemBuilder.buildAvatar(
+          context: context,
+          imageUrl: _userInfo!.profileImageUrlHttps,
+          size: 36,
+        ),
+        const SizedBox(width: 10),
+        Column(
+          children: [
+            Text(
+              _userInfo!.name,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(
+              "@${_userInfo!.screenName}",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  _buildPhasePage({
+    required String title,
+    required String message,
+    required Widget body,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    message,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.apply(fontSizeDelta: 2),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              if (_userInfo != null) _buildUserInfo(),
+              const SizedBox(height: 10),
+            ],
           ),
+          const SizedBox(height: 20),
+          Expanded(child: body),
         ],
       ),
     );

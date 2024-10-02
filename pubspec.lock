@@ -607,6 +607,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "8.2.8"
+  freezed:
+    dependency: "direct dev"
+    description:
+      name: freezed
+      sha256: "44c19278dd9d89292cf46e97dc0c1e52ce03275f40a97c5a348e802a924bf40e"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.5.7"
+  freezed_annotation:
+    dependency: "direct main"
+    description:
+      name: freezed_annotation
+      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.4.4"
   frontend_server_client:
     dependency: transitive
     description:
@@ -871,7 +887,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: json_annotation
       sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
@@ -998,6 +1014,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.6"
+  local_proxy:
+    dependency: "direct main"
+    description:
+      name: local_proxy
+      sha256: f17e637d0388d278eff905cf7c66331f0f8fc3218d23174452c5ec3ccf99f76b
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.3"
   logger:
     dependency: "direct main"
     description:
@@ -1325,6 +1349,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.0"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0"
   protocol_handler:
     dependency: "direct main"
     description:
@@ -1421,6 +1453,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.1"
+  retrofit:
+    dependency: "direct main"
+    description:
+      name: retrofit
+      sha256: "3c9885ef3dbc5dc4b3fb0a40c972ab52e4dad04d52dac9bba24dfa76cf100451"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.4.1"
+  retrofit_generator:
+    dependency: "direct dev"
+    description:
+      name: retrofit_generator
+      sha256: f20982392512587b1cce6cd34e3cf953a01a3fe8f82e4c34e10afe65e70c3556
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "9.1.2"
   rxdart:
     dependency: transitive
     description:
@@ -1601,6 +1649,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.0"
+  swagger_parser:
+    dependency: "direct dev"
+    description:
+      path: "third-party/swagger_parser/swagger_parser"
+      relative: true
+    source: path
+    version: "1.19.1"
   synchronized:
     dependency: transitive
     description:

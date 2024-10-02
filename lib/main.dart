@@ -35,6 +35,7 @@ import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/biometric_util.dart';
 import 'package:twitee/Utils/file_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
+import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:window_manager/window_manager.dart';
@@ -94,7 +95,8 @@ Future<void> initApp(WidgetsBinding widgetsBinding) async {
   NotificationUtil.init();
   await BiometricUtil.initStorage();
   await RequestUtil.init();
-  ResponsiveUtil.init();
+  await ResponsiveUtil.init();
+  await ProxyUtil.refresh();
   if (ResponsiveUtil.isAndroid()) {
     await initDisplayMode();
     SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(
@@ -232,15 +234,7 @@ class MyApp extends StatelessWidget {
                     builder: (context) => MediaQuery(
                       data: MediaQuery.of(context)
                           .copyWith(textScaler: TextScaler.noScaling),
-                      child: Listener(
-                        onPointerDown: (_) {
-                          if (!ResponsiveUtil.isDesktop() &&
-                              homeScreenState?.hasSearchFocus == true) {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                          }
-                        },
-                        child: widget,
-                      ),
+                      child: widget,
                     ),
                   ),
                 ],

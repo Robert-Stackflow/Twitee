@@ -31,10 +31,6 @@ class SettingIntent extends Intent {
   const SettingIntent();
 }
 
-class SearchIntent extends Intent {
-  const SearchIntent();
-}
-
 class KeyboardShortcutHelpIntent extends Intent {
   const KeyboardShortcutHelpIntent();
 }
@@ -75,13 +71,6 @@ final defaultTwiteeShortcuts = [
     ).singleActivator,
     intent: const SettingIntent(),
     labelProvider: (s) => s.setting,
-  ),
-  TwiteeShortcut.all(
-    key: HotKey(
-      key: LogicalKeyboardKey.slash,
-    ).singleActivator,
-    intent: const SearchIntent(),
-    labelProvider: (s) => s.appName,
   ),
   TwiteeShortcut.all(
     key: HotKey(

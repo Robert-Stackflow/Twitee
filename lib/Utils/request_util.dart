@@ -5,9 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:twitee/Utils/ilogger.dart';
+import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_header_util.dart';
 
-import 'hive_util.dart';
 import 'iprint.dart';
 
 enum DomainType { api, www }
@@ -44,6 +44,8 @@ class RequestUtil {
   static const String csrfCookieKey = "ct0";
 
   static init() async {
+    cookieJar = PersistCookieJar();
+    cookieManager = CookieManager(cookieJar!);
     await shareCookie();
   }
 
@@ -55,6 +57,15 @@ class RequestUtil {
         return null;
       }
     });
+  }
+
+  static Future<Map> getCookies() async {
+    List<Cookie>? cookies = await cookieJar?.loadForRequest(Uri.parse(apiUrl));
+    Map<String, String> cookieMap = {};
+    cookies?.forEach((cookie) {
+      cookieMap[cookie.name] = cookie.value;
+    });
+    return cookieMap;
   }
 
   static Future<String?> getCsrfToken() async {
@@ -97,11 +108,9 @@ class RequestUtil {
           return true;
         }
         ..findProxy = (uri) {
-          return 'PROXY localhost:57310';
+          return ProxyUtil.dioProxy;
         };
     };
-    cookieJar = PersistCookieJar();
-    cookieManager = CookieManager(cookieJar!);
     dio.interceptors.add(cookieManager!);
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -205,10 +214,6 @@ class RequestUtil {
     }
     list["Cookie"] =
         response.requestOptions.headers['cookie'] != null ? "有" : "无";
-    if (response.requestOptions.headers['cookie'] != null) {
-      HiveUtil.put(
-          HiveUtil.cookieKey, response.requestOptions.headers['cookie']);
-    }
     list["Content-Length"] = response.requestOptions.headers['Content-Length'];
     list["Content-Type"] = response.requestOptions.contentType;
     if (response.requestOptions.headers['authorization'] != null) {
@@ -220,27 +225,7 @@ class RequestUtil {
       list['Request Body'] = response.requestOptions.data;
     }
     if (response.data is Map<dynamic, dynamic>) {
-      // list['splitter'] = "";
-      if (response.data['code'] != null) {
-        list['Code'] = response.data['code'];
-      }
-      if (response.data['msg'] != null) {
-        list['Message'] = response.data['msg'];
-      }
-      if (response.data['meta'] != null &&
-          response.data['meta']['status'] != null) {
-        list['Status'] = response.data['meta']['status'];
-      }
-      if (response.data['meta'] != null &&
-          response.data['meta']['msg'] != null) {
-        list['Message'] = response.data['meta']['msg'];
-      }
-      // if (response.data['data'] != null) {
-      //   list['Data'] = response.data['data'];
-      // }
-      // if (response.data['response'] != null) {
-      //   list['Data'] = response.data['response'];
-      // }
+      list['Data'] = response.data;
     }
     IPrint.format(
       tag: response.requestOptions.method,

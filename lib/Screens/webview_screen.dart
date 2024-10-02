@@ -18,6 +18,7 @@ import 'dart:collection';
 import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _WebviewScreenState extends State<WebviewScreen>
     final expiresDate =
         DateTime.now().add(const Duration(days: 3)).millisecondsSinceEpoch;
     final url = WebUri(widget.url);
-    Map map = HiveUtil.getCookie();
+    Map map = await RequestUtil.getCookies();
     map.forEach((k, v) async {
       await cookieManager.setCookie(
         url: url,

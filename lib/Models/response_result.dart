@@ -4,18 +4,24 @@ class ResponseResult {
   String message;
   int statusCode;
   dynamic data;
+  dynamic data2;
+  dynamic flag;
 
   ResponseResult({
     required this.success,
     required this.message,
     required this.data,
+    required this.data2,
+    required this.flag,
     required this.code,
     required this.statusCode,
   });
 
   ResponseResult.success({
-    required this.message,
+    this.message = "Success",
     required this.data,
+    this.flag,
+    this.data2,
     this.code = 200,
     this.statusCode = 200,
   }) : success = true;
@@ -23,6 +29,8 @@ class ResponseResult {
   ResponseResult.error({
     required this.message,
     this.data,
+    this.flag,
+    this.data2,
     this.code = 500,
     this.statusCode = 500,
   }) : success = false;
