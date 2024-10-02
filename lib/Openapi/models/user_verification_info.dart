@@ -10,7 +10,7 @@ part 'user_verification_info.freezed.dart';
 part 'user_verification_info.g.dart';
 
 @Freezed()
-class UserVerificationInfo with _$UserVerificationInfo {
+ class UserVerificationInfo with _$UserVerificationInfo {
   const factory UserVerificationInfo({
     @JsonKey(name: 'is_identity_verified')
     required bool isIdentityVerified,

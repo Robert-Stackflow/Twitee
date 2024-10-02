@@ -10,7 +10,7 @@ part 'community_urls.freezed.dart';
 part 'community_urls.g.dart';
 
 @Freezed()
-class CommunityUrls with _$CommunityUrls {
+ class CommunityUrls with _$CommunityUrls {
   const factory CommunityUrls({
     required CommunityUrlsPermalink permalink,
   }) = _CommunityUrls;

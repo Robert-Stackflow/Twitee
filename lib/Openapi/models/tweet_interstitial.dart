@@ -13,7 +13,7 @@ part 'tweet_interstitial.freezed.dart';
 part 'tweet_interstitial.g.dart';
 
 @Freezed()
-class TweetInterstitial with _$TweetInterstitial {
+ class TweetInterstitial with _$TweetInterstitial {
   const factory TweetInterstitial({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

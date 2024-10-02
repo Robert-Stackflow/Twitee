@@ -8,7 +8,7 @@ part 'community_urls_permalink.freezed.dart';
 part 'community_urls_permalink.g.dart';
 
 @Freezed()
-class CommunityUrlsPermalink with _$CommunityUrlsPermalink {
+ class CommunityUrlsPermalink with _$CommunityUrlsPermalink {
   const factory CommunityUrlsPermalink({
     required String url,
   }) = _CommunityUrlsPermalink;

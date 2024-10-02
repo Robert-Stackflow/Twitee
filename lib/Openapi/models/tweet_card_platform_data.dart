@@ -10,7 +10,7 @@ part 'tweet_card_platform_data.freezed.dart';
 part 'tweet_card_platform_data.g.dart';
 
 @Freezed()
-class TweetCardPlatformData with _$TweetCardPlatformData {
+ class TweetCardPlatformData with _$TweetCardPlatformData {
   const factory TweetCardPlatformData({
     required TweetCardPlatform platform,
   }) = _TweetCardPlatformData;

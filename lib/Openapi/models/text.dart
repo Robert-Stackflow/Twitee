@@ -10,7 +10,7 @@ part 'text.freezed.dart';
 part 'text.g.dart';
 
 @Freezed()
-class Text with _$Text {
+ class Text with _$Text {
   const factory Text({
     required List<TextEntity> entities,
     required String text,

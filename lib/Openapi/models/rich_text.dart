@@ -8,7 +8,7 @@ part 'rich_text.freezed.dart';
 part 'rich_text.g.dart';
 
 @Freezed()
-class RichText with _$RichText {
+ class RichText with _$RichText {
   const factory RichText({
     required List<dynamic> entities,
     required String text,

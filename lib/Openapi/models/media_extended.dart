@@ -19,7 +19,7 @@ part 'media_extended.freezed.dart';
 part 'media_extended.g.dart';
 
 @Freezed()
-class MediaExtended with _$MediaExtended {
+ class MediaExtended with _$MediaExtended {
   const factory MediaExtended({
     @JsonKey(name: 'additional_media_info')
     required AdditionalMediaInfo additionalMediaInfo,

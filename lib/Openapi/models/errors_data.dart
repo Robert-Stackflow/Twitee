@@ -8,7 +8,7 @@ part 'errors_data.freezed.dart';
 part 'errors_data.g.dart';
 
 @Freezed()
-class ErrorsData with _$ErrorsData {
+ class ErrorsData with _$ErrorsData {
   const factory ErrorsData({
     required String user,
   }) = _ErrorsData;

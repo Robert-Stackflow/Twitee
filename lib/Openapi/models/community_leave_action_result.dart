@@ -11,7 +11,7 @@ part 'community_leave_action_result.freezed.dart';
 part 'community_leave_action_result.g.dart';
 
 @Freezed()
-class CommunityLeaveActionResult with _$CommunityLeaveActionResult {
+ class CommunityLeaveActionResult with _$CommunityLeaveActionResult {
   const factory CommunityLeaveActionResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

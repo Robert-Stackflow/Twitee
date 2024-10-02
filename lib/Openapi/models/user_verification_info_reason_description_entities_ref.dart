@@ -10,7 +10,7 @@ part 'user_verification_info_reason_description_entities_ref.freezed.dart';
 part 'user_verification_info_reason_description_entities_ref.g.dart';
 
 @Freezed()
-class UserVerificationInfoReasonDescriptionEntitiesRef with _$UserVerificationInfoReasonDescriptionEntitiesRef {
+ class UserVerificationInfoReasonDescriptionEntitiesRef with _$UserVerificationInfoReasonDescriptionEntitiesRef {
   const factory UserVerificationInfoReasonDescriptionEntitiesRef({
     required String url,
     @JsonKey(name: 'url_type')

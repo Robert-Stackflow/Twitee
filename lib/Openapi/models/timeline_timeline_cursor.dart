@@ -13,7 +13,7 @@ part 'timeline_timeline_cursor.freezed.dart';
 part 'timeline_timeline_cursor.g.dart';
 
 @Freezed()
-class TimelineTimelineCursor with _$TimelineTimelineCursor {
+ class TimelineTimelineCursor with _$TimelineTimelineCursor {
   const factory TimelineTimelineCursor({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -10,7 +10,7 @@ part 'create_retweet_response_data.freezed.dart';
 part 'create_retweet_response_data.g.dart';
 
 @Freezed()
-class CreateRetweetResponseData with _$CreateRetweetResponseData {
+ class CreateRetweetResponseData with _$CreateRetweetResponseData {
   const factory CreateRetweetResponseData({
     @JsonKey(name: 'create_retweet')
     required CreateRetweetResponseResult createRetweet,

@@ -10,7 +10,7 @@ part 'search_timeline_response.freezed.dart';
 part 'search_timeline_response.g.dart';
 
 @Freezed()
-class SearchTimelineResponse with _$SearchTimelineResponse {
+ class SearchTimelineResponse with _$SearchTimelineResponse {
   const factory SearchTimelineResponse({
     required SearchTimelineData data,
   }) = _SearchTimelineResponse;

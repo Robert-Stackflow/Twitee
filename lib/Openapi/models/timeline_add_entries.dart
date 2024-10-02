@@ -11,7 +11,7 @@ part 'timeline_add_entries.freezed.dart';
 part 'timeline_add_entries.g.dart';
 
 @Freezed()
-class TimelineAddEntries with _$TimelineAddEntries {
+ class TimelineAddEntries with _$TimelineAddEntries {
   const factory TimelineAddEntries({
     required List<TimelineAddEntry> entries,
     required InstructionType type,

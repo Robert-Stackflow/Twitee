@@ -10,7 +10,7 @@ part 'user_verification_info_reason_description_entities.freezed.dart';
 part 'user_verification_info_reason_description_entities.g.dart';
 
 @Freezed()
-class UserVerificationInfoReasonDescriptionEntities with _$UserVerificationInfoReasonDescriptionEntities {
+ class UserVerificationInfoReasonDescriptionEntities with _$UserVerificationInfoReasonDescriptionEntities {
   const factory UserVerificationInfoReasonDescriptionEntities({
     @JsonKey(name: 'from_index')
     required int fromIndex,

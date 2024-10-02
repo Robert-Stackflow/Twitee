@@ -8,7 +8,7 @@ part 'delete_bookmark_response_data.freezed.dart';
 part 'delete_bookmark_response_data.g.dart';
 
 @Freezed()
-class DeleteBookmarkResponseData with _$DeleteBookmarkResponseData {
+ class DeleteBookmarkResponseData with _$DeleteBookmarkResponseData {
   const factory DeleteBookmarkResponseData({
     @JsonKey(name: 'tweet_bookmark_delete')
     required String tweetBookmarkDelete,

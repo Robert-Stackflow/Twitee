@@ -10,7 +10,7 @@ part 'bookmarks_response_data.freezed.dart';
 part 'bookmarks_response_data.g.dart';
 
 @Freezed()
-class BookmarksResponseData with _$BookmarksResponseData {
+ class BookmarksResponseData with _$BookmarksResponseData {
   const factory BookmarksResponseData({
     @JsonKey(name: 'bookmark_timeline_v2')
     required BookmarksTimeline bookmarkTimelineV2,

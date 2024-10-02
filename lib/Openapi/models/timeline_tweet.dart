@@ -15,7 +15,7 @@ part 'timeline_tweet.freezed.dart';
 part 'timeline_tweet.g.dart';
 
 @Freezed()
-class TimelineTweet with _$TimelineTweet {
+ class TimelineTweet with _$TimelineTweet {
   const factory TimelineTweet({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -10,7 +10,7 @@ part 'tweet_card_platform_audience.freezed.dart';
 part 'tweet_card_platform_audience.g.dart';
 
 @Freezed()
-class TweetCardPlatformAudience with _$TweetCardPlatformAudience {
+ class TweetCardPlatformAudience with _$TweetCardPlatformAudience {
   const factory TweetCardPlatformAudience({
     required TweetCardPlatformAudienceName name,
   }) = _TweetCardPlatformAudience;

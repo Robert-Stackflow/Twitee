@@ -10,7 +10,7 @@ part 'favorite_tweet_response_data.freezed.dart';
 part 'favorite_tweet_response_data.g.dart';
 
 @Freezed()
-class FavoriteTweetResponseData with _$FavoriteTweetResponseData {
+ class FavoriteTweetResponseData with _$FavoriteTweetResponseData {
   const factory FavoriteTweetResponseData({
     required FavoriteTweet data,
   }) = _FavoriteTweetResponseData;

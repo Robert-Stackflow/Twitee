@@ -10,7 +10,7 @@ part 'user_highlights_tweets_user.freezed.dart';
 part 'user_highlights_tweets_user.g.dart';
 
 @Freezed()
-class UserHighlightsTweetsUser with _$UserHighlightsTweetsUser {
+ class UserHighlightsTweetsUser with _$UserHighlightsTweetsUser {
   const factory UserHighlightsTweetsUser({
     required UserHighlightsTweetsResult result,
   }) = _UserHighlightsTweetsUser;

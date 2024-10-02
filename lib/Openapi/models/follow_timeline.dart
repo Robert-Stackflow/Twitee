@@ -10,7 +10,7 @@ part 'follow_timeline.freezed.dart';
 part 'follow_timeline.g.dart';
 
 @Freezed()
-class FollowTimeline with _$FollowTimeline {
+ class FollowTimeline with _$FollowTimeline {
   const factory FollowTimeline({
     required Timeline timeline,
   }) = _FollowTimeline;

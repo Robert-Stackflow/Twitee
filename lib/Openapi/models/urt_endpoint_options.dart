@@ -10,7 +10,7 @@ part 'urt_endpoint_options.freezed.dart';
 part 'urt_endpoint_options.g.dart';
 
 @Freezed()
-class UrtEndpointOptions with _$UrtEndpointOptions {
+ class UrtEndpointOptions with _$UrtEndpointOptions {
   const factory UrtEndpointOptions({
     required List<UrtEndpointRequestParams> requestParams,
     required String title,

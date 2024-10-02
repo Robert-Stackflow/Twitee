@@ -11,7 +11,7 @@ part 'user_highlights_tweets_result.freezed.dart';
 part 'user_highlights_tweets_result.g.dart';
 
 @Freezed()
-class UserHighlightsTweetsResult with _$UserHighlightsTweetsResult {
+ class UserHighlightsTweetsResult with _$UserHighlightsTweetsResult {
   const factory UserHighlightsTweetsResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

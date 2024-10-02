@@ -10,7 +10,7 @@ part 'note_tweet_result_rich_text.freezed.dart';
 part 'note_tweet_result_rich_text.g.dart';
 
 @Freezed()
-class NoteTweetResultRichText with _$NoteTweetResultRichText {
+ class NoteTweetResultRichText with _$NoteTweetResultRichText {
   const factory NoteTweetResultRichText({
     @JsonKey(name: 'richtext_tags')
     required List<NoteTweetResultRichTextTag> richtextTags,

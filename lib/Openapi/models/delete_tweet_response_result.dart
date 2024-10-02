@@ -8,7 +8,7 @@ part 'delete_tweet_response_result.freezed.dart';
 part 'delete_tweet_response_result.g.dart';
 
 @Freezed()
-class DeleteTweetResponseResult with _$DeleteTweetResponseResult {
+ class DeleteTweetResponseResult with _$DeleteTweetResponseResult {
   const factory DeleteTweetResponseResult({
     @JsonKey(name: 'tweet_results')
     required dynamic tweetResults,

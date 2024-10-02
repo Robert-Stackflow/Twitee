@@ -8,7 +8,7 @@ part 'url.freezed.dart';
 part 'url.g.dart';
 
 @Freezed()
-class Url with _$Url {
+ class Url with _$Url {
   const factory Url({
     @JsonKey(name: 'display_url')
     required String displayUrl,

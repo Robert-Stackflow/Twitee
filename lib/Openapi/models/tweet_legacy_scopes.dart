@@ -8,7 +8,7 @@ part 'tweet_legacy_scopes.freezed.dart';
 part 'tweet_legacy_scopes.g.dart';
 
 @Freezed()
-class TweetLegacyScopes with _$TweetLegacyScopes {
+ class TweetLegacyScopes with _$TweetLegacyScopes {
   const factory TweetLegacyScopes({
     required bool followers,
   }) = _TweetLegacyScopes;

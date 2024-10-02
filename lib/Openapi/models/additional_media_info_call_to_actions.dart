@@ -10,7 +10,7 @@ part 'additional_media_info_call_to_actions.freezed.dart';
 part 'additional_media_info_call_to_actions.g.dart';
 
 @Freezed()
-class AdditionalMediaInfoCallToActions with _$AdditionalMediaInfoCallToActions {
+ class AdditionalMediaInfoCallToActions with _$AdditionalMediaInfoCallToActions {
   const factory AdditionalMediaInfoCallToActions({
     @JsonKey(name: 'visit_site')
     required AdditionalMediaInfoCallToActionsUrl visitSite,

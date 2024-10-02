@@ -10,7 +10,7 @@ part 'tweet_retweeters_response.freezed.dart';
 part 'tweet_retweeters_response.g.dart';
 
 @Freezed()
-class TweetRetweetersResponse with _$TweetRetweetersResponse {
+ class TweetRetweetersResponse with _$TweetRetweetersResponse {
   const factory TweetRetweetersResponse({
     required TweetRetweetersResponseData data,
   }) = _TweetRetweetersResponse;

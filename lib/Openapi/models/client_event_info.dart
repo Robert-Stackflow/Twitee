@@ -8,7 +8,7 @@ part 'client_event_info.freezed.dart';
 part 'client_event_info.g.dart';
 
 @Freezed()
-class ClientEventInfo with _$ClientEventInfo {
+ class ClientEventInfo with _$ClientEventInfo {
   const factory ClientEventInfo({
     required String component,
     required dynamic details,

@@ -8,7 +8,7 @@ part 'user_tip_jar_settings.freezed.dart';
 part 'user_tip_jar_settings.g.dart';
 
 @Freezed()
-class UserTipJarSettings with _$UserTipJarSettings {
+ class UserTipJarSettings with _$UserTipJarSettings {
   const factory UserTipJarSettings({
     @JsonKey(name: 'bandcamp_handle')
     required String bandcampHandle,

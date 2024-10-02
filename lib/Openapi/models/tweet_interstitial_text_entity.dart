@@ -10,7 +10,7 @@ part 'tweet_interstitial_text_entity.freezed.dart';
 part 'tweet_interstitial_text_entity.g.dart';
 
 @Freezed()
-class TweetInterstitialTextEntity with _$TweetInterstitialTextEntity {
+ class TweetInterstitialTextEntity with _$TweetInterstitialTextEntity {
   const factory TweetInterstitialTextEntity({
     required int fromIndex,
     required TweetInterstitialTextEntityRef ref,

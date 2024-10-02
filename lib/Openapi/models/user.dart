@@ -17,7 +17,7 @@ part 'user.freezed.dart';
 part 'user.g.dart';
 
 @Freezed()
-class User with _$User {
+ class User with _$User {
   const factory User({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

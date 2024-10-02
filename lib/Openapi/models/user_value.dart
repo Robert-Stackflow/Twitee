@@ -8,7 +8,7 @@ part 'user_value.freezed.dart';
 part 'user_value.g.dart';
 
 @Freezed()
-class UserValue with _$UserValue {
+ class UserValue with _$UserValue {
   const factory UserValue({
     @JsonKey(name: 'id_str')
     required String idStr,

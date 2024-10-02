@@ -8,7 +8,7 @@ part 'user_highlights_info.freezed.dart';
 part 'user_highlights_info.g.dart';
 
 @Freezed()
-class UserHighlightsInfo with _$UserHighlightsInfo {
+ class UserHighlightsInfo with _$UserHighlightsInfo {
   const factory UserHighlightsInfo({
     @JsonKey(name: 'can_highlight_tweets')
     required bool canHighlightTweets,

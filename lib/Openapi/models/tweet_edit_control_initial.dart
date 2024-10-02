@@ -8,7 +8,7 @@ part 'tweet_edit_control_initial.freezed.dart';
 part 'tweet_edit_control_initial.g.dart';
 
 @Freezed()
-class TweetEditControlInitial with _$TweetEditControlInitial {
+ class TweetEditControlInitial with _$TweetEditControlInitial {
   const factory TweetEditControlInitial({
     @JsonKey(name: 'edit_tweet_ids')
     required List<String> editTweetIds,

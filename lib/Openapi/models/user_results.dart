@@ -10,7 +10,7 @@ part 'user_results.freezed.dart';
 part 'user_results.g.dart';
 
 @Freezed()
-class UserResults with _$UserResults {
+ class UserResults with _$UserResults {
   const factory UserResults({
     required UserUnion result,
   }) = _UserResults;

@@ -10,7 +10,7 @@ part 'list_latest_tweets_timeline_response.freezed.dart';
 part 'list_latest_tweets_timeline_response.g.dart';
 
 @Freezed()
-class ListLatestTweetsTimelineResponse with _$ListLatestTweetsTimelineResponse {
+ class ListLatestTweetsTimelineResponse with _$ListLatestTweetsTimelineResponse {
   const factory ListLatestTweetsTimelineResponse({
     required ListTweetsTimelineData data,
   }) = _ListLatestTweetsTimelineResponse;

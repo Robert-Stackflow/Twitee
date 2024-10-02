@@ -10,7 +10,7 @@ part 'media_visibility_results.freezed.dart';
 part 'media_visibility_results.g.dart';
 
 @Freezed()
-class MediaVisibilityResults with _$MediaVisibilityResults {
+ class MediaVisibilityResults with _$MediaVisibilityResults {
   const factory MediaVisibilityResults({
     @JsonKey(name: 'blurred_image_interstitial')
     required MediaVisibilityResultsBlurredImageInterstitial blurredImageInterstitial,

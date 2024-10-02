@@ -10,7 +10,7 @@ part 'search_timeline.freezed.dart';
 part 'search_timeline.g.dart';
 
 @Freezed()
-class SearchTimeline with _$SearchTimeline {
+ class SearchTimeline with _$SearchTimeline {
   const factory SearchTimeline({
     required Timeline timeline,
   }) = _SearchTimeline;

@@ -10,7 +10,7 @@ part 'bookmarks_response.freezed.dart';
 part 'bookmarks_response.g.dart';
 
 @Freezed()
-class BookmarksResponse with _$BookmarksResponse {
+ class BookmarksResponse with _$BookmarksResponse {
   const factory BookmarksResponse({
     required BookmarksResponseData data,
   }) = _BookmarksResponse;

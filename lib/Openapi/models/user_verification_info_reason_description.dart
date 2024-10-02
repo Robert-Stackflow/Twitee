@@ -10,7 +10,7 @@ part 'user_verification_info_reason_description.freezed.dart';
 part 'user_verification_info_reason_description.g.dart';
 
 @Freezed()
-class UserVerificationInfoReasonDescription with _$UserVerificationInfoReasonDescription {
+ class UserVerificationInfoReasonDescription with _$UserVerificationInfoReasonDescription {
   const factory UserVerificationInfoReasonDescription({
     required List<UserVerificationInfoReasonDescriptionEntities> entities,
     required String text,

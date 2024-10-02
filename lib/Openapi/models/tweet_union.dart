@@ -7,8 +7,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'tweet_union.freezed.dart';
 part 'tweet_union.g.dart';
 
-@Freezed()
-class TweetUnion with _$TweetUnion {
+@Freezed(unionKey: "null", unionValueCase: FreezedUnionCase.pascal)
+abstract class TweetUnion with _$TweetUnion {
   const factory TweetUnion() = _TweetUnion;
   
   factory TweetUnion.fromJson(Map<String, Object?> json) => _$TweetUnionFromJson(json);

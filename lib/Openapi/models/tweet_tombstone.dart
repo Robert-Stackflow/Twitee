@@ -10,7 +10,7 @@ part 'tweet_tombstone.freezed.dart';
 part 'tweet_tombstone.g.dart';
 
 @Freezed()
-class TweetTombstone with _$TweetTombstone {
+ class TweetTombstone with _$TweetTombstone {
   const factory TweetTombstone({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

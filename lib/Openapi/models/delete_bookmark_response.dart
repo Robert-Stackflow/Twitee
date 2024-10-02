@@ -10,7 +10,7 @@ part 'delete_bookmark_response.freezed.dart';
 part 'delete_bookmark_response.g.dart';
 
 @Freezed()
-class DeleteBookmarkResponse with _$DeleteBookmarkResponse {
+ class DeleteBookmarkResponse with _$DeleteBookmarkResponse {
   const factory DeleteBookmarkResponse({
     required DeleteBookmarkResponseData data,
   }) = _DeleteBookmarkResponse;

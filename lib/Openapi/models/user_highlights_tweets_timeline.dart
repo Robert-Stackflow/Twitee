@@ -10,7 +10,7 @@ part 'user_highlights_tweets_timeline.freezed.dart';
 part 'user_highlights_tweets_timeline.g.dart';
 
 @Freezed()
-class UserHighlightsTweetsTimeline with _$UserHighlightsTweetsTimeline {
+ class UserHighlightsTweetsTimeline with _$UserHighlightsTweetsTimeline {
   const factory UserHighlightsTweetsTimeline({
     required Timeline timeline,
   }) = _UserHighlightsTweetsTimeline;

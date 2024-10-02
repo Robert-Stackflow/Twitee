@@ -10,7 +10,7 @@ part 'unfavorite_tweet_response_data.freezed.dart';
 part 'unfavorite_tweet_response_data.g.dart';
 
 @Freezed()
-class UnfavoriteTweetResponseData with _$UnfavoriteTweetResponseData {
+ class UnfavoriteTweetResponseData with _$UnfavoriteTweetResponseData {
   const factory UnfavoriteTweetResponseData({
     required UnfavoriteTweet data,
   }) = _UnfavoriteTweetResponseData;

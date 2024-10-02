@@ -10,7 +10,7 @@ part 'community_pin_action_result.freezed.dart';
 part 'community_pin_action_result.g.dart';
 
 @Freezed()
-class CommunityPinActionResult with _$CommunityPinActionResult {
+ class CommunityPinActionResult with _$CommunityPinActionResult {
   const factory CommunityPinActionResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

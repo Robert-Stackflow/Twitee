@@ -10,7 +10,7 @@ part 'tweet_interstitial_reveal_text.freezed.dart';
 part 'tweet_interstitial_reveal_text.g.dart';
 
 @Freezed()
-class TweetInterstitialRevealText with _$TweetInterstitialRevealText {
+ class TweetInterstitialRevealText with _$TweetInterstitialRevealText {
   const factory TweetInterstitialRevealText({
     required List<TweetInterstitialTextEntity> entities,
     required bool rtl,

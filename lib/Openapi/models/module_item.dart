@@ -10,7 +10,7 @@ part 'module_item.freezed.dart';
 part 'module_item.g.dart';
 
 @Freezed()
-class ModuleItem with _$ModuleItem {
+ class ModuleItem with _$ModuleItem {
   const factory ModuleItem({
     required String entryId,
     required ModuleEntry item,

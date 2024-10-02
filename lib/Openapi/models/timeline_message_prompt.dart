@@ -10,7 +10,7 @@ part 'timeline_message_prompt.freezed.dart';
 part 'timeline_message_prompt.g.dart';
 
 @Freezed()
-class TimelineMessagePrompt with _$TimelineMessagePrompt {
+ class TimelineMessagePrompt with _$TimelineMessagePrompt {
   const factory TimelineMessagePrompt({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

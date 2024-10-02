@@ -10,7 +10,7 @@ part 'tweet_favoriters_response_data.freezed.dart';
 part 'tweet_favoriters_response_data.g.dart';
 
 @Freezed()
-class TweetFavoritersResponseData with _$TweetFavoritersResponseData {
+ class TweetFavoritersResponseData with _$TweetFavoritersResponseData {
   const factory TweetFavoritersResponseData({
     @JsonKey(name: 'favoriters_timeline')
     required TimelineV favoritersTimeline,

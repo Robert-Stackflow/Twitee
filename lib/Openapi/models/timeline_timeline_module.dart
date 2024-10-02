@@ -14,7 +14,7 @@ part 'timeline_timeline_module.freezed.dart';
 part 'timeline_timeline_module.g.dart';
 
 @Freezed()
-class TimelineTimelineModule with _$TimelineTimelineModule {
+ class TimelineTimelineModule with _$TimelineTimelineModule {
   const factory TimelineTimelineModule({
     @JsonKey(name: '__typename')
     required String privateTypename,

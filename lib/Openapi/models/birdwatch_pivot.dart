@@ -15,7 +15,7 @@ part 'birdwatch_pivot.freezed.dart';
 part 'birdwatch_pivot.g.dart';
 
 @Freezed()
-class BirdwatchPivot with _$BirdwatchPivot {
+ class BirdwatchPivot with _$BirdwatchPivot {
   const factory BirdwatchPivot({
     required BirdwatchPivotCallToAction callToAction,
     required String destinationUrl,

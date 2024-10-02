@@ -10,7 +10,7 @@ part 'article_cover_media_color_info.freezed.dart';
 part 'article_cover_media_color_info.g.dart';
 
 @Freezed()
-class ArticleCoverMediaColorInfo with _$ArticleCoverMediaColorInfo {
+ class ArticleCoverMediaColorInfo with _$ArticleCoverMediaColorInfo {
   const factory ArticleCoverMediaColorInfo({
     required List<ArticleCoverMediaColorInfoPalette> palette,
   }) = _ArticleCoverMediaColorInfo;

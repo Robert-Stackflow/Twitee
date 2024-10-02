@@ -10,7 +10,7 @@ part 'timeline_response.freezed.dart';
 part 'timeline_response.g.dart';
 
 @Freezed()
-class TimelineResponse with _$TimelineResponse {
+ class TimelineResponse with _$TimelineResponse {
   const factory TimelineResponse({
     required HomeTimelineResponseData data,
   }) = _TimelineResponse;

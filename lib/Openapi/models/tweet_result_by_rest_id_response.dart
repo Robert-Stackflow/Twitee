@@ -10,7 +10,7 @@ part 'tweet_result_by_rest_id_response.freezed.dart';
 part 'tweet_result_by_rest_id_response.g.dart';
 
 @Freezed()
-class TweetResultByRestIdResponse with _$TweetResultByRestIdResponse {
+ class TweetResultByRestIdResponse with _$TweetResultByRestIdResponse {
   const factory TweetResultByRestIdResponse({
     required TweetResultByRestIdData data,
   }) = _TweetResultByRestIdResponse;

@@ -10,7 +10,7 @@ part 'article.freezed.dart';
 part 'article.g.dart';
 
 @Freezed()
-class Article with _$Article {
+ class Article with _$Article {
   const factory Article({
     @JsonKey(name: 'article_results')
     required ArticleResults articleResults,

@@ -8,7 +8,7 @@ part 'birdwatch_pivot_note.freezed.dart';
 part 'birdwatch_pivot_note.g.dart';
 
 @Freezed()
-class BirdwatchPivotNote with _$BirdwatchPivotNote {
+ class BirdwatchPivotNote with _$BirdwatchPivotNote {
   const factory BirdwatchPivotNote({
     @JsonKey(name: 'rest_id')
     required String restId,

@@ -12,7 +12,7 @@ part 'tweet_card_legacy.freezed.dart';
 part 'tweet_card_legacy.g.dart';
 
 @Freezed()
-class TweetCardLegacy with _$TweetCardLegacy {
+ class TweetCardLegacy with _$TweetCardLegacy {
   const factory TweetCardLegacy({
     @JsonKey(name: 'binding_values')
     required List<TweetCardLegacyBindingValue> bindingValues,

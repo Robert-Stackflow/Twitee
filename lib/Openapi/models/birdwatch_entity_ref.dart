@@ -11,7 +11,7 @@ part 'birdwatch_entity_ref.freezed.dart';
 part 'birdwatch_entity_ref.g.dart';
 
 @Freezed()
-class BirdwatchEntityRef with _$BirdwatchEntityRef {
+ class BirdwatchEntityRef with _$BirdwatchEntityRef {
   const factory BirdwatchEntityRef({
     required String text,
     required BirdwatchEntityRefType type,

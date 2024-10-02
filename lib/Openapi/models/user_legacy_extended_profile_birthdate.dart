@@ -11,7 +11,7 @@ part 'user_legacy_extended_profile_birthdate.freezed.dart';
 part 'user_legacy_extended_profile_birthdate.g.dart';
 
 @Freezed()
-class UserLegacyExtendedProfileBirthdate with _$UserLegacyExtendedProfileBirthdate {
+ class UserLegacyExtendedProfileBirthdate with _$UserLegacyExtendedProfileBirthdate {
   const factory UserLegacyExtendedProfileBirthdate({
     required int day,
     required int month,

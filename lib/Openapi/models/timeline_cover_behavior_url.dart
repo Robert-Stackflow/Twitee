@@ -10,7 +10,7 @@ part 'timeline_cover_behavior_url.freezed.dart';
 part 'timeline_cover_behavior_url.g.dart';
 
 @Freezed()
-class TimelineCoverBehaviorUrl with _$TimelineCoverBehaviorUrl {
+ class TimelineCoverBehaviorUrl with _$TimelineCoverBehaviorUrl {
   const factory TimelineCoverBehaviorUrl({
     required String url,
     @JsonKey(name: 'url_type')

@@ -10,7 +10,7 @@ part 'birdwatch_entity.freezed.dart';
 part 'birdwatch_entity.g.dart';
 
 @Freezed()
-class BirdwatchEntity with _$BirdwatchEntity {
+ class BirdwatchEntity with _$BirdwatchEntity {
   const factory BirdwatchEntity({
     required int fromIndex,
     required BirdwatchEntityRef ref,

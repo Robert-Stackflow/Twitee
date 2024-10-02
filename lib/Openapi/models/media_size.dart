@@ -10,7 +10,7 @@ part 'media_size.freezed.dart';
 part 'media_size.g.dart';
 
 @Freezed()
-class MediaSize with _$MediaSize {
+ class MediaSize with _$MediaSize {
   const factory MediaSize({
     required int h,
     required MediaSizeResize resize,

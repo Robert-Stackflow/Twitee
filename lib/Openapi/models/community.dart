@@ -10,7 +10,7 @@ part 'community.freezed.dart';
 part 'community.g.dart';
 
 @Freezed()
-class Community with _$Community {
+ class Community with _$Community {
   const factory Community({
     required CommunityData result,
   }) = _Community;

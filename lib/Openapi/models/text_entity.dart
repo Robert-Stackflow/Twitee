@@ -10,7 +10,7 @@ part 'text_entity.freezed.dart';
 part 'text_entity.g.dart';
 
 @Freezed()
-class TextEntity with _$TextEntity {
+ class TextEntity with _$TextEntity {
   const factory TextEntity({
     required int fromIndex,
     required TextEntityRef ref,

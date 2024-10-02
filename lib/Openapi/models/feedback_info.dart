@@ -8,7 +8,7 @@ part 'feedback_info.freezed.dart';
 part 'feedback_info.g.dart';
 
 @Freezed()
-class FeedbackInfo with _$FeedbackInfo {
+ class FeedbackInfo with _$FeedbackInfo {
   const factory FeedbackInfo({
     required List<String> feedbackKeys,
   }) = _FeedbackInfo;

@@ -8,7 +8,7 @@ part 'article_cover_media_color_info_palette_rgb.freezed.dart';
 part 'article_cover_media_color_info_palette_rgb.g.dart';
 
 @Freezed()
-class ArticleCoverMediaColorInfoPaletteRgb with _$ArticleCoverMediaColorInfoPaletteRgb {
+ class ArticleCoverMediaColorInfoPaletteRgb with _$ArticleCoverMediaColorInfoPaletteRgb {
   const factory ArticleCoverMediaColorInfoPaletteRgb({
     required int blue,
     required int green,

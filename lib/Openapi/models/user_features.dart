@@ -8,7 +8,7 @@ part 'user_features.freezed.dart';
 part 'user_features.g.dart';
 
 @Freezed()
-class UserFeatures with _$UserFeatures {
+ class UserFeatures with _$UserFeatures {
   const factory UserFeatures({
     @JsonKey(name: 'mediatool_studio_library')
     required bool mediatoolStudioLibrary,

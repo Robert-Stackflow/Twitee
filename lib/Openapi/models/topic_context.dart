@@ -8,7 +8,7 @@ part 'topic_context.freezed.dart';
 part 'topic_context.g.dart';
 
 @Freezed()
-class TopicContext with _$TopicContext {
+ class TopicContext with _$TopicContext {
   const factory TopicContext({
     required String description,
     required bool following,

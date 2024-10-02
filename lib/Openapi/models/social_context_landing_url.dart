@@ -11,7 +11,7 @@ part 'social_context_landing_url.freezed.dart';
 part 'social_context_landing_url.g.dart';
 
 @Freezed()
-class SocialContextLandingUrl with _$SocialContextLandingUrl {
+ class SocialContextLandingUrl with _$SocialContextLandingUrl {
   const factory SocialContextLandingUrl({
     required String url,
     required SocialContextLandingUrlUrlType urlType,

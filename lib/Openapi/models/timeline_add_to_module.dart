@@ -11,7 +11,7 @@ part 'timeline_add_to_module.freezed.dart';
 part 'timeline_add_to_module.g.dart';
 
 @Freezed()
-class TimelineAddToModule with _$TimelineAddToModule {
+ class TimelineAddToModule with _$TimelineAddToModule {
   const factory TimelineAddToModule({
     required String moduleEntryId,
     required List<ModuleItem> moduleItems,

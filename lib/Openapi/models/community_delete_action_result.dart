@@ -11,7 +11,7 @@ part 'community_delete_action_result.freezed.dart';
 part 'community_delete_action_result.g.dart';
 
 @Freezed()
-class CommunityDeleteActionResult with _$CommunityDeleteActionResult {
+ class CommunityDeleteActionResult with _$CommunityDeleteActionResult {
   const factory CommunityDeleteActionResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

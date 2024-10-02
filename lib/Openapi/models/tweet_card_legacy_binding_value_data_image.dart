@@ -8,7 +8,7 @@ part 'tweet_card_legacy_binding_value_data_image.freezed.dart';
 part 'tweet_card_legacy_binding_value_data_image.g.dart';
 
 @Freezed()
-class TweetCardLegacyBindingValueDataImage with _$TweetCardLegacyBindingValueDataImage {
+ class TweetCardLegacyBindingValueDataImage with _$TweetCardLegacyBindingValueDataImage {
   const factory TweetCardLegacyBindingValueDataImage({
     required String alt,
     required int height,

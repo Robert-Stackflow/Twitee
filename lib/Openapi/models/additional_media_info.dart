@@ -11,7 +11,7 @@ part 'additional_media_info.freezed.dart';
 part 'additional_media_info.g.dart';
 
 @Freezed()
-class AdditionalMediaInfo with _$AdditionalMediaInfo {
+ class AdditionalMediaInfo with _$AdditionalMediaInfo {
   const factory AdditionalMediaInfo({
     @JsonKey(name: 'call_to_actions')
     required AdditionalMediaInfoCallToActions callToActions,

@@ -10,7 +10,7 @@ part 'ext_media_availability.freezed.dart';
 part 'ext_media_availability.g.dart';
 
 @Freezed()
-class ExtMediaAvailability with _$ExtMediaAvailability {
+ class ExtMediaAvailability with _$ExtMediaAvailability {
   const factory ExtMediaAvailability({
     required String reason,
     required ExtMediaAvailabilityStatus status,

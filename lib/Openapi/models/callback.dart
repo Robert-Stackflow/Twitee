@@ -8,7 +8,7 @@ part 'callback.freezed.dart';
 part 'callback.g.dart';
 
 @Freezed()
-class Callback with _$Callback {
+ class Callback with _$Callback {
   const factory Callback({
     required String endpoint,
   }) = _Callback;

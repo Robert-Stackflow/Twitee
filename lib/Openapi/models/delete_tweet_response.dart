@@ -10,7 +10,7 @@ part 'delete_tweet_response.freezed.dart';
 part 'delete_tweet_response.g.dart';
 
 @Freezed()
-class DeleteTweetResponse with _$DeleteTweetResponse {
+ class DeleteTweetResponse with _$DeleteTweetResponse {
   const factory DeleteTweetResponse({
     required DeleteTweetResponseData data,
   }) = _DeleteTweetResponse;

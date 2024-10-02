@@ -12,7 +12,7 @@ part 'error.freezed.dart';
 part 'error.g.dart';
 
 @Freezed()
-class Error with _$Error {
+ class Error with _$Error {
   const factory Error({
     required int code,
     required ErrorExtensions extensions,

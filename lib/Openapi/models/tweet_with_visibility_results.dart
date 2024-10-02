@@ -13,7 +13,7 @@ part 'tweet_with_visibility_results.freezed.dart';
 part 'tweet_with_visibility_results.g.dart';
 
 @Freezed()
-class TweetWithVisibilityResults with _$TweetWithVisibilityResults {
+ class TweetWithVisibilityResults with _$TweetWithVisibilityResults {
   const factory TweetWithVisibilityResults({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

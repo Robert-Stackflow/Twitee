@@ -10,7 +10,7 @@ part 'users_response.freezed.dart';
 part 'users_response.g.dart';
 
 @Freezed()
-class UsersResponse with _$UsersResponse {
+ class UsersResponse with _$UsersResponse {
   const factory UsersResponse({
     required UsersResponseData data,
   }) = _UsersResponse;

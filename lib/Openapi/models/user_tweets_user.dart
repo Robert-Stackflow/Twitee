@@ -10,7 +10,7 @@ part 'user_tweets_user.freezed.dart';
 part 'user_tweets_user.g.dart';
 
 @Freezed()
-class UserTweetsUser with _$UserTweetsUser {
+ class UserTweetsUser with _$UserTweetsUser {
   const factory UserTweetsUser({
     required UserTweetsResult result,
   }) = _UserTweetsUser;

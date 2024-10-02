@@ -11,7 +11,7 @@ part 'user_legacy.freezed.dart';
 part 'user_legacy.g.dart';
 
 @Freezed()
-class UserLegacy with _$UserLegacy {
+ class UserLegacy with _$UserLegacy {
   const factory UserLegacy({
     required bool following,
     required bool blocking,

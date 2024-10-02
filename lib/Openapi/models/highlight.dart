@@ -10,7 +10,7 @@ part 'highlight.freezed.dart';
 part 'highlight.g.dart';
 
 @Freezed()
-class Highlight with _$Highlight {
+ class Highlight with _$Highlight {
   const factory Highlight({
     required List<TextHighlight> textHighlights,
   }) = _Highlight;

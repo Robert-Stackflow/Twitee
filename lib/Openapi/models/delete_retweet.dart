@@ -8,7 +8,7 @@ part 'delete_retweet.freezed.dart';
 part 'delete_retweet.g.dart';
 
 @Freezed()
-class DeleteRetweet with _$DeleteRetweet {
+ class DeleteRetweet with _$DeleteRetweet {
   const factory DeleteRetweet({
     required dynamic result,
   }) = _DeleteRetweet;

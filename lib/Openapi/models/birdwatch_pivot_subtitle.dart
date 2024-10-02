@@ -10,7 +10,7 @@ part 'birdwatch_pivot_subtitle.freezed.dart';
 part 'birdwatch_pivot_subtitle.g.dart';
 
 @Freezed()
-class BirdwatchPivotSubtitle with _$BirdwatchPivotSubtitle {
+ class BirdwatchPivotSubtitle with _$BirdwatchPivotSubtitle {
   const factory BirdwatchPivotSubtitle({
     required List<BirdwatchEntity> entities,
     required String text,

@@ -12,7 +12,7 @@ part 'article_result.freezed.dart';
 part 'article_result.g.dart';
 
 @Freezed()
-class ArticleResult with _$ArticleResult {
+ class ArticleResult with _$ArticleResult {
   const factory ArticleResult({
     @JsonKey(name: 'cover_media')
     required ArticleCoverMedia coverMedia,

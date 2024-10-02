@@ -8,7 +8,7 @@ part 'self_thread.freezed.dart';
 part 'self_thread.g.dart';
 
 @Freezed()
-class SelfThread with _$SelfThread {
+ class SelfThread with _$SelfThread {
   const factory SelfThread({
     @JsonKey(name: 'id_str')
     required String idStr,

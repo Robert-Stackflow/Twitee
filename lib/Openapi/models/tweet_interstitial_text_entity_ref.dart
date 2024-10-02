@@ -11,7 +11,7 @@ part 'tweet_interstitial_text_entity_ref.freezed.dart';
 part 'tweet_interstitial_text_entity_ref.g.dart';
 
 @Freezed()
-class TweetInterstitialTextEntityRef with _$TweetInterstitialTextEntityRef {
+ class TweetInterstitialTextEntityRef with _$TweetInterstitialTextEntityRef {
   const factory TweetInterstitialTextEntityRef({
     required TweetInterstitialTextEntityRefType type,
     required String url,

@@ -10,7 +10,7 @@ part 'community_join_requests_result.freezed.dart';
 part 'community_join_requests_result.g.dart';
 
 @Freezed()
-class CommunityJoinRequestsResult with _$CommunityJoinRequestsResult {
+ class CommunityJoinRequestsResult with _$CommunityJoinRequestsResult {
   const factory CommunityJoinRequestsResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

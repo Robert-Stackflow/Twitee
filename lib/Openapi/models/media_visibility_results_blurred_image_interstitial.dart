@@ -10,7 +10,7 @@ part 'media_visibility_results_blurred_image_interstitial.freezed.dart';
 part 'media_visibility_results_blurred_image_interstitial.g.dart';
 
 @Freezed()
-class MediaVisibilityResultsBlurredImageInterstitial with _$MediaVisibilityResultsBlurredImageInterstitial {
+ class MediaVisibilityResultsBlurredImageInterstitial with _$MediaVisibilityResultsBlurredImageInterstitial {
   const factory MediaVisibilityResultsBlurredImageInterstitial({
     required num opacity,
     required TweetInterstitialText text,

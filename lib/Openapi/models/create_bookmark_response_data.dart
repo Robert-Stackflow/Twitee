@@ -8,7 +8,7 @@ part 'create_bookmark_response_data.freezed.dart';
 part 'create_bookmark_response_data.g.dart';
 
 @Freezed()
-class CreateBookmarkResponseData with _$CreateBookmarkResponseData {
+ class CreateBookmarkResponseData with _$CreateBookmarkResponseData {
   const factory CreateBookmarkResponseData({
     @JsonKey(name: 'tweet_bookmark_put')
     required String tweetBookmarkPut,

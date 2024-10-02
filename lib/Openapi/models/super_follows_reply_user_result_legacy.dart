@@ -8,7 +8,7 @@ part 'super_follows_reply_user_result_legacy.freezed.dart';
 part 'super_follows_reply_user_result_legacy.g.dart';
 
 @Freezed()
-class SuperFollowsReplyUserResultLegacy with _$SuperFollowsReplyUserResultLegacy {
+ class SuperFollowsReplyUserResultLegacy with _$SuperFollowsReplyUserResultLegacy {
   const factory SuperFollowsReplyUserResultLegacy({
     @JsonKey(name: 'screen_name')
     required String screenName,

@@ -15,7 +15,7 @@ part 'entities.freezed.dart';
 part 'entities.g.dart';
 
 @Freezed()
-class Entities with _$Entities {
+ class Entities with _$Entities {
   const factory Entities({
     required List<Hashtag> hashtags,
     required List<Media> media,

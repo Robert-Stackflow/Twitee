@@ -10,7 +10,7 @@ part 'timeline_clear_cache.freezed.dart';
 part 'timeline_clear_cache.g.dart';
 
 @Freezed()
-class TimelineClearCache with _$TimelineClearCache {
+ class TimelineClearCache with _$TimelineClearCache {
   const factory TimelineClearCache({
     required InstructionType type,
   }) = _TimelineClearCache;

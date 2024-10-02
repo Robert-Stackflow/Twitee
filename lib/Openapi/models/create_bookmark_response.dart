@@ -10,7 +10,7 @@ part 'create_bookmark_response.freezed.dart';
 part 'create_bookmark_response.g.dart';
 
 @Freezed()
-class CreateBookmarkResponse with _$CreateBookmarkResponse {
+ class CreateBookmarkResponse with _$CreateBookmarkResponse {
   const factory CreateBookmarkResponse({
     required CreateBookmarkResponseData data,
   }) = _CreateBookmarkResponse;

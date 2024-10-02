@@ -10,7 +10,7 @@ part 'note_tweet_result.freezed.dart';
 part 'note_tweet_result.g.dart';
 
 @Freezed()
-class NoteTweetResult with _$NoteTweetResult {
+ class NoteTweetResult with _$NoteTweetResult {
   const factory NoteTweetResult({
     required NoteTweetResultData result,
   }) = _NoteTweetResult;

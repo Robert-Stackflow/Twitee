@@ -8,7 +8,7 @@ part 'media_result.freezed.dart';
 part 'media_result.g.dart';
 
 @Freezed()
-class MediaResult with _$MediaResult {
+ class MediaResult with _$MediaResult {
   const factory MediaResult({
     @JsonKey(name: 'media_key')
     required String mediaKey,

@@ -8,7 +8,7 @@ part 'allow_download_status.freezed.dart';
 part 'allow_download_status.g.dart';
 
 @Freezed()
-class AllowDownloadStatus with _$AllowDownloadStatus {
+ class AllowDownloadStatus with _$AllowDownloadStatus {
   const factory AllowDownloadStatus({
     @JsonKey(name: 'allow_download')
     required bool allowDownload,

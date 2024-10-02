@@ -10,7 +10,7 @@ part 'error_extensions.freezed.dart';
 part 'error_extensions.g.dart';
 
 @Freezed()
-class ErrorExtensions with _$ErrorExtensions {
+ class ErrorExtensions with _$ErrorExtensions {
   const factory ErrorExtensions({
     required int code,
     required String kind,

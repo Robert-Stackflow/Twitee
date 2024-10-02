@@ -10,7 +10,7 @@ part 'user_unavailable.freezed.dart';
 part 'user_unavailable.g.dart';
 
 @Freezed()
-class UserUnavailable with _$UserUnavailable {
+ class UserUnavailable with _$UserUnavailable {
   const factory UserUnavailable({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

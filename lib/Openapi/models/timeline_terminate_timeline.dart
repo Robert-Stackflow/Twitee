@@ -11,7 +11,7 @@ part 'timeline_terminate_timeline.freezed.dart';
 part 'timeline_terminate_timeline.g.dart';
 
 @Freezed()
-class TimelineTerminateTimeline with _$TimelineTerminateTimeline {
+ class TimelineTerminateTimeline with _$TimelineTerminateTimeline {
   const factory TimelineTerminateTimeline({
     required TimelineTerminateTimelineDirection direction,
     required InstructionType type,

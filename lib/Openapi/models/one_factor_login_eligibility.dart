@@ -8,7 +8,7 @@ part 'one_factor_login_eligibility.freezed.dart';
 part 'one_factor_login_eligibility.g.dart';
 
 @Freezed()
-class OneFactorLoginEligibility with _$OneFactorLoginEligibility {
+ class OneFactorLoginEligibility with _$OneFactorLoginEligibility {
   const factory OneFactorLoginEligibility({
     required String fetchStatus,
   }) = _OneFactorLoginEligibility;

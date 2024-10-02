@@ -11,7 +11,7 @@ part 'tweet_card_legacy_binding_value_data.freezed.dart';
 part 'tweet_card_legacy_binding_value_data.g.dart';
 
 @Freezed()
-class TweetCardLegacyBindingValueData with _$TweetCardLegacyBindingValueData {
+ class TweetCardLegacyBindingValueData with _$TweetCardLegacyBindingValueData {
   const factory TweetCardLegacyBindingValueData({
     @JsonKey(name: 'boolean_value')
     required bool booleanValue,

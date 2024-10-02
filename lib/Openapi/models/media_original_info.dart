@@ -10,7 +10,7 @@ part 'media_original_info.freezed.dart';
 part 'media_original_info.g.dart';
 
 @Freezed()
-class MediaOriginalInfo with _$MediaOriginalInfo {
+ class MediaOriginalInfo with _$MediaOriginalInfo {
   const factory MediaOriginalInfo({
     @JsonKey(name: 'focus_rects')
     required List<MediaOriginalInfoFocusRect> focusRects,

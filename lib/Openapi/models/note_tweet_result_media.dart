@@ -10,7 +10,7 @@ part 'note_tweet_result_media.freezed.dart';
 part 'note_tweet_result_media.g.dart';
 
 @Freezed()
-class NoteTweetResultMedia with _$NoteTweetResultMedia {
+ class NoteTweetResultMedia with _$NoteTweetResultMedia {
   const factory NoteTweetResultMedia({
     @JsonKey(name: 'inline_media')
     required List<NoteTweetResultMediaInlineMedia> inlineMedia,

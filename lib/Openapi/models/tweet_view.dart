@@ -10,7 +10,7 @@ part 'tweet_view.freezed.dart';
 part 'tweet_view.g.dart';
 
 @Freezed()
-class TweetView with _$TweetView {
+ class TweetView with _$TweetView {
   const factory TweetView({
     required String count,
     required TweetViewState state,

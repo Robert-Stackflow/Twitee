@@ -10,7 +10,7 @@ part 'quoted_ref_result.freezed.dart';
 part 'quoted_ref_result.g.dart';
 
 @Freezed()
-class QuotedRefResult with _$QuotedRefResult {
+ class QuotedRefResult with _$QuotedRefResult {
   const factory QuotedRefResult({
     required TweetUnion result,
   }) = _QuotedRefResult;

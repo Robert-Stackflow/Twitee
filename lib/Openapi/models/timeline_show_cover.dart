@@ -12,7 +12,7 @@ part 'timeline_show_cover.freezed.dart';
 part 'timeline_show_cover.g.dart';
 
 @Freezed()
-class TimelineShowCover with _$TimelineShowCover {
+ class TimelineShowCover with _$TimelineShowCover {
   const factory TimelineShowCover({
     required ClientEventInfo clientEventInfo,
     required TimelineHalfCover cover,

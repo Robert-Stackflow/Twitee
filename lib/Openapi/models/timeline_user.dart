@@ -14,7 +14,7 @@ part 'timeline_user.freezed.dart';
 part 'timeline_user.g.dart';
 
 @Freezed()
-class TimelineUser with _$TimelineUser {
+ class TimelineUser with _$TimelineUser {
   const factory TimelineUser({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -8,7 +8,7 @@ part 'text_highlight.freezed.dart';
 part 'text_highlight.g.dart';
 
 @Freezed()
-class TextHighlight with _$TextHighlight {
+ class TextHighlight with _$TextHighlight {
   const factory TextHighlight({
     required int endIndex,
     required int startIndex,

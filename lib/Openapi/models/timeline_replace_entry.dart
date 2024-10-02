@@ -11,7 +11,7 @@ part 'timeline_replace_entry.freezed.dart';
 part 'timeline_replace_entry.g.dart';
 
 @Freezed()
-class TimelineReplaceEntry with _$TimelineReplaceEntry {
+ class TimelineReplaceEntry with _$TimelineReplaceEntry {
   const factory TimelineReplaceEntry({
     required TimelineAddEntry entry,
     @JsonKey(name: 'entry_id_to_replace')

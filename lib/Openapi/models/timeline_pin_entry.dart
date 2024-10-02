@@ -11,7 +11,7 @@ part 'timeline_pin_entry.freezed.dart';
 part 'timeline_pin_entry.g.dart';
 
 @Freezed()
-class TimelinePinEntry with _$TimelinePinEntry {
+ class TimelinePinEntry with _$TimelinePinEntry {
   const factory TimelinePinEntry({
     required TimelineAddEntry entry,
     required InstructionType type,

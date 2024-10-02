@@ -13,7 +13,7 @@ part 'session.freezed.dart';
 part 'session.g.dart';
 
 @Freezed()
-class Session with _$Session {
+ class Session with _$Session {
   const factory Session({
     @JsonKey(name: 'SsoInitTokens')
     required dynamic ssoInitTokens,

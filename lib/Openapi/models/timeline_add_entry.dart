@@ -10,7 +10,7 @@ part 'timeline_add_entry.freezed.dart';
 part 'timeline_add_entry.g.dart';
 
 @Freezed()
-class TimelineAddEntry with _$TimelineAddEntry {
+ class TimelineAddEntry with _$TimelineAddEntry {
   const factory TimelineAddEntry({
     required ContentUnion content,
     required String entryId,

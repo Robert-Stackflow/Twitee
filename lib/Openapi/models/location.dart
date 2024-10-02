@@ -8,7 +8,7 @@ part 'location.freezed.dart';
 part 'location.g.dart';
 
 @Freezed()
-class Location with _$Location {
+ class Location with _$Location {
   const factory Location({
     required int column,
     required int line,

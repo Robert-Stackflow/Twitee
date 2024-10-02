@@ -10,7 +10,7 @@ part 'timeline_community.freezed.dart';
 part 'timeline_community.g.dart';
 
 @Freezed()
-class TimelineCommunity with _$TimelineCommunity {
+ class TimelineCommunity with _$TimelineCommunity {
   const factory TimelineCommunity({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -10,7 +10,7 @@ part 'user_result_core.freezed.dart';
 part 'user_result_core.g.dart';
 
 @Freezed()
-class UserResultCore with _$UserResultCore {
+ class UserResultCore with _$UserResultCore {
   const factory UserResultCore({
     @JsonKey(name: 'user_results')
     required UserResults userResults,

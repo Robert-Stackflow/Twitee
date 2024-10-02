@@ -12,7 +12,7 @@ part 'timeline_topic_context.freezed.dart';
 part 'timeline_topic_context.g.dart';
 
 @Freezed()
-class TimelineTopicContext with _$TimelineTopicContext {
+ class TimelineTopicContext with _$TimelineTopicContext {
   const factory TimelineTopicContext({
     required TimelineTopicContextFunctionalityType functionalityType,
     required TopicContext topic,

@@ -5,13 +5,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'timeline_cover_behavior_type.dart';
-import 'timeline_cover_behavior_url.dart';
 
 part 'timeline_cover_behavior.freezed.dart';
 part 'timeline_cover_behavior.g.dart';
 
 @Freezed()
-class TimelineCoverBehavior with _$TimelineCoverBehavior {
+ class TimelineCoverBehavior with _$TimelineCoverBehavior {
   const factory TimelineCoverBehavior({
     required TimelineCoverBehaviorType type,
     required TimelineCoverBehaviorUrl url,

@@ -8,7 +8,7 @@ part 'user_professional_category.freezed.dart';
 part 'user_professional_category.g.dart';
 
 @Freezed()
-class UserProfessionalCategory with _$UserProfessionalCategory {
+ class UserProfessionalCategory with _$UserProfessionalCategory {
   const factory UserProfessionalCategory({
     @JsonKey(name: 'icon_name')
     required String iconName,

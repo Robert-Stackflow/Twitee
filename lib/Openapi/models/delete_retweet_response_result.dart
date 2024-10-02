@@ -10,7 +10,7 @@ part 'delete_retweet_response_result.freezed.dart';
 part 'delete_retweet_response_result.g.dart';
 
 @Freezed()
-class DeleteRetweetResponseResult with _$DeleteRetweetResponseResult {
+ class DeleteRetweetResponseResult with _$DeleteRetweetResponseResult {
   const factory DeleteRetweetResponseResult({
     @JsonKey(name: 'retweet_results')
     required DeleteRetweet retweetResults,

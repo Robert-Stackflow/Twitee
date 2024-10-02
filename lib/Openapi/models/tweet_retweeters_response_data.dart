@@ -10,7 +10,7 @@ part 'tweet_retweeters_response_data.freezed.dart';
 part 'tweet_retweeters_response_data.g.dart';
 
 @Freezed()
-class TweetRetweetersResponseData with _$TweetRetweetersResponseData {
+ class TweetRetweetersResponseData with _$TweetRetweetersResponseData {
   const factory TweetRetweetersResponseData({
     @JsonKey(name: 'retweeters_timeline')
     required TimelineV retweetersTimeline,

@@ -11,7 +11,7 @@ part 'errors.freezed.dart';
 part 'errors.g.dart';
 
 @Freezed()
-class Errors with _$Errors {
+ class Errors with _$Errors {
   const factory Errors({
     required ErrorsData data,
     required List<Error> errors,

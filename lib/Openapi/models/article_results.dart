@@ -10,7 +10,7 @@ part 'article_results.freezed.dart';
 part 'article_results.g.dart';
 
 @Freezed()
-class ArticleResults with _$ArticleResults {
+ class ArticleResults with _$ArticleResults {
   const factory ArticleResults({
     required ArticleResult result,
   }) = _ArticleResults;

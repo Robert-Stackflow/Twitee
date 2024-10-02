@@ -10,7 +10,7 @@ part 'cta_client_event_info.freezed.dart';
 part 'cta_client_event_info.g.dart';
 
 @Freezed()
-class CtaClientEventInfo with _$CtaClientEventInfo {
+ class CtaClientEventInfo with _$CtaClientEventInfo {
   const factory CtaClientEventInfo({
     required CtaClientEventInfoAction action,
   }) = _CtaClientEventInfo;

@@ -17,7 +17,7 @@ part 'tweet_legacy.freezed.dart';
 part 'tweet_legacy.g.dart';
 
 @Freezed()
-class TweetLegacy with _$TweetLegacy {
+ class TweetLegacy with _$TweetLegacy {
   const factory TweetLegacy({
     @JsonKey(name: 'bookmark_count')
     required int bookmarkCount,

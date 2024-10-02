@@ -11,7 +11,7 @@ part 'tweet_card_platform.freezed.dart';
 part 'tweet_card_platform.g.dart';
 
 @Freezed()
-class TweetCardPlatform with _$TweetCardPlatform {
+ class TweetCardPlatform with _$TweetCardPlatform {
   const factory TweetCardPlatform({
     required TweetCardPlatformAudience audience,
     required TweetCardPlatformDevice device,

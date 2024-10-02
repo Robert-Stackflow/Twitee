@@ -10,7 +10,7 @@ part 'follow_response_user.freezed.dart';
 part 'follow_response_user.g.dart';
 
 @Freezed()
-class FollowResponseUser with _$FollowResponseUser {
+ class FollowResponseUser with _$FollowResponseUser {
   const factory FollowResponseUser({
     required FollowResponseResult result,
   }) = _FollowResponseUser;

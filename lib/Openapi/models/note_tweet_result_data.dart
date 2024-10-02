@@ -12,7 +12,7 @@ part 'note_tweet_result_data.freezed.dart';
 part 'note_tweet_result_data.g.dart';
 
 @Freezed()
-class NoteTweetResultData with _$NoteTweetResultData {
+ class NoteTweetResultData with _$NoteTweetResultData {
   const factory NoteTweetResultData({
     @JsonKey(name: 'entity_set')
     required Entities entitySet,

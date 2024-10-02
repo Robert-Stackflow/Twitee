@@ -12,7 +12,7 @@ part 'module_entry.freezed.dart';
 part 'module_entry.g.dart';
 
 @Freezed()
-class ModuleEntry with _$ModuleEntry {
+ class ModuleEntry with _$ModuleEntry {
   const factory ModuleEntry({
     required ClientEventInfo clientEventInfo,
     required FeedbackInfo feedbackInfo,

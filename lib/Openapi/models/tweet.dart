@@ -26,7 +26,7 @@ part 'tweet.freezed.dart';
 part 'tweet.g.dart';
 
 @Freezed()
-class Tweet with _$Tweet {
+ class Tweet with _$Tweet {
   const factory Tweet({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

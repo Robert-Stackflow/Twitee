@@ -8,7 +8,7 @@ part 'communities_actions.freezed.dart';
 part 'communities_actions.g.dart';
 
 @Freezed()
-class CommunitiesActions with _$CommunitiesActions {
+ class CommunitiesActions with _$CommunitiesActions {
   const factory CommunitiesActions({
     required bool create,
   }) = _CommunitiesActions;

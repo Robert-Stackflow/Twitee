@@ -10,7 +10,7 @@ part 'timeline.freezed.dart';
 part 'timeline.g.dart';
 
 @Freezed()
-class Timeline with _$Timeline {
+ class Timeline with _$Timeline {
   const factory Timeline({
     required List<InstructionUnion> instructions,
     required dynamic metadata,

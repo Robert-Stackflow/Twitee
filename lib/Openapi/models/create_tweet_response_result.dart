@@ -10,7 +10,7 @@ part 'create_tweet_response_result.freezed.dart';
 part 'create_tweet_response_result.g.dart';
 
 @Freezed()
-class CreateTweetResponseResult with _$CreateTweetResponseResult {
+ class CreateTweetResponseResult with _$CreateTweetResponseResult {
   const factory CreateTweetResponseResult({
     @JsonKey(name: 'tweet_results')
     required CreateTweet tweetResults,

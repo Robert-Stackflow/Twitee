@@ -8,7 +8,7 @@ part 'media_video_info_variant.freezed.dart';
 part 'media_video_info_variant.g.dart';
 
 @Freezed()
-class MediaVideoInfoVariant with _$MediaVideoInfoVariant {
+ class MediaVideoInfoVariant with _$MediaVideoInfoVariant {
   const factory MediaVideoInfoVariant({
     required int bitrate,
     @JsonKey(name: 'content_type')

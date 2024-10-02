@@ -10,7 +10,7 @@ part 'extended_entities.freezed.dart';
 part 'extended_entities.g.dart';
 
 @Freezed()
-class ExtendedEntities with _$ExtendedEntities {
+ class ExtendedEntities with _$ExtendedEntities {
   const factory ExtendedEntities({
     required List<MediaExtended> media,
   }) = _ExtendedEntities;

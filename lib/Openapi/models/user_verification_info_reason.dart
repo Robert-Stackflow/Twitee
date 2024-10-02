@@ -10,7 +10,7 @@ part 'user_verification_info_reason.freezed.dart';
 part 'user_verification_info_reason.g.dart';
 
 @Freezed()
-class UserVerificationInfoReason with _$UserVerificationInfoReason {
+ class UserVerificationInfoReason with _$UserVerificationInfoReason {
   const factory UserVerificationInfoReason({
     required UserVerificationInfoReasonDescription description,
     @JsonKey(name: 'override_verified_year')

@@ -11,7 +11,7 @@ part 'item_result.freezed.dart';
 part 'item_result.g.dart';
 
 @Freezed()
-class ItemResult with _$ItemResult {
+ class ItemResult with _$ItemResult {
   const factory ItemResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -10,7 +10,7 @@ part 'conversation_control.freezed.dart';
 part 'conversation_control.g.dart';
 
 @Freezed()
-class ConversationControl with _$ConversationControl {
+ class ConversationControl with _$ConversationControl {
   const factory ConversationControl({
     required ConversationControlMode mode,
   }) = _ConversationControl;

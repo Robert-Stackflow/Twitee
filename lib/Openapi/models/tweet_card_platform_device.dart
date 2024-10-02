@@ -8,7 +8,7 @@ part 'tweet_card_platform_device.freezed.dart';
 part 'tweet_card_platform_device.g.dart';
 
 @Freezed()
-class TweetCardPlatformDevice with _$TweetCardPlatformDevice {
+ class TweetCardPlatformDevice with _$TweetCardPlatformDevice {
   const factory TweetCardPlatformDevice({
     required String name,
     required String version,

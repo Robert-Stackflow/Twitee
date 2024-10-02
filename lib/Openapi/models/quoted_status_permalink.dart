@@ -8,7 +8,7 @@ part 'quoted_status_permalink.freezed.dart';
 part 'quoted_status_permalink.g.dart';
 
 @Freezed()
-class QuotedStatusPermalink with _$QuotedStatusPermalink {
+ class QuotedStatusPermalink with _$QuotedStatusPermalink {
   const factory QuotedStatusPermalink({
     required String display,
     required String expanded,

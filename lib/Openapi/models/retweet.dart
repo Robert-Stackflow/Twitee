@@ -10,7 +10,7 @@ part 'retweet.freezed.dart';
 part 'retweet.g.dart';
 
 @Freezed()
-class Retweet with _$Retweet {
+ class Retweet with _$Retweet {
   const factory Retweet({
     required Legacy legacy,
     @JsonKey(name: 'rest_id')

@@ -13,7 +13,7 @@ part 'community_actions.freezed.dart';
 part 'community_actions.g.dart';
 
 @Freezed()
-class CommunityActions with _$CommunityActions {
+ class CommunityActions with _$CommunityActions {
   const factory CommunityActions({
     @JsonKey(name: 'delete_action_result')
     required CommunityDeleteActionResult deleteActionResult,

@@ -11,7 +11,7 @@ part 'text_entity_ref.freezed.dart';
 part 'text_entity_ref.g.dart';
 
 @Freezed()
-class TextEntityRef with _$TextEntityRef {
+ class TextEntityRef with _$TextEntityRef {
   const factory TextEntityRef({
     required TextEntityRefType type,
     required String url,

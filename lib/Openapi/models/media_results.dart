@@ -10,7 +10,7 @@ part 'media_results.freezed.dart';
 part 'media_results.g.dart';
 
 @Freezed()
-class MediaResults with _$MediaResults {
+ class MediaResults with _$MediaResults {
   const factory MediaResults({
     required MediaResult result,
   }) = _MediaResults;

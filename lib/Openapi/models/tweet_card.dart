@@ -10,7 +10,7 @@ part 'tweet_card.freezed.dart';
 part 'tweet_card.g.dart';
 
 @Freezed()
-class TweetCard with _$TweetCard {
+ class TweetCard with _$TweetCard {
   const factory TweetCard({
     required TweetCardLegacy legacy,
     @JsonKey(name: 'rest_id')

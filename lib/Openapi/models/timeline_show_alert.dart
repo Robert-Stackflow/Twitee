@@ -14,7 +14,7 @@ part 'timeline_show_alert.freezed.dart';
 part 'timeline_show_alert.g.dart';
 
 @Freezed()
-class TimelineShowAlert with _$TimelineShowAlert {
+ class TimelineShowAlert with _$TimelineShowAlert {
   const factory TimelineShowAlert({
     required TimelineShowAlertAlertType alertType,
     required dynamic colorConfig,

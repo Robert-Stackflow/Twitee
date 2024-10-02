@@ -10,7 +10,7 @@ part 'create_tweet_response.freezed.dart';
 part 'create_tweet_response.g.dart';
 
 @Freezed()
-class CreateTweetResponse with _$CreateTweetResponse {
+ class CreateTweetResponse with _$CreateTweetResponse {
   const factory CreateTweetResponse({
     required CreateTweetResponseData data,
   }) = _CreateTweetResponse;

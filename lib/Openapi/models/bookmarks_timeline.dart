@@ -10,7 +10,7 @@ part 'bookmarks_timeline.freezed.dart';
 part 'bookmarks_timeline.g.dart';
 
 @Freezed()
-class BookmarksTimeline with _$BookmarksTimeline {
+ class BookmarksTimeline with _$BookmarksTimeline {
   const factory BookmarksTimeline({
     required Timeline timeline,
   }) = _BookmarksTimeline;

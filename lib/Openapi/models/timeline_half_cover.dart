@@ -14,7 +14,7 @@ part 'timeline_half_cover.freezed.dart';
 part 'timeline_half_cover.g.dart';
 
 @Freezed()
-class TimelineHalfCover with _$TimelineHalfCover {
+ class TimelineHalfCover with _$TimelineHalfCover {
   const factory TimelineHalfCover({
     required bool dismissible,
     required TimelineHalfCoverHalfCoverDisplayType halfCoverDisplayType,

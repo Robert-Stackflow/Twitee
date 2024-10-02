@@ -10,7 +10,7 @@ part 'create_retweet.freezed.dart';
 part 'create_retweet.g.dart';
 
 @Freezed()
-class CreateRetweet with _$CreateRetweet {
+ class CreateRetweet with _$CreateRetweet {
   const factory CreateRetweet({
     required Retweet result,
   }) = _CreateRetweet;

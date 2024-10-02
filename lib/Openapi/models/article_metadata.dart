@@ -8,7 +8,7 @@ part 'article_metadata.freezed.dart';
 part 'article_metadata.g.dart';
 
 @Freezed()
-class ArticleMetadata with _$ArticleMetadata {
+ class ArticleMetadata with _$ArticleMetadata {
   const factory ArticleMetadata({
     @JsonKey(name: 'first_published_at_secs')
     required int firstPublishedAtSecs,

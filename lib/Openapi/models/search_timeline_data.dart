@@ -10,7 +10,7 @@ part 'search_timeline_data.freezed.dart';
 part 'search_timeline_data.g.dart';
 
 @Freezed()
-class SearchTimelineData with _$SearchTimelineData {
+ class SearchTimelineData with _$SearchTimelineData {
   const factory SearchTimelineData({
     @JsonKey(name: 'search_by_raw_query')
     required SearchByRawQuery searchByRawQuery,

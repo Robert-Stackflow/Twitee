@@ -8,7 +8,7 @@ part 'media_stats.freezed.dart';
 part 'media_stats.g.dart';
 
 @Freezed()
-class MediaStats with _$MediaStats {
+ class MediaStats with _$MediaStats {
   const factory MediaStats({
     required int viewCount,
   }) = _MediaStats;

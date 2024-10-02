@@ -8,7 +8,7 @@ part 'tracing.freezed.dart';
 part 'tracing.g.dart';
 
 @Freezed()
-class Tracing with _$Tracing {
+ class Tracing with _$Tracing {
   const factory Tracing({
     @JsonKey(name: 'trace_id')
     required String traceId,

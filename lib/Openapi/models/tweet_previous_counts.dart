@@ -8,7 +8,7 @@ part 'tweet_previous_counts.freezed.dart';
 part 'tweet_previous_counts.g.dart';
 
 @Freezed()
-class TweetPreviousCounts with _$TweetPreviousCounts {
+ class TweetPreviousCounts with _$TweetPreviousCounts {
   const factory TweetPreviousCounts({
     @JsonKey(name: 'bookmark_count')
     required int bookmarkCount,

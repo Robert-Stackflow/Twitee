@@ -12,7 +12,7 @@ part 'author_community_relationship.freezed.dart';
 part 'author_community_relationship.g.dart';
 
 @Freezed()
-class AuthorCommunityRelationship with _$AuthorCommunityRelationship {
+ class AuthorCommunityRelationship with _$AuthorCommunityRelationship {
   const factory AuthorCommunityRelationship({
     @JsonKey(name: 'community_results')
     required Community communityResults,

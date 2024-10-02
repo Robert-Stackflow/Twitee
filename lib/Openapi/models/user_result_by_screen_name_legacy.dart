@@ -8,7 +8,7 @@ part 'user_result_by_screen_name_legacy.freezed.dart';
 part 'user_result_by_screen_name_legacy.g.dart';
 
 @Freezed()
-class UserResultByScreenNameLegacy with _$UserResultByScreenNameLegacy {
+ class UserResultByScreenNameLegacy with _$UserResultByScreenNameLegacy {
   const factory UserResultByScreenNameLegacy({
     @JsonKey(name: 'blocked_by')
     required bool blockedBy,

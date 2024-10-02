@@ -8,7 +8,7 @@ part 'timestamp.freezed.dart';
 part 'timestamp.g.dart';
 
 @Freezed()
-class Timestamp with _$Timestamp {
+ class Timestamp with _$Timestamp {
   const factory Timestamp({
     required List<int> indices,
     required int seconds,

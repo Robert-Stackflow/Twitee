@@ -13,7 +13,7 @@ part 'timeline_timeline_item.freezed.dart';
 part 'timeline_timeline_item.g.dart';
 
 @Freezed()
-class TimelineTimelineItem with _$TimelineTimelineItem {
+ class TimelineTimelineItem with _$TimelineTimelineItem {
   const factory TimelineTimelineItem({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

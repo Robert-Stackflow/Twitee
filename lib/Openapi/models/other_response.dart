@@ -10,7 +10,7 @@ part 'other_response.freezed.dart';
 part 'other_response.g.dart';
 
 @Freezed()
-class OtherResponse with _$OtherResponse {
+ class OtherResponse with _$OtherResponse {
   const factory OtherResponse({
     @JsonKey(name: 'Session')
     required Session session,

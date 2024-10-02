@@ -13,7 +13,7 @@ part 'cover_cta.freezed.dart';
 part 'cover_cta.g.dart';
 
 @Freezed()
-class CoverCta with _$CoverCta {
+ class CoverCta with _$CoverCta {
   const factory CoverCta({
     @JsonKey(name: 'Text')
     required String text,

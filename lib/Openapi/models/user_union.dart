@@ -7,8 +7,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user_union.freezed.dart';
 part 'user_union.g.dart';
 
-@Freezed()
-class UserUnion with _$UserUnion {
+@Freezed(unionKey: "null", unionValueCase: FreezedUnionCase.pascal)
+abstract class UserUnion with _$UserUnion {
   const factory UserUnion() = _UserUnion;
   
   factory UserUnion.fromJson(Map<String, Object?> json) => _$UserUnionFromJson(json);

@@ -20,7 +20,7 @@ part 'community_data.freezed.dart';
 part 'community_data.g.dart';
 
 @Freezed()
-class CommunityData with _$CommunityData {
+ class CommunityData with _$CommunityData {
   const factory CommunityData({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

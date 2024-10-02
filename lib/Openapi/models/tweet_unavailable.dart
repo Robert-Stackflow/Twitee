@@ -10,7 +10,7 @@ part 'tweet_unavailable.freezed.dart';
 part 'tweet_unavailable.g.dart';
 
 @Freezed()
-class TweetUnavailable with _$TweetUnavailable {
+ class TweetUnavailable with _$TweetUnavailable {
   const factory TweetUnavailable({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

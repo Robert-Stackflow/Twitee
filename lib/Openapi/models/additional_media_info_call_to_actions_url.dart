@@ -8,7 +8,7 @@ part 'additional_media_info_call_to_actions_url.freezed.dart';
 part 'additional_media_info_call_to_actions_url.g.dart';
 
 @Freezed()
-class AdditionalMediaInfoCallToActionsUrl with _$AdditionalMediaInfoCallToActionsUrl {
+ class AdditionalMediaInfoCallToActionsUrl with _$AdditionalMediaInfoCallToActionsUrl {
   const factory AdditionalMediaInfoCallToActionsUrl({
     required String url,
   }) = _AdditionalMediaInfoCallToActionsUrl;

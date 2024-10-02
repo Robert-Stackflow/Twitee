@@ -11,7 +11,7 @@ part 'user_result_by_screen_name_result.freezed.dart';
 part 'user_result_by_screen_name_result.g.dart';
 
 @Freezed()
-class UserResultByScreenNameResult with _$UserResultByScreenNameResult {
+ class UserResultByScreenNameResult with _$UserResultByScreenNameResult {
   const factory UserResultByScreenNameResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

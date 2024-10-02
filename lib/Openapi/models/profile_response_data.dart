@@ -10,7 +10,7 @@ part 'profile_response_data.freezed.dart';
 part 'profile_response_data.g.dart';
 
 @Freezed()
-class ProfileResponseData with _$ProfileResponseData {
+ class ProfileResponseData with _$ProfileResponseData {
   const factory ProfileResponseData({
     @JsonKey(name: 'user_result_by_screen_name')
     required UserResultByScreenName userResultByScreenName,

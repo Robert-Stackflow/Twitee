@@ -8,7 +8,7 @@ part 'unfavorite_tweet.freezed.dart';
 part 'unfavorite_tweet.g.dart';
 
 @Freezed()
-class UnfavoriteTweet with _$UnfavoriteTweet {
+ class UnfavoriteTweet with _$UnfavoriteTweet {
   const factory UnfavoriteTweet({
     @JsonKey(name: 'unfavorite_tweet')
     required String unfavoriteTweet,

@@ -11,7 +11,7 @@ part 'article_cover_media_info.freezed.dart';
 part 'article_cover_media_info.g.dart';
 
 @Freezed()
-class ArticleCoverMediaInfo with _$ArticleCoverMediaInfo {
+ class ArticleCoverMediaInfo with _$ArticleCoverMediaInfo {
   const factory ArticleCoverMediaInfo({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

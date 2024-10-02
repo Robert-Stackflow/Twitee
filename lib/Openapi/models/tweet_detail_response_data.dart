@@ -10,7 +10,7 @@ part 'tweet_detail_response_data.freezed.dart';
 part 'tweet_detail_response_data.g.dart';
 
 @Freezed()
-class TweetDetailResponseData with _$TweetDetailResponseData {
+ class TweetDetailResponseData with _$TweetDetailResponseData {
   const factory TweetDetailResponseData({
     @JsonKey(name: 'threaded_conversation_with_injections_v2')
     required Timeline threadedConversationWithInjectionsV2,

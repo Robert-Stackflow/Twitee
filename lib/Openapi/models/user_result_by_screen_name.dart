@@ -10,7 +10,7 @@ part 'user_result_by_screen_name.freezed.dart';
 part 'user_result_by_screen_name.g.dart';
 
 @Freezed()
-class UserResultByScreenName with _$UserResultByScreenName {
+ class UserResultByScreenName with _$UserResultByScreenName {
   const factory UserResultByScreenName({
     required String id,
     required UserResultByScreenNameResult result,

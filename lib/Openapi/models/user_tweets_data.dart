@@ -10,7 +10,7 @@ part 'user_tweets_data.freezed.dart';
 part 'user_tweets_data.g.dart';
 
 @Freezed()
-class UserTweetsData with _$UserTweetsData {
+ class UserTweetsData with _$UserTweetsData {
   const factory UserTweetsData({
     required UserTweetsUser user,
   }) = _UserTweetsData;

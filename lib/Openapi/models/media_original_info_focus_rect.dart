@@ -8,7 +8,7 @@ part 'media_original_info_focus_rect.freezed.dart';
 part 'media_original_info_focus_rect.g.dart';
 
 @Freezed()
-class MediaOriginalInfoFocusRect with _$MediaOriginalInfoFocusRect {
+ class MediaOriginalInfoFocusRect with _$MediaOriginalInfoFocusRect {
   const factory MediaOriginalInfoFocusRect({
     required int h,
     required int w,

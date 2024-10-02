@@ -10,7 +10,7 @@ part 'note_tweet.freezed.dart';
 part 'note_tweet.g.dart';
 
 @Freezed()
-class NoteTweet with _$NoteTweet {
+ class NoteTweet with _$NoteTweet {
   const factory NoteTweet({
     @JsonKey(name: 'is_expandable')
     required bool isExpandable,

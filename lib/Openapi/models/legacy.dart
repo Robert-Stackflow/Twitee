@@ -8,7 +8,7 @@ part 'legacy.freezed.dart';
 part 'legacy.g.dart';
 
 @Freezed()
-class Legacy with _$Legacy {
+ class Legacy with _$Legacy {
   const factory Legacy({
     @JsonKey(name: 'full_text')
     required String fullText,

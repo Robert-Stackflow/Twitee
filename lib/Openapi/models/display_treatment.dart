@@ -8,7 +8,7 @@ part 'display_treatment.freezed.dart';
 part 'display_treatment.g.dart';
 
 @Freezed()
-class DisplayTreatment with _$DisplayTreatment {
+ class DisplayTreatment with _$DisplayTreatment {
   const factory DisplayTreatment({
     required String actionText,
   }) = _DisplayTreatment;

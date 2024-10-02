@@ -8,7 +8,7 @@ part 'urt_endpoint_request_params.freezed.dart';
 part 'urt_endpoint_request_params.g.dart';
 
 @Freezed()
-class UrtEndpointRequestParams with _$UrtEndpointRequestParams {
+ class UrtEndpointRequestParams with _$UrtEndpointRequestParams {
   const factory UrtEndpointRequestParams({
     required String key,
     required String value,

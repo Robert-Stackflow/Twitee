@@ -10,7 +10,7 @@ part 'article_cover_media.freezed.dart';
 part 'article_cover_media.g.dart';
 
 @Freezed()
-class ArticleCoverMedia with _$ArticleCoverMedia {
+ class ArticleCoverMedia with _$ArticleCoverMedia {
   const factory ArticleCoverMedia({
     required String id,
     @JsonKey(name: 'media_id')

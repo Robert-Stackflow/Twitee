@@ -11,7 +11,7 @@ part 'community_invites_result.freezed.dart';
 part 'community_invites_result.g.dart';
 
 @Freezed()
-class CommunityInvitesResult with _$CommunityInvitesResult {
+ class CommunityInvitesResult with _$CommunityInvitesResult {
   const factory CommunityInvitesResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

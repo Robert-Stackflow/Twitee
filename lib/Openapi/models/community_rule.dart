@@ -8,7 +8,7 @@ part 'community_rule.freezed.dart';
 part 'community_rule.g.dart';
 
 @Freezed()
-class CommunityRule with _$CommunityRule {
+ class CommunityRule with _$CommunityRule {
   const factory CommunityRule({
     required String description,
     required String name,

@@ -10,7 +10,7 @@ part 'birdwatch_pivot_footer.freezed.dart';
 part 'birdwatch_pivot_footer.g.dart';
 
 @Freezed()
-class BirdwatchPivotFooter with _$BirdwatchPivotFooter {
+ class BirdwatchPivotFooter with _$BirdwatchPivotFooter {
   const factory BirdwatchPivotFooter({
     required List<BirdwatchEntity> entities,
     required String text,

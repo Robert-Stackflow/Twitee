@@ -8,7 +8,7 @@ part 'tweet_edit_prespective.freezed.dart';
 part 'tweet_edit_prespective.g.dart';
 
 @Freezed()
-class TweetEditPrespective with _$TweetEditPrespective {
+ class TweetEditPrespective with _$TweetEditPrespective {
   const factory TweetEditPrespective({
     required bool favorited,
     required bool retweeted,

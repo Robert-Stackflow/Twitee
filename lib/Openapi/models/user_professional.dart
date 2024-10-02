@@ -11,7 +11,7 @@ part 'user_professional.freezed.dart';
 part 'user_professional.g.dart';
 
 @Freezed()
-class UserProfessional with _$UserProfessional {
+ class UserProfessional with _$UserProfessional {
   const factory UserProfessional({
     required List<UserProfessionalCategory> category,
     @JsonKey(name: 'professional_type')

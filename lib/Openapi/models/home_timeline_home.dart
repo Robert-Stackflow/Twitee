@@ -10,7 +10,7 @@ part 'home_timeline_home.freezed.dart';
 part 'home_timeline_home.g.dart';
 
 @Freezed()
-class HomeTimelineHome with _$HomeTimelineHome {
+ class HomeTimelineHome with _$HomeTimelineHome {
   const factory HomeTimelineHome({
     @JsonKey(name: 'home_timeline_urt')
     required Timeline homeTimelineUrt,

@@ -10,7 +10,7 @@ part 'media_video_info.freezed.dart';
 part 'media_video_info.g.dart';
 
 @Freezed()
-class MediaVideoInfo with _$MediaVideoInfo {
+ class MediaVideoInfo with _$MediaVideoInfo {
   const factory MediaVideoInfo({
     @JsonKey(name: 'aspect_ratio')
     required List<int> aspectRatio,

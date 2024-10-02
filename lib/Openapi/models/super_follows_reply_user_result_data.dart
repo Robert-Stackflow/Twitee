@@ -11,7 +11,7 @@ part 'super_follows_reply_user_result_data.freezed.dart';
 part 'super_follows_reply_user_result_data.g.dart';
 
 @Freezed()
-class SuperFollowsReplyUserResultData with _$SuperFollowsReplyUserResultData {
+ class SuperFollowsReplyUserResultData with _$SuperFollowsReplyUserResultData {
   const factory SuperFollowsReplyUserResultData({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

@@ -8,7 +8,7 @@ part 'primary_community_topic.freezed.dart';
 part 'primary_community_topic.g.dart';
 
 @Freezed()
-class PrimaryCommunityTopic with _$PrimaryCommunityTopic {
+ class PrimaryCommunityTopic with _$PrimaryCommunityTopic {
   const factory PrimaryCommunityTopic({
     @JsonKey(name: 'topic_id')
     required String topicId,

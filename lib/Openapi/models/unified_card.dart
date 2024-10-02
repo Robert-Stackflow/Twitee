@@ -10,7 +10,7 @@ part 'unified_card.freezed.dart';
 part 'unified_card.g.dart';
 
 @Freezed()
-class UnifiedCard with _$UnifiedCard {
+ class UnifiedCard with _$UnifiedCard {
   const factory UnifiedCard({
     @JsonKey(name: 'card_fetch_state')
     required UnifiedCardCardFetchState cardFetchState,

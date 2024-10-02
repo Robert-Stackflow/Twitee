@@ -10,7 +10,7 @@ part 'super_follows_reply_user_result.freezed.dart';
 part 'super_follows_reply_user_result.g.dart';
 
 @Freezed()
-class SuperFollowsReplyUserResult with _$SuperFollowsReplyUserResult {
+ class SuperFollowsReplyUserResult with _$SuperFollowsReplyUserResult {
   const factory SuperFollowsReplyUserResult({
     required SuperFollowsReplyUserResultData result,
   }) = _SuperFollowsReplyUserResult;

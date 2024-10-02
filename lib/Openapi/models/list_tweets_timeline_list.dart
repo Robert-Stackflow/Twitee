@@ -10,7 +10,7 @@ part 'list_tweets_timeline_list.freezed.dart';
 part 'list_tweets_timeline_list.g.dart';
 
 @Freezed()
-class ListTweetsTimelineList with _$ListTweetsTimelineList {
+ class ListTweetsTimelineList with _$ListTweetsTimelineList {
   const factory ListTweetsTimelineList({
     @JsonKey(name: 'tweets_timeline')
     required ListTweetsTimeline tweetsTimeline,

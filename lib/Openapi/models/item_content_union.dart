@@ -7,8 +7,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'item_content_union.freezed.dart';
 part 'item_content_union.g.dart';
 
-@Freezed()
-class ItemContentUnion with _$ItemContentUnion {
+@Freezed(unionKey: "null", unionValueCase: FreezedUnionCase.pascal)
+abstract class ItemContentUnion with _$ItemContentUnion {
   const factory ItemContentUnion() = _ItemContentUnion;
   
   factory ItemContentUnion.fromJson(Map<String, Object?> json) => _$ItemContentUnionFromJson(json);

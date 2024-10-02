@@ -10,7 +10,7 @@ part 'timeline_v.freezed.dart';
 part 'timeline_v.g.dart';
 
 @Freezed()
-class TimelineV with _$TimelineV {
+ class TimelineV with _$TimelineV {
   const factory TimelineV({
     required Timeline timeline,
   }) = _TimelineV;

@@ -12,7 +12,7 @@ part 'timeline_general_context.freezed.dart';
 part 'timeline_general_context.g.dart';
 
 @Freezed()
-class TimelineGeneralContext with _$TimelineGeneralContext {
+ class TimelineGeneralContext with _$TimelineGeneralContext {
   const factory TimelineGeneralContext({
     required TimelineGeneralContextContextType contextType,
     required SocialContextLandingUrl landingUrl,

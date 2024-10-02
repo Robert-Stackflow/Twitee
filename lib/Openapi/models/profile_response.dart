@@ -10,7 +10,7 @@ part 'profile_response.freezed.dart';
 part 'profile_response.g.dart';
 
 @Freezed()
-class ProfileResponse with _$ProfileResponse {
+ class ProfileResponse with _$ProfileResponse {
   const factory ProfileResponse({
     required ProfileResponseData data,
   }) = _ProfileResponse;

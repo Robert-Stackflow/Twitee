@@ -8,7 +8,7 @@ part 'sensitive_media_warning.freezed.dart';
 part 'sensitive_media_warning.g.dart';
 
 @Freezed()
-class SensitiveMediaWarning with _$SensitiveMediaWarning {
+ class SensitiveMediaWarning with _$SensitiveMediaWarning {
   const factory SensitiveMediaWarning({
     @JsonKey(name: 'adult_content')
     required bool adultContent,

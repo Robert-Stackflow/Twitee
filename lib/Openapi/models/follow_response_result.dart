@@ -11,7 +11,7 @@ part 'follow_response_result.freezed.dart';
 part 'follow_response_result.g.dart';
 
 @Freezed()
-class FollowResponseResult with _$FollowResponseResult {
+ class FollowResponseResult with _$FollowResponseResult {
   const factory FollowResponseResult({
     @JsonKey(name: '__typename')
     required TypeName privateTypename,

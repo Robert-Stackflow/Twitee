@@ -10,7 +10,7 @@ part 'tweet_card_legacy_binding_value.freezed.dart';
 part 'tweet_card_legacy_binding_value.g.dart';
 
 @Freezed()
-class TweetCardLegacyBindingValue with _$TweetCardLegacyBindingValue {
+ class TweetCardLegacyBindingValue with _$TweetCardLegacyBindingValue {
   const factory TweetCardLegacyBindingValue({
     required String key,
     required TweetCardLegacyBindingValueData value,

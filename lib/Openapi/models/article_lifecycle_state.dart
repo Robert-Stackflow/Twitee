@@ -8,7 +8,7 @@ part 'article_lifecycle_state.freezed.dart';
 part 'article_lifecycle_state.g.dart';
 
 @Freezed()
-class ArticleLifecycleState with _$ArticleLifecycleState {
+ class ArticleLifecycleState with _$ArticleLifecycleState {
   const factory ArticleLifecycleState({
     @JsonKey(name: 'modified_at_secs')
     required int modifiedAtSecs,
