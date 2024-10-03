@@ -2,20 +2,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'media_size_resize.dart';
 
-part 'media_size.freezed.dart';
 part 'media_size.g.dart';
 
-@Freezed()
- class MediaSize with _$MediaSize {
-  const factory MediaSize({
-    required int h,
-    required MediaSizeResize resize,
-    required int w,
-  }) = _MediaSize;
+@JsonSerializable()
+class MediaSize  {
+  const MediaSize({
+    required this.h,
+    required this.resize,
+    required this.w,
+  });
   
   factory MediaSize.fromJson(Map<String, Object?> json) => _$MediaSizeFromJson(json);
+  
+  final int h;
+  final MediaSizeResize resize;
+  final int w;
+
+  Map<String, Object?> toJson() => _$MediaSizeToJson(this);
 }

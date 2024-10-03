@@ -2,14 +2,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'content_union.freezed.dart';
-part 'content_union.g.dart';
 
-@Freezed(unionKey: "null", unionValueCase: FreezedUnionCase.pascal)
-abstract class ContentUnion with _$ContentUnion {
-  const factory ContentUnion() = _ContentUnion;
-  
-  factory ContentUnion.fromJson(Map<String, Object?> json) => _$ContentUnionFromJson(json);
+import 'timeline_timeline_cursor.dart';
+import 'timeline_timeline_item.dart';
+import 'timeline_timeline_module.dart';
+
+abstract class ContentUnion {
+  const ContentUnion();
+  factory ContentUnion.fromJson(Map<String, Object?> json){
+      switch(json['entryType']){
+        case "TimelineTimelineItem": 
+            return TimelineTimelineItem.fromJson(json);
+        case "TimelineTimelineModule": 
+            return TimelineTimelineModule.fromJson(json);
+        case "TimelineTimelineCursor": 
+            return TimelineTimelineCursor.fromJson(json);
+    
+        default:
+           throw ArgumentError('Unknown ContentUnion: $json');
+      }
+  }
+  Map<String, Object?> toJson() => {};
 }
+  

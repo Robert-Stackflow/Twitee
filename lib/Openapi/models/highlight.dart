@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'text_highlight.dart';
 
-part 'highlight.freezed.dart';
 part 'highlight.g.dart';
 
-@Freezed()
- class Highlight with _$Highlight {
-  const factory Highlight({
-    required List<TextHighlight> textHighlights,
-  }) = _Highlight;
+@JsonSerializable()
+class Highlight  {
+  const Highlight({
+    required this.textHighlights,
+  });
   
   factory Highlight.fromJson(Map<String, Object?> json) => _$HighlightFromJson(json);
+  
+  final List<TextHighlight> textHighlights;
+
+  Map<String, Object?> toJson() => _$HighlightToJson(this);
 }

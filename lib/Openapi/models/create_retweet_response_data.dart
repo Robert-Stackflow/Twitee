@@ -2,19 +2,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'create_retweet_response_result.dart';
 
-part 'create_retweet_response_data.freezed.dart';
 part 'create_retweet_response_data.g.dart';
 
-@Freezed()
- class CreateRetweetResponseData with _$CreateRetweetResponseData {
-  const factory CreateRetweetResponseData({
-    @JsonKey(name: 'create_retweet')
-    required CreateRetweetResponseResult createRetweet,
-  }) = _CreateRetweetResponseData;
+@JsonSerializable()
+class CreateRetweetResponseData  {
+  const CreateRetweetResponseData({
+    required this.createRetweet,
+  });
   
   factory CreateRetweetResponseData.fromJson(Map<String, Object?> json) => _$CreateRetweetResponseDataFromJson(json);
+  
+  @JsonKey(name: 'create_retweet')
+  final CreateRetweetResponseResult? createRetweet;
+
+  Map<String, Object?> toJson() => _$CreateRetweetResponseDataToJson(this);
 }

@@ -2,14 +2,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'social_context_union.freezed.dart';
-part 'social_context_union.g.dart';
 
-@Freezed(unionKey: "null", unionValueCase: FreezedUnionCase.pascal)
-abstract class SocialContextUnion with _$SocialContextUnion {
-  const factory SocialContextUnion() = _SocialContextUnion;
-  
-  factory SocialContextUnion.fromJson(Map<String, Object?> json) => _$SocialContextUnionFromJson(json);
+import 'timeline_general_context.dart';
+import 'timeline_topic_context.dart';
+
+abstract class SocialContextUnion {
+  const SocialContextUnion();
+  factory SocialContextUnion.fromJson(Map<String, Object?> json){
+      switch(json['type']){
+        case "TimelineGeneralContext": 
+            return TimelineGeneralContext.fromJson(json);
+        case "TimelineTopicContext": 
+            return TimelineTopicContext.fromJson(json);
+    
+        default:
+           throw ArgumentError('Unknown SocialContextUnion: $json');
+      }
+  }
+  Map<String, Object?> toJson() => {};
 }
+  

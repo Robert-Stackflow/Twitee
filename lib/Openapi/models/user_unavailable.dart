@@ -2,21 +2,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'type_name.dart';
+import 'user_union.dart';
 
-part 'user_unavailable.freezed.dart';
 part 'user_unavailable.g.dart';
 
-@Freezed()
- class UserUnavailable with _$UserUnavailable {
-  const factory UserUnavailable({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-    required String message,
-    required String reason,
-  }) = _UserUnavailable;
+@JsonSerializable()
+class UserUnavailable extends UserUnion {
+  const UserUnavailable({
+    required this.privateTypename,
+    required this.message,
+    required this.reason,
+  });
   
   factory UserUnavailable.fromJson(Map<String, Object?> json) => _$UserUnavailableFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+  final String? message;
+  final String reason;
+
+  Map<String, Object?> toJson() => _$UserUnavailableToJson(this);
 }

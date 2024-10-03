@@ -2,19 +2,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import 'item_content_union.dart';
 import 'type_name.dart';
 
-part 'timeline_prompt.freezed.dart';
 part 'timeline_prompt.g.dart';
 
-@Freezed()
- class TimelinePrompt with _$TimelinePrompt {
-  const factory TimelinePrompt({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-  }) = _TimelinePrompt;
+@JsonSerializable()
+class TimelinePrompt extends ItemContentUnion {
+  const TimelinePrompt({
+    required this.privateTypename,
+  });
   
   factory TimelinePrompt.fromJson(Map<String, Object?> json) => _$TimelinePromptFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+
+  Map<String, Object?> toJson() => _$TimelinePromptToJson(this);
 }

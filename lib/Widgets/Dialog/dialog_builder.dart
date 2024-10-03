@@ -13,10 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 import 'package:twitee/Widgets/General/Animation/animated_fade.dart';
-import 'package:flutter/material.dart';
 
 import '../../Utils/app_provider.dart';
 import '../../generated/l10n.dart';
@@ -161,6 +161,7 @@ class DialogBuilder {
     required Widget child,
     bool barrierDismissible = true,
     bool showClose = true,
+    bool fullScreen = false,
     Function(dynamic)? onThen,
     double? preferMinWidth,
     double? preferMinHeight,
@@ -172,7 +173,7 @@ class DialogBuilder {
       barrierLabel: '',
       barrierColor: overrideDialogNavigatorKey != null
           ? Colors.black.withOpacity(0.15)
-          : Colors.black.withOpacity(0.35),
+          : Colors.black.withOpacity(fullScreen ? 0.55 : 0.35),
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return AnimatedFade(
@@ -184,6 +185,7 @@ class DialogBuilder {
           DialogWrapperWidget(
         key: overrideDialogNavigatorKey ?? dialogNavigatorKey,
         showClose: showClose,
+        fullScreen: fullScreen,
         preferMinWidth: preferMinWidth,
         preferMinHeight: preferMinHeight,
         child: child,

@@ -2,19 +2,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'session.dart';
 
-part 'other_response.freezed.dart';
 part 'other_response.g.dart';
 
-@Freezed()
- class OtherResponse with _$OtherResponse {
-  const factory OtherResponse({
-    @JsonKey(name: 'Session')
-    required Session session,
-  }) = _OtherResponse;
+@JsonSerializable()
+class OtherResponse  {
+  const OtherResponse({
+    required this.session,
+  });
   
   factory OtherResponse.fromJson(Map<String, Object?> json) => _$OtherResponseFromJson(json);
+  
+  @JsonKey(name: 'Session')
+  final Session? session;
+
+  Map<String, Object?> toJson() => _$OtherResponseToJson(this);
 }

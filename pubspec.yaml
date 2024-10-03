@@ -15,6 +15,7 @@ dependencies:
   animations: ^2.0.11 # 动画
   fluttertoast: ^8.2.6 # 吐司
   lottie: ^3.1.2 # Lottie动画
+  nine_grid_view: ^2.0.0 # 九宫格
   modal_bottom_sheet: ^3.0.0 # 底部弹窗
   palette_generator: ^0.3.3+3 # 获取主色调
   vector_math: ^2.1.4 # 矢量数学
@@ -133,7 +134,7 @@ swagger_parser:
 
   # Optional (dart only).
   # Current available serializers are: json_serializable, freezed, dart_mappable.
-  json_serializer: freezed
+  json_serializer: json_serializable
 
   # Optional. Set default content-type for all requests.
   default_content_type: "application/json"

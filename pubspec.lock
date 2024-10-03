@@ -1134,6 +1134,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0"
+  nine_grid_view:
+    dependency: "direct main"
+    description:
+      name: nine_grid_view
+      sha256: "40785a2f73ad541536cbf7fd1010a02f06a51d0bd058d05629a5f04df2d1a086"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
   octo_image:
     dependency: transitive
     description:

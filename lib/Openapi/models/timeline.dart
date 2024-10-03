@@ -2,20 +2,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'instruction_union.dart';
 
-part 'timeline.freezed.dart';
 part 'timeline.g.dart';
 
-@Freezed()
- class Timeline with _$Timeline {
-  const factory Timeline({
-    required List<InstructionUnion> instructions,
-    required dynamic metadata,
-    required dynamic responseObjects,
-  }) = _Timeline;
+@JsonSerializable()
+class Timeline  {
+  const Timeline({
+    required this.instructions,
+    required this.metadata,
+    required this.responseObjects,
+  });
   
   factory Timeline.fromJson(Map<String, Object?> json) => _$TimelineFromJson(json);
+  
+  final List<InstructionUnion> instructions;
+  final dynamic metadata;
+  final dynamic responseObjects;
+
+  Map<String, Object?> toJson() => _$TimelineToJson(this);
 }

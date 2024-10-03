@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'display_treatment.freezed.dart';
 part 'display_treatment.g.dart';
 
-@Freezed()
- class DisplayTreatment with _$DisplayTreatment {
-  const factory DisplayTreatment({
-    required String actionText,
-  }) = _DisplayTreatment;
+@JsonSerializable()
+class DisplayTreatment  {
+  const DisplayTreatment({
+    required this.actionText,
+  });
   
   factory DisplayTreatment.fromJson(Map<String, Object?> json) => _$DisplayTreatmentFromJson(json);
+  
+  final String actionText;
+
+  Map<String, Object?> toJson() => _$DisplayTreatmentToJson(this);
 }

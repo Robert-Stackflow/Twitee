@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'communities_actions.freezed.dart';
 part 'communities_actions.g.dart';
 
-@Freezed()
- class CommunitiesActions with _$CommunitiesActions {
-  const factory CommunitiesActions({
-    required bool create,
-  }) = _CommunitiesActions;
+@JsonSerializable()
+class CommunitiesActions  {
+  const CommunitiesActions({
+    required this.create,
+  });
   
   factory CommunitiesActions.fromJson(Map<String, Object?> json) => _$CommunitiesActionsFromJson(json);
+  
+  final bool create;
+
+  Map<String, Object?> toJson() => _$CommunitiesActionsToJson(this);
 }

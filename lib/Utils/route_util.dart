@@ -13,11 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 import '../Widgets/Custom/custom_cupertino_route.dart';
 import '../Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
@@ -93,6 +92,7 @@ class RouteUtil {
     Widget page, {
     bool barrierDismissible = true,
     bool showClose = true,
+    bool fullScreen = false,
     double? preferMinWidth,
     double? preferMinHeight,
     Function(dynamic)? onThen,
@@ -107,6 +107,7 @@ class RouteUtil {
           child: page,
           barrierDismissible: barrierDismissible,
           showClose: showClose,
+          fullScreen: fullScreen,
           onThen: onThen,
           preferMinWidth: preferMinWidth,
           preferMinHeight: preferMinHeight,

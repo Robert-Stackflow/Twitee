@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'community_urls_permalink.freezed.dart';
 part 'community_urls_permalink.g.dart';
 
-@Freezed()
- class CommunityUrlsPermalink with _$CommunityUrlsPermalink {
-  const factory CommunityUrlsPermalink({
-    required String url,
-  }) = _CommunityUrlsPermalink;
+@JsonSerializable()
+class CommunityUrlsPermalink  {
+  const CommunityUrlsPermalink({
+    required this.url,
+  });
   
   factory CommunityUrlsPermalink.fromJson(Map<String, Object?> json) => _$CommunityUrlsPermalinkFromJson(json);
+  
+  final String url;
+
+  Map<String, Object?> toJson() => _$CommunityUrlsPermalinkToJson(this);
 }

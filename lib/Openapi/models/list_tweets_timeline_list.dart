@@ -2,19 +2,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'list_tweets_timeline.dart';
 
-part 'list_tweets_timeline_list.freezed.dart';
 part 'list_tweets_timeline_list.g.dart';
 
-@Freezed()
- class ListTweetsTimelineList with _$ListTweetsTimelineList {
-  const factory ListTweetsTimelineList({
-    @JsonKey(name: 'tweets_timeline')
-    required ListTweetsTimeline tweetsTimeline,
-  }) = _ListTweetsTimelineList;
+@JsonSerializable()
+class ListTweetsTimelineList  {
+  const ListTweetsTimelineList({
+    required this.tweetsTimeline,
+  });
   
   factory ListTweetsTimelineList.fromJson(Map<String, Object?> json) => _$ListTweetsTimelineListFromJson(json);
+  
+  @JsonKey(name: 'tweets_timeline')
+  final ListTweetsTimeline? tweetsTimeline;
+
+  Map<String, Object?> toJson() => _$ListTweetsTimelineListToJson(this);
 }

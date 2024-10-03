@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'profile_response_data.dart';
 
-part 'profile_response.freezed.dart';
 part 'profile_response.g.dart';
 
-@Freezed()
- class ProfileResponse with _$ProfileResponse {
-  const factory ProfileResponse({
-    required ProfileResponseData data,
-  }) = _ProfileResponse;
+@JsonSerializable()
+class ProfileResponse  {
+  const ProfileResponse({
+    required this.data,
+  });
   
   factory ProfileResponse.fromJson(Map<String, Object?> json) => _$ProfileResponseFromJson(json);
+  
+  final ProfileResponseData data;
+
+  Map<String, Object?> toJson() => _$ProfileResponseToJson(this);
 }

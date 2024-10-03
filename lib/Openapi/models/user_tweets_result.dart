@@ -2,22 +2,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'timeline_v.dart';
 import 'type_name.dart';
 
-part 'user_tweets_result.freezed.dart';
 part 'user_tweets_result.g.dart';
 
-@Freezed()
- class UserTweetsResult with _$UserTweetsResult {
-  const factory UserTweetsResult({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-    @JsonKey(name: 'timeline_v2')
-    required TimelineV timelineV2,
-  }) = _UserTweetsResult;
+@JsonSerializable()
+class UserTweetsResult  {
+  const UserTweetsResult({
+    required this.privateTypename,
+    required this.timelineV2,
+  });
   
   factory UserTweetsResult.fromJson(Map<String, Object?> json) => _$UserTweetsResultFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+  @JsonKey(name: 'timeline_v2')
+  final TimelineV? timelineV2;
+
+  Map<String, Object?> toJson() => _$UserTweetsResultToJson(this);
 }

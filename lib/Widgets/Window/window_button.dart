@@ -219,7 +219,7 @@ class ToolButton extends WindowButton {
     required BuildContext context,
     super.selected,
     WindowButtonColors? colors,
-    required VoidCallback onPressed,
+    required VoidCallback onTap,
     bool? animate,
     EdgeInsets? padding,
     WindowButtonIconBuilder? iconBuilder,
@@ -239,7 +239,7 @@ class ToolButton extends WindowButton {
                     color: buttonContext.iconColor,
                     size: iconSize,
                   ),
-          onPressed: onPressed,
+          onPressed: onTap,
         );
 }
 

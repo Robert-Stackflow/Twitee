@@ -21,9 +21,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/color_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/image_util.dart';
+import 'package:twitee/Widgets/Window/window_button.dart';
 
 import '../../Models/illust.dart';
 import '../../Utils/asset_util.dart';
@@ -123,7 +125,8 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
         HiveUtil.getBool(HiveUtil.followMainColorKey)) {
       mainColors = widget.mainColors!;
     } else {
-      mainColors = List.filled(imageUrls.length, Colors.black);
+      mainColors = List.filled(imageUrls.length,
+          ResponsiveUtil.isLandscape() ? Colors.transparent : Colors.black);
       if (widget.useMainColor &&
           HiveUtil.getBool(HiveUtil.followMainColorKey)) {
         ColorUtil.getMainColors(
@@ -144,8 +147,8 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
     return Scaffold(
       appBar: _buildAppBar(),
       extendBody: true,
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.black,
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -419,6 +422,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
   PreferredSizeWidget _buildAppBar() {
     return ItemBuilder.buildAppBar(
       context: context,
+      transparent: widget.transparentBar,
       backgroundColor: widget.transparentBar
           ? Colors.transparent
           : Utils.getDarkColor(mainColors[currentIndex]).withOpacity(0.5),
@@ -443,17 +447,13 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 )
               : emptyWidget,
       actions: [
-        ItemBuilder.buildIconButton(
+        ToolButton(
           context: context,
-          icon: AssetUtil.load(AssetUtil.linkWhiteIcon),
+          iconBuilder: (context) => Padding(
+            padding: const EdgeInsets.all(6),
+            child: AssetUtil.load(AssetUtil.linkWhiteIcon),
+          ),
           onTap: () {
-            Utils.copy(
-              context,
-              currentUrl,
-              toastText: "已复制图片链接",
-            );
-          },
-          onLongPress: () {
             Utils.copy(
               context,
               currentUrl,
@@ -462,9 +462,10 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           },
         ),
         const SizedBox(width: 5),
-        ItemBuilder.buildIconButton(
+        ToolButton(
           context: context,
-          icon: const Icon(Icons.share_rounded, color: Colors.white, size: 22),
+          iconBuilder: (context) =>
+              const Icon(Icons.share_rounded, color: Colors.white, size: 22),
           onTap: () {
             ImageUtil.shareImage(
               context,
@@ -473,9 +474,12 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           },
         ),
         const SizedBox(width: 5),
-        ItemBuilder.buildIconButton(
+        ToolButton(
           context: context,
-          icon: downloadIcon,
+          iconBuilder: (context) => Padding(
+            padding: const EdgeInsets.all(6),
+            child: downloadIcon,
+          ),
           onTap: () {
             if (downloadState == DownloadState.none) {
               setDownloadState(DownloadState.loading, recover: false);
@@ -509,9 +513,12 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
         ),
         const SizedBox(width: 5),
         if (imageUrls.length > 1)
-          ItemBuilder.buildIconButton(
+          ToolButton(
             context: context,
-            icon: allDownloadIcon,
+            iconBuilder: (context) => Padding(
+              padding: const EdgeInsets.all(6),
+              child: allDownloadIcon,
+            ),
             onTap: () {
               if (allDownloadState == DownloadState.none) {
                 setAllDownloadState(DownloadState.loading, recover: false);
@@ -549,15 +556,15 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           ),
         if (imageUrls.length > 1) const SizedBox(width: 5),
         if (ResponsiveUtil.isLandscape())
-          ItemBuilder.buildIconButton(
+          ToolButton(
             context: context,
-            icon:
+            iconBuilder: (context) =>
                 const Icon(Icons.close_rounded, color: Colors.white, size: 22),
             onTap: () {
-              Navigator.pop(context);
+              dialogNavigatorState?.popPage();
             },
           ),
-        if (ResponsiveUtil.isLandscape()) const SizedBox(width: 5),
+        if (ResponsiveUtil.isLandscape()) const SizedBox(width: 9),
       ],
     );
   }

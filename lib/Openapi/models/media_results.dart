@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'media_result.dart';
 
-part 'media_results.freezed.dart';
 part 'media_results.g.dart';
 
-@Freezed()
- class MediaResults with _$MediaResults {
-  const factory MediaResults({
-    required MediaResult result,
-  }) = _MediaResults;
+@JsonSerializable()
+class MediaResults  {
+  const MediaResults({
+    required this.result,
+  });
   
   factory MediaResults.fromJson(Map<String, Object?> json) => _$MediaResultsFromJson(json);
+  
+  final MediaResult result;
+
+  Map<String, Object?> toJson() => _$MediaResultsToJson(this);
 }

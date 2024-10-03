@@ -2,20 +2,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'instruction_type.dart';
+import 'instruction_union.dart';
 import 'timeline_add_entry.dart';
 
-part 'timeline_add_entries.freezed.dart';
 part 'timeline_add_entries.g.dart';
 
-@Freezed()
- class TimelineAddEntries with _$TimelineAddEntries {
-  const factory TimelineAddEntries({
-    required List<TimelineAddEntry> entries,
-    required InstructionType type,
-  }) = _TimelineAddEntries;
+@JsonSerializable()
+class TimelineAddEntries extends InstructionUnion {
+  const TimelineAddEntries({
+    required this.entries,
+    required this.type,
+  });
   
   factory TimelineAddEntries.fromJson(Map<String, Object?> json) => _$TimelineAddEntriesFromJson(json);
+  
+  final List<TimelineAddEntry> entries;
+  final InstructionType type;
+
+  Map<String, Object?> toJson() => _$TimelineAddEntriesToJson(this);
 }

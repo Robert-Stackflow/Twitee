@@ -2,18 +2,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'timestamp.freezed.dart';
 part 'timestamp.g.dart';
 
-@Freezed()
- class Timestamp with _$Timestamp {
-  const factory Timestamp({
-    required List<int> indices,
-    required int seconds,
-    required String text,
-  }) = _Timestamp;
+@JsonSerializable()
+class Timestamp  {
+  const Timestamp({
+    required this.indices,
+    required this.seconds,
+    required this.text,
+  });
   
   factory Timestamp.fromJson(Map<String, Object?> json) => _$TimestampFromJson(json);
+  
+  final List<int> indices;
+  final int seconds;
+  final String text;
+
+  Map<String, Object?> toJson() => _$TimestampToJson(this);
 }

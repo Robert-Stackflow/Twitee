@@ -2,19 +2,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'community_rule.freezed.dart';
 part 'community_rule.g.dart';
 
-@Freezed()
- class CommunityRule with _$CommunityRule {
-  const factory CommunityRule({
-    required String description,
-    required String name,
-    @JsonKey(name: 'rest_id')
-    required String restId,
-  }) = _CommunityRule;
+@JsonSerializable()
+class CommunityRule  {
+  const CommunityRule({
+    required this.description,
+    required this.name,
+    required this.restId,
+  });
   
   factory CommunityRule.fromJson(Map<String, Object?> json) => _$CommunityRuleFromJson(json);
+  
+  final String? description;
+  final String name;
+  @JsonKey(name: 'rest_id')
+  final String? restId;
+
+  Map<String, Object?> toJson() => _$CommunityRuleToJson(this);
 }

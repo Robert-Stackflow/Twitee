@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'timeline.dart';
 
-part 'bookmarks_timeline.freezed.dart';
 part 'bookmarks_timeline.g.dart';
 
-@Freezed()
- class BookmarksTimeline with _$BookmarksTimeline {
-  const factory BookmarksTimeline({
-    required Timeline timeline,
-  }) = _BookmarksTimeline;
+@JsonSerializable()
+class BookmarksTimeline  {
+  const BookmarksTimeline({
+    required this.timeline,
+  });
   
   factory BookmarksTimeline.fromJson(Map<String, Object?> json) => _$BookmarksTimelineFromJson(json);
+  
+  final Timeline timeline;
+
+  Map<String, Object?> toJson() => _$BookmarksTimelineToJson(this);
 }

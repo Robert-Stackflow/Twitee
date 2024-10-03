@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'delete_retweet.freezed.dart';
 part 'delete_retweet.g.dart';
 
-@Freezed()
- class DeleteRetweet with _$DeleteRetweet {
-  const factory DeleteRetweet({
-    required dynamic result,
-  }) = _DeleteRetweet;
+@JsonSerializable()
+class DeleteRetweet  {
+  const DeleteRetweet({
+    required this.result,
+  });
   
   factory DeleteRetweet.fromJson(Map<String, Object?> json) => _$DeleteRetweetFromJson(json);
+  
+  final dynamic result;
+
+  Map<String, Object?> toJson() => _$DeleteRetweetToJson(this);
 }

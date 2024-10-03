@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'follow_response_data.dart';
 
-part 'follow_response.freezed.dart';
 part 'follow_response.g.dart';
 
-@Freezed()
- class FollowResponse with _$FollowResponse {
-  const factory FollowResponse({
-    required FollowResponseData data,
-  }) = _FollowResponse;
+@JsonSerializable()
+class FollowResponse  {
+  const FollowResponse({
+    required this.data,
+  });
   
   factory FollowResponse.fromJson(Map<String, Object?> json) => _$FollowResponseFromJson(json);
+  
+  final FollowResponseData data;
+
+  Map<String, Object?> toJson() => _$FollowResponseToJson(this);
 }

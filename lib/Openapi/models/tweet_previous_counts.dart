@@ -2,25 +2,32 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'tweet_previous_counts.freezed.dart';
 part 'tweet_previous_counts.g.dart';
 
-@Freezed()
- class TweetPreviousCounts with _$TweetPreviousCounts {
-  const factory TweetPreviousCounts({
-    @JsonKey(name: 'bookmark_count')
-    required int bookmarkCount,
-    @JsonKey(name: 'favorite_count')
-    required int favoriteCount,
-    @JsonKey(name: 'quote_count')
-    required int quoteCount,
-    @JsonKey(name: 'reply_count')
-    required int replyCount,
-    @JsonKey(name: 'retweet_count')
-    required int retweetCount,
-  }) = _TweetPreviousCounts;
+@JsonSerializable()
+class TweetPreviousCounts  {
+  const TweetPreviousCounts({
+    required this.bookmarkCount,
+    required this.favoriteCount,
+    required this.quoteCount,
+    required this.replyCount,
+    required this.retweetCount,
+  });
   
   factory TweetPreviousCounts.fromJson(Map<String, Object?> json) => _$TweetPreviousCountsFromJson(json);
+  
+  @JsonKey(name: 'bookmark_count')
+  final int? bookmarkCount;
+  @JsonKey(name: 'favorite_count')
+  final int? favoriteCount;
+  @JsonKey(name: 'quote_count')
+  final int? quoteCount;
+  @JsonKey(name: 'reply_count')
+  final int? replyCount;
+  @JsonKey(name: 'retweet_count')
+  final int? retweetCount;
+
+  Map<String, Object?> toJson() => _$TweetPreviousCountsToJson(this);
 }

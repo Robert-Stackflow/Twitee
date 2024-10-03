@@ -34,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   List<Tab> tabList = [];
   final PageController _pageController = PageController();
-  List<Widget> pageList = [const FollowingScreen(), const FollowingScreen()];
+  List<Widget> pageList = [
+    const FollowingScreen(isLatest: false),
+    const FollowingScreen()
+  ];
 
   initTab() {
     tabList = [
@@ -56,11 +59,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50),
+        preferredSize: const Size.fromHeight(56),
         child: Stack(
           children: [
             if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            _buildTabBar(const EdgeInsets.symmetric(horizontal: 10)),
+            _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
           ],
         ),
       ),
@@ -74,28 +77,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  _buildTabBar([EdgeInsetsGeometry? padding]) {
-    return TabBar(
-      controller: _tabController,
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      tabs: tabList,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-      isScrollable: true,
-      dividerHeight: 0,
-      padding: padding,
-      tabAlignment: TabAlignment.start,
-      physics: const ClampingScrollPhysics(),
-      labelStyle:
-          Theme.of(context).textTheme.titleMedium?.apply(fontWeightDelta: 2),
-      unselectedLabelStyle:
-          Theme.of(context).textTheme.titleMedium?.apply(color: Colors.grey),
-      indicator:
-          CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-      onTap: (index) {
-        _pageController.animateToPage(index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut);
-      },
+  _buildTabBar([double? height, EdgeInsetsGeometry? padding]) {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(height ?? 56),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        child: TabBar(
+          controller: _tabController,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          tabs: tabList,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+          isScrollable: true,
+          dividerHeight: 0,
+          padding: padding,
+          tabAlignment: TabAlignment.start,
+          physics: const ClampingScrollPhysics(),
+          labelStyle: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.apply(fontWeightDelta: 2),
+          unselectedLabelStyle: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.apply(color: Colors.grey),
+          indicator:
+              CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
+          onTap: (index) {
+            _pageController.animateToPage(index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut);
+          },
+        ),
+      ),
     );
   }
 

@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'retweet.dart';
 
-part 'create_retweet.freezed.dart';
 part 'create_retweet.g.dart';
 
-@Freezed()
- class CreateRetweet with _$CreateRetweet {
-  const factory CreateRetweet({
-    required Retweet result,
-  }) = _CreateRetweet;
+@JsonSerializable()
+class CreateRetweet  {
+  const CreateRetweet({
+    required this.result,
+  });
   
   factory CreateRetweet.fromJson(Map<String, Object?> json) => _$CreateRetweetFromJson(json);
+  
+  final Retweet result;
+
+  Map<String, Object?> toJson() => _$CreateRetweetToJson(this);
 }

@@ -2,7 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'community_actions.dart';
 import 'community_data_invites_policy.dart';
@@ -16,58 +16,86 @@ import 'primary_community_topic.dart';
 import 'type_name.dart';
 import 'user_results.dart';
 
-part 'community_data.freezed.dart';
 part 'community_data.g.dart';
 
-@Freezed()
- class CommunityData with _$CommunityData {
-  const factory CommunityData({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-    required CommunityActions actions,
-    @JsonKey(name: 'admin_results')
-    required UserResults adminResults,
-    @JsonKey(name: 'created_at')
-    required int createdAt,
-    @JsonKey(name: 'creator_results')
-    required UserResults creatorResults,
-    @JsonKey(name: 'custom_banner_media')
-    required dynamic customBannerMedia,
-    @JsonKey(name: 'default_banner_media')
-    required dynamic defaultBannerMedia,
-    required String description,
-    @JsonKey(name: 'id_str')
-    required String idStr,
-    @JsonKey(name: 'invites_policy')
-    required CommunityDataInvitesPolicy invitesPolicy,
-    @JsonKey(name: 'invites_result')
-    required CommunityInvitesResult invitesResult,
-    @JsonKey(name: 'is_pinned')
-    required bool isPinned,
-    @JsonKey(name: 'join_policy')
-    required CommunityDataJoinPolicy joinPolicy,
-    @JsonKey(name: 'join_requests_result')
-    required CommunityJoinRequestsResult joinRequestsResult,
-    @JsonKey(name: 'member_count')
-    required int memberCount,
-    @JsonKey(name: 'members_facepile_results')
-    required List<UserResults> membersFacepileResults,
-    @JsonKey(name: 'moderator_count')
-    required int moderatorCount,
-    required String name,
-    @JsonKey(name: 'primary_community_topic')
-    required PrimaryCommunityTopic primaryCommunityTopic,
-    required String question,
-    required CommunityDataRole role,
-    required List<CommunityRule> rules,
-    @JsonKey(name: 'search_tags')
-    required List<String> searchTags,
-    @JsonKey(name: 'show_only_users_to_display')
-    required List<String> showOnlyUsersToDisplay,
-    required CommunityUrls urls,
-    @JsonKey(name: 'viewer_relationship')
-    required dynamic viewerRelationship,
-  }) = _CommunityData;
+@JsonSerializable()
+class CommunityData  {
+  const CommunityData({
+    required this.privateTypename,
+    required this.actions,
+    required this.adminResults,
+    required this.createdAt,
+    required this.creatorResults,
+    required this.customBannerMedia,
+    required this.defaultBannerMedia,
+    required this.description,
+    required this.idStr,
+    required this.invitesPolicy,
+    required this.invitesResult,
+    required this.isPinned,
+    required this.joinPolicy,
+    required this.joinRequestsResult,
+    required this.memberCount,
+    required this.membersFacepileResults,
+    required this.moderatorCount,
+    required this.name,
+    required this.primaryCommunityTopic,
+    required this.question,
+    required this.role,
+    required this.rules,
+    required this.searchTags,
+    required this.showOnlyUsersToDisplay,
+    required this.urls,
+    required this.viewerRelationship,
+  });
   
   factory CommunityData.fromJson(Map<String, Object?> json) => _$CommunityDataFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+  final CommunityActions actions;
+  @JsonKey(name: 'admin_results')
+  final UserResults? adminResults;
+  @JsonKey(name: 'created_at')
+  final int? createdAt;
+  @JsonKey(name: 'creator_results')
+  final UserResults? creatorResults;
+  @JsonKey(name: 'custom_banner_media')
+  final dynamic customBannerMedia;
+  @JsonKey(name: 'default_banner_media')
+  final dynamic defaultBannerMedia;
+  final String description;
+  @JsonKey(name: 'id_str')
+  final String? idStr;
+  @JsonKey(name: 'invites_policy')
+  final CommunityDataInvitesPolicy? invitesPolicy;
+  @JsonKey(name: 'invites_result')
+  final CommunityInvitesResult? invitesResult;
+  @JsonKey(name: 'is_pinned')
+  final bool? isPinned;
+  @JsonKey(name: 'join_policy')
+  final CommunityDataJoinPolicy? joinPolicy;
+  @JsonKey(name: 'join_requests_result')
+  final CommunityJoinRequestsResult? joinRequestsResult;
+  @JsonKey(name: 'member_count')
+  final int? memberCount;
+  @JsonKey(name: 'members_facepile_results')
+  final List<UserResults?>? membersFacepileResults;
+  @JsonKey(name: 'moderator_count')
+  final int? moderatorCount;
+  final String name;
+  @JsonKey(name: 'primary_community_topic')
+  final PrimaryCommunityTopic? primaryCommunityTopic;
+  final String question;
+  final CommunityDataRole role;
+  final List<CommunityRule> rules;
+  @JsonKey(name: 'search_tags')
+  final List<String?>? searchTags;
+  @JsonKey(name: 'show_only_users_to_display')
+  final List<String?>? showOnlyUsersToDisplay;
+  final CommunityUrls? urls;
+  @JsonKey(name: 'viewer_relationship')
+  final dynamic viewerRelationship;
+
+  Map<String, Object?> toJson() => _$CommunityDataToJson(this);
 }

@@ -2,19 +2,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'article_results.dart';
 
-part 'article.freezed.dart';
 part 'article.g.dart';
 
-@Freezed()
- class Article with _$Article {
-  const factory Article({
-    @JsonKey(name: 'article_results')
-    required ArticleResults articleResults,
-  }) = _Article;
+@JsonSerializable()
+class Article  {
+  const Article({
+    required this.articleResults,
+  });
   
   factory Article.fromJson(Map<String, Object?> json) => _$ArticleFromJson(json);
+  
+  @JsonKey(name: 'article_results')
+  final ArticleResults? articleResults;
+
+  Map<String, Object?> toJson() => _$ArticleToJson(this);
 }

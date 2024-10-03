@@ -138,8 +138,8 @@ class MyColors {
 
   static getLinkColor(BuildContext context) {
     return Utils.currentBrightness(context) == Brightness.light
-        ? Theme.of(context).primaryColor
-        : Theme.of(context).primaryColor;
+        ? Colors.blue
+        : Colors.blueAccent;
   }
 
   static getHotTagBackground(BuildContext context) {

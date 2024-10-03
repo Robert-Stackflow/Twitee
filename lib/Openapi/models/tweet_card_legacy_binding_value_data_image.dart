@@ -2,19 +2,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'tweet_card_legacy_binding_value_data_image.freezed.dart';
 part 'tweet_card_legacy_binding_value_data_image.g.dart';
 
-@Freezed()
- class TweetCardLegacyBindingValueDataImage with _$TweetCardLegacyBindingValueDataImage {
-  const factory TweetCardLegacyBindingValueDataImage({
-    required String alt,
-    required int height,
-    required String url,
-    required int width,
-  }) = _TweetCardLegacyBindingValueDataImage;
+@JsonSerializable()
+class TweetCardLegacyBindingValueDataImage  {
+  const TweetCardLegacyBindingValueDataImage({
+    required this.alt,
+    required this.height,
+    required this.url,
+    required this.width,
+  });
   
   factory TweetCardLegacyBindingValueDataImage.fromJson(Map<String, Object?> json) => _$TweetCardLegacyBindingValueDataImageFromJson(json);
+  
+  final String? alt;
+  final int height;
+  final String url;
+  final int width;
+
+  Map<String, Object?> toJson() => _$TweetCardLegacyBindingValueDataImageToJson(this);
 }

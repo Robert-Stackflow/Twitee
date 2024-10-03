@@ -2,17 +2,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'unfavorite_tweet.freezed.dart';
 part 'unfavorite_tweet.g.dart';
 
-@Freezed()
- class UnfavoriteTweet with _$UnfavoriteTweet {
-  const factory UnfavoriteTweet({
-    @JsonKey(name: 'unfavorite_tweet')
-    required String unfavoriteTweet,
-  }) = _UnfavoriteTweet;
+@JsonSerializable()
+class UnfavoriteTweet  {
+  const UnfavoriteTweet({
+    required this.unfavoriteTweet,
+  });
   
   factory UnfavoriteTweet.fromJson(Map<String, Object?> json) => _$UnfavoriteTweetFromJson(json);
+  
+  @JsonKey(name: 'unfavorite_tweet')
+  final String? unfavoriteTweet;
+
+  Map<String, Object?> toJson() => _$UnfavoriteTweetToJson(this);
 }

@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'tweet_legacy_scopes.freezed.dart';
 part 'tweet_legacy_scopes.g.dart';
 
-@Freezed()
- class TweetLegacyScopes with _$TweetLegacyScopes {
-  const factory TweetLegacyScopes({
-    required bool followers,
-  }) = _TweetLegacyScopes;
+@JsonSerializable()
+class TweetLegacyScopes  {
+  const TweetLegacyScopes({
+    required this.followers,
+  });
   
   factory TweetLegacyScopes.fromJson(Map<String, Object?> json) => _$TweetLegacyScopesFromJson(json);
+  
+  final bool followers;
+
+  Map<String, Object?> toJson() => _$TweetLegacyScopesToJson(this);
 }

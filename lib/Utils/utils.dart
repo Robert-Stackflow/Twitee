@@ -18,15 +18,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:twitee/Models/github_response.dart';
-import 'package:twitee/Screens/Setting/update_screen.dart';
-import 'package:twitee/Utils/enums.dart';
-import 'package:twitee/Utils/file_util.dart';
-import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Utils/route_util.dart';
-import 'package:twitee/Utils/shortcuts_util.dart';
-import 'package:twitee/Utils/uri_util.dart';
-import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
@@ -40,6 +31,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:twitee/Models/github_response.dart';
+import 'package:twitee/Screens/Setting/update_screen.dart';
+import 'package:twitee/Utils/enums.dart';
+import 'package:twitee/Utils/file_util.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/route_util.dart';
+import 'package:twitee/Utils/shortcuts_util.dart';
+import 'package:twitee/Utils/uri_util.dart';
+import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -265,6 +265,46 @@ class Utils {
     var date = DateTime.fromMillisecondsSinceEpoch(timestamp);
     var dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     return dateFormat.format(date);
+  }
+
+  static int stringToTimestamp(String dateString) {
+    //转换Mon Jul 01 00:44:43 +0000 2019
+    List<String> parts = dateString.split(' ');
+    String day = parts[0];
+    String month = parts[1];
+    int date = int.parse(parts[2]);
+    String time = parts[3];
+    String timezone = parts[4];
+    int year = int.parse(parts[5]);
+
+    // 将月份转换为数字
+    Map<String, int> monthMap = {
+      'Jan': 1,
+      'Feb': 2,
+      'Mar': 3,
+      'Apr': 4,
+      'May': 5,
+      'Jun': 6,
+      'Jul': 7,
+      'Aug': 8,
+      'Sep': 9,
+      'Oct': 10,
+      'Nov': 11,
+      'Dec': 12,
+    };
+
+    DateTime dateTime = DateTime.utc(
+        year,
+        monthMap[month]!,
+        date,
+        int.parse(time.split(':')[0]),
+        int.parse(time.split(':')[1]),
+        int.parse(time.split(':')[2]));
+    return dateTime.millisecondsSinceEpoch;
+  }
+
+  static String formatDateString(String str) {
+    return formatTimestamp(stringToTimestamp(str));
   }
 
   static String formatTimestamp(int timestamp) {

@@ -2,17 +2,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'birdwatch_pivot_note.freezed.dart';
 part 'birdwatch_pivot_note.g.dart';
 
-@Freezed()
- class BirdwatchPivotNote with _$BirdwatchPivotNote {
-  const factory BirdwatchPivotNote({
-    @JsonKey(name: 'rest_id')
-    required String restId,
-  }) = _BirdwatchPivotNote;
+@JsonSerializable()
+class BirdwatchPivotNote  {
+  const BirdwatchPivotNote({
+    required this.restId,
+  });
   
   factory BirdwatchPivotNote.fromJson(Map<String, Object?> json) => _$BirdwatchPivotNoteFromJson(json);
+  
+  @JsonKey(name: 'rest_id')
+  final String? restId;
+
+  Map<String, Object?> toJson() => _$BirdwatchPivotNoteToJson(this);
 }

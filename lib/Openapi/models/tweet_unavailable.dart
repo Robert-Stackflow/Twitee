@@ -2,20 +2,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import 'tweet_union.dart';
 import 'type_name.dart';
 
-part 'tweet_unavailable.freezed.dart';
 part 'tweet_unavailable.g.dart';
 
-@Freezed()
- class TweetUnavailable with _$TweetUnavailable {
-  const factory TweetUnavailable({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-    required String reason,
-  }) = _TweetUnavailable;
+@JsonSerializable()
+class TweetUnavailable extends TweetUnion {
+  const TweetUnavailable({
+    required this.privateTypename,
+    required this.reason,
+  });
   
   factory TweetUnavailable.fromJson(Map<String, Object?> json) => _$TweetUnavailableFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+  final String? reason;
+
+  Map<String, Object?> toJson() => _$TweetUnavailableToJson(this);
 }

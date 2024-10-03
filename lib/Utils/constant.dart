@@ -13,9 +13,9 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/responsive_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:local_auth_android/local_auth_android.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 
 import '../generated/l10n.dart';
 
@@ -29,7 +29,7 @@ const maxBackupCountThrehold = 500;
 
 const maxBytesLength = 1000;
 
-const double kLoadExtentOffset = 1000;
+const double kLoadExtentOffset = 2000;
 
 const Widget emptyWidget = SizedBox.shrink();
 
@@ -65,8 +65,7 @@ const String sqlcipherLearnMore =
     "https://apps.cloudchewie.com/twitee/sqlcipher/";
 const String telegramLink = "https://t.me/Twitee";
 const String repoUrl = "https://github.com/Robert-Stackflow/Twitee";
-const String releaseUrl =
-    "https://github.com/Robert-Stackflow/Twitee/releases";
+const String releaseUrl = "https://github.com/Robert-Stackflow/Twitee/releases";
 const String issueUrl = "https://github.com/Robert-Stackflow/Twitee/issues";
 const String privacyPolicyWebsite =
     "https://apps.cloudchewie.com/twitee/privacy/";

@@ -20,23 +20,28 @@ import '../Utils/ilogger.dart';
 import '../Utils/request_util.dart';
 
 class TimelineApi {
-  static Future<ResponseResult> getHomeline({
+  static Future<ResponseResult> getHomeLatestline({
     int count = 20,
+    String? cursorBottom,
     List<String> seenTweetIds = const [],
+    bool isLatest = true,
   }) async {
     try {
       ILogger.info("Twitee API", "Getting homeline");
       final response = await RequestUtil.post(
-        "/HJFjzBgCs16TqxewQOeLNg/HomeTimeline",
+        isLatest
+            ? "/DiTkXJgLqBBxCs7zaYsbtA/HomeLatestTimeline"
+            : "/HJFjzBgCs16TqxewQOeLNg/HomeTimeline",
         domainType: DomainType.www,
         data: {
           "variables": {
             "count": count,
             "includePromotedContent": true,
             "latestControlAvailable": true,
-            "requestContext": "launch",
+            "requestContext": cursorBottom != null ? "ptr" : "launch",
             "withCommunity": true,
             "seenTweetIds": seenTweetIds,
+            "cursor": cursorBottom,
           },
           "features": {
             "rweb_tipjar_consumption_enabled": true,
@@ -65,7 +70,8 @@ class TimelineApi {
             "longform_notetweets_inline_media_enabled": true,
             "responsive_web_enhance_cards_enabled": false
           },
-          "queryId": "HJFjzBgCs16TqxewQOeLNg"
+          "queryId":
+              isLatest ? "DiTkXJgLqBBxCs7zaYsbtA" : "HJFjzBgCs16TqxewQOeLNg"
         },
       );
       if (response == null || response.statusCode != 200) {

@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'user_results.dart';
 
-part 'user_response_data.freezed.dart';
 part 'user_response_data.g.dart';
 
-@Freezed()
- class UserResponseData with _$UserResponseData {
-  const factory UserResponseData({
-    required UserResults user,
-  }) = _UserResponseData;
+@JsonSerializable()
+class UserResponseData  {
+  const UserResponseData({
+    required this.user,
+  });
   
   factory UserResponseData.fromJson(Map<String, Object?> json) => _$UserResponseDataFromJson(json);
+  
+  final UserResults user;
+
+  Map<String, Object?> toJson() => _$UserResponseDataToJson(this);
 }

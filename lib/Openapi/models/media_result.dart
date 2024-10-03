@@ -2,17 +2,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'media_result.freezed.dart';
 part 'media_result.g.dart';
 
-@Freezed()
- class MediaResult with _$MediaResult {
-  const factory MediaResult({
-    @JsonKey(name: 'media_key')
-    required String mediaKey,
-  }) = _MediaResult;
+@JsonSerializable()
+class MediaResult  {
+  const MediaResult({
+    required this.mediaKey,
+  });
   
   factory MediaResult.fromJson(Map<String, Object?> json) => _$MediaResultFromJson(json);
+  
+  @JsonKey(name: 'media_key')
+  final String? mediaKey;
+
+  Map<String, Object?> toJson() => _$MediaResultToJson(this);
 }

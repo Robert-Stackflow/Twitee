@@ -2,19 +2,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'user_verification_info_reason_description_entities.dart';
 
-part 'user_verification_info_reason_description.freezed.dart';
 part 'user_verification_info_reason_description.g.dart';
 
-@Freezed()
- class UserVerificationInfoReasonDescription with _$UserVerificationInfoReasonDescription {
-  const factory UserVerificationInfoReasonDescription({
-    required List<UserVerificationInfoReasonDescriptionEntities> entities,
-    required String text,
-  }) = _UserVerificationInfoReasonDescription;
+@JsonSerializable()
+class UserVerificationInfoReasonDescription  {
+  const UserVerificationInfoReasonDescription({
+    required this.entities,
+    required this.text,
+  });
   
   factory UserVerificationInfoReasonDescription.fromJson(Map<String, Object?> json) => _$UserVerificationInfoReasonDescriptionFromJson(json);
+  
+  final List<UserVerificationInfoReasonDescriptionEntities> entities;
+  final String text;
+
+  Map<String, Object?> toJson() => _$UserVerificationInfoReasonDescriptionToJson(this);
 }

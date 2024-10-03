@@ -2,17 +2,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'user_features.freezed.dart';
 part 'user_features.g.dart';
 
-@Freezed()
- class UserFeatures with _$UserFeatures {
-  const factory UserFeatures({
-    @JsonKey(name: 'mediatool_studio_library')
-    required bool mediatoolStudioLibrary,
-  }) = _UserFeatures;
+@JsonSerializable()
+class UserFeatures  {
+  const UserFeatures({
+    required this.mediatoolStudioLibrary,
+  });
   
   factory UserFeatures.fromJson(Map<String, Object?> json) => _$UserFeaturesFromJson(json);
+  
+  @JsonKey(name: 'mediatool_studio_library')
+  final bool? mediatoolStudioLibrary;
+
+  Map<String, Object?> toJson() => _$UserFeaturesToJson(this);
 }

@@ -28,6 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:twitee/Resources/fonts.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/lottie_util.dart';
+import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Selectable/my_context_menu_item.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -429,6 +430,7 @@ class ItemBuilder {
     double radius = 8,
     EdgeInsets? padding,
     bool disabled = false,
+    BoxDecoration? decoration,
   }) {
     return Material(
       color: disabled
@@ -441,8 +443,47 @@ class ItemBuilder {
         onTap: onTap,
         onLongPress: onLongPress,
         child: Container(
+          decoration: decoration,
           padding: padding ?? const EdgeInsets.all(10),
           child: icon ?? emptyWidget,
+        ),
+      ),
+    );
+  }
+
+  static Widget buildShadowIconButton({
+    required BuildContext context,
+    required dynamic icon,
+    required Function()? onTap,
+    Function()? onLongPress,
+    double radius = 8,
+    EdgeInsets? padding,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).dividerColor, width: 0.8),
+        borderRadius: BorderRadius.circular(radius+1),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(rootContext).shadowColor,
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ).scale(2)
+        ],
+      ),
+      child: Material(
+        color: Theme.of(context).canvasColor,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: BorderRadius.circular(radius),
+          child: Container(
+            padding: padding ?? const EdgeInsets.all(10),
+            child: icon ?? emptyWidget,
+          ),
         ),
       ),
     );
@@ -487,7 +528,7 @@ class ItemBuilder {
         return ToolButton(
           context: context,
           iconBuilder: iconBuilder,
-          onPressed: onTap,
+          onTap: onTap,
           padding: const EdgeInsets.all(7),
         );
       },
@@ -2373,7 +2414,7 @@ class ItemBuilder {
       child: WindowTitleBar(
         useMoveHandle: ResponsiveUtil.isDesktop(),
         titleBarHeightDelta: 30,
-        margin: const EdgeInsets.symmetric(vertical: 6),
+        margin: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
             // ...leftWidgets,
@@ -2426,7 +2467,7 @@ class ItemBuilder {
                 ),
               ],
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 10),
           ],
         ),
       ),
@@ -2480,6 +2521,7 @@ class ItemBuilder {
     String? tagPrefix,
     String? tagSuffix,
     bool clickable = true,
+    bool isOval = true,
   }) {
     String tagUrl = imageUrl;
     return ItemBuilder.buildClickItem(
@@ -2520,15 +2562,26 @@ class ItemBuilder {
                           );
                         }
                       : null,
-                  child: ClipOval(
-                    child: ItemBuilder.buildCachedImage(
-                      context: context,
-                      imageUrl: tagUrl,
-                      width: size,
-                      showLoading: showLoading,
-                      height: size,
-                    ),
-                  ),
+                  child: isOval
+                      ? ClipOval(
+                          child: ItemBuilder.buildCachedImage(
+                            context: context,
+                            imageUrl: tagUrl,
+                            width: size,
+                            showLoading: showLoading,
+                            height: size,
+                          ),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: ItemBuilder.buildCachedImage(
+                            context: context,
+                            imageUrl: tagUrl,
+                            width: size,
+                            showLoading: showLoading,
+                            height: size,
+                          ),
+                        ),
                 ),
               ),
       ),
@@ -2554,17 +2607,17 @@ class ItemBuilder {
     return ItemBuilder.buildClickItem(
       GestureDetector(
         onTap: () {
-          Navigator.push(
+          RouteUtil.pushDialogRoute(
             context,
-            MaterialPageRoute(
-              builder: (context) => HeroPhotoViewScreen(
-                tagPrefix: tagPrefix,
-                tagSuffix: tagSuffix,
-                imageUrls: [imageUrl],
-                useMainColor: false,
-                title: title,
-                captions: [caption ?? ""],
-              ),
+            showClose: false,
+            fullScreen: true,
+            HeroPhotoViewScreen(
+              tagPrefix: tagPrefix,
+              tagSuffix: tagSuffix,
+              imageUrls: [imageUrl],
+              useMainColor: false,
+              title: title,
+              captions: [caption ?? ""],
             ),
           );
         },

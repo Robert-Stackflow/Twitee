@@ -2,25 +2,32 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'type_name.dart';
 import 'user_result_by_screen_name_legacy.dart';
 
-part 'user_result_by_screen_name_result.freezed.dart';
 part 'user_result_by_screen_name_result.g.dart';
 
-@Freezed()
- class UserResultByScreenNameResult with _$UserResultByScreenNameResult {
-  const factory UserResultByScreenNameResult({
-    @JsonKey(name: '__typename')
-    required TypeName privateTypename,
-    required String id,
-    required UserResultByScreenNameLegacy legacy,
-    required dynamic profilemodules,
-    @JsonKey(name: 'rest_id')
-    required String restId,
-  }) = _UserResultByScreenNameResult;
+@JsonSerializable()
+class UserResultByScreenNameResult  {
+  const UserResultByScreenNameResult({
+    required this.privateTypename,
+    required this.id,
+    required this.legacy,
+    required this.profilemodules,
+    required this.restId,
+  });
   
   factory UserResultByScreenNameResult.fromJson(Map<String, Object?> json) => _$UserResultByScreenNameResultFromJson(json);
+  
+  @JsonKey(name: '__typename')
+  final TypeName? privateTypename;
+  final String id;
+  final UserResultByScreenNameLegacy legacy;
+  final dynamic profilemodules;
+  @JsonKey(name: 'rest_id')
+  final String? restId;
+
+  Map<String, Object?> toJson() => _$UserResultByScreenNameResultToJson(this);
 }

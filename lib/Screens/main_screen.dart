@@ -257,7 +257,7 @@ class MainScreenState extends State<MainScreen>
           triggerOffset: 40,
         );
     EasyRefresh.defaultFooterBuilder = () => LottieCupertinoFooter(
-          indicator: LottieUtil.load(LottieUtil.getLoadingPath(context)),
+          indicator: LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
         );
     Utils.setSafeMode(HiveUtil.getBool(HiveUtil.enableSafeModeKey,
         defaultValue: defaultEnableSafeMode));
@@ -331,7 +331,7 @@ class MainScreenState extends State<MainScreen>
         Expanded(
           child: Stack(
             children: [
-              _desktopMainContent(rightMargin: 5),
+              _desktopMainContent(),
               Positioned(
                 right: 0,
                 child: _titleBar(),
@@ -409,7 +409,7 @@ class MainScreenState extends State<MainScreen>
                   selected: sidebarChoice == SideBarChoice.Home,
                   icon: Icons.home_outlined,
                   selectedIcon: Icons.home_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Home;
                   },
                   iconSize: 24,
@@ -419,7 +419,7 @@ class MainScreenState extends State<MainScreen>
                   context: context,
                   selected: sidebarChoice == SideBarChoice.Search,
                   icon: Icons.search_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Search;
                   },
                 ),
@@ -441,7 +441,7 @@ class MainScreenState extends State<MainScreen>
                   selected: sidebarChoice == SideBarChoice.Bookmark,
                   icon: Icons.bookmark_border_rounded,
                   selectedIcon: Icons.bookmark_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Bookmark;
                   },
                 ),
@@ -451,7 +451,7 @@ class MainScreenState extends State<MainScreen>
                   selected: sidebarChoice == SideBarChoice.Like,
                   icon: Icons.favorite_border_rounded,
                   selectedIcon: Icons.favorite_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Like;
                   },
                 ),
@@ -461,7 +461,7 @@ class MainScreenState extends State<MainScreen>
                   selected: sidebarChoice == SideBarChoice.List,
                   icon: Icons.featured_play_list_outlined,
                   selectedIcon: Icons.featured_play_list_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.List;
                   },
                   iconSize: 20,
@@ -472,7 +472,7 @@ class MainScreenState extends State<MainScreen>
                   selected: sidebarChoice == SideBarChoice.Mention,
                   icon: Icons.notifications_none_rounded,
                   selectedIcon: Icons.notifications_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Mention;
                   },
                 ),
@@ -481,7 +481,7 @@ class MainScreenState extends State<MainScreen>
                   context: context,
                   selected: sidebarChoice == SideBarChoice.Download,
                   icon: Icons.save_alt_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     appProvider.sidebarChoice = SideBarChoice.Download;
                   },
                 ),
@@ -528,7 +528,7 @@ class MainScreenState extends State<MainScreen>
                 ToolButton(
                   context: context,
                   icon: Icons.token_outlined,
-                  onPressed: () async {
+                  onTap: () async {
                     RouteUtil.pushDialogRoute(
                         context, const SettingNavigationScreen());
                   },
@@ -537,7 +537,7 @@ class MainScreenState extends State<MainScreen>
                 ToolButton(
                   context: context,
                   icon: Icons.help_outline_rounded,
-                  onPressed: () async {
+                  onTap: () async {
                     RouteUtil.pushDialogRoute(
                         context, const AboutSettingScreen());
                   },

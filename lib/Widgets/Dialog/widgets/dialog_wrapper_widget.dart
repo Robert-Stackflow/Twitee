@@ -15,8 +15,8 @@
 
 import 'dart:math';
 
-import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../../Utils/route_util.dart';
 import '../../../Utils/utils.dart';
@@ -26,6 +26,7 @@ class DialogWrapperWidget extends StatefulWidget {
   final double? preferMinWidth;
   final double? preferMinHeight;
   final bool showClose;
+  final bool fullScreen;
 
   const DialogWrapperWidget({
     super.key,
@@ -33,6 +34,7 @@ class DialogWrapperWidget extends StatefulWidget {
     this.preferMinWidth,
     this.preferMinHeight,
     this.showClose = true,
+    this.fullScreen = false,
   });
 
   @override
@@ -86,26 +88,34 @@ class DialogWrapperWidgetState extends State<DialogWrapperWidget> {
         popPage();
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: preferHorizontalMargin, vertical: preferVerticalMargin),
+        padding: widget.fullScreen
+            ? EdgeInsets.zero
+            : EdgeInsets.symmetric(
+                horizontal: preferHorizontalMargin,
+                vertical: preferVerticalMargin),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border:
-                Border.all(color: Theme.of(context).dividerColor, width: 0.5),
-            boxShadow: [
-              BoxShadow(
-                color: Utils.isDark(context)
-                    ? Theme.of(context).shadowColor
-                    : Colors.transparent,
-                offset: const Offset(0, 4),
-                blurRadius: 10,
-                spreadRadius: 1,
-              ).scale(2)
-            ],
+            border: widget.fullScreen
+                ? null
+                : Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+            boxShadow: widget.fullScreen
+                ? null
+                : [
+                    BoxShadow(
+                      color: Utils.isDark(context)
+                          ? Theme.of(context).shadowColor
+                          : Colors.transparent,
+                      offset: const Offset(0, 4),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ).scale(2)
+                  ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: widget.fullScreen
+                ? BorderRadius.circular(0)
+                : BorderRadius.circular(16),
             child: Stack(
               children: [
                 Navigator(

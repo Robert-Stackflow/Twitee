@@ -2,18 +2,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'timeline.dart';
 
-part 'follow_timeline.freezed.dart';
 part 'follow_timeline.g.dart';
 
-@Freezed()
- class FollowTimeline with _$FollowTimeline {
-  const factory FollowTimeline({
-    required Timeline timeline,
-  }) = _FollowTimeline;
+@JsonSerializable()
+class FollowTimeline  {
+  const FollowTimeline({
+    required this.timeline,
+  });
   
   factory FollowTimeline.fromJson(Map<String, Object?> json) => _$FollowTimelineFromJson(json);
+  
+  final Timeline timeline;
+
+  Map<String, Object?> toJson() => _$FollowTimelineToJson(this);
 }

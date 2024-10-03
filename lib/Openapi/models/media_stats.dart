@@ -2,16 +2,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'media_stats.freezed.dart';
 part 'media_stats.g.dart';
 
-@Freezed()
- class MediaStats with _$MediaStats {
-  const factory MediaStats({
-    required int viewCount,
-  }) = _MediaStats;
+@JsonSerializable()
+class MediaStats  {
+  const MediaStats({
+    required this.viewCount,
+  });
   
   factory MediaStats.fromJson(Map<String, Object?> json) => _$MediaStatsFromJson(json);
+  
+  final int viewCount;
+
+  Map<String, Object?> toJson() => _$MediaStatsToJson(this);
 }
