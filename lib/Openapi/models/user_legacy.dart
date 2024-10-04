@@ -10,8 +10,10 @@ import 'user_legacy_verified_type.dart';
 part 'user_legacy.g.dart';
 
 @JsonSerializable()
-class UserLegacy  {
-  const UserLegacy({
+class UserLegacy {
+  UserLegacy({
+    required this.id,
+    required this.idStr,
     required this.following,
     required this.blocking,
     required this.canDm,
@@ -54,12 +56,16 @@ class UserLegacy  {
     required this.wantRetweets,
     required this.possiblySensitive,
   });
-  
-  factory UserLegacy.fromJson(Map<String, Object?> json) => _$UserLegacyFromJson(json);
-  
+
+  factory UserLegacy.fromJson(Map<String, Object?> json) =>
+      _$UserLegacyFromJson(json);
+
+  int? id;
+  @JsonKey(name: 'id_str')
+  String? idStr;
   @JsonKey(name: 'blocked_by')
-  final bool? blockedBy;
-  final bool? blocking;
+  bool? blockedBy;
+  bool? blocking;
   @JsonKey(name: 'can_dm')
   final bool? canDm;
   @JsonKey(name: 'can_media_tag')
@@ -79,12 +85,12 @@ class UserLegacy  {
   @JsonKey(name: 'follow_request_sent')
   final bool? followRequestSent;
   @JsonKey(name: 'followed_by')
-  final bool? followedBy;
+  bool? followedBy;
   @JsonKey(name: 'followers_count')
-  final int? followersCount;
-  final bool? following;
+  int? followersCount;
+  bool? following;
   @JsonKey(name: 'friends_count')
-  final int? friendsCount;
+  int? friendsCount;
   @JsonKey(name: 'has_custom_timelines')
   final bool? hasCustomTimelines;
   @JsonKey(name: 'is_translator')
@@ -94,7 +100,7 @@ class UserLegacy  {
   final String location;
   @JsonKey(name: 'media_count')
   final int? mediaCount;
-  final bool? muting;
+  bool? muting;
   final String name;
   @JsonKey(name: 'normal_followers_count')
   final int? normalFollowersCount;
@@ -128,6 +134,8 @@ class UserLegacy  {
   final bool? wantRetweets;
   @JsonKey(name: 'withheld_in_countries')
   final List<String?>? withheldInCountries;
+
+  bool get isFriend => (following ?? false) && (followedBy ?? false);
 
   Map<String, Object?> toJson() => _$UserLegacyToJson(this);
 }

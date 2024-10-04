@@ -10,38 +10,44 @@ import 'package:twitee/Utils/request_header_util.dart';
 
 import 'iprint.dart';
 
-enum DomainType { api, www }
+enum DomainType {
+  api,
+  graphql,
+  v1,
+  v2;
 
-// class CookieInterceptor extends Interceptor {
-//   final CookieJar cookieJar;
-//
-//   CookieInterceptor(this.cookieJar);
-//
-//   @override
-//   void onResponse(Response response, ResponseInterceptorHandler handler) {
-//     final cookies = response.headers['Set-Cookie'];
-//     if (cookies != null) {
-//       for (var cookie in cookies) {
-//         cookieJar.saveFromResponse(
-//           response.request!.uri,
-//           [cookie],
-//         );
-//       }
-//     }
-//     super.onResponse(response, handler);
-//   }
-// }
+  String get baseUrl {
+    switch (this) {
+      case DomainType.api:
+        return RequestUtil.apiUrl;
+      case DomainType.graphql:
+        return RequestUtil.graphqlUrl;
+      case DomainType.v1:
+        return RequestUtil.v1Url;
+      case DomainType.v2:
+        return RequestUtil.v2Url;
+    }
+  }
+}
 
 class RequestUtil {
   static RequestUtil instance = RequestUtil();
-  static RequestUtil wwwInstance = RequestUtil(domainType: DomainType.www);
-  late Dio dio;
-  late BaseOptions options;
+  static RequestUtil grahqlInstance =
+      RequestUtil(domainType: DomainType.graphql);
+  static RequestUtil v1Instance = RequestUtil(domainType: DomainType.v1);
+  static RequestUtil v2Instance = RequestUtil(domainType: DomainType.v2);
+  static const String apiUrl = "https://api.x.com";
+  static const String graphqlUrl = "https://x.com/i/api/graphql";
+  static const String v1Url = "https://x.com/i/api/1.1";
+  static const String v2Url = "https://x.com/i/api/2";
+
+  static const String csrfCookieKey = "ct0";
+
   static CookieJar? cookieJar;
   static CookieManager? cookieManager;
-  static const String apiUrl = "https://api.x.com";
-  static const String wwwUrl = "https://x.com/i/api/graphql";
-  static const String csrfCookieKey = "ct0";
+
+  late Dio dio;
+  late BaseOptions options;
 
   static init() async {
     cookieJar = PersistCookieJar();
@@ -72,27 +78,33 @@ class RequestUtil {
     return await getCookie(csrfCookieKey);
   }
 
-  static RequestUtil getInstance({DomainType domainType = DomainType.api}) {
+  static Future<void> clearCookie() async {
+    await cookieJar?.deleteAll();
+  }
+
+  static shareCookie() async {
+    var cookies = await cookieJar?.loadForRequest(Uri.parse(apiUrl));
+    cookieJar?.saveFromResponse(Uri.parse(graphqlUrl), cookies ?? []);
+  }
+
+  static RequestUtil getInstance([DomainType domainType = DomainType.api]) {
     switch (domainType) {
       case DomainType.api:
         return instance;
-      case DomainType.www:
-        return wwwInstance;
+      case DomainType.graphql:
+        return grahqlInstance;
+      case DomainType.v1:
+        return v1Instance;
+      case DomainType.v2:
+        return v2Instance;
     }
   }
 
-  RequestUtil({DomainType domainType = DomainType.api}) {
-    String baseURL = "";
-    switch (domainType) {
-      case DomainType.api:
-        baseURL = apiUrl;
-        break;
-      case DomainType.www:
-        baseURL = wwwUrl;
-        break;
-    }
+  RequestUtil({
+    DomainType domainType = DomainType.api,
+  }) {
     options = BaseOptions(
-      baseUrl: baseURL,
+      baseUrl: domainType.baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 25),
       contentType: Headers.jsonContentType,
@@ -112,97 +124,83 @@ class RequestUtil {
         };
     };
     dio.interceptors.add(cookieManager!);
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-          return handler.next(options);
-        },
-        onResponse: (Response response, ResponseInterceptorHandler handler) {
-          return handler.next(response);
-        },
-        onError: (DioException e, ErrorInterceptorHandler handler) {
-          return handler.next(e);
-        },
-      ),
-    );
-  }
-
-  static Future<void> clearCookie() async {
-    await cookieJar?.deleteAll();
-  }
-
-  static shareCookie() async {
-    var cookies = await cookieJar?.loadForRequest(Uri.parse(apiUrl));
-    cookieJar?.saveFromResponse(Uri.parse(wwwUrl), cookies ?? []);
   }
 
   Future<Response?> _get(
-    url, {
-    params,
-    options,
-    domainType,
+    String url, {
+    Map<String, dynamic>? params,
+    Options? options,
+    DomainType? domainType,
   }) async {
     Response? response;
-    [params, options] = await _processRequest(
-        params: params, options: options, domainType: domainType);
+    options = await _preProcessRequest(
+      options: options,
+      domainType: domainType,
+    );
     try {
       response = await dio.get(
         url,
         queryParameters: params,
         options: options,
       );
-      _processResponse(response);
+      _printResponse(response);
     } on DioException catch (e) {
-      formatError(e);
-      return e.response;
+      _printError(e);
+      rethrow;
     }
     return response;
   }
 
   Future<Response?> _post(
-    url, {
-    params,
-    data,
-    options,
+    String url, {
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? data,
+    Options? options,
+    DomainType? domainType,
     bool stream = false,
-    domainType,
+    List<int>? streamData,
   }) async {
     Response? response;
-    [params, options] = await _processRequest(
-        params: params, options: options, domainType: domainType);
+    options = await _preProcessRequest(
+      options: options,
+      domainType: domainType,
+    );
     try {
       response = await dio.post(
         url,
         queryParameters: params,
-        data: stream && data is List<int>
-            ? Stream.fromIterable(data.map((e) => [e]))
+        data: stream && streamData != null
+            ? Stream.fromIterable(streamData.map((e) => [e]))
             : data,
         options: options,
       );
-      _processResponse(response);
+      _printResponse(response);
     } on DioException catch (e) {
-      formatError(e);
-      return e.response;
+      _printError(e);
+      rethrow;
     }
     return response;
   }
 
-  _processRequest({params, options, domainType}) async {
-    options = options as Options? ?? Options();
+  _preProcessRequest({
+    Options? options,
+    DomainType? domainType,
+  }) async {
+    options = options ?? Options();
     options.headers ??= {};
     options.headers?.addAll({
       "Authorization": RequestHeaderUtil.defaultAuthentication,
       "User-Agent": RequestHeaderUtil.defaultUA,
     });
-    if (domainType == DomainType.www) {
+    if (domainType != DomainType.api) {
       options.headers?.addAll({
         "x-csrf-token": await RequestUtil.getCsrfToken(),
       });
     }
-    return [params, options];
+    return options;
   }
 
-  _processResponse(Response response) {
+  _printResponse(Response response) {
     Map<String, Object?> list = {
       "URL": response.requestOptions.uri,
     };
@@ -235,12 +233,12 @@ class RequestUtil {
   }
 
   static Future<Response?> get(
-    url, {
-    params,
-    options,
+    String url, {
+    Map<String, dynamic>? params,
+    Options? options,
     DomainType domainType = DomainType.api,
   }) async {
-    return getInstance(domainType: domainType)._get(
+    return getInstance(domainType)._get(
       url,
       params: params,
       options: options,
@@ -250,23 +248,25 @@ class RequestUtil {
 
   static Future<Response?> post(
     url, {
-    params,
-    data,
-    options,
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? data,
+    Options? options,
     DomainType domainType = DomainType.api,
     bool stream = false,
+    List<int>? streamData,
   }) async {
-    return getInstance(domainType: domainType)._post(
+    return getInstance(domainType)._post(
       url,
       params: params,
       data: data,
       options: options,
       stream: stream,
+      streamData: streamData,
       domainType: domainType,
     );
   }
 
-  void formatError(DioException e) {
+  void _printError(DioException e) {
     String info =
         '[${e.requestOptions.method}] [${e.requestOptions.uri}] [${e.requestOptions.headers}] [${e.response?.statusCode}] [${e.response?.data}]';
     if (e.type == DioExceptionType.connectionTimeout) {

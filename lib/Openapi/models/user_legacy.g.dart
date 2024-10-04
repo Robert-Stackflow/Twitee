@@ -7,6 +7,8 @@ part of 'user_legacy.dart';
 // **************************************************************************
 
 UserLegacy _$UserLegacyFromJson(Map<String, dynamic> json) => UserLegacy(
+      id: json['id'] as int?,
+      idStr: json['id_str'] as String?,
       following: json['following'] as bool?,
       blocking: json['blocking'] as bool?,
       canDm: json['can_dm'] as bool?,

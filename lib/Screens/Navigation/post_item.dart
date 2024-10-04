@@ -16,8 +16,14 @@
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:nine_grid_view/nine_grid_view.dart';
+import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/uri_util.dart';
+import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
+import 'package:video_player/video_player.dart';
+import 'package:video_player_control_panel/video_player_control_panel.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Api/post_api.dart';
 import '../../Openapi/models/media_type.dart';
@@ -51,14 +57,59 @@ class PostItem extends StatefulWidget {
 }
 
 class PostItemState extends State<PostItem> {
+  FeedbackType? _currentFeedbackType;
+  VideoPlayerController? _videoController;
+  bool _isVisible = false;
+  bool _hasPlayedOnce = false;
+
   @override
   void initState() {
     super.initState();
+    initVideo(widget.entry);
+  }
+
+  bool hasVideo(Tweet tweet) {
+    return tweet.legacy!.entities.media != null &&
+        tweet.legacy!.entities.media!.length == 1 &&
+        tweet.legacy!.entities.media![0]!.type == MediaType.video;
+  }
+
+  initVideo(TimelineAddEntry entry) {
+    var item =
+        (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
+    Tweet? tweet = getTweet(item.tweetResults!.result);
+    if (tweet != null) {
+      if (tweet.legacy!.retweetedStatusResult != null) {
+        tweet = getTweet(tweet.legacy!.retweetedStatusResult!.result);
+      }
+    }
+    if (tweet != null && hasVideo(tweet)) {
+      _videoController = VideoPlayerController.networkUrl(Uri.parse(
+          tweet.legacy!.entities.media![0]!.videoInfo!.variants.last.url));
+      _videoController!.initialize().then((value) {
+        if (_videoController!.value.isInitialized) {
+          if (_isVisible) {
+            _videoController!.play();
+          }
+        }
+      }).catchError((e, t) {
+        ILogger.error(
+            "VideoController", "controller.initialize() error.", e, t);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _videoController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildItem(widget.entry);
+    return _currentFeedbackType != null
+        ? _buildFeedBackList(getUser(widget.entry)!)
+        : _buildItem(widget.entry);
   }
 
   Tweet? getTweet(TweetUnion? union) {
@@ -72,6 +123,23 @@ class PostItemState extends State<PostItem> {
         return (union as TweetWithVisibilityResults).tweet;
       default:
         return null;
+    }
+  }
+
+  User? getUser(TimelineAddEntry entry) {
+    var item =
+        (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
+    Tweet? tweet = getTweet(item.tweetResults!.result);
+    if (tweet == null) {
+      return null;
+    } else {
+      if (tweet.legacy!.retweetedStatusResult != null) {
+        Tweet? trueTweet =
+            getTweet(tweet.legacy!.retweetedStatusResult!.result);
+        return trueTweet?.core!.userResults!.result as User;
+      } else {
+        return tweet.core!.userResults!.result as User;
+      }
     }
   }
 
@@ -96,90 +164,329 @@ class PostItemState extends State<PostItem> {
     }
   }
 
-  _buildFeedBackItem() {
+  _processFeedback({
+    required FeedbackType feedbackType,
+    bool undo = false,
+    required FeedbackType? destFeedbackType,
+  }) async {
+    String? actionMetaData = _getActionMeta(feedbackType);
+    var res = await PostApi.feedback(
+      feedbackType: feedbackType,
+      actionMetaData: actionMetaData!,
+      undo: undo,
+    );
+    if (res.success) {
+      _currentFeedbackType = destFeedbackType;
+      setState(() {});
+      if (undo && destFeedbackType == null) IToast.showTop("已撤销反馈");
+    } else {
+      IToast.showTop(undo ? "撤销反馈失败" : "反馈失败");
+    }
+  }
+
+  _buildFeedBackList(User user) {
+    String screenName = user.legacy.screenName ?? user.legacy.name;
     return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "反馈",
-            style: Theme.of(context).textTheme.titleMedium,
+          _buildFeedbackItem(
+            text: _currentFeedbackType!.getMessage(screenName),
+            onRevoke: () async {
+              await _processFeedback(
+                feedbackType: _currentFeedbackType!,
+                undo: true,
+                destFeedbackType: _currentFeedbackType == FeedbackType.DontLike
+                    ? null
+                    : FeedbackType.DontLike,
+              );
+            },
           ),
-          const SizedBox(height: 8),
-          for (var action in widget.feedbackActions)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  action.value!.prompt ?? "",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
+          if (_currentFeedbackType == FeedbackType.DontLike)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildMoreFeedbackItem(
+                    text: "显示更少来自 $screenName 的帖子",
+                    onTap: () async {
+                      await _processFeedback(
+                        feedbackType: FeedbackType.SeeFewer,
+                        undo: false,
+                        destFeedbackType: FeedbackType.SeeFewer,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMoreFeedbackItem(
+                    text: "这个帖子没有相关性",
+                    onTap: () async {
+                      await _processFeedback(
+                        feedbackType: FeedbackType.NotRelevant,
+                        undo: false,
+                        destFeedbackType: FeedbackType.NotRelevant,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            )
         ],
       ),
     );
   }
 
+  _buildMoreFeedbackItem({
+    required String text,
+    required Function() onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Material(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          enableFeedback: true,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(text),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _buildFeedbackItem({
+    required String text,
+    required Function() onRevoke,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              text,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ItemBuilder.buildRoundButton(
+            context,
+            text: "撤销",
+            onTap: onRevoke,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+        ],
+      ),
+    );
+  }
+
+  FeedbackActions? _getFeedbackAction(FeedbackType feedbackType) {
+    try {
+      return widget.feedbackActions
+          .where((element) => element.value!.feedbackType == feedbackType.value)
+          .first;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String? _getActionMeta(FeedbackType feedbackType) {
+    String? actionMetaData =
+        _getFeedbackAction(FeedbackType.DontLike)?.value?.actionMetaData;
+    return actionMetaData;
+  }
+
   _buildMoreContextMenuButtons(Tweet tweet, User user) {
+    String screenName = user.legacy.screenName ?? user.legacy.name;
+    String url =
+        "https://x.com/${user.legacy.screenName}/status/${tweet.restId}";
+    String? actionMetaData = _getActionMeta(FeedbackType.DontLike);
+    bool showFeedback =
+        widget.feedbackActions.isNotEmpty && actionMetaData != null;
     return GenericContextMenu(
       buttonConfigs: [
+        if (showFeedback)
+          ContextMenuButtonConfig(
+            "对此帖子不感兴趣",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child:
+                    const Icon(Icons.sentiment_dissatisfied_rounded, size: 20)),
+            onPressed: () async {
+              await _processFeedback(
+                feedbackType: FeedbackType.DontLike,
+                undo: false,
+                destFeedbackType: FeedbackType.DontLike,
+              );
+            },
+          ),
+        if (showFeedback) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
-          "对此帖子不感兴趣",
+          "${user.legacy.following ?? false ? "取消关注" : "关注"} @$screenName",
           icon: Container(
               margin: const EdgeInsets.only(right: 8),
-              child:
-                  const Icon(Icons.sentiment_dissatisfied_rounded, size: 20)),
-          onPressed: () async {},
+              child: Icon(
+                  user.legacy.following ?? false
+                      ? Icons.person_remove_outlined
+                      : Icons.person_add_outlined,
+                  size: 20)),
+          onPressed: () async {
+            if (user.legacy.following ?? false) {
+              DialogBuilder.showConfirmDialog(context,
+                  title: "取消关注 @$screenName？",
+                  message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
+                  onTapConfirm: () async {
+                var res = await UserApi.unfollow(userId: user.restId!);
+                if (res.success) {
+                  user.legacy.following = false;
+                  setState(() {});
+                  IToast.showTop("已取消关注@$screenName");
+                } else {
+                  IToast.showTop("取消关注@$screenName失败");
+                }
+              });
+            } else {
+              var res = await UserApi.follow(userId: user.restId!);
+              if (res.success) {
+                user.legacy.following = true;
+                setState(() {});
+                IToast.showTop("已关注@$screenName");
+              } else {
+                IToast.showTop("关注@$screenName失败");
+              }
+            }
+          },
         ),
-        ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig.warning(
-          "关注 @${user.legacy.screenName ?? user.legacy.name}",
+        ContextMenuButtonConfig(
+          "${user.legacy.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
           icon: Container(
               margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.person_add_alt_outlined, size: 20)),
-          onPressed: () async {},
+              child: Icon(
+                  user.legacy.blocking ?? false
+                      ? Icons.favorite_border_rounded
+                      : Icons.heart_broken_outlined,
+                  size: 20)),
+          onPressed: () async {
+            if (user.legacy.blocking ?? false) {
+              var res = await UserApi.unblock(userId: user.restId!);
+              if (res.success) {
+                user.legacy.blocking = false;
+                setState(() {});
+                IToast.showTop("已取消屏蔽@$screenName");
+              } else {
+                IToast.showTop("取消屏蔽@$screenName失败");
+              }
+            } else {
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "屏蔽 @$screenName？",
+                message: "他们将无法关注你或查看你的帖子，而你也将无法看到 @$screenName 的帖子或通知。",
+                onTapConfirm: () async {
+                  var res = await UserApi.block(userId: user.restId!);
+                  if (res.success) {
+                    user.legacy.blocking = true;
+                    setState(() {});
+                    IToast.showTop("已屏蔽@$screenName");
+                  } else {
+                    IToast.showTop("屏蔽@$screenName失败");
+                  }
+                },
+              );
+            }
+          },
         ),
-        ContextMenuButtonConfig.warning(
-          "屏蔽 @${user.legacy.screenName ?? user.legacy.name}",
+        ContextMenuButtonConfig(
+          "${user.legacy.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
           icon: Container(
               margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.heart_broken_outlined, size: 20)),
-          onPressed: () async {},
+              child: Icon(
+                  user.legacy.muting ?? false
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20)),
+          onPressed: () async {
+            if (user.legacy.muting ?? false) {
+              var res = await UserApi.unmute(userId: user.restId!);
+              if (res.success) {
+                user.legacy.muting = false;
+                setState(() {});
+                IToast.showTop("已取消隐藏@$screenName");
+              } else {
+                IToast.showTop("取消隐藏@$screenName失败");
+              }
+            } else {
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "隐藏 @$screenName？",
+                message: "你将无法在为你推荐或已关注中看到 @$screenName 的帖子或通知。",
+                onTapConfirm: () async {
+                  var res = await UserApi.mute(userId: user.restId!);
+                  if (res.success) {
+                    user.legacy.muting = true;
+                    setState(() {});
+                    IToast.showTop("已隐藏@$screenName");
+                  } else {
+                    IToast.showTop("隐藏@$screenName失败");
+                  }
+                },
+              );
+            }
+          },
         ),
-        ContextMenuButtonConfig.warning(
-          "隐藏 @${user.legacy.screenName ?? user.legacy.name}",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.visibility_off_outlined, size: 20)),
-          onPressed: () async {},
-        ),
-        ContextMenuButtonConfig.warning(
-          "从列表添加或移除 @${user.legacy.screenName ?? user.legacy.name}",
+        ContextMenuButtonConfig(
+          "从列表添加或移除 @$screenName",
           icon: Container(
               margin: const EdgeInsets.only(right: 8),
               child: const Icon(Icons.playlist_add_rounded, size: 20)),
           onPressed: () async {},
         ),
         ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig.warning(
+        ContextMenuButtonConfig(
           "分享帖子",
           icon: Container(
               margin: const EdgeInsets.only(right: 10),
               child: const Icon(Icons.share_rounded, size: 18)),
-          onPressed: () async {},
+          onPressed: () async {
+            UriUtil.share(context, url);
+          },
         ),
-        ContextMenuButtonConfig.warning(
+        ContextMenuButtonConfig(
           "复制帖子链接",
           icon: Container(
               margin: const EdgeInsets.only(right: 8),
               child: const Icon(Icons.link_rounded, size: 20)),
-          onPressed: () async {},
+          onPressed: () async {
+            Utils.copy(context, url, toastText: "已复制帖子链接");
+          },
+        ),
+        ContextMenuButtonConfig(
+          "在浏览器打开",
+          icon: Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: const Icon(Icons.open_in_browser_rounded, size: 20)),
+          onPressed: () async {
+            UriUtil.openExternal(url);
+          },
         ),
         // ContextMenuButtonConfig.divider(),
-        // ContextMenuButtonConfig.warning(
+        // ContextMenuButtonConfig(
         //   "查看帖子互动量",
         //   onPressed: () async {},
         // ),
@@ -313,10 +620,46 @@ class PostItemState extends State<PostItem> {
           ),
           const SizedBox(height: 8),
           if (tweet.legacy!.entities.media != null)
-            if (tweet.legacy!.entities.media!.length == 1 &&
-                tweet.legacy!.entities.media![0]!.type == MediaType.video)
-              Text(
-                tweet.legacy!.entities.media![0]!.videoInfo!.variants.last.url,
+            if (hasVideo(tweet) && _videoController != null)
+              VisibilityDetector(
+                key: Key(tweet.restId!),
+                onVisibilityChanged: (info) {
+                  if (_videoController == null) return;
+                  if (!_isVisible && info.visibleFraction > 0.5) {
+                    if (!_hasPlayedOnce && !_videoController!.value.isPlaying) {
+                      _videoController!.play();
+                    }
+                    setState(() {
+                      _isVisible = true;
+                    });
+                  } else if (_isVisible && info.visibleFraction < 0.5) {
+                    if (_videoController!.value.isPlaying) {
+                      _videoController!.pause();
+                    }
+                    setState(() {
+                      _isVisible = false;
+                    });
+                  }
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    constraints: const BoxConstraints(maxHeight: 450),
+                    child: VideoControlPanel(
+                      _videoController!,
+                      showClosedCaptionButton: true,
+                      showFullscreenButton: false,
+                      showVolumeButton: true,
+                      onPlayEnded: () {
+                        _hasPlayedOnce = true;
+                      },
+                    ),
+                  ),
+                ),
               )
             else
               NineGridView(
@@ -343,7 +686,7 @@ class PostItemState extends State<PostItem> {
               tweet.quotedStatusResult != null)
             const SizedBox(height: 12),
           if (tweet.quotedStatusResult != null)
-            _buildNormalTweet(tweet.quotedStatusResult!.result as Tweet,
+            _buildNormalTweet(getTweet(tweet.quotedStatusResult!.result)!,
                 isQuote: true),
           if (!isQuote) const SizedBox(height: 16),
           if (!isQuote)
@@ -352,6 +695,8 @@ class PostItemState extends State<PostItem> {
               children: [
                 ItemBuilder.buildIconTextButton(
                   context,
+                  tooltip:
+                      "${Utils.formatCountWithDot(tweet.legacy!.replyCount ?? 0)} 回复",
                   icon: Icon(
                     Icons.mode_comment_outlined,
                     size: 18,
@@ -359,10 +704,12 @@ class PostItemState extends State<PostItem> {
                   ),
                   color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSizeDelta: -1,
-                  text: tweet.legacy!.replyCount.toString(),
+                  text: (tweet.legacy!.replyCount ?? 0).toString(),
                 ),
                 ItemBuilder.buildIconTextButton(
                   context,
+                  tooltip:
+                      "${Utils.formatCountWithDot(tweet.legacy!.retweetCount ?? 0)} 转推",
                   icon: Icon(
                     tweet.legacy!.retweeted
                         ? Icons.repeat_rounded
@@ -406,6 +753,8 @@ class PostItemState extends State<PostItem> {
                 ),
                 ItemBuilder.buildIconTextButton(
                   context,
+                  tooltip:
+                      "${Utils.formatCountWithDot(tweet.legacy!.favoriteCount ?? 0)} 喜欢",
                   icon: Icon(
                     tweet.legacy!.favorited
                         ? Icons.favorite_rounded
@@ -448,6 +797,8 @@ class PostItemState extends State<PostItem> {
                 ),
                 ItemBuilder.buildIconTextButton(
                   context,
+                  tooltip:
+                      "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
                   icon: Icon(
                     Icons.remove_red_eye_outlined,
                     size: 18,
@@ -460,6 +811,8 @@ class PostItemState extends State<PostItem> {
                 ),
                 ItemBuilder.buildIconTextButton(
                   context,
+                  tooltip:
+                      "${Utils.formatCountWithDot(tweet.legacy!.bookmarkCount ?? 0)} 已添加书签",
                   icon: Icon(
                     tweet.legacy!.bookmarked
                         ? Icons.bookmark_rounded

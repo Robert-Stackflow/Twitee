@@ -15,10 +15,9 @@
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Navigation/list_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/timeline_flow_screen.dart';
+import 'package:twitee/Screens/Navigation/friends_flow_screen.dart';
+import 'package:twitee/Screens/Navigation/user_flow_screen.dart';
 import 'package:twitee/Widgets/Window/window_caption.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';
@@ -26,16 +25,17 @@ import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class FriendshipScreen extends StatefulWidget {
+  const FriendshipScreen({super.key});
 
-  static const String routeName = "/navigtion/home";
+  static const String routeName = "/navigtion/friendship";
 
   @override
-  State<HomeScreen> createState() => HomeScreenState();
+  State<FriendshipScreen> createState() => FriendshipScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class FriendshipScreenState extends State<FriendshipScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   List<Tab> tabList = [];
   List<TimelineTwitterListInfo> pinnedLists = [];
@@ -43,37 +43,21 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<Widget> pageList = [];
 
   initTab() {
+    UserInfo? info = HiveUtil.getUserInfo();
     tabList = [
-      _buildTab("为你推荐"),
       _buildTab("正在关注"),
+      _buildTab("关注者"),
+      _buildTab("好友"),
+      _buildTab("认证关注者"),
     ];
     pageList = [
-      const TimelineFlowScreen(isLatest: false),
-      const TimelineFlowScreen(),
+      UserFlowScreen(type: UserFlowType.following, userId: info!.idStr),
+      UserFlowScreen(type: UserFlowType.follower, userId: info.idStr),
+      FriendsFlowScreen(userId: info.idStr),
+      UserFlowScreen(
+          type: UserFlowType.blueVerifiedFollower, userId: info.idStr),
     ];
     _tabController = TabController(length: tabList.length, vsync: this);
-  }
-
-  addTabs() {
-    UserInfo? info = HiveUtil.getUserInfo();
-    tabList = tabList.sublist(0, 2);
-    pageList = pageList.sublist(0, 2);
-    for (var list in pinnedLists) {
-      tabList.add(_buildTab(list.name));
-      pageList.add(ListFlowScreen(listId: list.idStr, userId: info!.idStr));
-    }
-    _tabController.animateTo(_tabController.index.clamp(0, tabList.length - 1));
-    _pageController.jumpToPage(_tabController.index);
-    _tabController = TabController(length: tabList.length, vsync: this);
-    setState(() {});
-  }
-
-  refreshPinnedLists() async {
-    var res = await ListApi.getPinnedLists();
-    if (res.success) {
-      pinnedLists = res.data;
-      addTabs();
-    }
   }
 
   @override
@@ -81,7 +65,6 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     _tabController = TabController(length: 0, vsync: this);
     initTab();
-    refreshPinnedLists();
   }
 
   @override

@@ -13,45 +13,39 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
-import 'package:twitee/Openapi/models/cursor_type.dart';
-import 'package:twitee/Openapi/models/feedback_info.dart';
-import 'package:twitee/Openapi/models/timeline_timeline_cursor.dart';
+import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Navigation/list_manage_screen.dart';
 import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
-import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_add_entry.dart';
-import '../../Openapi/models/timeline_response.dart';
-import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_tweet.dart';
 
-class FollowingScreen extends StatefulWidget {
-  const FollowingScreen({super.key, this.isLatest = true});
+class ListFlowScreen extends StatefulWidget {
+  const ListFlowScreen({super.key, required this.listId, required this.userId});
 
-  final bool isLatest;
+  final String listId;
+  final String userId;
 
-  static const String routeName = "/navigtion/following";
+  static const String routeName = "/navigtion/listFlow";
 
   @override
-  State<FollowingScreen> createState() => _FollowingScreenState();
+  State<ListFlowScreen> createState() => _ListFlowScreenState();
 }
 
-class _FollowingScreenState extends State<FollowingScreen>
-    with TickerProviderStateMixin {
+class _ListFlowScreenState extends State<ListFlowScreen>
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
-
-  TimelineResponse? response;
 
   List<FeedbackActions> _feedbackActions = [];
 
@@ -64,6 +58,7 @@ class _FollowingScreenState extends State<FollowingScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   late AnimationController _refreshRotationController;
+  bool _noMore = false;
 
   @override
   void initState() {
@@ -85,39 +80,43 @@ class _FollowingScreenState extends State<FollowingScreen>
   _onRefresh() async {
     if (_loading) return;
     _loading = true;
+    cursorBottom = null;
     try {
-      var res = await TimelineApi.getHomeLatestline(
-        isLatest: widget.isLatest,
-        seenTweetIds: validEntries
-            .map((e) {
-              return e.sortIndex.toString();
-            })
-            .toList()
-            .sublist(0, min(5, validEntries.length)),
-      );
+      var res = await TimelineApi.getListTimeline(listId: widget.listId);
       if (res.success) {
-        setState(() {
-          response = res.data;
-        });
-        if (response!.data.home.homeTimelineUrt!.responseObjects != null) {
-          _feedbackActions = (response!.data.home.homeTimelineUrt!
-                  .responseObjects!['feedbackActions'] as List<dynamic>)
-              .map((e) => FeedbackActions.fromJson(e))
-              .toList();
+        ListLatestTweetsTimelineResponse response = res.data;
+        Timeline? timeline = response.data.list.tweetsTimeline?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
         }
-        for (var instruction
-            in response!.data.home.homeTimelineUrt!.instructions) {
+        if (timeline.responseObjects != null) {
+          _feedbackActions =
+              (timeline.responseObjects!['feedbackActions'] as List<dynamic>)
+                  .map((e) => FeedbackActions.fromJson(e))
+                  .toList();
+        }
+        List<TimelineAddEntry> newEntries = [];
+        for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            validEntries = _processEntries(instruction.entries);
+            newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
             setState(() {});
           }
         }
+        if (newEntries.isEmpty) {
+          _noMore = true;
+          return IndicatorResult.noMore;
+        } else {
+          _noMore = false;
+          return IndicatorResult.success;
+        }
+      } else {
+        IToast.showTop("加载失败：${res.message}");
+        return IndicatorResult.fail;
       }
-      return IndicatorResult.success;
     } catch (e, t) {
-      IToast.showTop("获取失败");
-      ILogger.error("Twitee", "Failed to get homeline", e, t);
+      IToast.showTop("加载失败：${e.toString()}");
+      ILogger.error("Twitee", "Failed to get list timeline", e, t);
       return IndicatorResult.fail;
     } finally {
       _loading = false;
@@ -129,32 +128,44 @@ class _FollowingScreenState extends State<FollowingScreen>
     if (_loading) return;
     _loading = true;
     try {
-      var res = await TimelineApi.getHomeLatestline(
+      var res = await TimelineApi.getListTimeline(
         cursorBottom: cursorBottom!.value,
-        isLatest: widget.isLatest,
+        listId: widget.listId,
       );
       if (res.success) {
-        setState(() {
-          response = res.data;
-        });
-        if (response!.data.home.homeTimelineUrt!.responseObjects != null) {
-          _feedbackActions.addAll((response!.data.home.homeTimelineUrt!
-                  .responseObjects!['feedbackActions'] as List<dynamic>)
-              .map((e) => FeedbackActions.fromJson(e))
-              .toList());
+        ListLatestTweetsTimelineResponse response = res.data;
+        Timeline? timeline = response.data.list.tweetsTimeline?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
         }
-        for (var instruction
-            in response!.data.home.homeTimelineUrt!.instructions) {
+        if (timeline.responseObjects != null) {
+          _feedbackActions.addAll(
+              (timeline.responseObjects!['feedbackActions'] as List<dynamic>)
+                  .map((e) => FeedbackActions.fromJson(e))
+                  .toList());
+        }
+        List<TimelineAddEntry> newEntries = [];
+        for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
             _refreshCursor(instruction.entries);
             setState(() {});
           }
         }
+        if (newEntries.isEmpty) {
+          _noMore = true;
+          return IndicatorResult.noMore;
+        } else {
+          _noMore = false;
+          return IndicatorResult.success;
+        }
+      } else {
+        IToast.showTop("加载失败：${res.message}");
+        return IndicatorResult.fail;
       }
-      return IndicatorResult.success;
     } catch (e, t) {
-      ILogger.error("Twitee", "Failed to load homeline", e, t);
+      IToast.showTop("加载失败：${e.toString()}");
+      ILogger.error("Twitee", "Failed to load list timeline", e, t);
       return IndicatorResult.fail;
     } finally {
       _loading = false;
@@ -217,26 +228,31 @@ class _FollowingScreenState extends State<FollowingScreen>
       }
     }
     res.addAll(childs);
-    res =res.toSet().toList();
+    res = res.toSet().toList();
     return res;
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(
       children: [
         EasyRefresh(
-          onRefresh: _onRefresh,
+          onRefresh: () async {
+            return await _onRefresh();
+          },
+          onLoad: () async {
+            return await _onLoad();
+          },
           refreshOnStart: true,
           triggerAxis: Axis.vertical,
           controller: _easyRefreshController,
-          onLoad: _onLoad,
           child: ItemBuilder.buildLoadMoreNotification(
             onLoad: _onLoad,
-            noMore: false,
+            noMore: _noMore,
             child: WaterfallFlow.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               maxCrossAxisExtent: 600,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,
@@ -268,7 +284,6 @@ class _FollowingScreenState extends State<FollowingScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        //图标可旋转，由_refreshRotationController控制
         ItemBuilder.buildShadowIconButton(
           context: context,
           icon: RotationTransition(
@@ -290,6 +305,15 @@ class _FollowingScreenState extends State<FollowingScreen>
           icon: const Icon(Icons.arrow_upward_rounded),
           onTap: () {
             _scrollToTop();
+          },
+        ),
+        const SizedBox(height: 10),
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: const Icon(Icons.settings_rounded),
+          onTap: () {
+            RouteUtil.pushDialogRoute(
+                context, ListManageScreen(userId: widget.userId));
           },
         ),
       ],

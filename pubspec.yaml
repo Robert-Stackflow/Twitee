@@ -32,6 +32,14 @@ dependencies:
     path: third-party/context_menus
   pinput:
     path: third-party/pinput
+  # 视频
+  video_player: ^2.9.2
+#  video_player_media_kit: ^1.0.5
+#  media_kit_libs_linux: any
+  video_player_win: ^2.3.11 # 视频播放
+  video_player_control_panel:
+    path: third-party/video_player_control_panel
+  visibility_detector: ^0.4.0+2 # 可见性检测
   # 存储
   path:
   path_provider: ^2.0.12

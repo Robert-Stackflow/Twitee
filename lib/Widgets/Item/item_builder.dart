@@ -462,7 +462,7 @@ class ItemBuilder {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).dividerColor, width: 0.8),
-        borderRadius: BorderRadius.circular(radius+1),
+        borderRadius: BorderRadius.circular(radius + 1),
         boxShadow: [
           BoxShadow(
             color: Theme.of(rootContext).shadowColor,
@@ -1767,7 +1767,7 @@ class ItemBuilder {
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(
-                  color: outline ?? Theme.of(context).primaryColor, width: 1),
+                  color: outline ?? Theme.of(context).primaryColor.withAlpha(55), width: 1),
               borderRadius: BorderRadius.circular(radius),
             ),
             child: Row(
@@ -2073,8 +2073,9 @@ class ItemBuilder {
     Function()? onTap,
     Color? color,
     int quarterTurns = 0,
+    String? tooltip,
   }) {
-    return MouseRegion(
+    var main = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
@@ -2119,6 +2120,14 @@ class ItemBuilder {
               ),
       ),
     );
+    if (Utils.isNotEmpty(tooltip)) {
+      return Tooltip(
+        message: tooltip!,
+        child: main,
+      );
+    } else {
+      return main;
+    }
   }
 
   static Widget buildWrapTagList(

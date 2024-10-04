@@ -63,6 +63,18 @@ class FeedbackActionValue {
   String? icon;
   FeedbackActionClientEventInfo? clientEventInfo;
 
+  String? get actionMetaData {
+    try {
+      Uri? uri = Uri.tryParse("https://x.com$feedbackUrl");
+      if (uri != null) {
+        return uri.queryParameters['action_metadata'];
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
   FeedbackActionValue(
       {this.feedbackType,
       this.prompt,

@@ -222,6 +222,10 @@ class Utils {
     }
   }
 
+  static String formatCountWithDot(int count) {
+    return count.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+$)'), (Match match) => '${match[1]},');
+  }
+
   static String formatDuration(int duration) {
     var minutes = duration ~/ 60;
     var seconds = duration % 60;

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  fullscreen_window
   hotkey_manager_windows
   isar_flutter_libs
   local_auth_windows
@@ -14,6 +15,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   share_plus
   tray_manager
   url_launcher_windows
+  video_player_win
   window_manager
 )
 

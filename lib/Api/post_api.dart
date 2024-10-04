@@ -13,9 +13,39 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:dio/dio.dart';
+
 import '../Models/response_result.dart';
 import '../Utils/ilogger.dart';
 import '../Utils/request_util.dart';
+
+enum FeedbackType {
+  DontLike,
+  SeeFewer,
+  NotRelevant;
+
+  String get value {
+    switch (this) {
+      case FeedbackType.DontLike:
+        return "DontLike";
+      case FeedbackType.SeeFewer:
+        return "SeeFewer";
+      case FeedbackType.NotRelevant:
+        return "NotRelevant";
+    }
+  }
+
+  String getMessage(String screenName) {
+    switch (this) {
+      case FeedbackType.DontLike:
+        return "谢谢。此后会使用此信息，来优化你的时间线。";
+      case FeedbackType.SeeFewer:
+        return "谢谢。将会减少向你显示来自 $screenName 的帖子。";
+      case FeedbackType.NotRelevant:
+        return "谢谢。你将看到更少类似帖子。";
+    }
+  }
+}
 
 class PostApi {
   static Future<ResponseResult> like({
@@ -25,7 +55,7 @@ class PostApi {
       ILogger.info("Twitee API", "Liking tweet");
       final response = await RequestUtil.post(
         "/lI07N6Otwv1PhnEgXILM7A/FavoriteTweet",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "tweet_id": tweetId,
@@ -47,8 +77,8 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to like tweet", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to like tweet");
   }
 
   static Future<ResponseResult> unlike({
@@ -58,7 +88,7 @@ class PostApi {
       ILogger.info("Twitee API", "Unliking tweet");
       final response = await RequestUtil.post(
         "/ZYKSe-w7KEslx3JhSIk5LA/UnfavoriteTweet",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "tweet_id": tweetId,
@@ -80,8 +110,8 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to unlike tweet", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to unlike tweet");
   }
 
   static Future<ResponseResult> createBookmark({
@@ -91,7 +121,7 @@ class PostApi {
       ILogger.info("Twitee API", "Bookmarking tweet");
       final response = await RequestUtil.post(
         "/aoDbu3RHznuiSkQ9aNM67Q/CreateBookmark",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "tweet_id": tweetId,
@@ -113,8 +143,8 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to bookmark tweet", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to bookmark tweet");
   }
 
   static Future<ResponseResult> deleteBookmark({
@@ -124,7 +154,7 @@ class PostApi {
       ILogger.info("Twitee API", "Deleting bookmark");
       final response = await RequestUtil.post(
         "/Wlmlj2-xzyS1GN3a6cj-mQ/DeleteBookmark",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "tweet_id": tweetId,
@@ -146,8 +176,8 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to delete bookmark", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to delete bookmark");
   }
 
   static Future<ResponseResult> retweet({
@@ -157,7 +187,7 @@ class PostApi {
       ILogger.info("Twitee API", "Retweeting tweet");
       final response = await RequestUtil.post(
         "/ojPdsZsimiJrUGLR1sjUtA/CreateRetweet",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "tweet_id": tweetId,
@@ -179,8 +209,8 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to retweet", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to retweet");
   }
 
   static Future<ResponseResult> deleteRetweet({
@@ -190,7 +220,7 @@ class PostApi {
       ILogger.info("Twitee API", "Deleting retweet");
       final response = await RequestUtil.post(
         "/iQtK4dl5hBmXewYZuEOKVw/DeleteRetweet",
-        domainType: DomainType.www,
+        domainType: DomainType.graphql,
         data: {
           "variables": {
             "source_tweet_id": tweetId,
@@ -212,7 +242,49 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to delete retweet", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to delete retweet");
+  }
+
+  static Future<ResponseResult> feedback({
+    required FeedbackType feedbackType,
+    required String actionMetaData,
+    bool undo = false,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Feedback");
+      final response = await RequestUtil.post(
+        "/timeline/feedback.json",
+        domainType: DomainType.v2,
+        params: {
+          "feedback_type": feedbackType.value,
+          "action_metadata": actionMetaData,
+        },
+        data: {
+          "feedback_type": feedbackType.value,
+          "undo": undo,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": Headers.formUrlEncodedContentType,
+          },
+        ),
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to feedback",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to feedback", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
   }
 }

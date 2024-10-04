@@ -15,85 +15,129 @@
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/list_api.dart';
-import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Navigation/list_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/timeline_flow_screen.dart';
-import 'package:twitee/Widgets/Window/window_caption.dart';
 
+import '../../Api/data_api.dart';
+import '../../Models/response_result.dart';
+import '../../Openapi/models/module_item.dart';
+import '../../Openapi/models/timeline.dart';
+import '../../Openapi/models/timeline_add_entries.dart';
+import '../../Openapi/models/timeline_add_entry.dart';
+import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
-import '../../Utils/hive_util.dart';
+import '../../Utils/ilogger.dart';
+import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
+import '../../Widgets/Window/window_caption.dart';
+import 'list_flow_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ListScreen extends StatefulWidget {
+  const ListScreen({super.key, required this.userId});
 
-  static const String routeName = "/navigtion/home";
+  final String userId;
+
+  static const String routeName = "/navigtion/list";
 
   @override
-  State<HomeScreen> createState() => HomeScreenState();
+  State<ListScreen> createState() => _ListScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _ListScreenState extends State<ListScreen>
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   late TabController _tabController;
   List<Tab> tabList = [];
-  List<TimelineTwitterListInfo> pinnedLists = [];
   final PageController _pageController = PageController();
   List<Widget> pageList = [];
+  List<TimelineTwitterList> validItems = [];
+  bool inited = false;
 
-  initTab() {
-    tabList = [
-      _buildTab("为你推荐"),
-      _buildTab("正在关注"),
-    ];
-    pageList = [
-      const TimelineFlowScreen(isLatest: false),
-      const TimelineFlowScreen(),
-    ];
-    _tabController = TabController(length: tabList.length, vsync: this);
+  fetchLists() async {
+    try {
+      ResponseResult res;
+      res = await DataApi.getLists(userId: widget.userId);
+      if (res.success) {
+        Timeline timeline = res.data;
+        for (var instruction in timeline.instructions) {
+          if (instruction is TimelineAddEntries) {
+            validItems = _processEntries(instruction.entries);
+            validItems =
+                validItems.where((e) => e.list.name != "demo").toList();
+            setState(() {
+              inited = true;
+            });
+            initTab();
+          }
+        }
+      }
+    } catch (e, t) {
+      IToast.showTop("加载失败");
+      ILogger.error("Twitee", "Failed to get lists", e, t);
+    }
   }
 
-  addTabs() {
-    UserInfo? info = HiveUtil.getUserInfo();
-    tabList = tabList.sublist(0, 2);
-    pageList = pageList.sublist(0, 2);
-    for (var list in pinnedLists) {
-      tabList.add(_buildTab(list.name));
-      pageList.add(ListFlowScreen(listId: list.idStr, userId: info!.idStr));
+  List<TimelineTwitterList> _processEntries(List<TimelineAddEntry> entries) {
+    List<ModuleItem> result = [];
+    for (var entry in entries) {
+      if (entry.content is TimelineTimelineModule) {
+        TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+        if (module.items != null) {
+          result.addAll(
+              module.items!.where((element) => element != null).map((e) => e!));
+        }
+      }
     }
-    _tabController.animateTo(_tabController.index.clamp(0, tabList.length - 1));
-    _pageController.jumpToPage(_tabController.index);
-    _tabController = TabController(length: tabList.length, vsync: this);
-    setState(() {});
-  }
-
-  refreshPinnedLists() async {
-    var res = await ListApi.getPinnedLists();
-    if (res.success) {
-      pinnedLists = res.data;
-      addTabs();
+    List<TimelineTwitterList> lists = [];
+    for (var item in result) {
+      if (item.item.itemContent is TimelineTwitterList) {
+        lists.add(item.item.itemContent as TimelineTwitterList);
+      }
     }
+    return lists;
   }
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 0, vsync: this);
     initTab();
-    refreshPinnedLists();
+    fetchLists();
+  }
+
+  initTab() {
+    for (var list in validItems) {
+      tabList.add(_buildTab(list.list.name));
+      pageList
+          .add(ListFlowScreen(listId: list.list.idStr, userId: widget.userId));
+    }
+    _tabController = TabController(length: tabList.length, vsync: this);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: Stack(
           children: [
             if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
+            Center(
+              child: Row(
+                children: [
+                  if (!inited) const SizedBox(width: 20),
+                  if (!inited)
+                    Text(
+                      "加载列表中...",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  if (inited)
+                    _buildTabBar(
+                        56, const EdgeInsets.symmetric(horizontal: 10)),
+                ],
+              ),
+            ),
           ],
         ),
       ),

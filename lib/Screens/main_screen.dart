@@ -68,6 +68,7 @@ enum SideBarChoice {
   Bookmark("bookmark"),
   Like("like"),
   List("list"),
+  Friendship("friendship"),
   Mention("mention"),
   Download("donwload");
 
@@ -87,6 +88,8 @@ enum SideBarChoice {
         return SideBarChoice.Like;
       case "list":
         return SideBarChoice.List;
+      case "friendship":
+        return SideBarChoice.Friendship;
       case "mention":
         return SideBarChoice.Mention;
       case "download":
@@ -236,7 +239,6 @@ class MainScreenState extends State<MainScreen>
       }
     });
     initGlobalConfig();
-    panelScreenState?.jumpToPage(appProvider.sidebarChoice.index);
   }
 
   initGlobalConfig() {
@@ -257,7 +259,8 @@ class MainScreenState extends State<MainScreen>
           triggerOffset: 40,
         );
     EasyRefresh.defaultFooterBuilder = () => LottieCupertinoFooter(
-          indicator: LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
+          indicator:
+              LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
         );
     Utils.setSafeMode(HiveUtil.getBool(HiveUtil.enableSafeModeKey,
         defaultValue: defaultEnableSafeMode));
@@ -469,6 +472,17 @@ class MainScreenState extends State<MainScreen>
                 const SizedBox(height: 8),
                 ToolButton(
                   context: context,
+                  selected: sidebarChoice == SideBarChoice.Friendship,
+                  icon: Icons.people_alt_outlined,
+                  selectedIcon: Icons.people_rounded,
+                  onTap: () async {
+                    appProvider.sidebarChoice = SideBarChoice.Friendship;
+                  },
+                  iconSize: 20,
+                ),
+                const SizedBox(height: 8),
+                ToolButton(
+                  context: context,
                   selected: sidebarChoice == SideBarChoice.Mention,
                   icon: Icons.notifications_none_rounded,
                   selectedIcon: Icons.notifications_rounded,
@@ -598,17 +612,11 @@ class MainScreenState extends State<MainScreen>
   }) {
     return Container(
       margin: EdgeInsets.only(left: leftMargin, right: rightMargin),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        child: Navigator(
-          key: desktopNavigatorKey,
-          onGenerateRoute: (settings) {
-            return RouteUtil.getFadeRoute(PanelScreen(key: panelScreenKey));
-          },
-        ),
+      child: Navigator(
+        key: desktopNavigatorKey,
+        onGenerateRoute: (settings) {
+          return RouteUtil.getFadeRoute(PanelScreen(key: panelScreenKey));
+        },
       ),
     );
   }

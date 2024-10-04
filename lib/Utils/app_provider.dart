@@ -21,9 +21,9 @@ import 'package:twitee/Utils/Tuple/tuple.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
-import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
 
 import '../Resources/fonts.dart';
+import '../Screens/Navigation/home_screen.dart';
 import '../Screens/panel_screen.dart';
 import '../Widgets/Custom/keyboard_handler.dart';
 import '../generated/l10n.dart';
@@ -50,19 +50,23 @@ GlobalKey<DialogWrapperWidgetState> dialogNavigatorKey =
 DialogWrapperWidgetState? get dialogNavigatorState =>
     dialogNavigatorKey.currentState;
 
+GlobalKey<KeyboardHandlerState> keyboardHandlerKey =
+    GlobalKey<KeyboardHandlerState>();
+
+KeyboardHandlerState? get keyboardHandlerState =>
+    keyboardHandlerKey.currentState;
+
 GlobalKey<PanelScreenState> panelScreenKey = GlobalKey<PanelScreenState>();
 
 GlobalKey<MainScreenState> mainScreenKey = GlobalKey<MainScreenState>();
 
-GlobalKey<KeyboardHandlerState> keyboardHandlerKey =
-    GlobalKey<KeyboardHandlerState>();
+GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
 
 PanelScreenState? get panelScreenState => panelScreenKey.currentState;
 
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
 
-KeyboardHandlerState? get keyboardHandlerState =>
-    keyboardHandlerKey.currentState;
+HomeScreenState? get homeScreenState => homeScreenKey.currentState;
 
 BuildContext get rootContext => globalNavigatorState!.context;
 

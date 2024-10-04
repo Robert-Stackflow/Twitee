@@ -14,9 +14,16 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
+import 'package:twitee/Screens/Navigation/friendship_screen.dart';
+import 'package:twitee/Screens/Navigation/like_screen.dart';
+import 'package:twitee/Screens/Navigation/list_screen.dart';
+import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
 
+import '../Utils/app_provider.dart';
 import 'Navigation/home_screen.dart';
 
 class PanelScreen extends StatefulWidget {
@@ -39,11 +46,25 @@ class PanelScreenState extends State<PanelScreen>
   void initState() {
     super.initState();
     initPage();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      jumpToPage(appProvider.sidebarChoice.index);
+    });
   }
 
-  void initPage() {
+  Future<void> initPage() async {
+    UserInfo? info = HiveUtil.getUserInfo();
+    if (info == null) {
+      pageList = [];
+    }
     pageList = [
-      const HomeScreen(),
+      HomeScreen(key: homeScreenKey),
+      const BookmarkScreen(),
+      const BookmarkScreen(),
+      LikeScreen(userId: info!.idStr),
+      ListScreen(userId: info.idStr),
+      const FriendshipScreen(),
+      const BookmarkScreen(),
+      const BookmarkScreen(),
     ];
   }
 

@@ -44,7 +44,7 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to get guest token");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to get guest token", e, t);
-      return ResponseResult.error(message: "Failed to get guest token");
+      return ResponseResult.error(message: e.toString());
     }
   }
 
@@ -129,8 +129,8 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to initialize login");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to get guest token", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to initialize login");
   }
 
   static Future<ResponseResult> checkLoginType(
@@ -162,8 +162,8 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to check login type");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check login type", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to check login type");
   }
 
   static Future<ResponseResult> checkUsername(
@@ -246,8 +246,8 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to check username");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check username", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to check username");
   }
 
   static Future<ResponseResult> checkAlternativeUsername(
@@ -290,9 +290,8 @@ class LoginApi {
           message: "Failed to check alternative username");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check alternative username", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(
-        message: "Failed to check alternative username");
   }
 
   static Future<ResponseResult> checkPassword(
@@ -348,8 +347,8 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to check password");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check password", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to check password");
   }
 
   static Future<ResponseResult> check2FA(
@@ -390,8 +389,8 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to check 2FA");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check 2FA", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to check 2FA");
   }
 
   static Future<ResponseResult> fetchCsrfToken(String guestToken) async {
@@ -432,8 +431,8 @@ class LoginApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to fetch CSRF token", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to fetch CSRF token");
   }
 
   static Future<ResponseResult> checkLoginResult(String flowToken) async {
@@ -456,7 +455,7 @@ class LoginApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check login result", e, t);
+      return ResponseResult.error(message: e.toString());
     }
-    return ResponseResult.error(message: "Failed to check login result");
   }
 }
