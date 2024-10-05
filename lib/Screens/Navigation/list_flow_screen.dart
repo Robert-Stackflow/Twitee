@@ -16,13 +16,11 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Navigation/list_manage_screen.dart';
 import 'package:twitee/Screens/Navigation/post_item.dart';
+import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
-import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
@@ -41,7 +39,7 @@ class ListFlowScreen extends StatefulWidget {
 }
 
 class _ListFlowScreenState extends State<ListFlowScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -57,24 +55,20 @@ class _ListFlowScreenState extends State<ListFlowScreen>
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
-  late AnimationController _refreshRotationController;
   bool _noMore = false;
 
   @override
-  void initState() {
-    super.initState();
-    _refreshRotationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-  }
-
-  _scrollToTop() async {
+  scrollToTop() async {
     await _scrollController.animateTo(
       0,
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
+  }
+
+  @override
+  refresh() async {
+    _easyRefreshController.callRefresh();
   }
 
   _onRefresh() async {
@@ -235,88 +229,36 @@ class _ListFlowScreenState extends State<ListFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      children: [
-        EasyRefresh(
-          onRefresh: () async {
-            return await _onRefresh();
-          },
-          onLoad: () async {
-            return await _onLoad();
-          },
-          refreshOnStart: true,
-          triggerAxis: Axis.vertical,
-          controller: _easyRefreshController,
-          child: ItemBuilder.buildLoadMoreNotification(
-            onLoad: _onLoad,
-            noMore: _noMore,
-            child: WaterfallFlow.extent(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              maxCrossAxisExtent: 600,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 6,
-              children: List.generate(
-                validEntries.length,
-                (index) {
-                  return PostItem(
-                    entry: validEntries[index],
-                    feedbackActions: _getFeedBackActions(validEntries[index]),
-                  );
-                },
-              ),
-            ),
+    return EasyRefresh(
+      onRefresh: () async {
+        return await _onRefresh();
+      },
+      onLoad: () async {
+        return await _onLoad();
+      },
+      refreshOnStart: true,
+      triggerAxis: Axis.vertical,
+      controller: _easyRefreshController,
+      child: ItemBuilder.buildLoadMoreNotification(
+        onLoad: _onLoad,
+        noMore: _noMore,
+        child: WaterfallFlow.extent(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          maxCrossAxisExtent: 600,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
+          children: List.generate(
+            validEntries.length,
+            (index) {
+              return PostItem(
+                entry: validEntries[index],
+                feedbackActions: _getFeedBackActions(validEntries[index]),
+              );
+            },
           ),
         ),
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: ScrollToHide(
-            scrollController: _scrollController,
-            hideDirection: Axis.vertical,
-            child: _buildFloatingButtons(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  _buildFloatingButtons() {
-    return Column(
-      children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
-          ),
-          onTap: () async {
-            _refreshRotationController.repeat();
-            await _scrollToTop();
-            _refreshRotationController.stop();
-            _refreshRotationController.forward();
-            _easyRefreshController.callRefresh();
-          },
-        ),
-        const SizedBox(height: 10),
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: const Icon(Icons.arrow_upward_rounded),
-          onTap: () {
-            _scrollToTop();
-          },
-        ),
-        const SizedBox(height: 10),
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: const Icon(Icons.settings_rounded),
-          onTap: () {
-            RouteUtil.pushDialogRoute(
-                context, ListManageScreen(userId: widget.userId));
-          },
-        ),
-      ],
+      ),
     );
   }
 }

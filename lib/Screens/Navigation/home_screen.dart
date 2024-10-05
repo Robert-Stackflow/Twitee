@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Navigation/list_flow_screen.dart';
+import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Screens/Navigation/timeline_flow_screen.dart';
 import 'package:twitee/Widgets/Window/window_caption.dart';
 
@@ -25,6 +26,8 @@ import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
+import '../../Widgets/Hidable/scroll_to_hide.dart';
+import '../../Widgets/Item/item_builder.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,15 +44,23 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<TimelineTwitterListInfo> pinnedLists = [];
   final PageController _pageController = PageController();
   List<Widget> pageList = [];
+  List<GlobalKey> keyList = [];
+
+  late AnimationController _refreshRotationController;
+
+  final ScrollController _scrollController = ScrollController();
 
   initTab() {
+    keyList = List.generate(2, (_) => GlobalKey());
     tabList = [
       _buildTab("为你推荐"),
       _buildTab("正在关注"),
     ];
     pageList = [
-      const TimelineFlowScreen(isLatest: false),
-      const TimelineFlowScreen(),
+      TimelineFlowScreen(key: keyList[0], isLatest: false),
+      TimelineFlowScreen(
+        key: keyList[1],
+      ),
     ];
     _tabController = TabController(length: tabList.length, vsync: this);
   }
@@ -58,9 +69,13 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     UserInfo? info = HiveUtil.getUserInfo();
     tabList = tabList.sublist(0, 2);
     pageList = pageList.sublist(0, 2);
+    keyList = keyList.sublist(0, 2);
     for (var list in pinnedLists) {
       tabList.add(_buildTab(list.name));
-      pageList.add(ListFlowScreen(listId: list.idStr, userId: info!.idStr));
+      GlobalKey key = GlobalKey();
+      keyList.add(key);
+      pageList.add(
+          ListFlowScreen(key: key, listId: list.idStr, userId: info!.idStr));
     }
     _tabController.animateTo(_tabController.index.clamp(0, tabList.length - 1));
     _pageController.jumpToPage(_tabController.index);
@@ -79,6 +94,10 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _refreshRotationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
     _tabController = TabController(length: 0, vsync: this);
     initTab();
     refreshPinnedLists();
@@ -97,12 +116,25 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        children: pageList,
-        onPageChanged: (index) {
-          _tabController.animateTo(index);
-        },
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            children: pageList,
+            onPageChanged: (index) {
+              _tabController.animateTo(index);
+            },
+          ),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: ScrollToHide(
+              scrollController: _scrollController,
+              hideDirection: Axis.vertical,
+              child: _buildFloatingButtons(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -153,6 +185,45 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Text(str),
         ),
       ),
+    );
+  }
+
+  scrollToTop() {
+    (keyList[_tabController.index].currentState as RefreshMixin?)
+        ?.scrollToTop();
+  }
+
+  refresh() async {
+    _refreshRotationController.repeat();
+    await scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    (keyList[_tabController.index].currentState as RefreshMixin?)?.refresh();
+  }
+
+  _buildFloatingButtons() {
+    return Column(
+      children: [
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: RotationTransition(
+            turns:
+                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
+            child: const Icon(Icons.refresh_rounded),
+          ),
+          onTap: () async {
+            refresh();
+          },
+        ),
+        const SizedBox(height: 10),
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: const Icon(Icons.arrow_upward_rounded),
+          onTap: () {
+            scrollToTop();
+          },
+        ),
+      ],
     );
   }
 }

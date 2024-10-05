@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
+import 'package:twitee/Openapi/models/timline_trend.dart';
 
 import 'content_union.dart';
 import 'timeline_community.dart';
@@ -31,6 +32,8 @@ abstract class ItemContentUnion extends ContentUnion {
         return TimelineCommunity.fromJson(json);
       case "TimelineTwitterList":
         return TimelineTwitterList.fromJson(json);
+      case "TimelineTrend":
+        return TimelineTrend.fromJson(json);
       default:
         throw ArgumentError('Unknown ItemContentUnion: $json');
     }

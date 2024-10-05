@@ -17,6 +17,7 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Navigation/friends_flow_screen.dart';
+import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Screens/Navigation/user_flow_screen.dart';
 import 'package:twitee/Widgets/Window/window_caption.dart';
 
@@ -24,6 +25,8 @@ import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
+import '../../Widgets/Hidable/scroll_to_hide.dart';
+import '../../Widgets/Item/item_builder.dart';
 
 class FriendshipScreen extends StatefulWidget {
   const FriendshipScreen({super.key});
@@ -41,6 +44,11 @@ class FriendshipScreenState extends State<FriendshipScreen>
   List<TimelineTwitterListInfo> pinnedLists = [];
   final PageController _pageController = PageController();
   List<Widget> pageList = [];
+  List<GlobalKey> keyList = [];
+
+  late AnimationController _refreshRotationController;
+
+  final ScrollController _scrollController = ScrollController();
 
   initTab() {
     UserInfo? info = HiveUtil.getUserInfo();
@@ -48,14 +56,19 @@ class FriendshipScreenState extends State<FriendshipScreen>
       _buildTab("正在关注"),
       _buildTab("关注者"),
       _buildTab("好友"),
-      _buildTab("认证关注者"),
+      _buildTab("认证关注者")
     ];
+    keyList = List.generate(4, (_) => GlobalKey());
     pageList = [
-      UserFlowScreen(type: UserFlowType.following, userId: info!.idStr),
-      UserFlowScreen(type: UserFlowType.follower, userId: info.idStr),
-      FriendsFlowScreen(userId: info.idStr),
       UserFlowScreen(
-          type: UserFlowType.blueVerifiedFollower, userId: info.idStr),
+          key: keyList[0], type: UserFlowType.following, userId: info!.idStr),
+      UserFlowScreen(
+          key: keyList[1], type: UserFlowType.follower, userId: info.idStr),
+      FriendsFlowScreen(key: keyList[2], userId: info.idStr),
+      UserFlowScreen(
+          key: keyList[3],
+          type: UserFlowType.blueVerifiedFollower,
+          userId: info.idStr),
     ];
     _tabController = TabController(length: tabList.length, vsync: this);
   }
@@ -63,6 +76,10 @@ class FriendshipScreenState extends State<FriendshipScreen>
   @override
   void initState() {
     super.initState();
+    _refreshRotationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
     _tabController = TabController(length: 0, vsync: this);
     initTab();
   }
@@ -80,12 +97,25 @@ class FriendshipScreenState extends State<FriendshipScreen>
           ],
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        children: pageList,
-        onPageChanged: (index) {
-          _tabController.animateTo(index);
-        },
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            children: pageList,
+            onPageChanged: (index) {
+              _tabController.animateTo(index);
+            },
+          ),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: ScrollToHide(
+              scrollController: _scrollController,
+              hideDirection: Axis.vertical,
+              child: _buildFloatingButtons(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -136,6 +166,45 @@ class FriendshipScreenState extends State<FriendshipScreen>
           child: Text(str),
         ),
       ),
+    );
+  }
+
+  scrollToTop() {
+    (keyList[_tabController.index].currentState as RefreshMixin?)
+        ?.scrollToTop();
+  }
+
+  refresh() async {
+    _refreshRotationController.repeat();
+    await scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    (keyList[_tabController.index].currentState as RefreshMixin?)?.refresh();
+  }
+
+  _buildFloatingButtons() {
+    return Column(
+      children: [
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: RotationTransition(
+            turns:
+                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
+            child: const Icon(Icons.refresh_rounded),
+          ),
+          onTap: () async {
+            refresh();
+          },
+        ),
+        const SizedBox(height: 10),
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: const Icon(Icons.arrow_upward_rounded),
+          onTap: () {
+            scrollToTop();
+          },
+        ),
+      ],
     );
   }
 }

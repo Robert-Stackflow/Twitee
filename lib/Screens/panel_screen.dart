@@ -19,6 +19,7 @@ import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
 import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Screens/Navigation/list_screen.dart';
+import 'package:twitee/Screens/Navigation/search_screen.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
@@ -58,7 +59,7 @@ class PanelScreenState extends State<PanelScreen>
     }
     pageList = [
       HomeScreen(key: homeScreenKey),
-      const BookmarkScreen(),
+      const SearchScreen(),
       const BookmarkScreen(),
       LikeScreen(userId: info!.idStr),
       ListScreen(userId: info.idStr),

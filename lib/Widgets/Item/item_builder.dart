@@ -1767,7 +1767,9 @@ class ItemBuilder {
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(
-                  color: outline ?? Theme.of(context).primaryColor.withAlpha(55), width: 1),
+                  color:
+                      outline ?? Theme.of(context).primaryColor.withAlpha(55),
+                  width: 1),
               borderRadius: BorderRadius.circular(radius),
             ),
             child: Row(
@@ -2433,7 +2435,7 @@ class ItemBuilder {
                 ...rightButtons,
                 StayOnTopWindowButton(
                   context: context,
-                  rotateAngle: isStayOnTop ? 0 : -pi / 4,
+                  rotateAngle: isStayOnTop ? -pi / 4 : 0,
                   colors: isStayOnTop
                       ? MyColors.getStayOnTopButtonColors(context)
                       : MyColors.getNormalButtonColors(context),

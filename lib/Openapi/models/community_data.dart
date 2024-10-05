@@ -86,7 +86,7 @@ class CommunityData  {
   final String name;
   @JsonKey(name: 'primary_community_topic')
   final PrimaryCommunityTopic? primaryCommunityTopic;
-  final String question;
+  final String? question;
   final CommunityDataRole role;
   final List<CommunityRule> rules;
   @JsonKey(name: 'search_tags')

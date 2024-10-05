@@ -62,8 +62,8 @@ class _ListScreenState extends State<ListScreen>
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validItems = _processEntries(instruction.entries);
-            validItems =
-                validItems.where((e) => e.list.name != "demo").toList();
+            // validItems =
+            //     validItems.where((e) => e.list.name != "demo").toList();
             setState(() {
               inited = true;
             });

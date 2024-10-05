@@ -64,6 +64,7 @@ dependencies:
   flutter_native_splash: ^2.4.1 # Splash屏
   pretty_qr_code: ^3.3.0 # 二维码
   local_proxy: ^0.0.3 # 系统代理
+  easy_debounce: ^2.0.3 # 防抖
   # 系统
   provider: ^6.0.5 # 状态管理
   local_auth: ^2.2.0 # 指纹验证

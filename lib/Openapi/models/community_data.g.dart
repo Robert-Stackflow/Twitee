@@ -54,7 +54,7 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           ? null
           : PrimaryCommunityTopic.fromJson(
               json['primary_community_topic'] as Map<String, dynamic>),
-      question: json['question'] as String,
+      question: json['question'] != null ? json['question'] as String : null,
       role: CommunityDataRole.fromJson(json['role'] as String),
       rules: (json['rules'] as List<dynamic>)
           .map((e) => CommunityRule.fromJson(e as Map<String, dynamic>))

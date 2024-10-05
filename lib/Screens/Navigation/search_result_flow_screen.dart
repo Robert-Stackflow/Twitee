@@ -13,47 +13,39 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:twitee/Models/feedback_actions.dart';
-import 'package:twitee/Openapi/models/cursor_type.dart';
-import 'package:twitee/Openapi/models/feedback_info.dart';
-import 'package:twitee/Openapi/models/timeline_timeline_cursor.dart';
+import 'package:twitee/Api/search_api.dart';
+import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Screens/Navigation/refresh_interface.dart';
-import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Screens/Navigation/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Api/timeline_api.dart';
-import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_add_entry.dart';
-import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_tweet.dart';
+class SearchResultFlowScreen extends StatefulWidget {
+  const SearchResultFlowScreen(
+      {super.key, required this.type, required this.query});
 
-class TimelineFlowScreen extends StatefulWidget {
-  const TimelineFlowScreen({super.key, this.isLatest = true});
+  final SearchTimelineType type;
 
-  final bool isLatest;
+  final String query;
 
-  static const String routeName = "/navigtion/timelineFlow";
+  static const String routeName = "/navigtion/searchResultFlow";
 
   @override
-  State<TimelineFlowScreen> createState() => _TimelineFlowScreenState();
+  State<SearchResultFlowScreen> createState() => _SearchResultFlowScreenState();
 }
 
-class _TimelineFlowScreenState extends State<TimelineFlowScreen>
+class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
-
-  List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
 
@@ -77,7 +69,6 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.callRefresh();
-    homeScreenState?.refreshPinnedLists();
   }
 
   _onRefresh() async {
@@ -85,26 +76,20 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
-      var res = await TimelineApi.getHomeTimeline(
-        isLatest: widget.isLatest,
-        seenTweetIds: validEntries
-            .map((e) {
-              return e.sortIndex.toString();
-            })
-            .toList()
-            .sublist(0, min(5, validEntries.length)),
+      ResponseResult res;
+      res = await SearchApi.getSearchTimeline(
+        query: widget.query,
+        type: widget.type,
       );
       if (res.success) {
-        var response = res.data;
-        if (response!.data.home.homeTimelineUrt!.responseObjects != null) {
-          _feedbackActions = (response!.data.home.homeTimelineUrt!
-                  .responseObjects!['feedbackActions'] as List<dynamic>)
-              .map((e) => FeedbackActions.fromJson(e))
-              .toList();
-        }
+        SearchTimelineResponse response = res.data;
         List<TimelineAddEntry> newEntries = [];
-        for (var instruction
-            in response!.data.home.homeTimelineUrt!.instructions) {
+        Timeline? timeline =
+            response.data.searchByRawQuery?.searchTimeline?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
+        }
+        for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
@@ -136,21 +121,20 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
-      var res = await TimelineApi.getHomeTimeline(
-        cursorBottom: cursorBottom!.value,
-        isLatest: widget.isLatest,
+      ResponseResult res = await SearchApi.getSearchTimeline(
+        query: widget.query,
+        type: widget.type,
+        cursorBottom: cursorBottom?.value,
       );
       if (res.success) {
-        var response = res.data;
-        if (response!.data.home.homeTimelineUrt!.responseObjects != null) {
-          _feedbackActions.addAll((response!.data.home.homeTimelineUrt!
-                  .responseObjects!['feedbackActions'] as List<dynamic>)
-              .map((e) => FeedbackActions.fromJson(e))
-              .toList());
-        }
+        SearchTimelineResponse response = res.data;
         List<TimelineAddEntry> newEntries = [];
-        for (var instruction
-            in response!.data.home.homeTimelineUrt!.instructions) {
+        Timeline? timeline =
+            response.data.searchByRawQuery?.searchTimeline?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
+        }
+        for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
@@ -192,50 +176,20 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
     }
   }
 
-  _processEntries(List<TimelineAddEntry> entries) {
+  List<TimelineAddEntry> _processEntries(List<TimelineAddEntry> entries) {
     List<TimelineAddEntry> result = [];
     for (var entry in entries) {
-      if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent
-              is TimelineTweet &&
-          ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
-                  .promotedMetadata ==
-              null) {
-        result.add(entry);
-      }
-    }
-    return result;
-  }
-
-  List<FeedbackActions> _getFeedBackActions(TimelineAddEntry entry) {
-    List<FeedbackActions> res = [];
-    if (entry.content is TimelineTimelineItem) {
-      var item = entry.content as TimelineTimelineItem;
-      if (item.feedbackInfo != null) {
-        var info = FeedbackInfo.fromJson(item.feedbackInfo!);
-        if (info.feedbackKeys != null) {
-          res.addAll(info.feedbackKeys!.expand((key) {
-            return _feedbackActions
-                .where((element) => element.key == key)
-                .toList();
-          }).toList());
+      if (widget.type.useTimelineTimelineItem) {
+        if (entry.content is TimelineTimelineItem) {
+          result.add(entry);
+        }
+      } else if (widget.type.useTimelineTimelineModule) {
+        if (entry.content is TimelineTimelineModule) {
+          result.add(entry);
         }
       }
     }
-    List<FeedbackActions> childs = [];
-    for (var action in res) {
-      if (action.value != null && action.value!.childKeys != null) {
-        var childActions = action.value!.childKeys!.expand((key) {
-          return _feedbackActions
-              .where((element) => element.key == key)
-              .toList();
-        }).toList();
-        childs.addAll(childActions);
-      }
-    }
-    res.addAll(childs);
-    res = res.toSet().toList();
-    return res;
+    return result;
   }
 
   @override
@@ -256,22 +210,69 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
         noMore: _noMore,
         child: WaterfallFlow.extent(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
           children: List.generate(
             validEntries.length,
             (index) {
-              return PostItem(
-                key: GlobalObjectKey(validEntries[index].sortIndex.toString()),
-                entry: validEntries[index],
-                feedbackActions: _getFeedBackActions(validEntries[index]),
-              );
+              return _buildItem(validEntries[index]);
             },
           ),
         ),
       ),
     );
+  }
+
+  _buildItem(TimelineAddEntry entry) {
+    if (widget.type.useTimelineTimelineItem) {
+      TimelineTimelineItem item = entry.content as TimelineTimelineItem;
+      if (item.itemContent is TimelineUser) {
+        return _buildUserItem(item.itemContent as TimelineUser);
+      } else if (item.itemContent is TimelineTweet) {
+        return PostItem(entry: entry);
+      }
+    } else if (widget.type.useTimelineTimelineModule) {
+      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+      if (module.displayType == DisplayType.verticalGrid) {
+        List<ModuleItem> items = module.items
+                ?.where((e) => e != null)
+                .map((e) => e as ModuleItem)
+                .toList() ??
+            [];
+        return WaterfallFlow.extent(
+          maxCrossAxisExtent: 200,
+          shrinkWrap: true,
+          children: List.generate(
+            items.length,
+            (index) {
+              ModuleItem item = items[index];
+              if (item.item.itemContent is TimelineTweet) {
+                TimelineTweet timelineTweet =
+                    item.item.itemContent as TimelineTweet;
+                Tweet tweet = timelineTweet.tweetResults!.result as Tweet;
+                print(tweet.legacy!.entities.media![0]!.mediaUrlHttps!);
+                return GestureDetector(
+                  child: ItemBuilder.buildCachedImage(
+                    imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
+                    width: 300,
+                    height: 300,
+                    context: context,
+                  ),
+                );
+              }
+              return Container();
+            },
+          ),
+        );
+      }
+    }
+    return Container();
+  }
+
+  _buildUserItem(TimelineUser timelineUser) {
+    User user = timelineUser.userResults!.result as User;
+    return UserItem(userLegacy: user.legacy);
   }
 }

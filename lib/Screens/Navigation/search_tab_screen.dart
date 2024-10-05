@@ -14,10 +14,11 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/user_api.dart';
+import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Models/search_timeline_tab_item.dart';
+import 'package:twitee/Openapi/models/timline_trend.dart';
 import 'package:twitee/Screens/Navigation/refresh_interface.dart';
-import 'package:twitee/Screens/Navigation/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -25,38 +26,32 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
-import '../../Openapi/models/follow_response.dart';
+import '../../Openapi/models/module_item.dart';
 import '../../Openapi/models/timeline.dart';
 import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
-import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_user.dart';
-import '../../Openapi/models/user.dart';
+import '../../Openapi/models/timeline_timeline_module.dart';
+import '../../Utils/utils.dart';
 
-enum UserFlowType { following, follower, blueVerifiedFollower }
+class SearchTabScreen extends StatefulWidget {
+  const SearchTabScreen({super.key, required this.tabItem});
 
-class UserFlowScreen extends StatefulWidget {
-  const UserFlowScreen({super.key, required this.type, required this.userId});
+  final SearchTimelineTabItem tabItem;
 
-  final UserFlowType type;
-
-  final String userId;
-
-  static const String routeName = "/navigtion/userFlow";
+  static const String routeName = "/navigtion/searchTab";
 
   @override
-  State<UserFlowScreen> createState() => _UserFlowScreenState();
+  State<SearchTabScreen> createState() => _SearchTabScreenState();
 }
 
-class _UserFlowScreenState extends State<UserFlowScreen>
+class _SearchTabScreenState extends State<SearchTabScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
-  TimelineTimelineCursor? cursorTop;
-  TimelineTimelineCursor? cursorBottom;
+  String? cursorTop;
+  String? cursorBottom;
 
-  List<TimelineUser> validEntries = [];
+  List<ModuleItem> items = [];
 
   bool _loading = false;
 
@@ -85,30 +80,20 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case UserFlowType.following:
-          res = await UserApi.getFollowingList(userId: widget.userId);
-          break;
-        case UserFlowType.follower:
-          res = await UserApi.getFollowerList(userId: widget.userId);
-          break;
-        case UserFlowType.blueVerifiedFollower:
-          res =
-              await UserApi.getBlueVerifiedFollowerList(userId: widget.userId);
-          break;
-      }
+      ResponseResult res = await SearchApi.getGenericTimelineById(
+        timelineId: widget.tabItem.timeline!.id!,
+      );
       if (res.success) {
-        FollowResponse response = res.data;
-        List<TimelineUser> newEntries = [];
-        Timeline timeline = response.data.user.result.timeline.timeline;
+        List<ModuleItem> newEntries = [];
+        Timeline timeline = res.data;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            newEntries = validEntries = _processEntries(instruction.entries);
-            _refreshCursor(instruction.entries);
+            newEntries = _processEntries(instruction);
+            items = newEntries;
             setState(() {});
           }
         }
+        setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -134,34 +119,23 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case UserFlowType.following:
-          res = await UserApi.getFollowingList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-        case UserFlowType.follower:
-          res = await UserApi.getFollowerList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-        case UserFlowType.blueVerifiedFollower:
-          res = await UserApi.getBlueVerifiedFollowerList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-      }
+      ResponseResult res = await SearchApi.getGenericTimelineById(
+        timelineId: widget.tabItem.timeline!.id!,
+        cursorBottom: cursorBottom,
+      );
       if (res.success) {
-        FollowResponse response = res.data;
-        List<TimelineUser> newEntries = [];
-        Timeline timeline = response.data.user.result.timeline.timeline;
+        List<ModuleItem> newItems = [];
+        Timeline timeline = res.data;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            validEntries.addAll(_processEntries(instruction.entries));
-            newEntries = _processEntries(instruction.entries);
-            _refreshCursor(instruction.entries);
+            newItems = _processEntries(instruction);
+            items.addAll(newItems);
             setState(() {});
+            return IndicatorResult.success;
           }
         }
-        if (newEntries.isEmpty) {
+        setState(() {});
+        if (newItems.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
         } else {
@@ -181,30 +155,27 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     }
   }
 
-  _refreshCursor(List<TimelineAddEntry> entries) {
-    for (var entry in entries) {
+  _processEntries(TimelineAddEntries entries) {
+    List<ModuleItem> items = [];
+    for (var entry in entries.entries) {
+      if (entry.content is TimelineTimelineModule) {
+        var module = entry.content as TimelineTimelineModule;
+        for (var item in module.items ?? []) {
+          if (item is ModuleItem) {
+            items.add(item);
+          }
+        }
+      }
       if (entry.content is TimelineTimelineCursor) {
-        if ((entry.content as TimelineTimelineCursor).cursorType ==
-            CursorType.top) {
-          cursorTop = entry.content as TimelineTimelineCursor;
-        } else if ((entry.content as TimelineTimelineCursor).cursorType ==
-            CursorType.bottom) {
-          cursorBottom = entry.content as TimelineTimelineCursor;
+        var cursor = entry.content as TimelineTimelineCursor;
+        if (cursor.cursorType == CursorType.top) {
+          cursorTop = cursor.value;
+        } else {
+          cursorBottom = cursor.value;
         }
       }
     }
-  }
-
-  List<TimelineUser> _processEntries(List<TimelineAddEntry> entries) {
-    List<TimelineUser> result = [];
-    for (var entry in entries) {
-      if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent is TimelineUser) {
-        result.add((entry.content as TimelineTimelineItem).itemContent
-            as TimelineUser);
-      }
-    }
-    return result;
+    return items;
   }
 
   @override
@@ -226,13 +197,13 @@ class _UserFlowScreenState extends State<UserFlowScreen>
         child: WaterfallFlow.extent(
           controller: _scrollController,
           padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
-          maxCrossAxisExtent: 600,
+          maxCrossAxisExtent: 400,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
           children: List.generate(
-            validEntries.length,
+            items.length,
             (index) {
-              return _buildUserItem(validEntries[index]);
+              return _buildTrendItem(items[index]);
             },
           ),
         ),
@@ -240,8 +211,48 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     );
   }
 
-  _buildUserItem(TimelineUser timelineUser) {
-    User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy);
+  _buildTrendItem(ModuleItem item) {
+    TimelineTrend trend = item.item.itemContent as TimelineTrend;
+    bool showDot = Utils.isNotEmpty(trend.rank) &&
+        Utils.isNotEmpty(trend.trendMetadata?.domainContext);
+    return Material(
+      color: Theme.of(context).canvasColor,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {},
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          height: 78,
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${trend.rank ?? ""}${showDot ? " · " : ""}${trend.trendMetadata?.domainContext ?? ""}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    trend.name ?? "",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.apply(fontWeightDelta: 2),
+                  ),
+                  Text(
+                    trend.trendMetadata?.metaDescription ?? "",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

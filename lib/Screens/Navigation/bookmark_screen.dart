@@ -13,6 +13,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
@@ -73,12 +74,21 @@ class _BookmarkScreenState extends State<BookmarkScreen>
       vsync: this,
     );
     searchController.addListener(() {
-      if (currentQuery.isNotEmpty && searchController.text.isEmpty) {
-        _easyRefreshController.resetHeader();
-        _easyRefreshController.callRefresh();
-      }
-      currentQuery = searchController.text;
+      EasyDebounce.debounce(
+          'search-debouncer', const Duration(milliseconds: 500), () {
+        if (currentQuery.isNotEmpty && searchController.text.isEmpty) {
+          _easyRefreshController.resetHeader();
+          _easyRefreshController.callRefresh();
+        }
+        currentQuery = searchController.text;
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    EasyDebounce.cancelAll();
+    super.dispose();
   }
 
   _scrollToTop() async {
@@ -286,7 +296,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             Container(
               margin: const EdgeInsets.all(10),
               constraints: const BoxConstraints(
-                  maxWidth: 300, minWidth: 300, maxHeight: 56),
+                  maxWidth: 360, minWidth: 360, maxHeight: 56),
               child: ItemBuilder.buildDesktopSearchBar(
                 context: context,
                 borderRadius: 8,
