@@ -77,6 +77,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
   }
 

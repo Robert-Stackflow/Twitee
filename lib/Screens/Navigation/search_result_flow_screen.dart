@@ -17,11 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Openapi/models/timeline_twitter_list.dart';
 import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Screens/Navigation/refresh_interface.dart';
+import 'package:twitee/Screens/Navigation/twitter_list_item.dart';
 import 'package:twitee/Screens/Navigation/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
@@ -47,7 +50,15 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
 
+  bool get _isMedia => widget.type == SearchTimelineType.Media;
+
+  bool get _isList => widget.type == SearchTimelineType.Lists;
+
   List<TimelineAddEntry> validEntries = [];
+
+  List<TimelineTwitterList> timelineTwitterLists = [];
+
+  List<TimelineTweet> gridTweets = [];
 
   bool _loading = false;
 
@@ -68,6 +79,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
   }
 
@@ -93,9 +105,14 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
           }
         }
+        if (_isList) {
+          _refreshLists();
+        } else if (_isMedia) {
+          _refreshGridTweets();
+        }
+        setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -139,9 +156,14 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
           }
         }
+        if (_isList) {
+          _refreshLists();
+        } else if (_isMedia) {
+          _refreshGridTweets();
+        }
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -192,6 +214,52 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
     return result;
   }
 
+  _refreshLists() {
+    timelineTwitterLists.clear();
+    List<TimelineTwitterList> lists = [];
+    for (var entry in validEntries) {
+      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+      List<ModuleItem> items = module.items
+              ?.where((e) => e != null)
+              .map((e) => e as ModuleItem)
+              .toList() ??
+          [];
+      List<TimelineTwitterList> tmp = items
+          .where((e) => e.item.itemContent is TimelineTwitterList)
+          .map((e) => e.item.itemContent as TimelineTwitterList)
+          .toList();
+      lists.addAll(tmp);
+    }
+    timelineTwitterLists = lists;
+  }
+
+  _refreshGridTweets() {
+    gridTweets.clear();
+    List<TimelineTweet> tweets = [];
+    for (var entry in validEntries) {
+      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+      if (module.displayType == DisplayType.verticalGrid) {
+        List<ModuleItem> items = module.items
+                ?.where((e) => e != null)
+                .map((e) => e as ModuleItem)
+                .toList() ??
+            [];
+        for (var item in items) {
+          if (item.item.itemContent is TimelineTweet) {
+            tweets.add(item.item.itemContent as TimelineTweet);
+          }
+        }
+      }
+    }
+    gridTweets = tweets.where((e) => hasMedia(e)).toList();
+  }
+
+  bool hasMedia(TimelineTweet tweet) {
+    Tweet t = TweetUtil.getTrueTweetByResult(tweet.tweetResults)!;
+    return t.legacy!.entities.media != null &&
+        t.legacy!.entities.media!.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -205,20 +273,90 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
-        onLoad: _onLoad,
-        noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
-          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            validEntries.length,
-            (index) {
-              return _buildItem(validEntries[index]);
-            },
+      child: _buildBody(),
+    );
+  }
+
+  _buildBody() {
+    if (_isMedia) {
+      return _buildWaterfallFlow(
+        maxCrossAxisExtent: 160,
+        children: List.generate(
+          gridTweets.length,
+          (index) {
+            return _buildGridItem(160, gridTweets[index]);
+          },
+        ),
+        useGrid: true,
+      );
+    } else if (_isList) {
+      return _buildWaterfallFlow(
+        maxCrossAxisExtent: 600,
+        children: List.generate(
+          timelineTwitterLists.length,
+          (index) {
+            return TwitterListItem(list: timelineTwitterLists[index]);
+          },
+        ),
+      );
+    } else {
+      return _buildWaterfallFlow(
+        maxCrossAxisExtent: 600,
+        children: List.generate(
+          validEntries.length,
+          (index) {
+            return _buildItem(validEntries[index]);
+          },
+        ),
+      );
+    }
+  }
+
+  _buildWaterfallFlow({
+    double maxCrossAxisExtent = 600,
+    List<Widget> children = const [],
+    bool useGrid = false,
+  }) {
+    return ItemBuilder.buildLoadMoreNotification(
+      onLoad: _onLoad,
+      noMore: _noMore,
+      child: useGrid
+          ? GridView.extent(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+              maxCrossAxisExtent: maxCrossAxisExtent,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 6,
+              children: children,
+            )
+          : WaterfallFlow.extent(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+              maxCrossAxisExtent: maxCrossAxisExtent,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 6,
+              children: children,
+            ),
+    );
+  }
+
+  _buildGridItem(double size, TimelineTweet timelineTweet) {
+    Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {},
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: ItemBuilder.buildCachedImage(
+            imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
+            width: size,
+            height: size,
+            context: context,
+            fit: BoxFit.cover,
+            showLoading: false,
           ),
         ),
       ),
@@ -229,50 +367,13 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
     if (widget.type.useTimelineTimelineItem) {
       TimelineTimelineItem item = entry.content as TimelineTimelineItem;
       if (item.itemContent is TimelineUser) {
-        return _buildUserItem(item.itemContent as TimelineUser);
+        User user =
+            (item.itemContent as TimelineUser).userResults!.result as User;
+        return UserItem(userLegacy: user.legacy);
       } else if (item.itemContent is TimelineTweet) {
         return PostItem(entry: entry);
       }
-    } else if (widget.type.useTimelineTimelineModule) {
-      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
-      if (module.displayType == DisplayType.verticalGrid) {
-        List<ModuleItem> items = module.items
-                ?.where((e) => e != null)
-                .map((e) => e as ModuleItem)
-                .toList() ??
-            [];
-        return WaterfallFlow.extent(
-          maxCrossAxisExtent: 200,
-          shrinkWrap: true,
-          children: List.generate(
-            items.length,
-            (index) {
-              ModuleItem item = items[index];
-              if (item.item.itemContent is TimelineTweet) {
-                TimelineTweet timelineTweet =
-                    item.item.itemContent as TimelineTweet;
-                Tweet tweet = timelineTweet.tweetResults!.result as Tweet;
-                print(tweet.legacy!.entities.media![0]!.mediaUrlHttps!);
-                return GestureDetector(
-                  child: ItemBuilder.buildCachedImage(
-                    imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
-                    width: 300,
-                    height: 300,
-                    context: context,
-                  ),
-                );
-              }
-              return Container();
-            },
-          ),
-        );
-      }
     }
     return Container();
-  }
-
-  _buildUserItem(TimelineUser timelineUser) {
-    User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy);
   }
 }

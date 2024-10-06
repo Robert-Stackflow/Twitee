@@ -104,16 +104,26 @@ class SearchScreenState extends State<SearchScreen>
 
   refreshResultPageList() {
     _resultPageList = [
-      SearchResultFlowScreen(key: _resultKeyList[0],
-          type: SearchTimelineType.Top, query: _searchController.text),
-      SearchResultFlowScreen(key: _resultKeyList[1],
-          type: SearchTimelineType.Latest, query: _searchController.text),
-      SearchResultFlowScreen(key: _resultKeyList[2],
-          type: SearchTimelineType.People, query: _searchController.text),
-      SearchResultFlowScreen(key: _resultKeyList[3],
-          type: SearchTimelineType.Media, query: _searchController.text),
-      SearchResultFlowScreen(key: _resultKeyList[4],
-          type: SearchTimelineType.Lists, query: _searchController.text),
+      SearchResultFlowScreen(
+          key: _resultKeyList[0],
+          type: SearchTimelineType.Top,
+          query: _searchController.text),
+      SearchResultFlowScreen(
+          key: _resultKeyList[1],
+          type: SearchTimelineType.Latest,
+          query: _searchController.text),
+      SearchResultFlowScreen(
+          key: _resultKeyList[2],
+          type: SearchTimelineType.People,
+          query: _searchController.text),
+      SearchResultFlowScreen(
+          key: _resultKeyList[3],
+          type: SearchTimelineType.Media,
+          query: _searchController.text),
+      SearchResultFlowScreen(
+          key: _resultKeyList[4],
+          type: SearchTimelineType.Lists,
+          query: _searchController.text),
     ];
     setState(() {});
   }
@@ -121,10 +131,12 @@ class SearchScreenState extends State<SearchScreen>
   perfromSearch(String key) {
     if (key.isEmpty) return;
     _searchController.text = key;
+    if (_showResult) {
+      refresh();
+    }
     _hideSuggestions();
     _showResult = true;
     refreshResultPageList();
-    _resultTabController.animateTo(0);
   }
 
   @override
@@ -141,23 +153,33 @@ class SearchScreenState extends State<SearchScreen>
     initData();
     _searchController.addListener(() {
       EasyDebounce.debounce(
-          'search-suggestion-debouncer', const Duration(milliseconds: 500), () {
+          'search-suggestion-debouncer', const Duration(milliseconds: 100), () {
         if (_searchController.text.isNotEmpty) {
-          if (!_showResult) _fetchSuggestions();
+          _fetchSuggestions();
         } else {
+          _showResult = false;
+          if (mounted) setState(() {});
           _hideSuggestions();
         }
       });
     });
+    searchFocusNode.addListener(() {
+      if (!searchFocusNode.hasFocus) {
+        _hideSuggestions();
+      }
+    });
   }
 
   _fetchSuggestions() async {
+    if(_searchController.text.isEmpty) return;
     var res = await SearchApi.getSuggestion(query: _searchController.text);
     if (res.success) {
       setState(() {
         response = res.data;
       });
-      _showSuggestions();
+      if (searchFocusNode.hasFocus) {
+        _showSuggestions();
+      }
     } else {
       IToast.showTop("搜索建议失败：${res.message}");
     }
@@ -448,7 +470,7 @@ class SearchScreenState extends State<SearchScreen>
     _refreshRotationController.stop();
     _refreshRotationController.forward();
     if (_showResult) {
-      (_resultKeyList[_trendTabController.index].currentState as RefreshMixin?)
+      (_resultKeyList[_resultTabController.index].currentState as RefreshMixin?)
           ?.refresh();
     } else {
       (_trendKeyList[_trendTabController.index].currentState as RefreshMixin?)

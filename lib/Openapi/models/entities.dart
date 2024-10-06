@@ -25,7 +25,9 @@ class Entities  {
   });
   
   factory Entities.fromJson(Map<String, Object?> json) => _$EntitiesFromJson(json);
-  
+
+  factory Entities.fromJsonWithoutMedia(Map<String, Object?> json) => _$EntitiesFromJsonWithoutMedia(json);
+
   final List<Hashtag> hashtags;
   final List<Media?>? media;
   final List<Symbol> symbols;

@@ -30,8 +30,8 @@ class TimelineHalfCover  {
   final TimelineHalfCoverHalfCoverDisplayType halfCoverDisplayType;
   final List<Callback> impressionCallbacks;
   final CoverCta primaryCoverCta;
-  final Text primaryText;
-  final Text secondaryText;
+  final TextItem primaryText;
+  final TextItem secondaryText;
   final TimelineHalfCoverType type;
 
   Map<String, Object?> toJson() => _$TimelineHalfCoverToJson(this);

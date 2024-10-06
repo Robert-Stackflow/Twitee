@@ -214,6 +214,16 @@ class MainScreenState extends State<MainScreen>
     if (res.success) {}
   }
 
+  logout() async {
+    _userInfo==null;
+    panelScreenState?.logout();
+  }
+
+  login() {
+    _userInfo = HiveUtil.getUserInfo();
+    panelScreenState?.login();
+  }
+
   @override
   void initState() {
     _oldOrientation = MediaQuery.of(rootContext).orientation;
@@ -373,6 +383,7 @@ class MainScreenState extends State<MainScreen>
           onPressed: () async {
             DialogBuilder.showConfirmDialog(
               context,
+              title: "退出登录",
               message: "是否退出登录？",
               onTapConfirm: () async {
                 await UserUtil.logout();

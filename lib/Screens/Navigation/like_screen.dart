@@ -328,6 +328,7 @@ class _LikeScreenState extends State<LikeScreen>
             await _scrollToTop();
             _refreshRotationController.stop();
             _refreshRotationController.forward();
+            _easyRefreshController.resetHeader();
             _easyRefreshController.callRefresh();
           },
         ),

@@ -24,9 +24,11 @@ Media _$MediaFromJson(Map<String, dynamic> json) => Media(
               json['ext_media_availability'] as Map<String, dynamic>),
       features: json['features'],
       idStr: json['id_str'] as String?,
-      indices: (json['indices'] as List<dynamic>)
-          .map((e) => (e as num).toInt())
-          .toList(),
+      indices: json['indices'] == null
+          ? null
+          : (json['indices'] as List<dynamic>)
+              .map((e) => (e as num).toInt())
+              .toList(),
       mediaKey: json['media_key'] as String?,
       mediaResults: json['media_results'] == null
           ? null

@@ -163,6 +163,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
       await LoginApi.fetchCsrfToken(_guestToken);
       await RequestUtil.shareCookie();
+      mainScreenState?.login();
       if (_userInfo != null) {
         await HiveUtil.setUserInfo(_userInfo!);
       }

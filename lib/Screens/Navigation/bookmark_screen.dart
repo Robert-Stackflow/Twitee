@@ -307,6 +307,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
                 background: Colors.grey.withAlpha(40),
                 hintText: "搜索书签",
                 onSubmitted: (text) async {
+                  _easyRefreshController.resetHeader();
                   await _easyRefreshController.callRefresh();
                 },
               ),
@@ -376,6 +377,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             await _scrollToTop();
             _refreshRotationController.stop();
             _refreshRotationController.forward();
+            _easyRefreshController.resetHeader();
             _easyRefreshController.callRefresh();
           },
         ),

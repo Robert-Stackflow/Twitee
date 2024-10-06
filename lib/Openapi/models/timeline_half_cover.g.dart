@@ -16,9 +16,9 @@ TimelineHalfCover _$TimelineHalfCoverFromJson(Map<String, dynamic> json) =>
           .toList(),
       primaryCoverCta:
           CoverCta.fromJson(json['primaryCoverCta'] as Map<String, dynamic>),
-      primaryText: Text.fromJson(json['primaryText'] as Map<String, dynamic>),
+      primaryText: TextItem.fromJson(json['primaryText'] as Map<String, dynamic>),
       secondaryText:
-          Text.fromJson(json['secondaryText'] as Map<String, dynamic>),
+          TextItem.fromJson(json['secondaryText'] as Map<String, dynamic>),
       type: TimelineHalfCoverType.fromJson(json['type'] as String),
     );
 

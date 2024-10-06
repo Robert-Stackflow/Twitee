@@ -12,7 +12,6 @@ import 'package:twitee/Utils/utils.dart';
 
 import '../Models/filename_field.dart';
 import '../Models/illust.dart';
-import '../Widgets/Item/item_builder.dart';
 import 'constant.dart';
 import 'file_util.dart';
 import 'hive_util.dart';
@@ -25,8 +24,8 @@ class ImageUtil {
     bool showToast = true,
     String? message,
   }) async {
-    CachedNetworkImage image =
-        ItemBuilder.buildCachedImage(imageUrl: imageUrl, context: context);
+    CachedNetworkImage image = CachedNetworkImage(
+        imageUrl: imageUrl, filterQuality: FilterQuality.high);
     BaseCacheManager manager = image.cacheManager ?? DefaultCacheManager();
     Map<String, String> headers = image.httpHeaders ?? {};
     File file = await manager.getSingleFile(
@@ -49,8 +48,8 @@ class ImageUtil {
     String imageUrl, {
     bool showToast = true,
   }) async {
-    CachedNetworkImage image =
-        ItemBuilder.buildCachedImage(imageUrl: imageUrl, context: context);
+    CachedNetworkImage image = CachedNetworkImage(
+        imageUrl: imageUrl, filterQuality: FilterQuality.high);
     BaseCacheManager manager = image.cacheManager ?? DefaultCacheManager();
     Map<String, String> headers = image.httpHeaders ?? {};
     return await manager.getSingleFile(
@@ -74,8 +73,8 @@ class ImageUtil {
     String? fileName,
   }) async {
     try {
-      CachedNetworkImage image =
-          ItemBuilder.buildCachedImage(imageUrl: imageUrl, context: context);
+      CachedNetworkImage image = CachedNetworkImage(
+          imageUrl: imageUrl, filterQuality: FilterQuality.high);
       BaseCacheManager manager = image.cacheManager ?? DefaultCacheManager();
       Map<String, String> headers = image.httpHeaders ?? {};
       File file = await manager.getSingleFile(

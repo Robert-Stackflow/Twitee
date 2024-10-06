@@ -52,21 +52,32 @@ class PanelScreenState extends State<PanelScreen>
     });
   }
 
+  logout() {
+    pageList = [];
+    setState(() {});
+  }
+
+  login() {
+    initPage();
+    setState(() {});
+  }
+
   Future<void> initPage() async {
     UserInfo? info = HiveUtil.getUserInfo();
     if (info == null) {
       pageList = [];
+    } else {
+      pageList = [
+        HomeScreen(key: homeScreenKey),
+        SearchScreen(key: searchScreenKey),
+        const BookmarkScreen(),
+        LikeScreen(userId: info!.idStr),
+        ListScreen(userId: info.idStr),
+        const FriendshipScreen(),
+        const BookmarkScreen(),
+        const BookmarkScreen(),
+      ];
     }
-    pageList = [
-      HomeScreen(key: homeScreenKey),
-      const SearchScreen(),
-      const BookmarkScreen(),
-      LikeScreen(userId: info!.idStr),
-      ListScreen(userId: info.idStr),
-      const FriendshipScreen(),
-      const BookmarkScreen(),
-      const BookmarkScreen(),
-    ];
   }
 
   void jumpToPage(int index) {

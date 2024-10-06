@@ -15,6 +15,8 @@
 
 import 'dart:convert';
 
+import 'package:twitee/Utils/user_util.dart';
+
 import '../Models/response_result.dart';
 import '../Openapi/models/timeline_twitter_list.dart';
 import '../Utils/ilogger.dart';
@@ -198,6 +200,9 @@ class ListApi {
         },
       );
       if (response == null || response.statusCode != 200) {
+        if (response?.statusCode == 401) {
+          UserUtil.showReloginDialog();
+        }
         return ResponseResult.error(
           message: "Failed to get list members",
           data: response?.data,

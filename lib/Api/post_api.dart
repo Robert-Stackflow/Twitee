@@ -14,6 +14,7 @@
  */
 
 import 'package:dio/dio.dart';
+import 'package:twitee/Models/translation_result.dart';
 
 import '../Models/response_result.dart';
 import '../Utils/ilogger.dart';
@@ -284,6 +285,35 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to feedback", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> translate({
+    required String tweetId,
+    required String destinationLanguage,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Translating");
+      final response = await RequestUtil.get(
+        "/1.1/strato/column/None/tweetId=$tweetId,destinationLanguage=None,translationSource=Some(Google),feature=None,timeout=None,onlyCached=None/translation/service/translateTweet",
+        domainType: DomainType.api,
+        forceCsrfToken: true,
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to translate",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: TranslationResult.fromJson(data),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to translate", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }

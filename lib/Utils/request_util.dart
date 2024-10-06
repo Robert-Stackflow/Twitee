@@ -7,6 +7,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_header_util.dart';
+import 'package:twitee/Utils/user_util.dart';
 
 import 'iprint.dart';
 
@@ -100,6 +101,12 @@ class RequestUtil {
     }
   }
 
+  static _preProcessResponse(Response? response) {
+    if (response?.statusCode == 401) {
+      UserUtil.showReloginDialog();
+    }
+  }
+
   RequestUtil({
     DomainType domainType = DomainType.api,
   }) {
@@ -131,11 +138,13 @@ class RequestUtil {
     Map<String, dynamic>? params,
     Options? options,
     DomainType? domainType,
+    bool forceCsrfToken = false,
   }) async {
     Response? response;
     options = await _preProcessRequest(
       options: options,
       domainType: domainType,
+      forceCsrfToken: forceCsrfToken,
     );
     try {
       response = await dio.get(
@@ -144,8 +153,10 @@ class RequestUtil {
         options: options,
       );
       _printResponse(response);
+      _preProcessResponse(response);
     } on DioException catch (e) {
       _printError(e);
+      _preProcessResponse(e.response);
       rethrow;
     }
     return response;
@@ -175,8 +186,10 @@ class RequestUtil {
         options: options,
       );
       _printResponse(response);
+      _preProcessResponse(response);
     } on DioException catch (e) {
       _printError(e);
+      _preProcessResponse(e.response);
       rethrow;
     }
     return response;
@@ -185,6 +198,7 @@ class RequestUtil {
   _preProcessRequest({
     Options? options,
     DomainType? domainType,
+    bool forceCsrfToken = false,
   }) async {
     options = options ?? Options();
     options.headers ??= {};
@@ -192,7 +206,7 @@ class RequestUtil {
       "Authorization": RequestHeaderUtil.defaultAuthentication,
       "User-Agent": RequestHeaderUtil.defaultUA,
     });
-    if (domainType != DomainType.api) {
+    if (domainType != DomainType.api || forceCsrfToken) {
       options.headers?.addAll({
         "x-csrf-token": await RequestUtil.getCsrfToken(),
       });
@@ -237,12 +251,14 @@ class RequestUtil {
     Map<String, dynamic>? params,
     Options? options,
     DomainType domainType = DomainType.api,
+    bool forceCsrfToken = false,
   }) async {
     return getInstance(domainType)._get(
       url,
       params: params,
       options: options,
       domainType: domainType,
+      forceCsrfToken: forceCsrfToken,
     );
   }
 

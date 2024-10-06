@@ -13,10 +13,16 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:twitee/Screens/Login/login_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/request_util.dart';
+import 'package:twitee/Utils/route_util.dart';
+import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 
 class UserUtil {
+  static bool showingLoginDialog = false;
+
   static isLogin() async {
     var userInfo = HiveUtil.getUserInfo();
     return userInfo != null;
@@ -25,5 +31,23 @@ class UserUtil {
   static logout() async {
     await RequestUtil.clearCookie();
     await HiveUtil.delete(HiveUtil.userInfoKey);
+    mainScreenState?.logout();
+  }
+
+  static showReloginDialog() async {
+    await logout();
+    if (showingLoginDialog) return;
+    showingLoginDialog = true;
+    DialogBuilder.showConfirmDialog(
+      rootContext,
+      title: '登录状态过期',
+      message: '你的登录状态已过期，请重新登录',
+      confirmButtonText: '前往登录',
+      cancelButtonText: '暂不登录',
+      onTapConfirm: () {
+        showingLoginDialog = false;
+        RouteUtil.pushDialogRoute(rootContext, const LoginByPasswordScreen());
+      },
+    );
   }
 }

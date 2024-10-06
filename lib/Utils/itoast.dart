@@ -35,6 +35,10 @@ class IToast {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Theme.of(rootContext).canvasColor,
+          border: Border.all(
+            color: Theme.of(rootContext).dividerColor,
+            width: 0.5,
+          ),
           boxShadow: [
             BoxShadow(
               color: Theme.of(rootContext).shadowColor,

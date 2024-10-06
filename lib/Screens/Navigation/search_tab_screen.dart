@@ -19,6 +19,7 @@ import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Models/search_timeline_tab_item.dart';
 import 'package:twitee/Openapi/models/timline_trend.dart';
 import 'package:twitee/Screens/Navigation/refresh_interface.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -72,6 +73,7 @@ class _SearchTabScreenState extends State<SearchTabScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
   }
 
@@ -130,11 +132,10 @@ class _SearchTabScreenState extends State<SearchTabScreen>
           if (instruction is TimelineAddEntries) {
             newItems = _processEntries(instruction);
             items.addAll(newItems);
-            setState(() {});
             return IndicatorResult.success;
           }
         }
-        setState(() {});
+        if (mounted) setState(() {});
         if (newItems.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -220,7 +221,11 @@ class _SearchTabScreenState extends State<SearchTabScreen>
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: () {},
+        onTap: () {
+          if (Utils.isNotEmpty(trend.name)) {
+            searchScreenState?.perfromSearch(trend.name!);
+          }
+        },
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),

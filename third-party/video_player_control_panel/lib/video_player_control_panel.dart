@@ -20,9 +20,14 @@ class VideoControlPanel extends StatefulWidget {
   final VideoPlayerController controller;
   final bool showFullscreenButton; // not shown in web
   final bool showClosedCaptionButton;
+  final bool showPlayPauseButton;
+  final bool showSeekBar;
+  final bool showPanel;
+  final bool showDurationAndPositionText;
   final bool showVolumeButton; // only show in desktop
   final VoidCallback? onPrevClicked;
   final VoidCallback? onNextClicked;
+  final VoidCallback? onPlayClicked;
   final VoidCallback?
       onPlayEnded; // won't be called if controller set lopping = true
   final Color? bgColor;
@@ -36,12 +41,17 @@ class VideoControlPanel extends StatefulWidget {
   VideoControlPanel(
     this.controller, {
     super.key,
-    this.showFullscreenButton = true,
+    this.showFullscreenButton = false,
     this.showClosedCaptionButton = true,
+    this.showSeekBar = true,
     this.showVolumeButton = true,
+    this.showPanel = true,
+    this.showDurationAndPositionText = true,
+    this.showPlayPauseButton = true,
     this.bgColor = Colors.black,
     this.onPrevClicked,
     this.onNextClicked,
+    this.onPlayClicked,
     this.onPlayEnded,
     this.restoreOrientations = const [],
   }) : _isFullscreen = false;
@@ -53,7 +63,6 @@ class VideoControlPanel extends StatefulWidget {
     required bool showVolumeButton,
     VoidCallback? onPrevClicked,
     VoidCallback? onNextClicked,
-    //this.onPlayEnded, // don't pass to fullscreen widget
   }) {
     var c = VideoControlPanel(
       controller,
@@ -85,24 +94,26 @@ class _VideoControlPanelState extends State<VideoControlPanel>
   late final volumeAnimation =
       volumeAnimController.drive(Tween<double>(begin: 0.0, end: 1.0));
 
-  final displayPosition = ValueNotifier<int>(
-      0); // position to display for user, when user dragging seek bar, this value changed by user dragging, not changed by player's position
+  // position to display for user, when user dragging seek bar, this value changed by user dragging, not changed by player's position
+  final displayPosition = ValueNotifier<int>(0);
 
   final aspectRatio = ValueNotifier<double>(1);
   final duration = ValueNotifier<Duration>(Duration.zero);
   final playing = ValueNotifier<bool>(false);
   final buffering = ValueNotifier<bool>(false);
   final volumeValue = ValueNotifier<double>(1.0);
-  final controllerValue = ValueNotifier<int>(
-      0); // used to notify fullscreen widget that controller changed
+
+  // used to notify fullscreen widget that controller changed
+  final controllerValue = ValueNotifier<int>(0);
 
   final hasClosedCaptionFile = ValueNotifier<bool>(false);
   late final ValueNotifier<bool> showClosedCaptions;
   final currentCaption = ValueNotifier<String>("");
 
   bool isMouseMode = false;
-  final panelVisibility = ValueNotifier<bool>(
-      false); // is panel visible, used to show/hide mouse cursor, and enable/disable click on buttons on panel
+
+  // is panel visible, used to show/hide mouse cursor, and enable/disable click on buttons on panel
+  final panelVisibility = ValueNotifier<bool>(false);
 
   bool isDraggingVolumeBar = false;
   bool isMouseInVolumeBar = false;
@@ -142,7 +153,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     buffering.value = playerValue.isBuffering || isInitializing;
 
     // don't update progress by player's position when seeking
-    if (!m_delaySeeking) {
+    if (!_delaySeeking) {
       displayPosition.value = playerValue.position.inMilliseconds;
     }
 
@@ -323,29 +334,30 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     } else {
       widget.controller.play();
     }
+    widget.onPlayClicked?.call();
   }
 
-  int m_lastSeekTimestamp = 0;
-  Timer? m_delaySeekTimer;
-  bool m_delaySeeking = false;
+  int _lastSeekTimestamp = 0;
+  Timer? _delaySeekTimer;
+  bool _delaySeeking = false;
 
   Future<void> doSeek(int ms) async {
-    m_delaySeekTimer?.cancel();
+    _delaySeekTimer?.cancel();
     int now = DateTime.now().millisecondsSinceEpoch;
-    int elapsed = now - m_lastSeekTimestamp;
-    m_lastSeekTimestamp = now;
-    m_delaySeeking = true;
+    int elapsed = now - _lastSeekTimestamp;
+    _lastSeekTimestamp = now;
+    _delaySeeking = true;
 
     if (elapsed > 300 || elapsed < 0) {
       await widget.controller.seekTo(Duration(milliseconds: ms));
-      m_delaySeeking = false;
+      _delaySeeking = false;
     } else {
       const delay = Duration(milliseconds: 300);
-      m_delaySeekTimer = Timer.periodic(delay, (timer) async {
-        m_delaySeekTimer = null;
+      _delaySeekTimer = Timer.periodic(delay, (timer) async {
+        _delaySeekTimer = null;
         timer.cancel();
         await widget.controller.seekTo(Duration(milliseconds: ms));
-        m_delaySeeking = false;
+        _delaySeeking = false;
       });
     }
   }
@@ -365,32 +377,33 @@ class _VideoControlPanelState extends State<VideoControlPanel>
 
   Widget createPlayPauseButton(bool isCircle, double size) {
     return ValueListenableBuilder<bool>(
-        valueListenable: playing,
-        builder: (context, value, child) {
-          return IconButton(
-            iconSize: size,
-            color: Colors.white,
-            icon: Icon(
-                isCircle
-                    ? (value
-                        ? Icons.pause_circle_rounded
-                        : Icons.play_circle_rounded)
-                    : (value ? Icons.pause_rounded : Icons.play_arrow_rounded),
-                color: Colors.white),
-            onPressed: () {
-              if (isMouseMode) {
+      valueListenable: playing,
+      builder: (context, value, child) {
+        return IconButton(
+          iconSize: size,
+          color: Colors.white,
+          icon: Icon(
+              isCircle
+                  ? (value
+                      ? Icons.pause_circle_rounded
+                      : Icons.play_circle_rounded)
+                  : (value ? Icons.pause_rounded : Icons.play_arrow_rounded),
+              color: Colors.white),
+          onPressed: () {
+            if (isMouseMode) {
+              togglePlayPause();
+            } else {
+              if (isPanelShown()) {
                 togglePlayPause();
+                showPanel();
               } else {
-                if (isPanelShown()) {
-                  togglePlayPause();
-                  showPanel();
-                } else {
-                  togglePanel();
-                }
+                togglePanel();
               }
-            },
-          );
-        });
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -500,9 +513,12 @@ class _VideoControlPanelState extends State<VideoControlPanel>
             opacity: volumeAnimation,
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.black12,
-                  border: Border.all(color: Colors.transparent),
-                  borderRadius: const BorderRadius.all(Radius.circular(100))),
+                color: Colors.black12,
+                border: Border.all(color: Colors.transparent),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(100),
+                ),
+              ),
             ),
           ),
         ),
@@ -578,32 +594,35 @@ class _VideoControlPanelState extends State<VideoControlPanel>
 
     Widget bottomPanel = Column(
       children: [
-        MouseStateBuilder(
-          builder: (context, mouseState) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              child: SliderTheme(
-                data: mouseState.isMouseOver ? hoverTheme : normalTheme,
-                child: SizedBox(height: iconSize * 0.7, child: seekBar),
-              ),
-            );
-          },
-        ),
+        if (widget.showSeekBar)
+          MouseStateBuilder(
+            builder: (context, mouseState) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                child: SliderTheme(
+                  data: mouseState.isMouseOver ? hoverTheme : normalTheme,
+                  child: SizedBox(height: iconSize * 0.7, child: seekBar),
+                ),
+              );
+            },
+          ),
         Row(
           children: [
-            if (isDesktop) createPlayPauseButton(false, iconSize),
+            if (isDesktop && widget.showPlayPauseButton)
+              createPlayPauseButton(false, iconSize),
             if (isDesktop && widget.onPrevClicked != null) bottomPrevButton!,
             if (isDesktop && widget.onNextClicked != null) bottomNextButton!,
-            Container(
-                margin: const EdgeInsets.only(left: 5), child: positionText),
-            Text(" / ",
-                style: TextStyle(fontSize: textSize, color: Colors.white)),
-            durationText,
+            if (widget.showDurationAndPositionText)
+              Container(
+                  margin: const EdgeInsets.only(left: 5), child: positionText),
+            if (widget.showDurationAndPositionText)
+              Text(" / ",
+                  style: TextStyle(fontSize: textSize, color: Colors.white)),
+            if (widget.showDurationAndPositionText) durationText,
             const Spacer(),
             if (isDesktop && widget.showVolumeButton) volumePanel,
             if (widget.showClosedCaptionButton) closedCaptionButton,
             if (widget.showFullscreenButton && !kIsWeb) fullscreenButton,
-            //fullscreen makes video black after exit fullscreen in web environment, so remove it
           ],
         ),
       ],
@@ -670,7 +689,8 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         if (!isDesktop) Container(color: Colors.black38),
         // translucent black background for panel (only mobile)
         gestureWidget,
-        Positioned(left: 0, bottom: 0, right: 0, child: bottomPanel),
+        if (widget.showPanel)
+          Positioned(left: 0, bottom: 0, right: 0, child: bottomPanel),
         if (!isDesktop)
           Center(child: createPlayPauseButton(true, iconSize * 2.5)),
         if (!isDesktop && widget.onPrevClicked != null)

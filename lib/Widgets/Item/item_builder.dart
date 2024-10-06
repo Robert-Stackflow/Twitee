@@ -53,6 +53,7 @@ import '../Selectable/selection_transformer.dart';
 import '../Window/window_button.dart';
 import '../Window/window_caption.dart';
 import 'input_item.dart';
+import 'my_cached_network_image.dart';
 
 enum TailingType { none, clear, password, icon, text, widget }
 
@@ -1567,7 +1568,7 @@ class ItemBuilder {
     bool isCircle = false,
     int? width,
     int? height,
-    double opacity = 0.4,
+    double opacity = 0.6,
     double? borderRadius,
     EdgeInsetsGeometry? padding,
     double? fontSizeDelta,
@@ -1580,7 +1581,7 @@ class ItemBuilder {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        color: Colors.black.withOpacity(opacity),
+        color: Theme.of(context).textTheme.titleMedium!.color!.withOpacity(opacity),
         borderRadius: isCircle
             ? null
             : BorderRadius.all(Radius.circular(borderRadius ?? 50)),
@@ -2246,6 +2247,20 @@ class ItemBuilder {
             );
           }
         }
+        if (Utils.isNotEmpty(details.selectedText)) {
+          items.add(
+            MyContextMenuItem(
+              label: S.current.search,
+              type: ContextMenuButtonType.custom,
+              onPressed: () {
+                if (Utils.isNotEmpty(details.selectedText)) {
+                  searchScreenState?.perfromSearch(details.selectedText!);
+                }
+                details.hideToolbar();
+              },
+            ),
+          );
+        }
         if (ResponsiveUtil.isMobile()) {
           return MyMobileTextSelectionToolbar.items(
             anchorAbove: details.contextMenuAnchors.primaryAnchor,
@@ -2293,12 +2308,12 @@ class ItemBuilder {
       ContextMenuButtonType.custom: S.current.custom,
     };
     List<MyContextMenuItem> items = [];
-    // int start = details.textEditingValue.selection.start <= -1
-    //     ? 0
-    //     : details.textEditingValue.selection.start;
-    // int end = details.textEditingValue.selection.end
-    //     .clamp(0, details.textEditingValue.text.length);
-    // String selectedText = details.textEditingValue.text.substring(start, end);
+    int start = details.textEditingValue.selection.start <= -1
+        ? 0
+        : details.textEditingValue.selection.start;
+    int end = details.textEditingValue.selection.end
+        .clamp(0, details.textEditingValue.text.length);
+    String selectedText = details.textEditingValue.text.substring(start, end);
     for (var e in details.contextMenuButtonItems) {
       if (e.type != ContextMenuButtonType.custom) {
         items.add(
@@ -2314,6 +2329,20 @@ class ItemBuilder {
           ),
         );
       }
+    }
+    if (Utils.isNotEmpty(selectedText)) {
+      items.add(
+        MyContextMenuItem(
+          label: S.current.search,
+          type: ContextMenuButtonType.custom,
+          onPressed: () {
+            if (Utils.isNotEmpty(selectedText)) {
+              searchScreenState?.perfromSearch(selectedText);
+            }
+            details.hideToolbar();
+          },
+        ),
+      );
     }
     if (ResponsiveUtil.isMobile()) {
       return MyMobileTextSelectionToolbar.items(
@@ -2485,7 +2514,7 @@ class ItemBuilder {
     );
   }
 
-  static CachedNetworkImage buildCachedImage({
+  static MyCachedNetworkImage buildCachedImage({
     required String imageUrl,
     required BuildContext context,
     BoxFit? fit,
@@ -2496,26 +2525,15 @@ class ItemBuilder {
     double topPadding = 0,
     double bottomPadding = 0,
   }) {
-    return CachedNetworkImage(
+    return MyCachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
       width: width,
       height: height,
-      filterQuality: FilterQuality.high,
-      placeholder: showLoading
-          ? (context, url) => ItemBuilder.buildLoadingDialog(
-                context,
-                topPadding: topPadding,
-                bottomPadding: bottomPadding,
-                showText: false,
-                size: 40,
-                background: placeholderBackground,
-              )
-          : (context, url) => Container(
-                color: placeholderBackground ?? Theme.of(context).cardColor,
-                width: width,
-                height: height,
-              ),
+      placeholderBackground: placeholderBackground,
+      topPadding: topPadding,
+      bottomPadding: bottomPadding,
+      showLoading: showLoading,
     );
   }
 
@@ -2706,6 +2724,8 @@ class ItemBuilder {
               .textTheme
               .bodySmall
               ?.apply(color: Colors.redAccent),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

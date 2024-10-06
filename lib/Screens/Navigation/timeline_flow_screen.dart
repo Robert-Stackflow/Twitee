@@ -17,9 +17,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
-import 'package:twitee/Openapi/models/cursor_type.dart';
-import 'package:twitee/Openapi/models/feedback_info.dart';
-import 'package:twitee/Openapi/models/timeline_timeline_cursor.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Utils/app_provider.dart';
@@ -30,10 +28,6 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
-import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_add_entry.dart';
-import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_tweet.dart';
 
 class TimelineFlowScreen extends StatefulWidget {
   const TimelineFlowScreen({super.key, this.isLatest = true});
@@ -76,6 +70,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
     homeScreenState?.refreshPinnedLists();
   }
@@ -201,6 +196,10 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
+        result.add(entry);
+      } else if (entry.content is TimelineTimelineModule &&
+          (entry.content as TimelineTimelineModule).displayType ==
+              DisplayType.verticalConversation) {
         result.add(entry);
       }
     }

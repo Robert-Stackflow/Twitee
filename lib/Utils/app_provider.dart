@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
+import 'package:twitee/Screens/Navigation/search_screen.dart';
 import 'package:twitee/Screens/Setting/setting_general_screen.dart';
 import 'package:twitee/Screens/main_screen.dart';
 import 'package:twitee/Utils/Tuple/tuple.dart';
@@ -62,11 +63,15 @@ GlobalKey<MainScreenState> mainScreenKey = GlobalKey<MainScreenState>();
 
 GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
 
+GlobalKey<SearchScreenState> searchScreenKey = GlobalKey<SearchScreenState>();
+
 PanelScreenState? get panelScreenState => panelScreenKey.currentState;
 
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
 
 HomeScreenState? get homeScreenState => homeScreenKey.currentState;
+
+SearchScreenState? get searchScreenState => searchScreenKey.currentState;
 
 BuildContext get rootContext => globalNavigatorState!.context;
 

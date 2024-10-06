@@ -9,13 +9,13 @@ import 'text_entity.dart';
 part 'text.g.dart';
 
 @JsonSerializable()
-class Text  {
-  const Text({
+class TextItem  {
+  const TextItem({
     required this.entities,
     required this.text,
   });
   
-  factory Text.fromJson(Map<String, Object?> json) => _$TextFromJson(json);
+  factory TextItem.fromJson(Map<String, Object?> json) => _$TextFromJson(json);
   
   final List<TextEntity> entities;
   final String text;

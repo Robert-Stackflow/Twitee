@@ -62,8 +62,6 @@ class _ListScreenState extends State<ListScreen>
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validItems = _processEntries(instruction.entries);
-            // validItems =
-            //     validItems.where((e) => e.list.name != "demo").toList();
             setState(() {
               inited = true;
             });
@@ -111,6 +109,9 @@ class _ListScreenState extends State<ListScreen>
           .add(ListFlowScreen(listId: list.list.idStr, userId: widget.userId));
     }
     _tabController = TabController(length: tabList.length, vsync: this);
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(0);
+    }
     setState(() {});
   }
 

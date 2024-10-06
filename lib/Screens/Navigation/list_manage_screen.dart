@@ -13,17 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
-import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/response_result.dart';
-import 'package:twitee/Openapi/models/user.dart';
-import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Screens/Navigation/twitter_list_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
@@ -247,7 +243,7 @@ class _ListManageScreenState extends State<ListManageScreen>
                 children: List.generate(
                   validItems.length,
                   (index) {
-                    return _buildListItem(validItems[index]);
+                    return TwitterListItem(list: validItems[index]);
                   },
                 ),
               ),
@@ -261,136 +257,6 @@ class _ListManageScreenState extends State<ListManageScreen>
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  _buildListItem(TimelineTwitterList list) {
-    User user = list.list.userResults.result as User;
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: ItemBuilder.buildCachedImage(
-              imageUrl: list.list.defaultBannerMedia.mediaInfo.originalImgUrl,
-              context: context,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                list.list.name,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              Row(
-                children: [
-                  Text(
-                    "${user.legacy.name}  @${user.legacy.screenName}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              Text(
-                "${list.list.memberCount} 位成员",
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-          const Spacer(),
-          ItemBuilder.buildIconButton(
-            context: context,
-            icon: Icon(list.list.isPrivate
-                ? Icons.lock_rounded
-                : Icons.lock_open_rounded),
-            onTap: () async {
-              if (list.list.isPrivate) {
-                DialogBuilder.showConfirmDialog(
-                  context,
-                  title: "设为公开",
-                  message: "确定要将列表${list.list.name}设为公开吗？",
-                  onTapConfirm: () async {
-                    ResponseResult res = await ListApi.updateList(
-                      listId: list.list.idStr,
-                      isPrivate: false,
-                      description: list.list.description,
-                      name: list.list.name,
-                    );
-                    if (res.success) {
-                      setState(() {
-                        list.list.mode = "Public";
-                      });
-                      IToast.showTop("设置成功");
-                    } else {
-                      IToast.showTop("设置失败");
-                    }
-                  },
-                );
-              } else {
-                ResponseResult res = await ListApi.updateList(
-                  listId: list.list.idStr,
-                  isPrivate: true,
-                  description: list.list.description,
-                  name: list.list.name,
-                );
-                if (res.success) {
-                  setState(() {
-                    list.list.mode = "Private";
-                  });
-                  IToast.showTop("设置成功");
-                } else {
-                  IToast.showTop("设置失败");
-                }
-              }
-            },
-          ),
-          ItemBuilder.buildIconButton(
-            context: context,
-            icon: Icon(
-              list.list.pinning ? CupertinoIcons.pin_fill : CupertinoIcons.pin,
-              size: 22,
-            ),
-            padding: const EdgeInsets.all(9),
-            onTap: () async {
-              if (list.list.pinning) {
-                ResponseResult res =
-                    await ListApi.unpinList(listId: list.list.idStr);
-                if (res.success) {
-                  setState(() {
-                    list.list.pinning = false;
-                  });
-                  homeScreenState?.refreshPinnedLists();
-                } else {
-                  IToast.showTop("取消置顶失败");
-                }
-              } else {
-                ResponseResult res =
-                    await ListApi.pinList(listId: list.list.idStr);
-                if (res.success) {
-                  setState(() {
-                    list.list.pinning = true;
-                  });
-                  homeScreenState?.refreshPinnedLists();
-                } else {
-                  IToast.showTop("置顶失败");
-                }
-              }
-            },
           ),
         ],
       ),
@@ -412,6 +278,7 @@ class _ListManageScreenState extends State<ListManageScreen>
             await _scrollToTop();
             _refreshRotationController.stop();
             _refreshRotationController.forward();
+            _easyRefreshController.resetHeader();
             _easyRefreshController.callRefresh();
           },
         ),

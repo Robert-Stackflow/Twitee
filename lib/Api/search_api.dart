@@ -256,7 +256,7 @@ class SearchApi {
             "count": count,
             "querySource": "recent_search_click",
             "product": type.key,
-            "cursorBottom": cursorBottom,
+            "cursor": cursorBottom,
           }),
           "features": jsonEncode({
             "rweb_tipjar_consumption_enabled": true,

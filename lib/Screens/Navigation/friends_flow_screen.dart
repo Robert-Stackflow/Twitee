@@ -65,6 +65,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
   }
 

@@ -3,6 +3,7 @@
 // ignore_for_file: type=lint, unused_import
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:twitee/Models/translation_result.dart';
 
 import 'article.dart';
 import 'author_community_relationship.dart';
@@ -27,7 +28,9 @@ part 'tweet.g.dart';
 
 @JsonSerializable()
 class Tweet extends TweetUnion {
-  const Tweet({
+  Tweet({
+    this.translation = null,
+    this.isTranslating = false,
     required this.privateTypename,
     required this.article,
     required this.authorCommunityRelationship,
@@ -52,9 +55,9 @@ class Tweet extends TweetUnion {
     required this.unmentionData,
     required this.views,
   });
-  
+
   factory Tweet.fromJson(Map<String, Object?> json) => _$TweetFromJson(json);
-  
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final Article? article;
@@ -93,6 +96,8 @@ class Tweet extends TweetUnion {
   @JsonKey(name: 'unmention_data')
   final dynamic unmentionData;
   final TweetView? views;
+  TranslationResult? translation;
+  bool isTranslating;
 
   Map<String, Object?> toJson() => _$TweetToJson(this);
 }

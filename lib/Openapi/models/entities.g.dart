@@ -23,6 +23,20 @@ Entities _$EntitiesFromJson(Map<String, dynamic> json) => Entities(
       userMentions: json['user_mentions'] as List<dynamic>?,
     );
 
+Entities _$EntitiesFromJsonWithoutMedia(Map<String, dynamic> json) => Entities(
+      hashtags: json['hashtags'] as List<dynamic>,
+      media: [],
+      symbols: json['symbols'] as List<dynamic>,
+      timestamps: (json['timestamps'] as List<dynamic>?)
+          ?.map((e) =>
+              e == null ? null : Timestamp.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      urls: (json['urls'] as List<dynamic>)
+          .map((e) => Url.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      userMentions: json['user_mentions'] as List<dynamic>?,
+    );
+
 Map<String, dynamic> _$EntitiesToJson(Entities instance) => <String, dynamic>{
       'hashtags': instance.hashtags,
       'media': instance.media,

@@ -68,6 +68,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
 
   @override
   refresh() async {
+    _easyRefreshController.resetHeader();
     _easyRefreshController.callRefresh();
   }
 
