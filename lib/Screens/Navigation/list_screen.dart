@@ -28,6 +28,7 @@ import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
+import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Window/window_caption.dart';
 import 'list_flow_screen.dart';
 
@@ -119,27 +120,21 @@ class _ListScreenState extends State<ListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            Center(
-              child: Row(
-                children: [
-                  if (!inited) const SizedBox(width: 20),
-                  if (!inited)
-                    Text(
-                      "加载列表中...",
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  if (inited)
-                    _buildTabBar(
-                        56, const EdgeInsets.symmetric(horizontal: 10)),
-                ],
-              ),
-            ),
-          ],
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        titleWidget: Center(
+          child: Row(
+            children: [
+              if (!inited) const SizedBox(width: 20),
+              if (!inited)
+                Text(
+                  "加载列表中...",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              if (inited)
+                _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
+            ],
+          ),
         ),
       ),
       body: PageView(

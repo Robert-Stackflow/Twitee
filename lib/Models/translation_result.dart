@@ -38,16 +38,17 @@ class TranslationResult {
   final String destinationLanguage;
   final String translationSource;
 
-  factory TranslationResult.fromJson(Map<String, dynamic> json) => TranslationResult(
+  factory TranslationResult.fromJson(Map<String, dynamic> json) =>
+      TranslationResult(
         id: json['id'],
         idStr: json['id_str'],
         translation: json['translation'],
         entities: Entities.fromJsonWithoutMedia(json['entities']),
         translationState: json['translationState'],
-        sourceLanguage: json['sourceLanguage'],
-        localizedSourceLanguage: json['localizedSourceLanguage'],
-        destinationLanguage: json['destinationLanguage'],
-        translationSource: json['translationSource'],
+        sourceLanguage: json['sourceLanguage'] ?? "",
+        localizedSourceLanguage: json['localizedSourceLanguage'] ?? "",
+        destinationLanguage: json['destinationLanguage'] ?? "",
+        translationSource: json['translationSource'] ?? "",
       );
 
   Map<String, dynamic> toJson() => {

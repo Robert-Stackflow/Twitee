@@ -25,8 +25,8 @@ import '../../Models/response_result.dart';
 import '../../Openapi/models/user.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/itoast.dart';
-import '../../Widgets/Dialog/dialog_builder.dart';
-import '../../Widgets/Item/item_builder.dart';
+import '../Dialog/dialog_builder.dart';
+import '../Item/item_builder.dart';
 
 class TwitterListItem extends StatefulWidget {
   const TwitterListItem({super.key, required this.list});

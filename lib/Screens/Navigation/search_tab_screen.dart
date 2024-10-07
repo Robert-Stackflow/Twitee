@@ -18,7 +18,7 @@ import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Models/search_timeline_tab_item.dart';
 import 'package:twitee/Openapi/models/timline_trend.dart';
-import 'package:twitee/Screens/Navigation/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';

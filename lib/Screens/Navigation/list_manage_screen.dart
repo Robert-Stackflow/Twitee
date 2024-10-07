@@ -16,7 +16,6 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/response_result.dart';
-import 'package:twitee/Screens/Navigation/twitter_list_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
@@ -33,6 +32,7 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Widgets/Twitter/twitter_list_item.dart';
 
 class ListManageScreen extends StatefulWidget {
   const ListManageScreen({super.key, required this.userId});

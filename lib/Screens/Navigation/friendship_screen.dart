@@ -17,9 +17,8 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Navigation/friends_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Screens/Navigation/user_flow_screen.dart';
-import 'package:twitee/Widgets/Window/window_caption.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/hive_util.dart';
@@ -88,14 +87,10 @@ class FriendshipScreenState extends State<FriendshipScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        titleWidget:
             _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
-          ],
-        ),
       ),
       body: Stack(
         children: [

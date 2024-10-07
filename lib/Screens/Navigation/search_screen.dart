@@ -17,11 +17,9 @@ import 'package:context_menus/context_menus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
-import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Screens/Navigation/search_result_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/search_tab_screen.dart';
 import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Widgets/Window/window_caption.dart';
 
 import '../../Models/search_suggestion.dart';
 import '../../Models/search_timeline_tab_item.dart';
@@ -29,6 +27,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../../Widgets/Twitter/refresh_interface.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -171,7 +170,7 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   _fetchSuggestions() async {
-    if(_searchController.text.isEmpty) return;
+    if (_searchController.text.isEmpty) return;
     var res = await SearchApi.getSuggestion(query: _searchController.text);
     if (res.success) {
       setState(() {
@@ -320,35 +319,30 @@ class SearchScreenState extends State<SearchScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            Container(
-              margin: const EdgeInsets.all(10),
-              constraints: BoxConstraints(
-                  maxWidth: searchBarWidth,
-                  minWidth: searchBarWidth,
-                  maxHeight: 56),
-              child: CompositedTransformTarget(
-                link: _layerLink,
-                child: ItemBuilder.buildDesktopSearchBar(
-                  context: context,
-                  borderRadius: 8,
-                  bottomMargin: 18,
-                  hintFontSizeDelta: 1,
-                  focusNode: searchFocusNode,
-                  controller: _searchController,
-                  background: Colors.grey.withAlpha(40),
-                  hintText: "搜索",
-                  onSubmitted: (text) async {
-                    perfromSearch(text);
-                  },
-                ),
-              ),
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        titleWidget: Container(
+          margin: const EdgeInsets.all(10),
+          constraints: BoxConstraints(
+              maxWidth: searchBarWidth,
+              minWidth: searchBarWidth,
+              maxHeight: 56),
+          child: CompositedTransformTarget(
+            link: _layerLink,
+            child: ItemBuilder.buildDesktopSearchBar(
+              context: context,
+              borderRadius: 8,
+              bottomMargin: 18,
+              hintFontSizeDelta: 1,
+              focusNode: searchFocusNode,
+              controller: _searchController,
+              background: Colors.grey.withAlpha(40),
+              hintText: "搜索",
+              onSubmitted: (text) async {
+                perfromSearch(text);
+              },
             ),
-          ],
+          ),
         ),
       ),
       body: Stack(

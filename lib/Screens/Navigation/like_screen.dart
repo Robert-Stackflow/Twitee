@@ -17,12 +17,12 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Models/response_result.dart';
-import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
@@ -33,8 +33,6 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
 import '../../Openapi/models/timeline_tweet.dart';
-import '../../Utils/responsive_util.dart';
-import '../../Widgets/Window/window_caption.dart';
 
 class LikeScreen extends StatefulWidget {
   const LikeScreen({super.key, required this.userId});
@@ -247,25 +245,7 @@ class _LikeScreenState extends State<LikeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            Center(
-              child: Row(
-                children: [
-                  const SizedBox(width: 20),
-                  Text(
-                    "喜欢",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      appBar: ItemBuilder.buildDesktopAppBar(context: context, title: "喜欢"),
       body: Stack(
         children: [
           EasyRefresh(

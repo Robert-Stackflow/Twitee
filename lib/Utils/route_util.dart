@@ -48,13 +48,13 @@ class RouteUtil {
   }) async {
     if (removeUtil) {
       appProvider.canPopByProvider = false;
-      return await desktopNavigatorKey.currentState?.pushAndRemoveUntil(
+      return await panelNavigatorState?.pushAndRemoveUntil(
         getFadeRoute(page),
         (route) => false,
       );
     } else {
       appProvider.canPopByProvider = true;
-      return await desktopNavigatorKey.currentState?.push(
+      return await panelNavigatorState?.push(
         getFadeRoute(page),
       );
     }

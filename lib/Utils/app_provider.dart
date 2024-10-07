@@ -31,13 +31,15 @@ import '../generated/l10n.dart';
 import 'enums.dart';
 import 'hive_util.dart';
 
-GlobalKey<NavigatorState> desktopNavigatorKey = GlobalKey<NavigatorState>();
-
 GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
 
-NavigatorState? get desktopNavigatorState => desktopNavigatorKey.currentState;
+GlobalKey<NavigatorState> panelNavigatorKey = GlobalKey<NavigatorState>();
+
+NavigatorState? get panelNavigatorState => panelNavigatorKey.currentState;
 
 NavigatorState? get globalNavigatorState => globalNavigatorKey.currentState;
+
+BuildContext get rootContext => globalNavigatorState!.context;
 
 GlobalKey<GeneralSettingScreenState> generalSettingScreenKey =
     GlobalKey<GeneralSettingScreenState>();
@@ -73,10 +75,8 @@ HomeScreenState? get homeScreenState => homeScreenKey.currentState;
 
 SearchScreenState? get searchScreenState => searchScreenKey.currentState;
 
-BuildContext get rootContext => globalNavigatorState!.context;
-
 bool get canPopByKey =>
-    desktopNavigatorState != null && desktopNavigatorState!.canPop();
+    panelNavigatorState != null && panelNavigatorState!.canPop();
 
 RouteObserver<PageRoute> routeObserver = RouteObserver();
 
@@ -148,6 +148,15 @@ class AppProvider with ChangeNotifier {
   bool preventLock = false;
 
   bool shownShortcutHelp = false;
+
+  bool _showNavigator = false;
+
+  bool get showNavigator => _showNavigator;
+
+  set showNavigator(bool value) {
+    _showNavigator = value;
+    notifyListeners();
+  }
 
   ProxyConfig _proxyConfig =
       HiveUtil.getProxyConfig() ?? ProxyConfig(proxyType: ProxyType.NoProxy);

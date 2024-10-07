@@ -16,12 +16,12 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Navigation/post_item.dart';
-import 'package:twitee/Screens/Navigation/refresh_interface.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/post_item.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';

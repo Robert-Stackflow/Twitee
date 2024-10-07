@@ -58,7 +58,52 @@ class UserApi {
           code: response?.data["errors"][0]["code"] ?? 500,
         );
       }
-      return ResponseResult.success(message: "Success", data: response.data);
+      return ResponseResult.success(
+          message: "Success", data: UserResponse.fromJson(response.data));
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get user info", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getUserInfoById(String userId) async {
+    try {
+      ILogger.info("Twitee API", "Getting user info");
+      final response = await RequestUtil.get(
+        "/GYBpHkmyXjeuX9IeNJmweA/UserByRestId",
+        params: {
+          "variables": jsonEncode({
+            "userIds": [userId],
+          }),
+          "features": jsonEncode({
+            "hidden_profile_subscriptions_enabled": true,
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "subscriptions_verification_info_is_identity_verified_enabled":
+                true,
+            "subscriptions_verification_info_verified_since_enabled": true,
+            "highlights_tweets_tab_ui_enabled": true,
+            "responsive_web_twitter_article_notes_tab_enabled": true,
+            "subscriptions_feature_can_gift_premium": true,
+            "creator_subscriptions_tweet_preview_api_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                false,
+            "responsive_web_graphql_timeline_navigation_enabled": true
+          }),
+          "fieldToggles": jsonEncode({"withAuxiliaryUserLabels": false}),
+        },
+        domainType: DomainType.graphql,
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: response?.data["errors"][0]["message"] ??
+              "Failed to get user info",
+          code: response?.data["errors"][0]["code"] ?? 500,
+        );
+      }
+      return ResponseResult.success(
+          message: "Success", data: UserResponse.fromJson(response.data));
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to get user info", e, t);
       return ResponseResult.error(message: e.toString());

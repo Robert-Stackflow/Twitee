@@ -77,6 +77,43 @@ class ItemBuilder {
     );
   }
 
+  static PreferredSize buildDesktopAppBar({
+    required BuildContext context,
+    String title = "",
+    Widget? titleWidget,
+    bool showBack = false,
+  }) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(56),
+      child: Stack(
+        children: [
+          if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+          Center(
+            child: Row(
+              children: [
+                if (showBack)
+                  Container(
+                    margin: const EdgeInsets.only(left: 10),
+                    child: ToolButton(
+                      context: context,
+                      onTap: () => panelScreenState?.popPage(),
+                      iconBuilder: (_) => const Icon(Icons.arrow_back_rounded),
+                    ),
+                  ),
+                if (titleWidget == null) SizedBox(width: showBack ? 10 : 20),
+                titleWidget ??
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   static buildSimpleAppBar({
     String title = "",
     Key? key,
@@ -1581,7 +1618,7 @@ class ItemBuilder {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        color: Theme.of(context).textTheme.titleMedium!.color!.withOpacity(opacity),
+        color: Colors.grey.withOpacity(opacity),
         borderRadius: isCircle
             ? null
             : BorderRadius.all(Radius.circular(borderRadius ?? 50)),
@@ -2551,6 +2588,7 @@ class ItemBuilder {
     String? tagSuffix,
     bool clickable = true,
     bool isOval = true,
+    Function()? onTap,
   }) {
     String tagUrl = imageUrl;
     return ItemBuilder.buildClickItem(
@@ -2590,7 +2628,7 @@ class ItemBuilder {
                             ),
                           );
                         }
-                      : null,
+                      : onTap,
                   child: isOval
                       ? ClipOval(
                           child: ItemBuilder.buildCachedImage(

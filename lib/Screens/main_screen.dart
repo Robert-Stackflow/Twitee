@@ -48,6 +48,7 @@ import '../Widgets/General/LottieCupertinoRefresh/lottie_cupertino_refresh.dart'
 import '../Widgets/Scaffold/my_scaffold.dart';
 import 'Lock/pin_verify_screen.dart';
 import 'Login/login_screen.dart';
+import 'Navigation/user_detail_screen.dart';
 
 const borderColor = Color(0xFF805306);
 const backgroundStartColor = Color(0xFFFFD500);
@@ -215,7 +216,7 @@ class MainScreenState extends State<MainScreen>
   }
 
   logout() async {
-    _userInfo==null;
+    _userInfo == null;
     panelScreenState?.logout();
   }
 
@@ -308,9 +309,6 @@ class MainScreenState extends State<MainScreen>
     while (Navigator.of(rootContext).canPop()) {
       Navigator.of(rootContext).pop();
     }
-    while (desktopNavigatorState!.canPop()) {
-      desktopNavigatorState?.pop();
-    }
     appProvider.canPopByProvider = false;
   }
 
@@ -375,7 +373,10 @@ class MainScreenState extends State<MainScreen>
       buttonConfigs: [
         ContextMenuButtonConfig(
           "查看个人主页",
-          onPressed: () async {},
+          onPressed: () async {
+            panelScreenState
+                ?.pushPage(UserDetailScreen(screenName: _userInfo!.screenName));
+          },
         ),
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig.warning(
@@ -411,164 +412,176 @@ class MainScreenState extends State<MainScreen>
           if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
           Selector<AppProvider, SideBarChoice>(
             selector: (context, appProvider) => appProvider.sidebarChoice,
-            builder: (context, sidebarChoice, child) => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 5),
-                _buildLogo(),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Home,
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Home;
-                  },
-                  iconSize: 24,
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Search,
-                  icon: Icons.search_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Search;
-                  },
-                ),
-                // const SizedBox(height: 8),
-                // ToolButton(
-                //   context: context,
-                //   icon: Icons.timeline_outlined,
-                //   onPressed: () async {},
-                // ),
-                // const SizedBox(height: 8),
-                // ToolButton(
-                //   context: context,
-                //   icon: Icons.trending_up_rounded,
-                //   onPressed: () async {},
-                // ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Bookmark,
-                  icon: Icons.bookmark_border_rounded,
-                  selectedIcon: Icons.bookmark_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Bookmark;
-                  },
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Like,
-                  icon: Icons.favorite_border_rounded,
-                  selectedIcon: Icons.favorite_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Like;
-                  },
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.List,
-                  icon: Icons.featured_play_list_outlined,
-                  selectedIcon: Icons.featured_play_list_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.List;
-                  },
-                  iconSize: 20,
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Friendship,
-                  icon: Icons.people_alt_outlined,
-                  selectedIcon: Icons.people_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Friendship;
-                  },
-                  iconSize: 20,
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Mention,
-                  icon: Icons.notifications_none_rounded,
-                  selectedIcon: Icons.notifications_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Mention;
-                  },
-                ),
-                const SizedBox(height: 8),
-                ToolButton(
-                  context: context,
-                  selected: sidebarChoice == SideBarChoice.Download,
-                  icon: Icons.save_alt_rounded,
-                  onTap: () async {
-                    appProvider.sidebarChoice = SideBarChoice.Download;
-                  },
-                ),
-                const Spacer(),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () async {
-                    String? csrfToken = await RequestUtil.getCsrfToken();
-                    if (Utils.isEmpty(csrfToken)) {
-                      RouteUtil.pushDialogRoute(
-                          context, const LoginByPasswordScreen());
-                    } else {
-                      context.contextMenuOverlay
-                          .show(_buildAvatarContextMenuButtons());
-                    }
-                  },
-                  child: ItemBuilder.buildAvatar(
+            builder: (context, sidebarChoice, child) =>
+                Selector<AppProvider, bool>(
+              selector: (context, appProvider) => !appProvider.showNavigator,
+              builder: (context, hideNavigator, child) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 5),
+                  _buildLogo(),
+                  const SizedBox(height: 8),
+                  ToolButton(
                     context: context,
-                    imageUrl: _userInfo?.profileImageUrlHttps ?? "",
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Home,
+                    icon: Icons.home_outlined,
+                    selectedIcon: Icons.home_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Home;
+                    },
+                    iconSize: 24,
                   ),
-                ),
-                const SizedBox(height: 8),
-                ItemBuilder.buildDynamicToolButton(
-                  context: context,
-                  iconBuilder: (colors) => darkModeWidget ?? emptyWidget,
-                  onTap: changeMode,
-                  onChangemode: (context, themeMode, child) {
-                    if (darkModeController.duration != null) {
-                      if (themeMode == ActiveThemeMode.light) {
-                        darkModeController.forward();
-                      } else if (themeMode == ActiveThemeMode.dark) {
-                        darkModeController.reverse();
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Search,
+                    icon: Icons.search_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Search;
+                    },
+                  ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   icon: Icons.timeline_outlined,
+                  //   onPressed: () async {},
+                  // ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   icon: Icons.trending_up_rounded,
+                  //   onPressed: () async {},
+                  // ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected: hideNavigator &&
+                        sidebarChoice == SideBarChoice.Bookmark,
+                    icon: Icons.bookmark_border_rounded,
+                    selectedIcon: Icons.bookmark_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Bookmark;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Like,
+                    icon: Icons.favorite_border_rounded,
+                    selectedIcon: Icons.favorite_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Like;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.List,
+                    icon: Icons.featured_play_list_outlined,
+                    selectedIcon: Icons.featured_play_list_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.List;
+                    },
+                    iconSize: 20,
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected: hideNavigator &&
+                        sidebarChoice == SideBarChoice.Friendship,
+                    icon: Icons.people_alt_outlined,
+                    selectedIcon: Icons.people_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Friendship;
+                    },
+                    iconSize: 20,
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Mention,
+                    icon: Icons.notifications_none_rounded,
+                    selectedIcon: Icons.notifications_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Mention;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected: hideNavigator &&
+                        sidebarChoice == SideBarChoice.Download,
+                    icon: Icons.save_alt_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Download;
+                    },
+                  ),
+                  const Spacer(),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      String? csrfToken = await RequestUtil.getCsrfToken();
+                      if (Utils.isEmpty(csrfToken)) {
+                        RouteUtil.pushDialogRoute(
+                            context, const LoginByPasswordScreen());
                       } else {
-                        if (Utils.isDark(context)) {
+                        context.contextMenuOverlay
+                            .show(_buildAvatarContextMenuButtons());
+                      }
+                    },
+                    child: ItemBuilder.buildAvatar(
+                      context: context,
+                      imageUrl: _userInfo?.profileImageUrlHttps ?? "",
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ItemBuilder.buildDynamicToolButton(
+                    context: context,
+                    iconBuilder: (colors) => darkModeWidget ?? emptyWidget,
+                    onTap: changeMode,
+                    onChangemode: (context, themeMode, child) {
+                      if (darkModeController.duration != null) {
+                        if (themeMode == ActiveThemeMode.light) {
+                          darkModeController.forward();
+                        } else if (themeMode == ActiveThemeMode.dark) {
                           darkModeController.reverse();
                         } else {
-                          darkModeController.forward();
+                          if (Utils.isDark(context)) {
+                            darkModeController.reverse();
+                          } else {
+                            darkModeController.forward();
+                          }
                         }
                       }
-                    }
-                  },
-                ),
-                const SizedBox(height: 4),
-                ToolButton(
-                  context: context,
-                  icon: Icons.token_outlined,
-                  onTap: () async {
-                    RouteUtil.pushDialogRoute(
-                        context, const SettingNavigationScreen());
-                  },
-                ),
-                const SizedBox(height: 4),
-                ToolButton(
-                  context: context,
-                  icon: Icons.help_outline_rounded,
-                  onTap: () async {
-                    RouteUtil.pushDialogRoute(
-                        context, const AboutSettingScreen());
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ToolButton(
+                    context: context,
+                    icon: Icons.token_outlined,
+                    onTap: () async {
+                      RouteUtil.pushDialogRoute(
+                          context, const SettingNavigationScreen());
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ToolButton(
+                    context: context,
+                    icon: Icons.help_outline_rounded,
+                    onTap: () async {
+                      RouteUtil.pushDialogRoute(
+                          context, const AboutSettingScreen());
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           ),
         ],
@@ -623,12 +636,7 @@ class MainScreenState extends State<MainScreen>
   }) {
     return Container(
       margin: EdgeInsets.only(left: leftMargin, right: rightMargin),
-      child: Navigator(
-        key: desktopNavigatorKey,
-        onGenerateRoute: (settings) {
-          return RouteUtil.getFadeRoute(PanelScreen(key: panelScreenKey));
-        },
-      ),
+      child: PanelScreen(key: panelScreenKey),
     );
   }
 

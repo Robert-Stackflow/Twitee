@@ -16,8 +16,8 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
-import 'package:twitee/Screens/Navigation/refresh_interface.dart';
-import 'package:twitee/Screens/Navigation/user_item.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';

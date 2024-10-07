@@ -19,16 +19,13 @@ import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Navigation/post_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
-
-import '../../Utils/responsive_util.dart';
-import '../../Widgets/Window/window_caption.dart';
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -288,31 +285,26 @@ class _BookmarkScreenState extends State<BookmarkScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            Container(
-              margin: const EdgeInsets.all(10),
-              constraints: const BoxConstraints(
-                  maxWidth: 360, minWidth: 360, maxHeight: 56),
-              child: ItemBuilder.buildDesktopSearchBar(
-                context: context,
-                borderRadius: 8,
-                bottomMargin: 18,
-                hintFontSizeDelta: 1,
-                focusNode: searchFocusNode,
-                controller: searchController,
-                background: Colors.grey.withAlpha(40),
-                hintText: "搜索书签",
-                onSubmitted: (text) async {
-                  _easyRefreshController.resetHeader();
-                  await _easyRefreshController.callRefresh();
-                },
-              ),
-            ),
-          ],
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        titleWidget: Container(
+          margin: const EdgeInsets.all(10),
+          constraints:
+              const BoxConstraints(maxWidth: 360, minWidth: 360, maxHeight: 56),
+          child: ItemBuilder.buildDesktopSearchBar(
+            context: context,
+            borderRadius: 8,
+            bottomMargin: 18,
+            hintFontSizeDelta: 1,
+            focusNode: searchFocusNode,
+            controller: searchController,
+            background: Colors.grey.withAlpha(40),
+            hintText: "搜索书签",
+            onSubmitted: (text) async {
+              _easyRefreshController.resetHeader();
+              await _easyRefreshController.callRefresh();
+            },
+          ),
         ),
       ),
       body: Stack(

@@ -14,17 +14,20 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
 import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Screens/Navigation/list_screen.dart';
 import 'package:twitee/Screens/Navigation/search_screen.dart';
+import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
 
 import '../Utils/app_provider.dart';
+import '../Utils/route_util.dart';
 import 'Navigation/home_screen.dart';
 
 class PanelScreen extends StatefulWidget {
@@ -40,8 +43,8 @@ class PanelScreen extends StatefulWidget {
 
 class PanelScreenState extends State<PanelScreen>
     with TickerProviderStateMixin {
-  final PageController _pageController = PageController();
-  List<Widget> pageList = [];
+  PageController _pageController = PageController();
+  List<Widget> _pageList = [];
 
   @override
   void initState() {
@@ -52,8 +55,26 @@ class PanelScreenState extends State<PanelScreen>
     });
   }
 
+  pushPage(Widget page) {
+    appProvider.showNavigator = true;
+    panelNavigatorState?.push(RouteUtil.getFadeRoute(page));
+  }
+
+  popPage() {
+    if (panelNavigatorState?.canPop() ?? false) {
+      panelNavigatorState?.pop();
+      if (!(panelNavigatorState?.canPop() ?? false)) {
+        appProvider.showNavigator = false;
+      }
+    } else {
+      appProvider.showNavigator = false;
+    }
+    _pageController =
+        PageController(initialPage: appProvider.sidebarChoice.index);
+  }
+
   logout() {
-    pageList = [];
+    _pageList = [];
     setState(() {});
   }
 
@@ -65,13 +86,13 @@ class PanelScreenState extends State<PanelScreen>
   Future<void> initPage() async {
     UserInfo? info = HiveUtil.getUserInfo();
     if (info == null) {
-      pageList = [];
+      _pageList = [];
     } else {
-      pageList = [
+      _pageList = [
         HomeScreen(key: homeScreenKey),
         SearchScreen(key: searchScreenKey),
         const BookmarkScreen(),
-        LikeScreen(userId: info!.idStr),
+        LikeScreen(userId: info.idStr),
         ListScreen(userId: info.idStr),
         const FriendshipScreen(),
         const BookmarkScreen(),
@@ -92,9 +113,26 @@ class PanelScreenState extends State<PanelScreen>
   Widget build(BuildContext context) {
     return MyScaffold(
       backgroundColor: Colors.transparent,
-      body: PageView(
-        controller: _pageController,
-        children: pageList,
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            children: _pageList,
+          ),
+          Selector<AppProvider, bool>(
+            selector: (context, provider) => provider.showNavigator,
+            builder: (context, value, child) => SizedBox(
+              width: value ? double.infinity : 0,
+              height: value ? double.infinity : 0,
+              child: Navigator(
+                key: panelNavigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(builder: (context) => emptyWidget);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       drawer: _buildDrawer(),
       bottomNavigationBar:

@@ -15,15 +15,17 @@
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:nine_grid_view/nine_grid_view.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
+import 'package:twitee/Screens/Navigation/user_detail_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Utils/video_player_manager.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
+import 'package:twitee/Widgets/Twitter/twitter_image_grid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_player_control_panel/video_player_control_panel.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -576,6 +578,7 @@ class PostItemState extends State<PostItem> {
                       fullText,
                       textStyle: Theme.of(context).textTheme.bodyMedium,
                     ),
+                    const SizedBox(height: 8),
                     ..._buildTranslation(tweet),
                     if (hasMedia(tweet)) _buildMedia(tweet),
                     if (hasMedia(tweet) && tweet.quotedStatusResult != null)
@@ -744,47 +747,56 @@ class PostItemState extends State<PostItem> {
             imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
             size: isQuote ? 30 : 40,
             isOval: user.profileImageShape == UserProfileImageShape.circle,
+            onTap: () => panelScreenState?.pushPage(
+                UserDetailScreen(screenName: user.legacy.screenName ?? "")),
           ),
         if (showAvatar) const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+          child: ItemBuilder.buildClickItem(
+            GestureDetector(
+              onTap: () => panelScreenState?.pushPage(
+                  UserDetailScreen(screenName: user.legacy.screenName ?? "")),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Flexible(
-                    child: Text(
-                      user.legacy.name,
-                      style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 2, fontSizeDelta: isQuote ? -2 : 0),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (user.affiliatesHighlightedLabel != null &&
-                      user.affiliatesHighlightedLabel.containsKey('label'))
-                    const SizedBox(width: 4),
-                  if (user.affiliatesHighlightedLabel != null &&
-                      user.affiliatesHighlightedLabel.containsKey('label'))
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: ItemBuilder.buildCachedImage(
-                        imageUrl: user.affiliatesHighlightedLabel['label']
-                            ['badge']['url'],
-                        context: context,
-                        showLoading: false,
-                        width: 16,
-                        height: 16,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user.legacy.name,
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                              fontWeightDelta: 2,
+                              fontSizeDelta: isQuote ? -2 : 0),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      if (user.affiliatesHighlightedLabel != null &&
+                          user.affiliatesHighlightedLabel.containsKey('label'))
+                        const SizedBox(width: 4),
+                      if (user.affiliatesHighlightedLabel != null &&
+                          user.affiliatesHighlightedLabel.containsKey('label'))
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: ItemBuilder.buildCachedImage(
+                            imageUrl: user.affiliatesHighlightedLabel['label']
+                                ['badge']['url'],
+                            context: context,
+                            showLoading: false,
+                            width: 16,
+                            height: 16,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (Utils.isNotEmpty(user.legacy.screenName))
+                    Text(
+                      "@${user.legacy.screenName!} · ${Utils.formatDateString(tweet.legacy!.createdAt!)}",
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                 ],
               ),
-              if (Utils.isNotEmpty(user.legacy.screenName))
-                Text(
-                  "@${user.legacy.screenName!} · ${Utils.formatDateString(tweet.legacy!.createdAt!)}",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-            ],
+            ),
           ),
         ),
         if (!isQuote)
@@ -806,24 +818,28 @@ class PostItemState extends State<PostItem> {
 
   _buildImageMedia(
     Media media, {
+    bool isQueto = false,
     double size = 80,
+    double radius = 0,
   }) {
+    double ratio = isQueto ? 1 : media.sizes.large.w / media.sizes.large.h;
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Theme.of(context).dividerColor,
               width: 0.5,
             ),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(radius),
             child: ItemBuilder.buildHeroCachedImage(
               context: context,
-              height: size,
               width: size,
+              height: size / ratio,
+              fit: BoxFit.cover,
               showLoading: false,
               imageUrl: media.mediaUrlHttps!,
             ),
@@ -847,6 +863,7 @@ class PostItemState extends State<PostItem> {
   _buildVideoMedia(
     Media media, {
     bool showPanel = false,
+    double radius = 0,
   }) {
     bool isGif = media.type == MediaType.animatedGif;
     String videoUrl = isGif ? media.url : getMp4Url(media);
@@ -886,40 +903,43 @@ class PostItemState extends State<PostItem> {
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(radius),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.black,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(radius),
               ),
               constraints: const BoxConstraints(maxHeight: 450),
-              child: VideoControlPanel(
-                controller,
-                showClosedCaptionButton: false,
-                showFullscreenButton: false,
-                showPanel: showPanel,
-                showPlayPauseButton: true,
-                showSeekBar: true,
-                showDurationAndPositionText: true,
-                onPlayEnded: () {
-                  _hasPlayedOnceMap[videoUrl] = true;
-                },
-                onPlayClicked: () {
-                  if (!isGif) {
-                    if (controller!.value.isPlaying) {
-                      _playbackManager.play(controller);
-                    } else {
-                      _playbackManager.pause(controller);
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radius),
+                child: VideoControlPanel(
+                  controller,
+                  showClosedCaptionButton: false,
+                  showFullscreenButton: false,
+                  showPanel: showPanel,
+                  showPlayPauseButton: true,
+                  showSeekBar: true,
+                  showDurationAndPositionText: true,
+                  onPlayEnded: () {
+                    _hasPlayedOnceMap[videoUrl] = true;
+                  },
+                  onPlayClicked: () {
+                    if (!isGif) {
+                      if (controller!.value.isPlaying) {
+                        _playbackManager.play(controller);
+                      } else {
+                        _playbackManager.pause(controller);
+                      }
                     }
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ),
           if (media.type == MediaType.animatedGif)
             Positioned(
-              left: 5,
-              bottom: 5,
+              left: 10,
+              bottom: 10,
               child: ItemBuilder.buildTransparentTag(
                 context,
                 text: "GIF",
@@ -935,41 +955,43 @@ class PostItemState extends State<PostItem> {
   _buildGifMedia(
     Media media, {
     bool isQueto = false,
+    double radius = 0,
   }) {
     if (isQueto) {
-      return _buildImageMedia(media);
+      return _buildImageMedia(media, radius: radius, isQueto: true);
     } else {
       String videoUrl = TweetUtil.getGifVideoUrl(media);
       Media tmp = Media.clone(media);
       tmp.url = videoUrl;
-      return _buildVideoMedia(tmp);
+      return _buildVideoMedia(tmp, radius: radius);
     }
   }
 
   _buildMedia(Tweet tweet) {
     if (!hasMedia(tweet)) return emptyWidget;
     List<Media> media = getMedia(tweet);
-    if (media.length == 1 && media[0].type == MediaType.video) {
-      return _buildVideoMedia(media[0], showPanel: true);
-    } else {
-      return NineGridView(
-        space: 3,
-        width: 500,
-        alignment: Alignment.center,
-        type: NineGridType.weChat,
-        itemCount: media.length,
-        itemBuilder: (BuildContext context, int index) {
-          switch (media[index].type) {
-            case MediaType.photo:
-              return _buildImageMedia(media[index], size: 500);
-            case MediaType.video:
-              return _buildVideoMedia(media[index]);
-            default:
-              return _buildGifMedia(media[0], isQueto: false);
-          }
-        },
-      );
-    }
+    List<MediaSize> sizes = media.map((e) => e.sizes.large).toList();
+    bool isSingle = media.length == 1;
+    return TwitterImageGrid(
+      sizes: sizes,
+      itemCount: media.length,
+      itemBuilder: (BuildContext context, int index) {
+        switch (media[index].type) {
+          case MediaType.photo:
+            return _buildImageMedia(
+              media[index],
+              size: 300,
+              radius: isSingle ? 12 : 0,
+            );
+          case MediaType.video:
+            return _buildVideoMedia(media[index],
+                radius: isSingle ? 12 : 0, showPanel: isSingle);
+          default:
+            return _buildGifMedia(media[0],
+                isQueto: false, radius: isSingle ? 12 : 0);
+        }
+      },
+    );
   }
 
   _buildQuetoMedia(Tweet tweet) {
@@ -977,11 +999,11 @@ class PostItemState extends State<PostItem> {
     List<Media> media = getMedia(tweet);
     switch (media[0].type) {
       case MediaType.photo:
-        return _buildImageMedia(media[0]);
+        return _buildImageMedia(media[0], radius: 8, isQueto: true);
       case MediaType.video:
         return _buildVideoMedia(media[0]);
       default:
-        return _buildGifMedia(media[0], isQueto: true);
+        return _buildGifMedia(media[0], isQueto: true, radius: 8);
     }
   }
 
@@ -1181,6 +1203,9 @@ class PostItemState extends State<PostItem> {
               setState(() {});
               if (res.success) {
                 tweet.translation = res.data;
+                if (Utils.isEmpty(tweet.translation?.translation)) {
+                  IToast.showTop("翻译结果为空");
+                }
                 setState(() {});
               } else {
                 IToast.showTop("翻译失败：${res.message}");
