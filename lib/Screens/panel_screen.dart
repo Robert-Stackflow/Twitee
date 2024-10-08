@@ -55,6 +55,15 @@ class PanelScreenState extends State<PanelScreen>
     });
   }
 
+  popAll() {
+    while (panelNavigatorState?.canPop() ?? false) {
+      panelNavigatorState?.pop();
+    }
+    appProvider.showNavigator = false;
+    _pageController =
+        PageController(initialPage: appProvider.sidebarChoice.index);
+  }
+
   pushPage(Widget page) {
     appProvider.showNavigator = true;
     panelNavigatorState?.push(RouteUtil.getFadeRoute(page));

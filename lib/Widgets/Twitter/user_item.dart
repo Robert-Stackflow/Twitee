@@ -143,7 +143,7 @@ class _UserItemState extends State<UserItem> {
                       ItemBuilder.buildHtmlWidget(
                         context,
                         user.description,
-                        textStyle: const TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),

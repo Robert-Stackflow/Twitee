@@ -7,20 +7,25 @@ part of 'entities.dart';
 // **************************************************************************
 
 Entities _$EntitiesFromJson(Map<String, dynamic> json) => Entities(
-      hashtags: json['hashtags'] as List<dynamic>,
+      hashtags:
+          json['hashtags'] == null ? [] : json['hashtags'] as List<dynamic>,
       media: (json['media'] as List<dynamic>?)
           ?.map((e) =>
               e == null ? null : Media.fromJson(e as Map<String, dynamic>))
           .toList(),
-      symbols: json['symbols'] as List<dynamic>,
+      symbols: json['symbols'] == null ? [] : json['symbols'] as List<dynamic>,
       timestamps: (json['timestamps'] as List<dynamic>?)
           ?.map((e) =>
               e == null ? null : Timestamp.fromJson(e as Map<String, dynamic>))
           .toList(),
-      urls: (json['urls'] as List<dynamic>)
-          .map((e) => Url.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      userMentions: json['user_mentions'] as List<dynamic>?,
+      urls: json['urls'] == null
+          ? []
+          : (json['urls'] as List<dynamic>)
+              .map((e) => Url.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      userMentions: json['user_mentions'] == null
+          ? []
+          : json['user_mentions'] as List<dynamic>?,
     );
 
 Entities _$EntitiesFromJsonWithoutMedia(Map<String, dynamic> json) => Entities(

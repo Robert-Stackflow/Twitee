@@ -182,7 +182,7 @@ class _ChangelogScreenState extends State<ChangelogScreen>
               ItemBuilder.buildHtmlWidget(
                 context,
                 Utils.replaceLineBreak(item.body ?? ""),
-                textStyle: Theme.of(context).textTheme.titleMedium?.apply(
+                style: Theme.of(context).textTheme.titleMedium?.apply(
                       fontSizeDelta: 1,
                       color: Theme.of(context).textTheme.bodySmall?.color,
                     ),

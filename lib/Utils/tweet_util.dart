@@ -80,4 +80,48 @@ class TweetUtil {
     }
     return media.mediaUrlHttps!;
   }
+
+  static String processWithEntities(String fullText, Entities entities,{
+    bool replaceNewline=true,
+  }) {
+    fullText = fullText.replaceAll("\n", replaceNewline?"<br>":"");
+    entities.hashtags.sort((a, b) {
+      return (b['text'] as String).length - (a['text'] as String).length;
+    });
+    String tmpTag = "@**@/~?><?%^@!()~==/&&/|\\";
+    for (var i = 0; i < entities.hashtags.length; i++) {
+      Map hashtag = entities.hashtags[i];
+      fullText = fullText.replaceAll("#${hashtag['text']}",
+          '<a href="https://x.com/hashtag/${Uri.encodeComponent(hashtag['text'])}">$tmpTag${hashtag['text']}</a>');
+    }
+    for (var i = 0; i < entities.hashtags.length; i++) {
+      Map hashtag = entities.hashtags[i];
+      fullText = fullText.replaceAll(
+          "$tmpTag${hashtag['text']}", '#${hashtag['text']}');
+    }
+    if (entities.userMentions != null) {
+      for (var i = 0; i < entities.userMentions!.length; i++) {
+        Map mention = entities.userMentions![i];
+        fullText = fullText.replaceAll("@${mention['screen_name']}",
+            '<a href="https://x.com/${Uri.encodeComponent(mention['screen_name'])}">$tmpTag${mention['screen_name']}</a>');
+      }
+      for (var i = 0; i < entities.userMentions!.length; i++) {
+        Map mention = entities.userMentions![i];
+        fullText = fullText.replaceAll(
+            "$tmpTag${mention['screen_name']}", '@${mention['screen_name']}');
+      }
+    }
+
+    for (var i = entities.urls.length - 1; i >= 0; i--) {
+      Url url = entities.urls[i];
+      fullText = fullText.replaceAll(url.url,
+          '<a href="${Uri.encodeComponent(url.expandedUrl ?? "")}">${url.displayUrl}</a>');
+    }
+    if (entities.media != null) {
+      for (var media in entities.media!) {
+        fullText = fullText.replaceAll(media!.url, '');
+      }
+    }
+    return fullText;
+  }
 }

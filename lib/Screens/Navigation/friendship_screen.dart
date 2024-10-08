@@ -28,7 +28,9 @@ import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
 class FriendshipScreen extends StatefulWidget {
-  const FriendshipScreen({super.key});
+  const FriendshipScreen({super.key, this.userId});
+
+  final String? userId;
 
   static const String routeName = "/navigtion/friendship";
 
@@ -45,12 +47,15 @@ class FriendshipScreenState extends State<FriendshipScreen>
   List<Widget> pageList = [];
   List<GlobalKey> keyList = [];
 
+  bool get isOther => widget.userId != null;
+
   late AnimationController _refreshRotationController;
 
   final ScrollController _scrollController = ScrollController();
 
   initTab() {
     UserInfo? info = HiveUtil.getUserInfo();
+    String userId = widget.userId ?? info!.idStr;
     tabList = [
       _buildTab("正在关注"),
       _buildTab("关注者"),
@@ -60,14 +65,14 @@ class FriendshipScreenState extends State<FriendshipScreen>
     keyList = List.generate(4, (_) => GlobalKey());
     pageList = [
       UserFlowScreen(
-          key: keyList[0], type: UserFlowType.following, userId: info!.idStr),
+          key: keyList[0], type: UserFlowType.following, userId: userId),
       UserFlowScreen(
-          key: keyList[1], type: UserFlowType.follower, userId: info.idStr),
-      FriendsFlowScreen(key: keyList[2], userId: info.idStr),
+          key: keyList[1], type: UserFlowType.follower, userId: userId),
+      FriendsFlowScreen(key: keyList[2], userId: userId),
       UserFlowScreen(
           key: keyList[3],
           type: UserFlowType.blueVerifiedFollower,
-          userId: info.idStr),
+          userId: userId),
     ];
     _tabController = TabController(length: tabList.length, vsync: this);
   }
@@ -86,11 +91,12 @@ class FriendshipScreenState extends State<FriendshipScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        titleWidget:
-            _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
+        showBack: isOther,
+        backSpacing: 0,
+        titleWidget: _buildTabBar(
+            56, EdgeInsets.only(left: isOther ? 0 : 10, right: 10)),
       ),
       body: Stack(
         children: [

@@ -27,6 +27,7 @@ import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Resources/fonts.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
+import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Utils/lottie_util.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Selectable/my_context_menu_item.dart';
@@ -82,6 +83,8 @@ class ItemBuilder {
     String title = "",
     Widget? titleWidget,
     bool showBack = false,
+    double backSpacing = 10,
+    double spacing = 20,
   }) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(56),
@@ -100,7 +103,8 @@ class ItemBuilder {
                       iconBuilder: (_) => const Icon(Icons.arrow_back_rounded),
                     ),
                   ),
-                if (titleWidget == null) SizedBox(width: showBack ? 10 : 20),
+                if (titleWidget == null)
+                  SizedBox(width: showBack ? backSpacing : spacing),
                 titleWidget ??
                     Text(
                       title,
@@ -2114,10 +2118,11 @@ class ItemBuilder {
     Color? color,
     int quarterTurns = 0,
     String? tooltip,
+    bool clickable = true,
   }) {
-    var main = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
+    var main = ItemBuilder.buildClickItem(
+      clickable: clickable,
+      GestureDetector(
         onTap: onTap,
         child: direction == Axis.horizontal
             ? Row(
@@ -2408,7 +2413,7 @@ class ItemBuilder {
   static buildHtmlWidget(
     BuildContext context,
     String content, {
-    TextStyle? textStyle,
+    TextStyle? style,
     bool enableImageDetail = true,
     bool parseImage = true,
     bool showLoading = true,
@@ -2420,7 +2425,7 @@ class ItemBuilder {
         content,
         enableCaching: true,
         renderMode: RenderMode.column,
-        textStyle: textStyle ??
+        textStyle: style ??
             Theme.of(context)
                 .textTheme
                 .bodyMedium
@@ -2561,11 +2566,13 @@ class ItemBuilder {
     Color? placeholderBackground,
     double topPadding = 0,
     double bottomPadding = 0,
+    bool simpleError = false,
   }) {
     return MyCachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
       width: width,
+      simpleError: simpleError,
       height: height,
       placeholderBackground: placeholderBackground,
       topPadding: topPadding,
@@ -2614,10 +2621,26 @@ class ItemBuilder {
                 GestureDetector(
                   onTap: showDetail
                       ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HeroPhotoViewScreen(
+                          if (ResponsiveUtil.isMobile()) {
+                            Navigator.push(
+                              rootContext,
+                              MaterialPageRoute(
+                                builder: (context) => HeroPhotoViewScreen(
+                                  tagPrefix: tagPrefix,
+                                  tagSuffix: tagSuffix,
+                                  imageUrls: [tagUrl],
+                                  useMainColor: false,
+                                  title: title,
+                                  captions: [caption ?? ""],
+                                ),
+                              ),
+                            );
+                          } else {
+                            RouteUtil.pushDialogRoute(
+                              context,
+                              showClose: false,
+                              fullScreen: true,
+                              HeroPhotoViewScreen(
                                 tagPrefix: tagPrefix,
                                 tagSuffix: tagSuffix,
                                 imageUrls: [tagUrl],
@@ -2625,8 +2648,8 @@ class ItemBuilder {
                                 title: title,
                                 captions: [caption ?? ""],
                               ),
-                            ),
-                          );
+                            );
+                          }
                         }
                       : onTap,
                   child: isOval
@@ -2637,6 +2660,8 @@ class ItemBuilder {
                             width: size,
                             showLoading: showLoading,
                             height: size,
+                            fit: BoxFit.cover,
+                            simpleError: true,
                           ),
                         )
                       : ClipRRect(
@@ -2646,7 +2671,9 @@ class ItemBuilder {
                             imageUrl: tagUrl,
                             width: size,
                             showLoading: showLoading,
+                            fit: BoxFit.cover,
                             height: size,
+                            simpleError: true,
                           ),
                         ),
                 ),
@@ -2670,6 +2697,7 @@ class ItemBuilder {
     String? caption,
     String? tagPrefix,
     String? tagSuffix,
+    bool isOrigin = true,
   }) {
     return ItemBuilder.buildClickItem(
       GestureDetector(
@@ -2681,7 +2709,8 @@ class ItemBuilder {
             HeroPhotoViewScreen(
               tagPrefix: tagPrefix,
               tagSuffix: tagSuffix,
-              imageUrls: [imageUrl],
+              imageUrls:
+                  isOrigin ? ImageUtil.getOrignUrls([imageUrl]) : [imageUrl],
               useMainColor: false,
               title: title,
               captions: [caption ?? ""],

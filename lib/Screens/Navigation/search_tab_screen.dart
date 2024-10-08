@@ -18,12 +18,12 @@ import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Models/search_timeline_tab_item.dart';
 import 'package:twitee/Openapi/models/timline_trend.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
@@ -162,7 +162,7 @@ class _SearchTabScreenState extends State<SearchTabScreen>
       if (entry.content is TimelineTimelineModule) {
         var module = entry.content as TimelineTimelineModule;
         for (var item in module.items ?? []) {
-          if (item is ModuleItem) {
+          if (item is ModuleItem && item.item.itemContent is TimelineTrend) {
             items.add(item);
           }
         }

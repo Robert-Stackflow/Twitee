@@ -18,6 +18,10 @@ import 'hive_util.dart';
 import 'itoast.dart';
 
 class ImageUtil {
+  static List<String> getOrignUrls(List<String> urls) {
+    return urls.map((e) => "$e?format=jpg&name=orig").toList();
+  }
+
   static Future<ShareResultStatus> shareImage(
     BuildContext context,
     String imageUrl, {

@@ -30,6 +30,7 @@ class MyCachedNetworkImage extends StatefulWidget {
     this.placeholderBackground,
     this.topPadding = 0,
     this.bottomPadding = 0,
+    this.simpleError = false,
   });
 
   final String imageUrl;
@@ -37,6 +38,7 @@ class MyCachedNetworkImage extends StatefulWidget {
   final double? height;
   final BoxFit? fit;
   final bool showLoading;
+  final bool simpleError;
   final Color? placeholderBackground;
   final double topPadding;
   final double bottomPadding;
@@ -86,13 +88,21 @@ class _MyCachedNetworkImageState extends State<MyCachedNetworkImage> {
                     width: widget.width,
                     height: widget.height,
                   ),
-          errorWidget: (context, url, error) {
-            return _currentRetries < _maxRetries
-                ? _defaultErrorWidget(context, url, error)
-                : _maxRetryReachedWidget(context, url, error);
-          },
+          errorWidget: widget.simpleError
+              ? _simpleErrorWidget
+              : _currentRetries < _maxRetries
+                  ? _defaultErrorWidget
+                  : _maxRetryReachedWidget,
         );
       },
+    );
+  }
+
+  Widget _simpleErrorWidget(BuildContext context, String url, dynamic error) {
+    return ItemBuilder.buildIconButton(
+      context: context,
+      icon: const Icon(Icons.refresh_rounded),
+      onTap: _retryLoadImage,
     );
   }
 

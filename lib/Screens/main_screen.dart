@@ -430,6 +430,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.home_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Home;
+                      panelScreenState?.popAll();
                     },
                     iconSize: 24,
                   ),
@@ -441,6 +442,7 @@ class MainScreenState extends State<MainScreen>
                     icon: Icons.search_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Search;
+                      panelScreenState?.popAll();
                     },
                   ),
                   // const SizedBox(height: 8),
@@ -464,6 +466,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.bookmark_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Bookmark;
+                      panelScreenState?.popAll();
                     },
                   ),
                   const SizedBox(height: 8),
@@ -475,6 +478,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.favorite_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Like;
+                      panelScreenState?.popAll();
                     },
                   ),
                   const SizedBox(height: 8),
@@ -486,6 +490,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.featured_play_list_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.List;
+                      panelScreenState?.popAll();
                     },
                     iconSize: 20,
                   ),
@@ -498,6 +503,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.people_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Friendship;
+                      panelScreenState?.popAll();
                     },
                     iconSize: 20,
                   ),
@@ -510,6 +516,7 @@ class MainScreenState extends State<MainScreen>
                     selectedIcon: Icons.notifications_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Mention;
+                      panelScreenState?.popAll();
                     },
                   ),
                   const SizedBox(height: 8),
@@ -520,6 +527,7 @@ class MainScreenState extends State<MainScreen>
                     icon: Icons.save_alt_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Download;
+                      panelScreenState?.popAll();
                     },
                   ),
                   const Spacer(),

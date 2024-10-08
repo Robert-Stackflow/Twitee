@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import '../../Resources/theme.dart';
 
 class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
+  final PreferredSize tabBar;
 
   final double radius;
 
@@ -41,7 +41,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       decoration: BoxDecoration(
-        color: background ?? MyTheme.getBackground(context),
+        color: background ?? Theme.of(context).canvasColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
       ),
       child: Theme(

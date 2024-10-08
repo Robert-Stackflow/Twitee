@@ -576,7 +576,7 @@ class PostItemState extends State<PostItem> {
                     ItemBuilder.buildHtmlWidget(
                       context,
                       fullText,
-                      textStyle: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 8),
                     ..._buildTranslation(tweet),
@@ -630,7 +630,7 @@ class PostItemState extends State<PostItem> {
           ItemBuilder.buildHtmlWidget(
             context,
             fullText,
-            textStyle: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
           ..._buildTranslation(tweet),
@@ -696,10 +696,14 @@ class PostItemState extends State<PostItem> {
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(8),
-          child: ItemBuilder.buildHtmlWidget(
-            context,
-            translation,
-            textStyle: Theme.of(context).textTheme.bodyMedium,
+          child: Column(
+            children: [
+              ItemBuilder.buildHtmlWidget(
+                context,
+                translation,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -1240,54 +1244,12 @@ class PostItemState extends State<PostItem> {
     if (result == null) return "";
     String fullText = result.translation;
     Entities entities = result.entities;
-    return _processWithEntities(fullText, entities);
+    return TweetUtil.processWithEntities(fullText, entities);
   }
 
   String _processTweetFullText(Tweet tweet) {
     String fullText = tweet.legacy!.fullText!;
     Entities entities = tweet.legacy!.entities;
-    return _processWithEntities(fullText, entities);
-  }
-
-  String _processWithEntities(String fullText, Entities entities) {
-    fullText = fullText.replaceAll("\n", "<br>");
-    entities.hashtags.sort((a, b) {
-      return (b['text'] as String).length - (a['text'] as String).length;
-    });
-    String tmpTag = "@**@/~?><?%^@!()~==/&&/|\\";
-    for (var i = 0; i < entities.hashtags.length; i++) {
-      Map hashtag = entities.hashtags[i];
-      fullText = fullText.replaceAll("#${hashtag['text']}",
-          '<a href="https://x.com/hashtag/${Uri.encodeComponent(hashtag['text'])}">$tmpTag${hashtag['text']}</a>');
-    }
-    for (var i = 0; i < entities.hashtags.length; i++) {
-      Map hashtag = entities.hashtags[i];
-      fullText = fullText.replaceAll(
-          "$tmpTag${hashtag['text']}", '#${hashtag['text']}');
-    }
-    if (entities.userMentions != null) {
-      for (var i = 0; i < entities.userMentions!.length; i++) {
-        Map mention = entities.userMentions![i];
-        fullText = fullText.replaceAll("@${mention['screen_name']}",
-            '<a href="https://x.com/${Uri.encodeComponent(mention['screen_name'])}">$tmpTag${mention['screen_name']}</a>');
-      }
-      for (var i = 0; i < entities.userMentions!.length; i++) {
-        Map mention = entities.userMentions![i];
-        fullText = fullText.replaceAll(
-            "$tmpTag${mention['screen_name']}", '@${mention['screen_name']}');
-      }
-    }
-
-    for (var i = entities.urls.length - 1; i >= 0; i--) {
-      Url url = entities.urls[i];
-      fullText = fullText.replaceAll(url.url,
-          '<a href="${Uri.encodeComponent(url.expandedUrl ?? "")}">${url.displayUrl}</a>');
-    }
-    if (entities.media != null) {
-      for (var media in entities.media!) {
-        fullText = fullText.replaceAll(media!.url, '');
-      }
-    }
-    return fullText;
+    return TweetUtil.processWithEntities(fullText, entities);
   }
 }

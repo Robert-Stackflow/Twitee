@@ -93,7 +93,7 @@ class _LikeScreenState extends State<LikeScreen>
       if (res.success) {
         var response = res.data;
         Timeline? timeline;
-        timeline = response.data.user.result.timelineV2?.timeline;
+        timeline = response.data.userLegacy.result.timelineV2?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }
@@ -144,7 +144,7 @@ class _LikeScreenState extends State<LikeScreen>
       if (res.success) {
         var response = res.data;
         Timeline? timeline;
-        timeline = response.data.user.result.timelineV2?.timeline;
+        timeline = response.data.userLegacy.result.timelineV2?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }

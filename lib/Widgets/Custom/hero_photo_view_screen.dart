@@ -109,13 +109,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
     super.initState();
     setDownloadState(DownloadState.none, recover: false);
     setAllDownloadState(DownloadState.none, recover: false);
-    if (widget.imageUrls[0] is String) {
-      imageUrls = widget.imageUrls
-          .map((e) => e + "?format=jpg&name=orig")
-          .toList();
-    } else {
-      imageUrls = widget.imageUrls;
-    }
+    imageUrls = widget.imageUrls;
     _viewControllers.addAll(List.generate(imageUrls.length, (index) {
       return PhotoViewController();
     }));
@@ -289,7 +283,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
         onPointerSignal: onPointerSignal,
         child: PhotoView(
           controller: _viewControllers[0],
-          imageProvider: CachedNetworkImageProvider(currentUrl,scale: 2),
+          imageProvider: CachedNetworkImageProvider(currentUrl, scale: 2),
           initialScale: getPreferedScale(currentUrl),
           minScale: minScale,
           maxScale: maxScale,

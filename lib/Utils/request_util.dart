@@ -47,8 +47,8 @@ class RequestUtil {
   static CookieJar? cookieJar;
   static CookieManager? cookieManager;
 
-  late Dio dio;
-  late BaseOptions options;
+  late final Dio dio;
+  late final BaseOptions options;
 
   static init() async {
     cookieJar = PersistCookieJar();

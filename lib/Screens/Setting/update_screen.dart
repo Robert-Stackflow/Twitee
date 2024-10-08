@@ -122,7 +122,7 @@ class _UpdateScreenState extends State<UpdateScreen>
               context,
               S.current.changelogAsFollow(
                   "<br/>${Utils.replaceLineBreak(item.body ?? "")}"),
-              textStyle: Theme.of(context).textTheme.titleMedium?.apply(
+              style: Theme.of(context).textTheme.titleMedium?.apply(
                     fontSizeDelta: 1,
                     color: Theme.of(context).textTheme.bodySmall?.color,
                   ),

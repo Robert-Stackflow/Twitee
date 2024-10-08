@@ -125,7 +125,7 @@ class _EggScreenState extends State<EggScreen> with TickerProviderStateMixin {
                     child: ItemBuilder.buildHtmlWidget(
                       context,
                       S.current.eggEssay,
-                      textStyle: Theme.of(context).textTheme.bodyLarge,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                   context: context,

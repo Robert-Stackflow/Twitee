@@ -103,7 +103,7 @@ class CustomConfirmDialogWidget extends StatelessWidget {
                   ? ItemBuilder.buildHtmlWidget(
                       context,
                       message,
-                      textStyle: TextStyle(
+                      style: TextStyle(
                         color: textColor ??
                             Theme.of(context).textTheme.bodySmall?.color,
                         height: 1.5,
