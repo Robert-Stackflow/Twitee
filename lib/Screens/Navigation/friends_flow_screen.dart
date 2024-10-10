@@ -41,6 +41,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
+
   String? cursorTop;
   String? cursorBottom;
 
@@ -53,6 +54,11 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  ScrollController? getScrollController() {
+    return _scrollController;
+  }
 
   @override
   scrollToTop() async {
@@ -78,7 +84,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       if (res.success) {
         List<UserLegacy> newEntries = res.data;
         users = newEntries;
-        setState(() {});
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -109,7 +115,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       if (res.success) {
         List<UserLegacy> newEntries = res.data;
         users.addAll(newEntries);
-        setState(() {});
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;

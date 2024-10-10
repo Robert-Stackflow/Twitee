@@ -18,7 +18,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -30,11 +29,17 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Api/timeline_api.dart';
 
 class TimelineFlowScreen extends StatefulWidget {
-  const TimelineFlowScreen({super.key, this.isLatest = true});
+  const TimelineFlowScreen({
+    super.key,
+    this.isLatest = true,
+    this.nested = false,
+  });
 
   final bool isLatest;
 
   static const String routeName = "/navigtion/timelineFlow";
+
+  final bool nested;
 
   @override
   State<TimelineFlowScreen> createState() => _TimelineFlowScreenState();
@@ -53,26 +58,45 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
 
   @override
+  ScrollController? getScrollController() {
+    return _scrollController;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    if (widget.nested) {
+      _onRefresh();
+    }
+  }
+
+  @override
   scrollToTop() async {
-    await _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+    if (_scrollController.hasClients) {
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    _easyRefreshController.callRefresh();
-    homeScreenState?.refreshPinnedLists();
+    if (widget.nested) {
+      _onRefresh();
+    } else {
+      _easyRefreshController.callRefresh(scrollController: _scrollController);
+    }
   }
 
   _onRefresh() async {
@@ -103,7 +127,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -150,7 +174,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -240,21 +264,24 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return EasyRefresh(
-      onRefresh: () async {
-        return await _onRefresh();
-      },
+    return EasyRefresh.builder(
+      onRefresh: widget.nested
+          ? null
+          : () async {
+              return await _onRefresh();
+            },
       onLoad: () async {
         return await _onLoad();
       },
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
+      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
         child: WaterfallFlow.extent(
-          controller: _scrollController,
+          physics: pyhsics,
+          controller: widget.nested ? null : _scrollController,
           padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,

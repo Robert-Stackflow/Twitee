@@ -217,6 +217,7 @@ class MainScreenState extends State<MainScreen>
 
   logout() async {
     _userInfo == null;
+    setState(() {});
     panelScreenState?.logout();
   }
 
@@ -405,6 +406,12 @@ class MainScreenState extends State<MainScreen>
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
+        border: Border(
+          right: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
       ),
       padding: EdgeInsets.only(left: leftPadding, right: rightPadding),
       child: Stack(

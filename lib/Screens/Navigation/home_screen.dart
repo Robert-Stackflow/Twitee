@@ -41,7 +41,6 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   List<Tab> tabList = [];
   List<TimelineTwitterListInfo> pinnedLists = [];
-  final PageController _pageController = PageController();
   List<Widget> pageList = [];
   List<GlobalKey> keyList = [];
 
@@ -77,9 +76,8 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ListFlowScreen(key: key, listId: list.idStr, userId: info!.idStr));
     }
     _tabController.animateTo(_tabController.index.clamp(0, tabList.length - 1));
-    _pageController.jumpToPage(_tabController.index);
     _tabController = TabController(length: tabList.length, vsync: this);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   refreshPinnedLists() async {
@@ -113,12 +111,9 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
+          TabBarView(
+            controller: _tabController,
             children: pageList,
-            onPageChanged: (index) {
-              _tabController.animateTo(index);
-            },
           ),
           Positioned(
             right: 16,
@@ -159,11 +154,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ?.apply(color: Colors.grey),
           indicator:
               CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {
-            _pageController.animateToPage(index,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut);
-          },
+          onTap: (index) {},
         ),
       ),
     );

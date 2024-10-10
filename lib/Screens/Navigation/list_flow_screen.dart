@@ -58,6 +58,11 @@ class _ListFlowScreenState extends State<ListFlowScreen>
   bool _noMore = false;
 
   @override
+  ScrollController? getScrollController() {
+    return _scrollController;
+  }
+
+  @override
   scrollToTop() async {
     await _scrollController.animateTo(
       0,
@@ -95,7 +100,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -144,7 +149,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {

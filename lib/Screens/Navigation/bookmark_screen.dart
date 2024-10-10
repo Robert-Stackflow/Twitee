@@ -134,7 +134,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             validEntries = _processEntries(instruction.entries);
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -198,7 +198,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             newEntries.addAll(_processEntries(instruction.entries));
             validEntries.addAll(newEntries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {

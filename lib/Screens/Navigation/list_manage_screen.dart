@@ -93,7 +93,7 @@ class _ListManageScreenState extends State<ListManageScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validItems = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -134,7 +134,7 @@ class _ListManageScreenState extends State<ListManageScreen>
             newEntries.addAll(_processEntries(instruction.entries));
             validItems.addAll(newEntries);
             _refreshCursor(instruction.entries);
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {

@@ -16,51 +16,46 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-import 'package:twitee/Widgets/Twitter/user_item.dart';
-import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Openapi/models/cursor_type.dart';
-import '../../Openapi/models/follow_response.dart';
-import '../../Openapi/models/timeline.dart';
-import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_add_entry.dart';
-import '../../Openapi/models/timeline_timeline_cursor.dart';
-import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_user.dart';
-import '../../Openapi/models/user.dart';
+import '../../Utils/tweet_util.dart';
 
-enum UserFlowType { following, follower, blueVerifiedFollower }
-
-class UserFlowScreen extends StatefulWidget {
-  const UserFlowScreen({super.key, required this.type, required this.userId});
-
-  final UserFlowType type;
+class UserMediaFlowScreen extends StatefulWidget {
+  const UserMediaFlowScreen({
+    super.key,
+    required this.userId,
+    this.nested = false,
+  });
 
   final String userId;
 
-  static const String routeName = "/navigtion/userFlow";
+  static const String routeName = "/navigtion/userMediaFlow";
+
+  final bool nested;
 
   @override
-  State<UserFlowScreen> createState() => _UserFlowScreenState();
+  State<UserMediaFlowScreen> createState() => _UserMediaFlowScreenState();
 }
 
-class _UserFlowScreenState extends State<UserFlowScreen>
+class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
 
-  List<TimelineUser> validEntries = [];
+  List<TimelineTweet> gridTweets = [];
+
+  List<TimelineAddEntry> validEntries = [];
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
@@ -72,18 +67,33 @@ class _UserFlowScreenState extends State<UserFlowScreen>
   }
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    if (widget.nested) {
+      _onRefresh();
+    }
+  }
+
+  @override
   scrollToTop() async {
-    await _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+    if (_scrollController.hasClients) {
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    _easyRefreshController.callRefresh();
+    if (widget.nested) {
+      _onRefresh();
+    } else {
+      _easyRefreshController.callRefresh(scrollController: _scrollController);
+    }
   }
 
   _onRefresh() async {
@@ -91,30 +101,22 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case UserFlowType.following:
-          res = await UserApi.getFollowingList(userId: widget.userId);
-          break;
-        case UserFlowType.follower:
-          res = await UserApi.getFollowerList(userId: widget.userId);
-          break;
-        case UserFlowType.blueVerifiedFollower:
-          res =
-              await UserApi.getBlueVerifiedFollowerList(userId: widget.userId);
-          break;
-      }
+      ResponseResult res = await UserApi.getUserMedia(userId: widget.userId);
       if (res.success) {
-        FollowResponse response = res.data;
-        List<TimelineUser> newEntries = [];
-        Timeline timeline = response.data.user.result.timeline.timeline;
+        UserTweetsResponse response = res.data;
+        Timeline? timeline = response.data.user.result.timelineV2?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
+        }
+        List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
+        _refreshGridTweets();
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -140,33 +142,26 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case UserFlowType.following:
-          res = await UserApi.getFollowingList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-        case UserFlowType.follower:
-          res = await UserApi.getFollowerList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-        case UserFlowType.blueVerifiedFollower:
-          res = await UserApi.getBlueVerifiedFollowerList(
-              userId: widget.userId, cursorBottom: cursorBottom!.value);
-          break;
-      }
+      ResponseResult res = await UserApi.getUserMedia(
+        userId: widget.userId,
+        cursorBottom: cursorBottom?.value,
+      );
       if (res.success) {
-        FollowResponse response = res.data;
-        List<TimelineUser> newEntries = [];
-        Timeline timeline = response.data.user.result.timeline.timeline;
+        UserTweetsResponse response = res.data;
+        Timeline? timeline = response.data.user.result.timelineV2?.timeline;
+        if (timeline == null) {
+          return IndicatorResult.fail;
+        }
+        List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
+        _refreshGridTweets();
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -201,44 +196,66 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     }
   }
 
-  List<TimelineUser> _processEntries(List<TimelineAddEntry> entries) {
-    List<TimelineUser> result = [];
+  _processEntries(List<TimelineAddEntry> entries) {
+    List<TimelineAddEntry> result = [];
     for (var entry in entries) {
-      if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent is TimelineUser) {
-        result.add((entry.content as TimelineTimelineItem).itemContent
-            as TimelineUser);
+      if (entry.content is TimelineTimelineModule &&
+          (entry.content as TimelineTimelineModule).displayType ==
+              DisplayType.verticalGrid) {
+        result.add(entry);
       }
     }
     return result;
   }
 
+  _refreshGridTweets() {
+    gridTweets.clear();
+    List<TimelineTweet> tweets = [];
+    for (var entry in validEntries) {
+      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+      List<ModuleItem> items = module.items
+              ?.where((e) => e != null)
+              .map((e) => e as ModuleItem)
+              .toList() ??
+          [];
+      for (var item in items) {
+        if (item.item.itemContent is TimelineTweet) {
+          tweets.add(item.item.itemContent as TimelineTweet);
+        }
+      }
+    }
+    gridTweets = tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return EasyRefresh(
-      onRefresh: () async {
-        return await _onRefresh();
-      },
+    return EasyRefresh.builder(
+      onRefresh: widget.nested
+          ? null
+          : () async {
+              return await _onRefresh();
+            },
       onLoad: () async {
         return await _onLoad();
       },
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
+      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
+        child: GridView.extent(
+          physics: pyhsics,
+          controller: widget.nested ? null : _scrollController,
           padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
-          maxCrossAxisExtent: 600,
+          maxCrossAxisExtent: 160,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
           children: List.generate(
-            validEntries.length,
+            gridTweets.length,
             (index) {
-              return _buildUserItem(validEntries[index]);
+              return _buildGridItem(160, gridTweets[index]);
             },
           ),
         ),
@@ -246,8 +263,26 @@ class _UserFlowScreenState extends State<UserFlowScreen>
     );
   }
 
-  _buildUserItem(TimelineUser timelineUser) {
-    User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy);
+  _buildGridItem(double size, TimelineTweet timelineTweet) {
+    Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {},
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: ItemBuilder.buildCachedImage(
+            imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
+            width: size,
+            height: size,
+            context: context,
+            fit: BoxFit.cover,
+            showLoading: false,
+          ),
+        ),
+      ),
+    );
   }
 }

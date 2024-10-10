@@ -74,6 +74,12 @@ class TweetUtil {
     }
   }
 
+  static bool hasMedia(TimelineTweet tweet) {
+    Tweet t = TweetUtil.getTrueTweetByResult(tweet.tweetResults)!;
+    return t.legacy!.entities.media != null &&
+        t.legacy!.entities.media!.isNotEmpty;
+  }
+
  static String getGifVideoUrl(Media media) {
     if (media.type == MediaType.animatedGif) {
       return media.videoInfo?.variants.first.url ?? media.mediaUrlHttps!;

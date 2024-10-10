@@ -63,6 +63,11 @@ class _SearchTabScreenState extends State<SearchTabScreen>
   bool _noMore = false;
 
   @override
+  ScrollController? getScrollController() {
+    return _scrollController;
+  }
+
+  @override
   scrollToTop() async {
     await _scrollController.animateTo(
       0,
@@ -92,10 +97,10 @@ class _SearchTabScreenState extends State<SearchTabScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = _processEntries(instruction);
             items = newEntries;
-            setState(() {});
+            if (mounted) setState(() {});
           }
         }
-        setState(() {});
+        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;

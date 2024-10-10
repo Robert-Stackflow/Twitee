@@ -1053,9 +1053,8 @@ class ItemBuilder {
             child: Container(
               padding: EdgeInsets.only(
                   left: showCheck ? 8 : 12, right: 12, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
                   if (isCheckbox) checkIcon,

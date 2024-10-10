@@ -53,7 +53,10 @@ class PostItem extends StatefulWidget {
   PostItemState createState() => PostItemState();
 }
 
-class PostItemState extends State<PostItem> {
+class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
+  @override
+  bool get wantKeepAlive => true;
+
   FeedbackType? _currentFeedbackType;
   final Map<String, VideoPlayerController> _videoControllers = {};
   final Map<String, bool> _isVisibleMap = {};
@@ -697,6 +700,7 @@ class PostItemState extends State<PostItem> {
           ),
           padding: const EdgeInsets.all(8),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ItemBuilder.buildHtmlWidget(
                 context,

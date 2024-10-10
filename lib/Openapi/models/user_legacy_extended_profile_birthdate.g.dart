@@ -13,7 +13,7 @@ UserLegacyExtendedProfileBirthdate _$UserLegacyExtendedProfileBirthdateFromJson(
       month: (json['month'] as num).toInt(),
       visibility: UserLegacyExtendedProfileBirthdateVisibility.fromJson(
           json['visibility'] as String),
-      year: (json['year'] as num).toInt(),
+      year: json['year'] == null ? 0 : (json['year'] as num).toInt(),
       yearVisibility: json['year_visibility'] == null
           ? null
           : UserLegacyExtendedProfileBirthdateYearVisibility.fromJson(

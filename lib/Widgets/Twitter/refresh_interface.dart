@@ -15,8 +15,12 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+
 mixin RefreshMixin {
   FutureOr refresh();
 
   FutureOr scrollToTop();
+
+  ScrollController? getScrollController();
 }

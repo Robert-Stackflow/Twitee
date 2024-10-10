@@ -43,7 +43,6 @@ class FriendshipScreenState extends State<FriendshipScreen>
   late TabController _tabController;
   List<Tab> tabList = [];
   List<TimelineTwitterListInfo> pinnedLists = [];
-  final PageController _pageController = PageController();
   List<Widget> pageList = [];
   List<GlobalKey> keyList = [];
 
@@ -100,12 +99,9 @@ class FriendshipScreenState extends State<FriendshipScreen>
       ),
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
+          TabBarView(
+            controller: _tabController,
             children: pageList,
-            onPageChanged: (index) {
-              _tabController.animateTo(index);
-            },
           ),
           Positioned(
             right: 16,
@@ -146,11 +142,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
               ?.apply(color: Colors.grey),
           indicator:
               CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {
-            _pageController.animateToPage(index,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut);
-          },
+          onTap: (index) {},
         ),
       ),
     );

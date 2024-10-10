@@ -29,7 +29,6 @@ import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Item/item_builder.dart';
-import '../../Widgets/Window/window_caption.dart';
 import 'list_flow_screen.dart';
 
 class ListScreen extends StatefulWidget {
@@ -49,7 +48,6 @@ class _ListScreenState extends State<ListScreen>
   bool get wantKeepAlive => true;
   late TabController _tabController;
   List<Tab> tabList = [];
-  final PageController _pageController = PageController();
   List<Widget> pageList = [];
   List<TimelineTwitterList> validItems = [];
   bool inited = false;
@@ -110,10 +108,7 @@ class _ListScreenState extends State<ListScreen>
           .add(ListFlowScreen(listId: list.list.idStr, userId: widget.userId));
     }
     _tabController = TabController(length: tabList.length, vsync: this);
-    if (_pageController.hasClients) {
-      _pageController.jumpToPage(0);
-    }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -137,12 +132,9 @@ class _ListScreenState extends State<ListScreen>
           ),
         ),
       ),
-      body: PageView(
-        controller: _pageController,
+      body: TabBarView(
+        controller: _tabController,
         children: pageList,
-        onPageChanged: (index) {
-          _tabController.animateTo(index);
-        },
       ),
     );
   }
@@ -172,11 +164,7 @@ class _ListScreenState extends State<ListScreen>
               ?.apply(color: Colors.grey),
           indicator:
               CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {
-            _pageController.animateToPage(index,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut);
-          },
+          onTap: (index) {},
         ),
       ),
     );

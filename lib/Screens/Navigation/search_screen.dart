@@ -42,14 +42,12 @@ class SearchScreenState extends State<SearchScreen>
     with TickerProviderStateMixin {
   late TabController _trendTabController;
   List<Tab> _trendTabList = [];
-  final PageController _trendPageController = PageController();
   List<Widget> _trendPageList = [];
   List<GlobalKey> _trendKeyList = [];
   List<SearchTimelineTabItem> tabItems = [];
 
   late TabController _resultTabController;
   List<Tab> _resultTabList = [];
-  final PageController _resultPageController = PageController();
   List<Widget> _resultPageList = [];
   List<GlobalKey> _resultKeyList = [];
   final List<String> _resultTabTitleList = ["热门", "最新", "用户", "媒体", "列表"];
@@ -85,7 +83,7 @@ class SearchScreenState extends State<SearchScreen>
     }
     _trendTabController =
         TabController(length: _trendTabList.length, vsync: this);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   initResultTab() {
@@ -98,7 +96,7 @@ class SearchScreenState extends State<SearchScreen>
     }
     _resultTabController =
         TabController(length: _resultTabList.length, vsync: this);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   refreshResultPageList() {
@@ -124,7 +122,7 @@ class SearchScreenState extends State<SearchScreen>
           type: SearchTimelineType.Lists,
           query: _searchController.text),
     ];
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   perfromSearch(String key) {
@@ -366,18 +364,12 @@ class SearchScreenState extends State<SearchScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTabBar(_trendTabController, _trendTabList, (index) {
-          _trendPageController.animateToPage(index,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
-        }, 56, const EdgeInsets.symmetric(horizontal: 10)),
+        _buildTabBar(_trendTabController, _trendTabList, (index) {}, 56,
+            const EdgeInsets.symmetric(horizontal: 10)),
         Expanded(
-          child: PageView(
-            controller: _trendPageController,
+          child: TabBarView(
+            controller: _trendTabController,
             children: _trendPageList,
-            onPageChanged: (index) {
-              _trendTabController.animateTo(index);
-            },
           ),
         ),
       ],
@@ -388,18 +380,12 @@ class SearchScreenState extends State<SearchScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTabBar(_resultTabController, _resultTabList, (index) {
-          _resultPageController.animateToPage(index,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
-        }, 56, const EdgeInsets.symmetric(horizontal: 10)),
+        _buildTabBar(_resultTabController, _resultTabList, (index) {}, 56,
+            const EdgeInsets.symmetric(horizontal: 10)),
         Expanded(
-          child: PageView(
-            controller: _resultPageController,
+          child: TabBarView(
+            controller: _resultTabController,
             children: _resultPageList,
-            onPageChanged: (index) {
-              _resultTabController.animateTo(index);
-            },
           ),
         ),
       ],

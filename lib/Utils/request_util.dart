@@ -236,9 +236,9 @@ class RequestUtil {
         response.requestOptions.data != null) {
       list['Request Body'] = response.requestOptions.data;
     }
-    if (response.data is Map<dynamic, dynamic>) {
-      list['Data'] = response.data;
-    }
+    // if (response.data is Map<dynamic, dynamic>) {
+    //   list['Data'] = response.data;
+    // }
     IPrint.format(
       tag: response.requestOptions.method,
       status: "Success",
