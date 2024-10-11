@@ -48,6 +48,8 @@ dependencies:
   archive: ^3.6.1 # 压缩
   isar_flutter_libs: ^4.0.0-dev.13
   image_gallery_saver: ^2.0.3 # 保存图片
+  sqflite_common_ffi: ^2.3.3
+  sqflite: ^2.0.0+3
   # 网络
   http: ^1.2.1
   dio: ^5.4.3+1 # 网络请求
@@ -115,7 +117,6 @@ dev_dependencies:
   build_runner: ^2.4.12
   flutter_lints: ^4.0.0
   msix: ^3.16.7
-  sqflite_common_ffi: ^2.3.3
   flutter_launcher_icons: ^0.13.1
   # OpenAPI
   json_serializable: ^6.7.1
@@ -232,7 +233,7 @@ msix_config:
   certificate_password: CLOUDCHEWIEtwitee@123
 
 flutter_launcher_icons:
-  android: false
+  android: "launcher_icon"
   ios: true
   image_path: "assets/logo.png"
   web:

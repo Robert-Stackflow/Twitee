@@ -20,12 +20,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:twitee/Database/config_dao.dart';
 import 'package:twitee/Database/create_table_sql.dart';
 import 'package:twitee/Utils/file_util.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 
 class DatabaseManager {
   static const _dbName = "twitee.db";
   static const _dbVersion = 6;
   static Database? _database;
-  static final dbFactory = createDatabaseFactoryFfi();
 
   static bool get initialized => _database != null;
 
@@ -42,16 +42,17 @@ class DatabaseManager {
   }
 
   static Future<void> initDataBase() async {
+    if (ResponsiveUtil.isDesktop()) {
+      databaseFactory = databaseFactoryFfi;
+    }
     if (_database == null) {
       String path = join(await FileUtil.getDatabaseDir(), _dbName);
-      _database = await dbFactory.openDatabase(
+      _database = await openDatabase(
         path,
-        options: OpenDatabaseOptions(
-          version: _dbVersion,
-          singleInstance: true,
-          onUpgrade: _onUpgrade,
-          onCreate: _onCreate,
-        ),
+        version: _dbVersion,
+        singleInstance: true,
+        onUpgrade: _onUpgrade,
+        onCreate: _onCreate,
       );
     }
     await ConfigDao.initConfig();

@@ -93,9 +93,13 @@ class FriendshipScreenState extends State<FriendshipScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showBack: isOther,
+        showMenu: true,
         backSpacing: 0,
         titleWidget: _buildTabBar(
-            56, EdgeInsets.only(left: isOther ? 0 : 10, right: 10)),
+            56,
+            ResponsiveUtil.isLandscape()
+                ? const EdgeInsets.symmetric(horizontal: 10)
+                : null),
       ),
       body: Stack(
         children: [

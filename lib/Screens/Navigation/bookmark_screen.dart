@@ -21,6 +21,7 @@ import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
@@ -284,13 +285,18 @@ class _BookmarkScreenState extends State<BookmarkScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
+        showMenu: true,
         titleWidget: Container(
           margin: const EdgeInsets.all(10),
-          constraints:
-              const BoxConstraints(maxWidth: 360, minWidth: 360, maxHeight: 56),
+          constraints: ResponsiveUtil.isLandscape()
+              ? const BoxConstraints(
+                  maxWidth: 360, minWidth: 360, maxHeight: 56)
+              : BoxConstraints(
+                  maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
           child: ItemBuilder.buildDesktopSearchBar(
             context: context,
             borderRadius: 8,

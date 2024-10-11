@@ -21,6 +21,8 @@ import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Screens/Navigation/list_screen.dart';
 import 'package:twitee/Screens/Navigation/search_screen.dart';
+import 'package:twitee/Screens/Setting/about_setting_screen.dart';
+import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
@@ -49,6 +51,8 @@ class PanelScreenState extends State<PanelScreen>
   PageController _pageController = PageController();
   List<Widget> _pageList = [];
   bool unlogin = false;
+  int _currentIndex = 0;
+  GlobalKey<MyScaffoldState> scaffoldKey = GlobalKey();
 
   @override
   void initState() {
@@ -70,21 +74,29 @@ class PanelScreenState extends State<PanelScreen>
   }
 
   pushPage(Widget page) {
-    appProvider.showNavigator = true;
-    panelNavigatorState?.push(RouteUtil.getFadeRoute(page));
+    if (ResponsiveUtil.isMobile()) {
+      RouteUtil.pushCupertinoRoute(rootContext, page);
+    } else {
+      appProvider.showNavigator = true;
+      panelNavigatorState?.push(RouteUtil.getFadeRoute(page));
+    }
   }
 
   popPage() {
-    if (panelNavigatorState?.canPop() ?? false) {
-      panelNavigatorState?.pop();
-      if (!(panelNavigatorState?.canPop() ?? false)) {
+    if (ResponsiveUtil.isLandscape()) {
+      if (panelNavigatorState?.canPop() ?? false) {
+        panelNavigatorState?.pop();
+        if (!(panelNavigatorState?.canPop() ?? false)) {
+          appProvider.showNavigator = false;
+        }
+      } else {
         appProvider.showNavigator = false;
       }
+      _pageController =
+          PageController(initialPage: appProvider.sidebarChoice.index);
     } else {
-      appProvider.showNavigator = false;
+      Navigator.pop(rootContext);
     }
-    _pageController =
-        PageController(initialPage: appProvider.sidebarChoice.index);
   }
 
   fetchUserInfo() async {
@@ -127,27 +139,30 @@ class PanelScreenState extends State<PanelScreen>
   }
 
   void jumpToPage(int index) {
+    _currentIndex = index;
+    setState(() {});
     if (_pageController.hasClients) {
       _pageController.jumpToPage(index);
     }
   }
 
   void openDrawer() {
-    Scaffold.of(context).openDrawer();
+    scaffoldKey.currentState?.openDrawer();
   }
 
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      backgroundColor: Colors.transparent,
+      key: scaffoldKey,
       body: Stack(
         children: [
           if (!unlogin)
             PageView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: _pageController,
               children: _pageList,
             ),
-          if (unlogin) const WindowMoveHandle(),
+          if (unlogin && ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
           if (unlogin)
             Center(
               child: ItemBuilder.buildRoundButton(
@@ -177,21 +192,72 @@ class PanelScreenState extends State<PanelScreen>
       ),
       drawer: _buildDrawer(),
       bottomNavigationBar:
-          ResponsiveUtil.isMobile() ? _buildBottomNavigationBar() : null,
+          !ResponsiveUtil.isLandscape() ? _buildBottomNavigationBar() : null,
     );
   }
 
   _buildBottomNavigationBar() {
     return BottomNavigationBar(
-      items: const [],
+      currentIndex: _currentIndex,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: "首页",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          label: "搜索",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bookmark),
+          label: "收藏",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite),
+          label: "喜欢",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: "列表",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people_alt_outlined),
+          label: "好友",
+        ),
+      ],
+      onTap: (index) {
+        jumpToPage(index);
+      },
     );
   }
 
   _buildDrawer() {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: const [],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 30),
+          children: [
+            ItemBuilder.buildEntryItem(
+              context: context,
+              topRadius: true,
+              title: "设置",
+              onTap: () {
+                RouteUtil.pushCupertinoRoute(
+                    context, const SettingNavigationScreen());
+              },
+            ),
+            ItemBuilder.buildEntryItem(
+              context: context,
+              bottomRadius: true,
+              title: "关于",
+              onTap: () {
+                RouteUtil.pushCupertinoRoute(
+                    context, const AboutSettingScreen());
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

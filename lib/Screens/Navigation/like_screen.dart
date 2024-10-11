@@ -246,7 +246,11 @@ class _LikeScreenState extends State<LikeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: ItemBuilder.buildDesktopAppBar(context: context, title: "喜欢"),
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        showMenu: true,
+        title: "喜欢",
+      ),
       body: Stack(
         children: [
           EasyRefresh(

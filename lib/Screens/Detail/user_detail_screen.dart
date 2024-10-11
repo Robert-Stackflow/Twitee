@@ -16,9 +16,9 @@
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
+import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/itoast.dart';
@@ -389,6 +389,38 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   _buildUserInfo() {
     String screenName = userLegacy?.screenName ?? userLegacy?.name ?? "";
+    var metaRow = Row(
+      children: [
+        if (Utils.isNotEmpty(userLegacy!.location))
+          ItemBuilder.buildIconTextButton(
+            context,
+            icon: Icon(
+              Icons.location_city_outlined,
+              size: 15,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            spacing: 3,
+            text: userLegacy!.location,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: 1,
+            clickable: false,
+          ),
+        if (Utils.isNotEmpty(userLegacy!.location)) const SizedBox(width: 10),
+        ItemBuilder.buildIconTextButton(
+          context,
+          icon: Icon(
+            Icons.calendar_month_rounded,
+            size: 15,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
+          spacing: 3,
+          text: "${Utils.formatDateString(userLegacy!.createdAt ?? "")} 加入",
+          color: Theme.of(context).textTheme.bodySmall?.color,
+          fontSizeDelta: 1,
+          clickable: false,
+        ),
+      ],
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       color: Theme.of(context).canvasColor,
@@ -401,7 +433,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildAvatar(
                 context: context,
                 imageUrl: userLegacy!.profileImageUrlHttps ?? AssetUtil.avatar,
-                size: 84,
+                size: ResponsiveUtil.isMobile() ? 56 : 84,
                 showDetail: true,
               ),
               const SizedBox(width: 10),
@@ -410,10 +442,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 children: [
                   Text(
                     userLegacy!.name,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.apply(fontSizeDelta: 4),
+                    style: Theme.of(context).textTheme.titleLarge?.apply(
+                        fontSizeDelta: ResponsiveUtil.isMobile() ? 0 : 4),
                   ),
                   const SizedBox(height: 3),
                   Text(
@@ -423,41 +453,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                         .bodySmall
                         ?.apply(fontSizeDelta: 2),
                   ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      if (Utils.isNotEmpty(userLegacy!.location))
-                        ItemBuilder.buildIconTextButton(
-                          context,
-                          icon: Icon(
-                            Icons.location_city_outlined,
-                            size: 15,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                          spacing: 3,
-                          text: userLegacy!.location,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                          fontSizeDelta: 1,
-                          clickable: false,
-                        ),
-                      if (Utils.isNotEmpty(userLegacy!.location))
-                        const SizedBox(width: 10),
-                      ItemBuilder.buildIconTextButton(
-                        context,
-                        icon: Icon(
-                          Icons.calendar_month_rounded,
-                          size: 15,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
-                        spacing: 3,
-                        text:
-                            "${Utils.formatDateString(userLegacy!.createdAt ?? "")} 加入",
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                        fontSizeDelta: 1,
-                        clickable: false,
-                      ),
-                    ],
-                  )
+                  if (ResponsiveUtil.isLandscape()) const SizedBox(height: 3),
+                  if (ResponsiveUtil.isLandscape()) metaRow,
                 ],
               ),
               const SizedBox(width: 10),
@@ -515,6 +512,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ),
             ],
           ),
+          if (ResponsiveUtil.isMobile()) const SizedBox(height: 10),
+          if (ResponsiveUtil.isMobile()) metaRow,
           const SizedBox(height: 10),
           Wrap(
             spacing: 20,
@@ -578,22 +577,23 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       clickable: onTap != null,
       GestureDetector(
         onTap: onTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              value,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.apply(fontWeightDelta: 2),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ],
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(fontWeightDelta: 2),
+              ),
+              const WidgetSpan(child: SizedBox(width: 4)),
+              TextSpan(
+                text: title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
+          ),
         ),
       ),
     );

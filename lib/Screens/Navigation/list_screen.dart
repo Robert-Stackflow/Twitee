@@ -117,6 +117,7 @@ class _ListScreenState extends State<ListScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
+        showMenu: true,
         titleWidget: Center(
           child: Row(
             children: [
@@ -127,7 +128,11 @@ class _ListScreenState extends State<ListScreen>
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               if (inited)
-                _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
+                _buildTabBar(
+                    56,
+                    ResponsiveUtil.isLandscape()
+                        ? const EdgeInsets.symmetric(horizontal: 10)
+                        : null),
             ],
           ),
         ),

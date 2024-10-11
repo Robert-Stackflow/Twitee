@@ -106,8 +106,12 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: Colors.transparent,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        titleWidget:
-            _buildTabBar(56, const EdgeInsets.symmetric(horizontal: 10)),
+        showMenu: true,
+        titleWidget: _buildTabBar(
+            56,
+            ResponsiveUtil.isLandscape()
+                ? const EdgeInsets.symmetric(horizontal: 10)
+                : null),
       ),
       body: Stack(
         children: [

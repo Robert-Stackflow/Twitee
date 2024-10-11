@@ -83,37 +83,65 @@ class ItemBuilder {
     String title = "",
     Widget? titleWidget,
     bool showBack = false,
+    bool showMenu = false,
     double backSpacing = 10,
     double spacing = 20,
+    bool centerInMobile = false,
   }) {
+    bool hasLeftButton =
+        showBack || (showMenu && !ResponsiveUtil.isLandscape());
     return PreferredSize(
       preferredSize: const Size.fromHeight(56),
-      child: Stack(
-        children: [
-          if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-          Center(
-            child: Row(
-              children: [
-                if (showBack)
-                  Container(
-                    margin: const EdgeInsets.only(left: 10),
-                    child: ToolButton(
-                      context: context,
-                      onTap: () => panelScreenState?.popPage(),
-                      iconBuilder: (_) => const Icon(Icons.arrow_back_rounded),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+            Center(
+              child: Row(
+                mainAxisAlignment: ResponsiveUtil.isMobile() && centerInMobile
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  if (showMenu && !ResponsiveUtil.isLandscape())
+                    Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: ItemBuilder.buildIconButton(
+                        context: context,
+                        icon: const Icon(Icons.menu_rounded),
+                        onTap: () => panelScreenState?.openDrawer(),
+                      ),
                     ),
-                  ),
-                if (titleWidget == null)
-                  SizedBox(width: showBack ? backSpacing : spacing),
-                titleWidget ??
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-              ],
+                  if (showBack)
+                    ResponsiveUtil.isLandscape()
+                        ? Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: ToolButton(
+                              context: context,
+                              onTap: () => panelScreenState?.popPage(),
+                              iconBuilder: (_) =>
+                                  const Icon(Icons.arrow_back_rounded),
+                            ),
+                          )
+                        : Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: ItemBuilder.buildIconButton(
+                              context: context,
+                              icon: const Icon(Icons.arrow_back_rounded),
+                              onTap: () => panelScreenState?.popPage(),
+                            ),
+                          ),
+                  if (titleWidget == null)
+                    SizedBox(width: hasLeftButton ? backSpacing : spacing),
+                  titleWidget ??
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

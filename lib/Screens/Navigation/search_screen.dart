@@ -17,8 +17,8 @@ import 'package:context_menus/context_menus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
-import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
 import 'package:twitee/Screens/Detail/search_tab_screen.dart';
+import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
 import 'package:twitee/Utils/itoast.dart';
 
 import '../../Models/search_suggestion.dart';
@@ -39,7 +39,10 @@ class SearchScreen extends StatefulWidget {
 }
 
 class SearchScreenState extends State<SearchScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late TabController _trendTabController;
   List<Tab> _trendTabList = [];
   List<Widget> _trendPageList = [];
@@ -315,16 +318,20 @@ class SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
+        showMenu: true,
         titleWidget: Container(
           margin: const EdgeInsets.all(10),
-          constraints: BoxConstraints(
-              maxWidth: searchBarWidth,
-              minWidth: searchBarWidth,
-              maxHeight: 56),
+          constraints: ResponsiveUtil.isLandscape()
+              ? const BoxConstraints(
+                  maxWidth: 360, minWidth: 360, maxHeight: 56)
+              : BoxConstraints(
+                  maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
           child: CompositedTransformTarget(
             link: _layerLink,
             child: ItemBuilder.buildDesktopSearchBar(

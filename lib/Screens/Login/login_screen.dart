@@ -338,7 +338,9 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           background: Theme.of(context).scaffoldBackgroundColor,
         );
       case ConnectState.failed:
-        return Center(
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.center,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -350,6 +352,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
               ItemBuilder.buildRoundButton(
                 context,
                 text: "重试",
+                background: Theme.of(context).primaryColor,
                 onTap: initLogin,
               ),
               const SizedBox(height: 50),
@@ -370,7 +373,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         children: [
           const SizedBox(height: 50),
           SizedBox(
-            height: 180,
+            height: 230,
             child: PageView.builder(
               controller: controller,
               itemCount: LoginPhase.phases.length,
@@ -562,7 +565,8 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            runSpacing: 15,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -587,7 +591,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             ],
           ),
           const SizedBox(height: 20),
-          Expanded(child: body),
+          body,
         ],
       ),
     );

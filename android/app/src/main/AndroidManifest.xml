@@ -20,7 +20,7 @@
         android:enableOnBackInvokedCallback="true"
         android:extractNativeLibs="true"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:label="Twitee"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
