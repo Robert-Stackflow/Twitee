@@ -24,10 +24,13 @@ import 'package:twitee/Screens/Navigation/search_screen.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Scaffold/my_scaffold.dart';
+import 'package:twitee/Widgets/Window/window_caption.dart';
 
 import '../Utils/app_provider.dart';
 import '../Utils/route_util.dart';
+import 'Login/login_screen.dart';
 import 'Navigation/home_screen.dart';
 
 class PanelScreen extends StatefulWidget {
@@ -45,6 +48,7 @@ class PanelScreenState extends State<PanelScreen>
     with TickerProviderStateMixin {
   PageController _pageController = PageController();
   List<Widget> _pageList = [];
+  bool unlogin = false;
 
   @override
   void initState() {
@@ -53,6 +57,7 @@ class PanelScreenState extends State<PanelScreen>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       jumpToPage(appProvider.sidebarChoice.index);
     });
+    fetchUserInfo();
   }
 
   popAll() {
@@ -82,12 +87,22 @@ class PanelScreenState extends State<PanelScreen>
         PageController(initialPage: appProvider.sidebarChoice.index);
   }
 
+  fetchUserInfo() async {
+    var userInfo = HiveUtil.getUserInfo();
+    if (userInfo == null) {
+      logout();
+      return;
+    }
+  }
+
   logout() {
+    unlogin = true;
     _pageList = [];
     setState(() {});
   }
 
   login() {
+    unlogin = false;
     initPage();
     setState(() {});
   }
@@ -107,11 +122,14 @@ class PanelScreenState extends State<PanelScreen>
         const BookmarkScreen(),
         const BookmarkScreen(),
       ];
+      jumpToPage(appProvider.sidebarChoice.index);
     }
   }
 
   void jumpToPage(int index) {
-    _pageController.jumpToPage(index);
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(index);
+    }
   }
 
   void openDrawer() {
@@ -124,10 +142,24 @@ class PanelScreenState extends State<PanelScreen>
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
-            children: _pageList,
-          ),
+          if (!unlogin)
+            PageView(
+              controller: _pageController,
+              children: _pageList,
+            ),
+          if (unlogin) const WindowMoveHandle(),
+          if (unlogin)
+            Center(
+              child: ItemBuilder.buildRoundButton(
+                context,
+                text: "前往登录",
+                background: Theme.of(context).primaryColor,
+                onTap: () {
+                  RouteUtil.pushDialogRoute(
+                      rootContext, const LoginByPasswordScreen());
+                },
+              ),
+            ),
           Selector<AppProvider, bool>(
             selector: (context, provider) => provider.showNavigator,
             builder: (context, value, child) => SizedBox(

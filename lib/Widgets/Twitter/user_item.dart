@@ -3,7 +3,7 @@ import 'package:twitee/Utils/app_provider.dart';
 
 import '../../Api/user_api.dart';
 import '../../Openapi/models/user_legacy.dart';
-import '../../Screens/Navigation/user_detail_screen.dart';
+import '../../Screens/Detail/user_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/itoast.dart';
 import '../Dialog/dialog_builder.dart';

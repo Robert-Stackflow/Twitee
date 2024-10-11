@@ -17,7 +17,7 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
-import 'package:twitee/Screens/Navigation/user_detail_screen.dart';
+import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/itoast.dart';
@@ -33,6 +33,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../Api/post_api.dart';
 import '../../Models/translation_result.dart';
 import '../../Openapi/export.dart';
+import '../../Screens/Detail/tweet_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/utils.dart';
@@ -43,17 +44,20 @@ class PostItem extends StatefulWidget {
     super.key,
     required this.entry,
     this.feedbackActions = const [],
+    this.isDetail = false,
   });
 
   final List<FeedbackActions> feedbackActions;
 
   final TimelineAddEntry entry;
 
+  final bool isDetail;
+
   @override
   PostItemState createState() => PostItemState();
 }
 
-class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
+class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -157,6 +161,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return _currentFeedbackType != null
         ? _buildFeedBackList(getTrueUser(widget.entry)!)
         : _buildItem(widget.entry);
@@ -202,13 +207,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
         color: Theme.of(context).canvasColor,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: const EdgeInsets.all(12),
       child: Column(
         children: List.generate(
           tweets.length,
           (index) {
             return _buildConversationItem(
               TweetUtil.getTrueTweet(tweets[index])!,
+              isFirst: index == 0,
               isLast: index == tweets.length - 1,
             );
           },
@@ -549,67 +554,102 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
 
   _buildConversationItem(
     Tweet tweet, {
+    bool isFirst = false,
     bool isLast = false,
   }) {
     String fullText = _getFullText(tweet);
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
     double avatarSize = 40;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ItemBuilder.buildAvatar(
-              context: context,
-              imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
-              size: avatarSize,
-              isOval: user.profileImageShape == UserProfileImageShape.circle,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(left: 4, right: 4, bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildUserRow(tweet, isQuote: false, showAvatar: false),
-                    const SizedBox(height: 8),
-                    ItemBuilder.buildHtmlWidget(
-                      context,
-                      fullText,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    ..._buildTranslation(tweet),
-                    if (hasMedia(tweet)) _buildMedia(tweet),
-                    if (hasMedia(tweet) && tweet.quotedStatusResult != null)
-                      const SizedBox(height: 12),
-                    if (tweet.quotedStatusResult != null)
-                      _buildQuoteTweet(TweetUtil.getTrueTweetByResult(
-                          tweet.quotedStatusResult)!),
-                    const SizedBox(height: 16),
-                    _buildOperations(tweet),
-                    const SizedBox(height: 4),
-                  ],
+    BorderRadius borderRadius = BorderRadius.zero;
+    if (isFirst) {
+      borderRadius = const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+      );
+    } else if (isLast) {
+      borderRadius = const BorderRadius.only(
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      );
+    }
+    var body = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12).add(
+        EdgeInsets.only(
+          top: isFirst ? 12 : 0,
+          bottom: isLast ? 12 : 0,
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemBuilder.buildAvatar(
+                context: context,
+                imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
+                size: avatarSize,
+                isOval: user.profileImageShape == UserProfileImageShape.circle,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 4, right: 4, bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildUserRow(tweet, isQuote: false, showAvatar: false),
+                      const SizedBox(height: 8),
+                      ItemBuilder.buildHtmlWidget(
+                        context,
+                        fullText,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      ..._buildTranslation(tweet),
+                      if (hasMedia(tweet)) _buildMedia(tweet),
+                      if (hasMedia(tweet) && tweet.quotedStatusResult != null)
+                        const SizedBox(height: 12),
+                      if (tweet.quotedStatusResult != null)
+                        _buildQuoteTweet(TweetUtil.getTrueTweetByResult(
+                            tweet.quotedStatusResult)!),
+                      const SizedBox(height: 16),
+                      _buildOperations(tweet),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        if (!isLast)
-          Positioned(
-            left: avatarSize / 2,
-            top: avatarSize,
-            bottom: isLast ? avatarSize : 0,
-            child: Container(
-              width: 1,
-              color: Theme.of(context).dividerColor,
-            ),
+            ],
           ),
-      ],
+          if (!isLast)
+            Positioned(
+              left: avatarSize / 2,
+              top: avatarSize,
+              bottom: isLast ? avatarSize : 0,
+              child: Container(
+                width: 1,
+                color: Theme.of(context).dividerColor,
+              ),
+            ),
+        ],
+      ),
     );
+    return widget.isDetail
+        ? body
+        : Material(
+            color: Theme.of(context).canvasColor,
+            borderRadius: borderRadius,
+            child: InkWell(
+              borderRadius: borderRadius,
+              onTap: () {
+                panelScreenState
+                    ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
+              },
+              child: body,
+            ),
+          );
   }
 
   _buildNormalTweet(
@@ -617,11 +657,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
     User? retweetedUser,
   }) {
     String fullText = _getFullText(tweet);
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
+    var body = Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,19 +686,32 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
         ],
       ),
     );
+    return widget.isDetail
+        ? body
+        : Material(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                panelScreenState
+                    ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
+              },
+              child: body,
+            ),
+          );
   }
 
   _buildQuoteTweet(
     Tweet tweet, {
     User? retweetedUser,
   }) {
-    // String fullText = _getFullText(tweet);
     String fullText = tweet.legacy!.fullText!;
-    return Container(
+    var body = Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 1)),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
+      ),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,6 +736,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
         ],
       ),
     );
+    return Material(
+      color: Theme.of(context).canvasColor,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          panelScreenState?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
+        },
+        child: body,
+      ),
+    );
   }
 
   _buildTranslation(Tweet tweet) {
@@ -693,7 +754,6 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin{
     if (Utils.isNotEmpty(translation)) {
       return [
         Container(
-          width: double.infinity,
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(8),

@@ -33,6 +33,7 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
 import '../../Openapi/models/timeline_tweet.dart';
+import '../../Openapi/models/user_tweets_response.dart';
 
 class LikeScreen extends StatefulWidget {
   const LikeScreen({super.key, required this.userId});
@@ -91,9 +92,9 @@ class _LikeScreenState extends State<LikeScreen>
       ResponseResult res;
       res = await DataApi.getLikes(userId: widget.userId);
       if (res.success) {
-        var response = res.data;
+        UserTweetsResponse response = res.data;
         Timeline? timeline;
-        timeline = response.data.userLegacy.result.timelineV2?.timeline;
+        timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }

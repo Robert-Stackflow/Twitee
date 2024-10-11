@@ -17,8 +17,8 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Navigation/list_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/timeline_flow_screen.dart';
+import 'package:twitee/Screens/Flow/list_flow_screen.dart';
+import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';

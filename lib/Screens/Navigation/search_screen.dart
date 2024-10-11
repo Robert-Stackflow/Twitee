@@ -17,8 +17,8 @@ import 'package:context_menus/context_menus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
-import 'package:twitee/Screens/Navigation/search_result_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/search_tab_screen.dart';
+import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
+import 'package:twitee/Screens/Detail/search_tab_screen.dart';
 import 'package:twitee/Utils/itoast.dart';
 
 import '../../Models/search_suggestion.dart';

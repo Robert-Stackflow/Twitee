@@ -17,8 +17,8 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Navigation/friendship_screen.dart';
-import 'package:twitee/Screens/Navigation/user_media_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/user_tweet_flow_screen.dart';
+import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
+import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/itoast.dart';
@@ -516,7 +516,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ],
           ),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 20,
+            runSpacing: 5,
             children: [
               _buildCountItem(
                 title: "帖子",
@@ -525,7 +527,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   _tabController.animateTo(0);
                 },
               ),
-              const SizedBox(width: 20),
               _buildCountItem(
                 title: "照片和视频",
                 value: "${userLegacy!.mediaCount ?? 0}",
@@ -533,7 +534,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   _tabController.animateTo(2);
                 },
               ),
-              const SizedBox(width: 20),
               _buildCountItem(
                 title: "正在关注",
                 value: "${userLegacy!.friendsCount}",
@@ -542,7 +542,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       ?.pushPage(FriendshipScreen(userId: user!.restId));
                 },
               ),
-              const SizedBox(width: 20),
               _buildCountItem(
                 title: "关注者",
                 value: "${userLegacy!.followersCount}",
@@ -551,11 +550,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       ?.pushPage(FriendshipScreen(userId: user!.restId));
                 },
               ),
-              const SizedBox(width: 20),
               if (friendList.isNotEmpty)
                 _buildCountItem(
                   title: "关注了此账号",
-                  value: friendList.map((e) => e.name).join(", "),
+                  value: friendList.map((e) => e.name).join("、"),
                 ),
             ],
           ),
@@ -581,6 +579,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       GestureDetector(
         onTap: onTap,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               value,

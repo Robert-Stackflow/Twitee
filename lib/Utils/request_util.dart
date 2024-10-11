@@ -8,7 +8,9 @@ import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_header_util.dart';
 import 'package:twitee/Utils/user_util.dart';
+import 'package:twitee/Utils/utils.dart';
 
+import 'file_util.dart';
 import 'iprint.dart';
 
 enum DomainType {
@@ -51,7 +53,9 @@ class RequestUtil {
   late final BaseOptions options;
 
   static init() async {
-    cookieJar = PersistCookieJar();
+    cookieJar = PersistCookieJar(
+      storage: FileStorage(await FileUtil.getCookiesDir()),
+    );
     cookieManager = CookieManager(cookieJar!);
     await shareCookie();
   }
@@ -101,8 +105,10 @@ class RequestUtil {
     }
   }
 
-  static _preProcessResponse(Response? response) {
-    if (response?.statusCode == 401) {
+  static _preProcessResponse(Response? response) async {
+    String? csrfToken = await getCsrfToken();
+    if (response?.statusCode == 401 ||
+        (Utils.isEmpty(csrfToken) && response?.statusCode == 403)) {
       UserUtil.showReloginDialog();
     }
   }

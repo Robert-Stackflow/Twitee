@@ -9,7 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
-
+.cookies/
 # IntelliJ related
 *.iml
 *.ipr
@@ -51,3 +51,5 @@ twitee.db
 /assets/fonts/**
 
 /releases/**
+/.cookies/
+/.cookies

@@ -29,7 +29,7 @@ import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Item/item_builder.dart';
-import 'list_flow_screen.dart';
+import '../Flow/list_flow_screen.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key, required this.userId});

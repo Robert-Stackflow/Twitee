@@ -46,9 +46,9 @@ import '../Utils/utils.dart';
 import '../Widgets/General/EasyRefresh/easy_refresh.dart';
 import '../Widgets/General/LottieCupertinoRefresh/lottie_cupertino_refresh.dart';
 import '../Widgets/Scaffold/my_scaffold.dart';
+import 'Detail/user_detail_screen.dart';
 import 'Lock/pin_verify_screen.dart';
 import 'Login/login_screen.dart';
-import 'Navigation/user_detail_screen.dart';
 
 const borderColor = Color(0xFF805306);
 const backgroundStartColor = Color(0xFFFFD500);
@@ -223,6 +223,7 @@ class MainScreenState extends State<MainScreen>
 
   login() {
     _userInfo = HiveUtil.getUserInfo();
+    setState(() {});
     panelScreenState?.login();
   }
 
@@ -251,6 +252,7 @@ class MainScreenState extends State<MainScreen>
       }
     });
     initGlobalConfig();
+    fetchUserInfo();
   }
 
   initGlobalConfig() {

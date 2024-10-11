@@ -115,13 +115,17 @@ class TwitterImageGridState extends State<TwitterImageGrid> {
               child: widget.itemBuilder(context, 0),
             ),
             const SizedBox(width: 4),
-            Expanded(
-              child: widget.itemBuilder(context, 1),
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: widget.itemBuilder(context, 2),
-            ),
+            Column(
+              children: [
+                Expanded(
+                  child: widget.itemBuilder(context, 1),
+                ),
+                const SizedBox(height: 4),
+                Expanded(
+                  child: widget.itemBuilder(context, 2),
+                ),
+              ],
+            )
           ],
         ),
       ),

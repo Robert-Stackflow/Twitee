@@ -328,6 +328,15 @@ class FileUtil {
     return directory.path;
   }
 
+  static Future<String> getCookiesDir() async {
+    Directory directory = Directory(join(await getApplicationDir(), "Cookies"));
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return directory.path;
+  }
+
+
   static Future<String> getHiveDir() async {
     Directory directory = Directory(join(await getApplicationDir(), "Hive"));
     if (!await directory.exists()) {
