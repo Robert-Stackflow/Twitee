@@ -13,18 +13,15 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/list_api.dart';
+import 'package:twitee/Models/tab_item_data.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/hive_util.dart';
-import '../../Utils/responsive_util.dart';
-import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
@@ -39,44 +36,53 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
-  List<Tab> tabList = [];
-  List<TimelineTwitterListInfo> pinnedLists = [];
-  List<Widget> pageList = [];
-  List<GlobalKey> keyList = [];
-
   late AnimationController _refreshRotationController;
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
+  List<TimelineTwitterListInfo> pinnedLists = [];
+  TabItemDataList tabDataList = TabItemDataList([]);
 
-  final ScrollController _scrollController = ScrollController();
+  int get currentIndex => _tabController.index;
 
   initTab() {
-    keyList = List.generate(2, (_) => GlobalKey());
-    tabList = [
-      _buildTab("为你推荐"),
-      _buildTab("正在关注"),
-    ];
-    pageList = [
-      TimelineFlowScreen(key: keyList[0], isLatest: false),
-      TimelineFlowScreen(
-        key: keyList[1],
+    tabDataList.addAll([
+      TabItemData.build(
+        "为你推荐",
+        (key, scrollController) => TimelineFlowScreen(
+          key: key,
+          isLatest: false,
+          scrollController: scrollController,
+        ),
       ),
-    ];
-    _tabController = TabController(length: tabList.length, vsync: this);
+      TabItemData.build(
+        "正在关注",
+        (key, scrollController) => TimelineFlowScreen(
+          key: key,
+          scrollController: scrollController,
+        ),
+      ),
+    ]);
+    _tabController = TabController(length: tabDataList.length, vsync: this);
   }
 
   addTabs() {
     UserInfo? info = HiveUtil.getUserInfo();
-    tabList = tabList.sublist(0, 2);
-    pageList = pageList.sublist(0, 2);
-    keyList = keyList.sublist(0, 2);
+    tabDataList = tabDataList.sublist(0, 2);
     for (var list in pinnedLists) {
-      tabList.add(_buildTab(list.name));
-      GlobalKey key = GlobalKey();
-      keyList.add(key);
-      pageList.add(
-          ListFlowScreen(key: key, listId: list.idStr, userId: info!.idStr));
+      tabDataList.add(
+        TabItemData.build(
+          list.name,
+          (key, scrollController) => ListFlowScreen(
+            key: key,
+            listId: list.idStr,
+            userId: info!.idStr,
+            scrollController: scrollController,
+          ),
+        ),
+      );
     }
-    _tabController.animateTo(_tabController.index.clamp(0, tabList.length - 1));
-    _tabController = TabController(length: tabList.length, vsync: this);
+    _tabController.animateTo(currentIndex.clamp(0, tabDataList.length - 1));
+    _tabController = TabController(length: tabDataList.length, vsync: this);
     if (mounted) setState(() {});
   }
 
@@ -107,23 +113,25 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        titleWidget: _buildTabBar(
-            56,
-            ResponsiveUtil.isLandscape()
-                ? const EdgeInsets.symmetric(horizontal: 10)
-                : null),
+        titleWidget: ItemBuilder.buildTabBar(
+          context,
+          _tabController,
+          tabDataList.tabList,
+          onTap: onTapTab,
+        ),
       ),
       body: Stack(
         children: [
           TabBarView(
             controller: _tabController,
-            children: pageList,
+            children: tabDataList.pageList,
           ),
           Positioned(
             right: 16,
             bottom: 16,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              controller: _scrollToHideController,
+              scrollController: tabDataList.getScrollControllerNotNull(currentIndex),
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -133,54 +141,21 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  _buildTabBar([double? height, EdgeInsetsGeometry? padding]) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(height ?? 56),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        child: TabBar(
-          controller: _tabController,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          tabs: tabList,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          isScrollable: true,
-          dividerHeight: 0,
-          padding: padding,
-          tabAlignment: TabAlignment.start,
-          physics: const ClampingScrollPhysics(),
-          labelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(fontWeightDelta: 2),
-          unselectedLabelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(color: Colors.grey),
-          indicator:
-              CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {},
-        ),
-      ),
-    );
+  onTapTab(int index) {
+    _scrollToHideController.show();
+    if (!_tabController.indexIsChanging && index == currentIndex) {
+      if (tabDataList.getScrollController(index) != null &&
+          tabDataList.getScrollController(index)!.offset > 30) {
+        scrollToTop();
+      } else {
+        refresh();
+      }
+    }
   }
 
-  _buildTab(String str) {
-    return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: Container(),
-        child: GestureDetector(
-          child: Text(str),
-        ),
-      ),
-    );
-  }
-
-  scrollToTop() {
-    (keyList[_tabController.index].currentState as RefreshMixin?)
-        ?.scrollToTop();
+  scrollToTop() async {
+    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    _scrollToHideController.show();
   }
 
   refresh() async {
@@ -188,7 +163,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await scrollToTop();
     _refreshRotationController.stop();
     _refreshRotationController.forward();
-    (keyList[_tabController.index].currentState as RefreshMixin?)?.refresh();
+    tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
   _buildFloatingButtons() {

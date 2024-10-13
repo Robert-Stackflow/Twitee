@@ -2,3 +2,4 @@ openssl genrsa -des3 -out twitee.key 2048
 openssl req -new -key twitee.key -out twitee.csr -config "D:\Program Files\Git\usr\ssl\openssl.cnf"
 openssl x509 -in twitee.csr -out twitee.crt -req -signkey twitee.key -days 9999 -config "D:\Program Files\Git\usr\ssl\openssl.cnf"
 openssl pkcs12 -export -out twitee.pfx -inkey twitee.key -in twitee.crt
+openssl base64 -A -in cloudchewie.jks -out base64.txt

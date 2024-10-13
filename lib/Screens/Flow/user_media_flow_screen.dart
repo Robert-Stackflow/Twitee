@@ -17,12 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Detail/tweet_detail_screen.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
+import '../../Utils/app_provider.dart';
 import '../../Utils/tweet_util.dart';
 
 class UserMediaFlowScreen extends StatefulWidget {
@@ -30,6 +32,7 @@ class UserMediaFlowScreen extends StatefulWidget {
     super.key,
     required this.userId,
     this.nested = false,
+    this.scrollController,
   });
 
   final String userId;
@@ -37,6 +40,8 @@ class UserMediaFlowScreen extends StatefulWidget {
   static const String routeName = "/navigtion/userMediaFlow";
 
   final bool nested;
+
+  final ScrollController? scrollController;
 
   @override
   State<UserMediaFlowScreen> createState() => _UserMediaFlowScreenState();
@@ -50,8 +55,6 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
   TimelineTimelineCursor? cursorBottom;
 
   List<TimelineTweet> gridTweets = [];
-
-  List<TimelineAddEntry> validEntries = [];
 
   bool _loading = false;
 
@@ -69,7 +72,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _scrollController = widget.scrollController ?? ScrollController();
     if (widget.nested) {
       _onRefresh();
     }
@@ -108,16 +111,19 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         if (timeline == null) {
           return IndicatorResult.fail;
         }
-        List<TimelineAddEntry> newEntries = [];
+        List<TimelineTweet> newTweets = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            newEntries = validEntries = _processEntries(instruction.entries);
+            newTweets.addAll(_processEntries(instruction.entries));
             _refreshCursor(instruction.entries);
           }
+          if (instruction is TimelineAddToModule) {
+            newTweets.addAll(filterTweet(instruction.moduleItems));
+          }
         }
-        _refreshGridTweets();
+        gridTweets = newTweets;
         if (mounted) setState(() {});
-        if (newEntries.isEmpty) {
+        if (newTweets.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
         } else {
@@ -152,17 +158,19 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         if (timeline == null) {
           return IndicatorResult.fail;
         }
-        List<TimelineAddEntry> newEntries = [];
+        List<TimelineTweet> newTweets = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            validEntries.addAll(_processEntries(instruction.entries));
-            newEntries = _processEntries(instruction.entries);
+            newTweets.addAll(_processEntries(instruction.entries));
             _refreshCursor(instruction.entries);
           }
+          if (instruction is TimelineAddToModule) {
+            newTweets.addAll(filterTweet(instruction.moduleItems));
+          }
         }
-        _refreshGridTweets();
+        gridTweets.addAll(newTweets);
         if (mounted) setState(() {});
-        if (newEntries.isEmpty) {
+        if (newTweets.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
         } else {
@@ -196,7 +204,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
     }
   }
 
-  _processEntries(List<TimelineAddEntry> entries) {
+  List<TimelineTweet> _processEntries(List<TimelineAddEntry> entries) {
     List<TimelineAddEntry> result = [];
     for (var entry in entries) {
       if (entry.content is TimelineTimelineModule &&
@@ -205,26 +213,30 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         result.add(entry);
       }
     }
-    return result;
+    return getGridTweets(result);
   }
 
-  _refreshGridTweets() {
-    gridTweets.clear();
+  getGridTweets(List<TimelineAddEntry> entries) {
     List<TimelineTweet> tweets = [];
-    for (var entry in validEntries) {
+    for (var entry in entries) {
       TimelineTimelineModule module = entry.content as TimelineTimelineModule;
-      List<ModuleItem> items = module.items
-              ?.where((e) => e != null)
-              .map((e) => e as ModuleItem)
-              .toList() ??
-          [];
-      for (var item in items) {
-        if (item.item.itemContent is TimelineTweet) {
-          tweets.add(item.item.itemContent as TimelineTweet);
-        }
+      tweets.addAll(filterTweet(module.items ?? []));
+    }
+    return tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+  }
+
+  filterTweet(List<ModuleItem?> moduleItems) {
+    List<TimelineTweet> tweets = [];
+    List<ModuleItem> items = moduleItems
+        .where((e) => e != null)
+        .map((e) => e as ModuleItem)
+        .toList();
+    for (var item in items) {
+      if (item.item.itemContent is TimelineTweet) {
+        tweets.add(item.item.itemContent as TimelineTweet);
       }
     }
-    gridTweets = tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+    return tweets.where((e) => TweetUtil.hasMedia(e)).toList();
   }
 
   @override
@@ -248,7 +260,8 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         child: GridView.extent(
           physics: pyhsics,
           controller: widget.nested ? null : _scrollController,
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 160,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
@@ -265,24 +278,40 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
 
   _buildGridItem(double size, TimelineTweet timelineTweet) {
     Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
+    int count = TweetUtil.getMediaCount(timelineTweet);
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {},
-        child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: ItemBuilder.buildCachedImage(
-            imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
-            width: size,
-            height: size,
-            context: context,
-            fit: BoxFit.cover,
-            showLoading: false,
-          ),
-        ),
-      ),
+          onTap: () {
+            panelScreenState
+                ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
+          },
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: ItemBuilder.buildCachedImage(
+                  imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
+                  width: size,
+                  height: size,
+                  context: context,
+                  fit: BoxFit.cover,
+                  showLoading: false,
+                ),
+              ),
+              if (count > 1)
+                const Positioned(
+                  right: 8,
+                  bottom: 8,
+                  child: Icon(
+                    Icons.collections_outlined,
+                    color: Colors.white,
+                  ),
+                )
+            ],
+          )),
     );
   }
 }

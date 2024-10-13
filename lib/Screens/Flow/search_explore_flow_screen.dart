@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Models/search_timeline_tab_item.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Openapi/models/timline_trend.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
@@ -26,41 +27,48 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Openapi/models/cursor_type.dart';
-import '../../Openapi/models/module_item.dart';
-import '../../Openapi/models/timeline.dart';
-import '../../Openapi/models/timeline_add_entries.dart';
-import '../../Openapi/models/timeline_timeline_cursor.dart';
-import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Utils/utils.dart';
 
-class SearchTabScreen extends StatefulWidget {
-  const SearchTabScreen({super.key, required this.tabItem});
+class SearchExploreFlowScreen extends StatefulWidget {
+  const SearchExploreFlowScreen({
+    super.key,
+    required this.tabItem,
+    this.scrollController,
+  });
 
   final SearchTimelineTabItem tabItem;
 
-  static const String routeName = "/navigtion/searchTab";
+  final ScrollController? scrollController;
+
+  static const String routeName = "/navigtion/searchExploreFlow";
 
   @override
-  State<SearchTabScreen> createState() => _SearchTabScreenState();
+  State<SearchExploreFlowScreen> createState() =>
+      _SearchExploreFlowScreenState();
 }
 
-class _SearchTabScreenState extends State<SearchTabScreen>
+class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   String? cursorTop;
   String? cursorBottom;
 
-  List<ModuleItem> items = [];
+  List<TimelineTimelineItem> items = [];
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -91,7 +99,7 @@ class _SearchTabScreenState extends State<SearchTabScreen>
         timelineId: widget.tabItem.timeline!.id!,
       );
       if (res.success) {
-        List<ModuleItem> newEntries = [];
+        List<TimelineTimelineItem> newEntries = [];
         Timeline timeline = res.data;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
@@ -131,7 +139,7 @@ class _SearchTabScreenState extends State<SearchTabScreen>
         cursorBottom: cursorBottom,
       );
       if (res.success) {
-        List<ModuleItem> newItems = [];
+        List<TimelineTimelineItem> newItems = [];
         Timeline timeline = res.data;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
@@ -161,15 +169,13 @@ class _SearchTabScreenState extends State<SearchTabScreen>
     }
   }
 
-  _processEntries(TimelineAddEntries entries) {
-    List<ModuleItem> items = [];
+  List<TimelineTimelineItem> _processEntries(TimelineAddEntries entries) {
+    List<TimelineTimelineItem> items = [];
     for (var entry in entries.entries) {
-      if (entry.content is TimelineTimelineModule) {
-        var module = entry.content as TimelineTimelineModule;
-        for (var item in module.items ?? []) {
-          if (item is ModuleItem && item.item.itemContent is TimelineTrend) {
-            items.add(item);
-          }
+      if (entry.content is TimelineTimelineItem) {
+        var module = entry.content as TimelineTimelineItem;
+        if (module.itemContent is TimelineTrend) {
+          items.add(module);
         }
       }
       if (entry.content is TimelineTimelineCursor) {
@@ -202,7 +208,8 @@ class _SearchTabScreenState extends State<SearchTabScreen>
         noMore: _noMore,
         child: WaterfallFlow.extent(
           controller: _scrollController,
-          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 400,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
@@ -217,8 +224,8 @@ class _SearchTabScreenState extends State<SearchTabScreen>
     );
   }
 
-  _buildTrendItem(ModuleItem item) {
-    TimelineTrend trend = item.item.itemContent as TimelineTrend;
+  _buildTrendItem(TimelineTimelineItem item) {
+    TimelineTrend trend = item.itemContent as TimelineTrend;
     bool showDot = Utils.isNotEmpty(trend.rank) &&
         Utils.isNotEmpty(trend.trendMetadata?.domainContext);
     return Material(

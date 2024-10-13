@@ -27,10 +27,16 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Api/timeline_api.dart';
 
 class ListFlowScreen extends StatefulWidget {
-  const ListFlowScreen({super.key, required this.listId, required this.userId});
+  const ListFlowScreen({
+    super.key,
+    required this.listId,
+    required this.userId,
+    this.scrollController,
+  });
 
   final String listId;
   final String userId;
+  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/listFlow";
 
@@ -51,11 +57,17 @@ class _ListFlowScreenState extends State<ListFlowScreen>
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -250,7 +262,8 @@ class _ListFlowScreenState extends State<ListFlowScreen>
         noMore: _noMore,
         child: WaterfallFlow.extent(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,

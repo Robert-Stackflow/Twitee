@@ -13,21 +13,21 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
-import 'package:twitee/Screens/Detail/search_tab_screen.dart';
+import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/itoast.dart';
 
 import '../../Models/search_suggestion.dart';
 import '../../Models/search_timeline_tab_item.dart';
+import '../../Models/tab_item_data.dart';
 import '../../Utils/responsive_util.dart';
-import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
-import '../../Widgets/Twitter/refresh_interface.dart';
+import '../Flow/search_explore_flow_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -44,87 +44,71 @@ class SearchScreenState extends State<SearchScreen>
   bool get wantKeepAlive => true;
 
   late TabController _trendTabController;
-  List<Tab> _trendTabList = [];
-  List<Widget> _trendPageList = [];
-  List<GlobalKey> _trendKeyList = [];
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
+  TabItemDataList trendTabDataList = TabItemDataList([]);
+
+  int get currentTrendIndex => _trendTabController.index;
   List<SearchTimelineTabItem> tabItems = [];
 
   late TabController _resultTabController;
-  List<Tab> _resultTabList = [];
-  List<Widget> _resultPageList = [];
-  List<GlobalKey> _resultKeyList = [];
+  TabItemDataList resultTabDataList = TabItemDataList([]);
+
+  int get currentResultIndex => _trendTabController.index;
+
   final List<String> _resultTabTitleList = ["热门", "最新", "用户", "媒体", "列表"];
 
   OverlayEntry? _overlayEntry;
 
   late AnimationController _refreshRotationController;
 
-  final ScrollController _scrollController = ScrollController();
-
   FocusNode searchFocusNode = FocusNode();
 
   final TextEditingController _searchController = TextEditingController();
   final LayerLink _layerLink = LayerLink();
 
-  SearchSuggestionResponse? response;
+  SearchSuggestionResponse? _suggestionResponse;
 
   double searchBarWidth = 360;
 
   bool _showResult = false;
 
   initTrendTab() {
-    _trendKeyList = [];
-    _trendTabList = [];
-    _trendPageList = [];
+    trendTabDataList.clear();
     for (int i = 0; i < tabItems.length; i++) {
-      _trendKeyList.add(GlobalKey());
-      _trendTabList.add(_buildTab(tabItems[i].labelText!));
-      _trendPageList.add(SearchTabScreen(
-        key: _trendKeyList[i],
-        tabItem: tabItems[i],
-      ));
+      trendTabDataList.add(
+        TabItemData.build(
+          tabItems[i].labelText!,
+          (key, scrollController) => SearchExploreFlowScreen(
+            key: key,
+            tabItem: tabItems[i],
+            scrollController: scrollController,
+          ),
+        ),
+      );
     }
     _trendTabController =
-        TabController(length: _trendTabList.length, vsync: this);
+        TabController(length: trendTabDataList.length, vsync: this);
     if (mounted) setState(() {});
   }
 
   initResultTab() {
-    _resultKeyList = [];
-    _resultTabList = [];
-    _resultPageList = [];
+    resultTabDataList.clear();
     for (int i = 0; i < _resultTabTitleList.length; i++) {
-      _resultKeyList.add(GlobalKey());
-      _resultTabList.add(_buildTab(_resultTabTitleList[i]));
+      resultTabDataList.add(
+        TabItemData.build(
+          _resultTabTitleList[i],
+          (key, scrollController) => SearchResultFlowScreen(
+            key: key,
+            type: SearchTimelineType.fromIndex(i),
+            query: _searchController.text,
+            scrollController: scrollController,
+          ),
+        ),
+      );
     }
     _resultTabController =
-        TabController(length: _resultTabList.length, vsync: this);
-    if (mounted) setState(() {});
-  }
-
-  refreshResultPageList() {
-    _resultPageList = [
-      SearchResultFlowScreen(
-          key: _resultKeyList[0],
-          type: SearchTimelineType.Top,
-          query: _searchController.text),
-      SearchResultFlowScreen(
-          key: _resultKeyList[1],
-          type: SearchTimelineType.Latest,
-          query: _searchController.text),
-      SearchResultFlowScreen(
-          key: _resultKeyList[2],
-          type: SearchTimelineType.People,
-          query: _searchController.text),
-      SearchResultFlowScreen(
-          key: _resultKeyList[3],
-          type: SearchTimelineType.Media,
-          query: _searchController.text),
-      SearchResultFlowScreen(
-          key: _resultKeyList[4],
-          type: SearchTimelineType.Lists,
-          query: _searchController.text),
-    ];
+        TabController(length: resultTabDataList.length, vsync: this);
     if (mounted) setState(() {});
   }
 
@@ -136,7 +120,7 @@ class SearchScreenState extends State<SearchScreen>
     }
     _hideSuggestions();
     _showResult = true;
-    refreshResultPageList();
+    initResultTab();
   }
 
   @override
@@ -165,7 +149,9 @@ class SearchScreenState extends State<SearchScreen>
     });
     searchFocusNode.addListener(() {
       if (!searchFocusNode.hasFocus) {
-        _hideSuggestions();
+        if (_showResult) _hideSuggestions();
+      } else {
+        _showSuggestions();
       }
     });
   }
@@ -175,7 +161,7 @@ class SearchScreenState extends State<SearchScreen>
     var res = await SearchApi.getSuggestion(query: _searchController.text);
     if (res.success) {
       setState(() {
-        response = res.data;
+        _suggestionResponse = res.data;
       });
       if (searchFocusNode.hasFocus) {
         _showSuggestions();
@@ -201,6 +187,7 @@ class SearchScreenState extends State<SearchScreen>
     if (_overlayEntry != null) {
       _overlayEntry!.remove();
     }
+    if (_suggestionResponse == null) return;
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
   }
@@ -220,7 +207,7 @@ class SearchScreenState extends State<SearchScreen>
         child: CompositedTransformFollower(
           link: _layerLink,
           showWhenUnlinked: true,
-          offset: const Offset(0.0, 48.0),
+          offset: const Offset(0.0, 42.0),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
@@ -234,13 +221,17 @@ class SearchScreenState extends State<SearchScreen>
                   spreadRadius: 1,
                 ).scale(2),
               ],
+              border: Border.all(
+                color: Theme.of(context).dividerColor,
+                width: 0.5,
+              ),
             ),
             child: ListView(
               children: [
-                if (response != null)
-                  ...response!.topics.map((e) => _buildTopicTile(e)),
-                if (response != null)
-                  ...response!.users.map((e) => _buildUserTile(e)),
+                if (_suggestionResponse != null)
+                  ..._suggestionResponse!.topics.map((e) => _buildTopicTile(e)),
+                if (_suggestionResponse != null)
+                  ..._suggestionResponse!.users.map((e) => _buildUserTile(e)),
               ],
             ),
           ),
@@ -277,9 +268,11 @@ class SearchScreenState extends State<SearchScreen>
     return Material(
       child: InkWell(
         onTap: () {
-          _searchController.clear();
+          // _searchController.clear();
+          // _suggestionResponse == null;
           _hideSuggestions();
-          IToast.showTop("前往查看用户：${e.name}");
+          panelScreenState
+              ?.pushPage(UserDetailScreen(screenName: e.screenName));
         },
         child: Container(
           padding: const EdgeInsets.all(10),
@@ -325,6 +318,7 @@ class SearchScreenState extends State<SearchScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
+        backSpacing: 0,
         titleWidget: Container(
           margin: const EdgeInsets.all(10),
           constraints: ResponsiveUtil.isLandscape()
@@ -357,7 +351,12 @@ class SearchScreenState extends State<SearchScreen>
             right: 16,
             bottom: 16,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              controller: _scrollToHideController,
+              scrollController: _showResult
+                  ? resultTabDataList
+                      .getScrollControllerNotNull(_resultTabController.index)
+                  : trendTabDataList
+                      .getScrollControllerNotNull(_trendTabController.index),
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -371,12 +370,23 @@ class SearchScreenState extends State<SearchScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTabBar(_trendTabController, _trendTabList, (index) {}, 56,
-            const EdgeInsets.symmetric(horizontal: 10)),
+        if (trendTabDataList.tabList.isNotEmpty)
+          ItemBuilder.buildTabBar(
+            context,
+            _trendTabController,
+            trendTabDataList.tabList,
+            showBorder: true,
+            width: MediaQuery.of(context).size.width,
+            background: Theme.of(context).canvasColor,
+            onTap: (index) {
+              if (mounted) setState(() {});
+            },
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+          ),
         Expanded(
           child: TabBarView(
             controller: _trendTabController,
-            children: _trendPageList,
+            children: trendTabDataList.pageList,
           ),
         ),
       ],
@@ -387,68 +397,40 @@ class SearchScreenState extends State<SearchScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTabBar(_resultTabController, _resultTabList, (index) {}, 56,
-            const EdgeInsets.symmetric(horizontal: 10)),
+        if (resultTabDataList.tabList.isNotEmpty)
+          ItemBuilder.buildTabBar(
+            context,
+            _resultTabController,
+            resultTabDataList.tabList,
+            showBorder: true,
+            width: MediaQuery.of(context).size.width,
+            background: Theme.of(context).canvasColor,
+            onTap: (index) {
+              if (mounted) setState(() {});
+            },
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+          ),
         Expanded(
           child: TabBarView(
             controller: _resultTabController,
-            children: _resultPageList,
+            children: resultTabDataList.pageList,
           ),
         ),
       ],
     );
   }
 
-  _buildTabBar(
-      TabController controller, List<Tab> tabList, Function(int index) onTap,
-      [double? height, EdgeInsetsGeometry? padding]) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(height ?? 56),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        child: TabBar(
-          controller: controller,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          tabs: tabList,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          isScrollable: true,
-          dividerHeight: 0,
-          padding: padding,
-          tabAlignment: TabAlignment.start,
-          physics: const ClampingScrollPhysics(),
-          labelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(fontWeightDelta: 2),
-          unselectedLabelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(color: Colors.grey),
-          indicator:
-              CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: onTap,
-        ),
-      ),
-    );
-  }
-
-  _buildTab(String str) {
-    return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: Container(),
-        child: GestureDetector(
-          child: Text(str),
-        ),
-      ),
-    );
-  }
-
   scrollToTop() {
-    (_trendKeyList[_trendTabController.index].currentState as RefreshMixin?)
-        ?.scrollToTop();
+    if (_showResult) {
+      resultTabDataList
+          .getRefreshMixin(_resultTabController.index)
+          ?.scrollToTop();
+    } else {
+      trendTabDataList
+          .getRefreshMixin(_trendTabController.index)
+          ?.scrollToTop();
+    }
+    _scrollToHideController.show();
   }
 
   refresh() async {
@@ -457,11 +439,9 @@ class SearchScreenState extends State<SearchScreen>
     _refreshRotationController.stop();
     _refreshRotationController.forward();
     if (_showResult) {
-      (_resultKeyList[_resultTabController.index].currentState as RefreshMixin?)
-          ?.refresh();
+      resultTabDataList.getRefreshMixin(_resultTabController.index)?.refresh();
     } else {
-      (_trendKeyList[_trendTabController.index].currentState as RefreshMixin?)
-          ?.refresh();
+      trendTabDataList.getRefreshMixin(_trendTabController.index)?.refresh();
     }
   }
 

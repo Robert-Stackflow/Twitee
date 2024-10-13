@@ -13,11 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:twitee/Screens/Detail/list_manage_screen.dart';
+import 'package:twitee/Utils/route_util.dart';
 
 import '../../Api/data_api.dart';
 import '../../Models/response_result.dart';
+import '../../Models/tab_item_data.dart';
 import '../../Openapi/models/module_item.dart';
 import '../../Openapi/models/timeline.dart';
 import '../../Openapi/models/timeline_add_entries.dart';
@@ -26,8 +28,7 @@ import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
-import '../../Utils/responsive_util.dart';
-import '../../Widgets/Custom/custom_tab_indicator.dart';
+import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Flow/list_flow_screen.dart';
 
@@ -47,8 +48,12 @@ class _ListScreenState extends State<ListScreen>
   @override
   bool get wantKeepAlive => true;
   late TabController _tabController;
-  List<Tab> tabList = [];
-  List<Widget> pageList = [];
+  late AnimationController _refreshRotationController;
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
+  TabItemDataList tabDataList = TabItemDataList([]);
+
+  int get currentIndex => _tabController.index;
   List<TimelineTwitterList> validItems = [];
   bool inited = false;
 
@@ -97,17 +102,29 @@ class _ListScreenState extends State<ListScreen>
   @override
   void initState() {
     super.initState();
+    _refreshRotationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
     initTab();
     fetchLists();
   }
 
   initTab() {
     for (var list in validItems) {
-      tabList.add(_buildTab(list.list.name));
-      pageList
-          .add(ListFlowScreen(listId: list.list.idStr, userId: widget.userId));
+      tabDataList.add(
+        TabItemData.build(
+          list.list.name,
+          (key, scrollController) => ListFlowScreen(
+            key: key,
+            listId: list.list.idStr,
+            userId: widget.userId,
+            scrollController: scrollController,
+          ),
+        ),
+      );
     }
-    _tabController = TabController(length: tabList.length, vsync: this);
+    _tabController = TabController(length: tabDataList.length, vsync: this);
     if (mounted) setState(() {});
   }
 
@@ -118,74 +135,104 @@ class _ListScreenState extends State<ListScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        titleWidget: Center(
-          child: Row(
-            children: [
-              if (!inited) const SizedBox(width: 20),
-              if (!inited)
-                Text(
-                  "加载列表中...",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              if (inited)
-                _buildTabBar(
-                    56,
-                    ResponsiveUtil.isLandscape()
-                        ? const EdgeInsets.symmetric(horizontal: 10)
-                        : null),
-            ],
+        titleWidget: Row(
+          children: [
+            SizedBox(width: inited ? 0 : 20),
+            if (!inited)
+              Text(
+                "加载列表中...",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            if (inited)
+              ItemBuilder.buildTabBar(
+                context,
+                _tabController,
+                tabDataList.tabList,
+                onTap: onTapTab,
+              ),
+          ],
+        ),
+      ),
+      body: Stack(
+        children: [
+          TabBarView(
+            controller: _tabController,
+            children: tabDataList.pageList,
           ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: pageList,
-      ),
-    );
-  }
-
-  _buildTabBar([double? height, EdgeInsetsGeometry? padding]) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(height ?? 56),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        child: TabBar(
-          controller: _tabController,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          tabs: tabList,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          isScrollable: true,
-          dividerHeight: 0,
-          padding: padding,
-          tabAlignment: TabAlignment.start,
-          physics: const ClampingScrollPhysics(),
-          labelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(fontWeightDelta: 2),
-          unselectedLabelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(color: Colors.grey),
-          indicator:
-              CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {},
-        ),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: ScrollToHide(
+              controller: _scrollToHideController,
+              scrollController:
+                  tabDataList.getScrollControllerNotNull(currentIndex),
+              hideDirection: Axis.vertical,
+              child: _buildFloatingButtons(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  _buildTab(String str) {
-    return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: Container(),
-        child: GestureDetector(
-          child: Text(str),
+  onTapTab(int index) {
+    _scrollToHideController.show();
+    _scrollToHideController.show();
+    if (!_tabController.indexIsChanging && index == currentIndex) {
+      if (tabDataList.getScrollController(index) != null &&
+          tabDataList.getScrollController(index)!.offset > 30) {
+        scrollToTop();
+      } else {
+        refresh();
+      }
+    }
+  }
+
+  scrollToTop() async {
+    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    _scrollToHideController.show();
+  }
+
+  refresh() async {
+    _refreshRotationController.repeat();
+    await scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    tabDataList.getRefreshMixin(currentIndex)?.refresh();
+  }
+
+  _buildFloatingButtons() {
+    return Column(
+      children: [
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: RotationTransition(
+            turns:
+                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
+            child: const Icon(Icons.refresh_rounded),
+          ),
+          onTap: () async {
+            refresh();
+          },
         ),
-      ),
+        const SizedBox(height: 10),
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: const Icon(Icons.settings_rounded),
+          onTap: () async {
+            RouteUtil.pushDialogRoute(
+                context, ListManageScreen(userId: widget.userId));
+          },
+        ),
+        const SizedBox(height: 10),
+        ItemBuilder.buildShadowIconButton(
+          context: context,
+          icon: const Icon(Icons.arrow_upward_rounded),
+          onTap: () {
+            scrollToTop();
+          },
+        ),
+      ],
     );
   }
 }

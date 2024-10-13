@@ -33,9 +33,18 @@ class TwitterImageGrid extends StatefulWidget {
   TwitterImageGridState createState() => TwitterImageGridState();
 }
 
-class TwitterImageGridState extends State<TwitterImageGrid> {
+class TwitterImageGridState extends State<TwitterImageGrid>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late List<MediaSize> sizes;
-  double aspectRatio = 1.0;
+  double calculatedAspectRatio = 1.0;
+  double maxAspectRatio = 3.0;
+  double minAspectRatio = 0.5;
+
+  double get aspectRatio =>
+      calculatedAspectRatio.clamp(minAspectRatio, maxAspectRatio);
   double radius = 12;
 
   @override
@@ -46,7 +55,7 @@ class TwitterImageGridState extends State<TwitterImageGrid> {
       sizes.addAll(List.generate(widget.itemCount - sizes.length,
           (index) => const MediaSize(w: 0, h: 0, resize: MediaSizeResize.fit)));
     }
-    aspectRatio = sizes.fold<double>(0, (previousValue, element) {
+    calculatedAspectRatio = sizes.fold<double>(0, (previousValue, element) {
       if (element.w == 0 || element.h == 0) {
         return previousValue;
       }

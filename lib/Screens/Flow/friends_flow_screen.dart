@@ -16,20 +16,25 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/user_legacy.dart';
 
 class FriendsFlowScreen extends StatefulWidget {
-  const FriendsFlowScreen({super.key, required this.userId});
+  const FriendsFlowScreen({
+    super.key,
+    required this.userId,
+    this.scrollController,
+  });
 
   final String userId;
+  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/friendsFlow";
 
@@ -49,11 +54,17 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -154,7 +165,8 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
         noMore: _noMore,
         child: WaterfallFlow.extent(
           controller: _scrollController,
-          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,

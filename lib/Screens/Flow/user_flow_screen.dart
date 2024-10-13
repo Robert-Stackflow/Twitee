@@ -37,11 +37,17 @@ import '../../Openapi/models/user.dart';
 enum UserFlowType { following, follower, blueVerifiedFollower }
 
 class UserFlowScreen extends StatefulWidget {
-  const UserFlowScreen({super.key, required this.type, required this.userId});
+  const UserFlowScreen({
+    super.key,
+    required this.type,
+    required this.userId,
+    this.scrollController,
+  });
 
   final UserFlowType type;
 
   final String userId;
+  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/userFlow";
 
@@ -60,11 +66,17 @@ class _UserFlowScreenState extends State<UserFlowScreen>
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -231,7 +243,8 @@ class _UserFlowScreenState extends State<UserFlowScreen>
         noMore: _noMore,
         child: WaterfallFlow.extent(
           controller: _scrollController,
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,

@@ -18,24 +18,30 @@ import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Openapi/models/timeline_twitter_list.dart';
-import 'package:twitee/Widgets/Twitter/post_item.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
-import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/post_item.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
+import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 class SearchResultFlowScreen extends StatefulWidget {
-  const SearchResultFlowScreen(
-      {super.key, required this.type, required this.query});
+  const SearchResultFlowScreen({
+    super.key,
+    required this.type,
+    required this.query,
+    this.scrollController,
+  });
 
   final SearchTimelineType type;
 
   final String query;
+
+  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/searchResultFlow";
 
@@ -62,11 +68,17 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
 
   bool _loading = false;
 
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -259,7 +271,6 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
     gridTweets = tweets.where((e) => TweetUtil.hasMedia(e)).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -323,7 +334,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       child: useGrid
           ? GridView.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+              padding: const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
               maxCrossAxisExtent: maxCrossAxisExtent,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,
@@ -331,7 +342,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
             )
           : WaterfallFlow.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+              padding: const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
               maxCrossAxisExtent: maxCrossAxisExtent,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,

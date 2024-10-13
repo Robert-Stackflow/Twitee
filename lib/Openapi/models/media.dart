@@ -2,6 +2,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
 
 import 'additional_media_info.dart';
@@ -81,7 +83,8 @@ class Media {
 
   Map<String, Object?> toJson() => _$MediaToJson(this);
 
-  factory Media.clone(Media media) => Media(
+  factory Media.clone(Media media) =>
+      Media(
         additionalMediaInfo: media.additionalMediaInfo,
         allowDownloadStatus: media.allowDownloadStatus,
         displayUrl: media.displayUrl,
@@ -103,4 +106,7 @@ class Media {
         url: media.url,
         videoInfo: media.videoInfo,
       );
+
+  @override
+  String toString() => jsonEncode(toJson());
 }

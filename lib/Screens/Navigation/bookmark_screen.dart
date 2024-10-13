@@ -290,6 +290,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
+        backSpacing: 0,
         titleWidget: Container(
           margin: const EdgeInsets.all(10),
           constraints: ResponsiveUtil.isLandscape()

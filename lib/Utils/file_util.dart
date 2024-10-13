@@ -336,7 +336,6 @@ class FileUtil {
     return directory.path;
   }
 
-
   static Future<String> getHiveDir() async {
     Directory directory = Directory(join(await getApplicationDir(), "Hive"));
     if (!await directory.exists()) {

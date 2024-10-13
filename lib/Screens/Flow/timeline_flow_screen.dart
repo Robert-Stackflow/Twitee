@@ -13,8 +13,6 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
@@ -33,6 +31,7 @@ class TimelineFlowScreen extends StatefulWidget {
     super.key,
     this.isLatest = true,
     this.nested = false,
+    this.scrollController,
   });
 
   final bool isLatest;
@@ -40,6 +39,8 @@ class TimelineFlowScreen extends StatefulWidget {
   static const String routeName = "/navigtion/timelineFlow";
 
   final bool nested;
+
+  final ScrollController? scrollController;
 
   @override
   State<TimelineFlowScreen> createState() => _TimelineFlowScreenState();
@@ -72,7 +73,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _scrollController = widget.scrollController ?? ScrollController();
     if (widget.nested) {
       _onRefresh();
     }
@@ -92,11 +93,8 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    if (widget.nested) {
-      _onRefresh();
-    } else {
-      _easyRefreshController.callRefresh(scrollController: _scrollController);
-    }
+    // _onRefresh();
+    _easyRefreshController.callRefresh(scrollController: _scrollController);
   }
 
   _onRefresh() async {
@@ -106,12 +104,9 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
     try {
       var res = await TimelineApi.getHomeTimeline(
         isLatest: widget.isLatest,
-        seenTweetIds: validEntries
-            .map((e) {
-              return e.sortIndex.toString();
-            })
-            .toList()
-            .sublist(0, min(5, validEntries.length)),
+        seenTweetIds: validEntries.map((e) {
+          return e.sortIndex.toString();
+        }).toList(),
       );
       if (res.success) {
         var response = res.data;
@@ -282,7 +277,8 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
         child: WaterfallFlow.extent(
           physics: pyhsics,
           controller: widget.nested ? null : _scrollController,
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,

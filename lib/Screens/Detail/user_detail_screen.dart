@@ -22,15 +22,15 @@ import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Widgets/Custom/subordinate_scroll_controller.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Api/user_api.dart';
+import '../../Models/tab_item_data.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
-import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
@@ -57,43 +57,76 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   UserLegacy? get userLegacy => user?.legacy;
   bool _inited = false;
 
-  late AnimationController _refreshRotationController;
-
-  RefreshMixin? get currentRefreshMixin =>
-      keyList[_tabController.index].currentState as RefreshMixin?;
-
   late TabController _tabController;
-  List<Tab> tabList = [];
-  List<Widget> pageList = [];
-  List<GlobalKey> keyList = [];
+  late AnimationController _refreshRotationController;
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
+  TabItemDataList tabDataList = TabItemDataList([]);
+
+  int get currentIndex => _tabController.index;
+
   List<UserLegacy> friendList = [];
 
+  _buildTabPage(GlobalKey key, ScrollController scrollController,
+      Widget Function(GlobalKey, ScrollController) widgetBuilder) {
+    ScrollController primaryController = PrimaryScrollController.of(context);
+    return Builder(builder: (_) {
+      if (scrollController is! SubordinateScrollController) {
+        scrollController = SubordinateScrollController(primaryController);
+      } else if ((scrollController as SubordinateScrollController).parent !=
+          primaryController) {
+        scrollController.dispose();
+        scrollController = SubordinateScrollController(primaryController);
+      }
+      return widgetBuilder.call(key, scrollController);
+    });
+  }
+
   initTab() {
-    keyList = List.generate(3, (_) => GlobalKey());
-    tabList = [
-      _buildTab("帖子"),
-      _buildTab("回复"),
-      _buildTab("媒体"),
-    ];
-    pageList = [
-      UserTweetFlowScreen(
-        key: keyList[0],
-        userId: user!.restId!,
-        nested: true,
+    ScrollController primaryController = PrimaryScrollController.of(context);
+    tabDataList.addAll([
+      TabItemData.build(
+        "帖子",
+        // (key, scrollController) => _buildTabPage(
+        //   key,
+        //   scrollController,
+        (key2, scrollController2) => UserTweetFlowScreen(
+          key: key2,
+          userId: user!.restId!,
+          nested: true,
+          scrollController: primaryController,
+          // ),
+        ),
       ),
-      UserTweetFlowScreen(
-        key: keyList[1],
-        userId: user!.restId!,
-        nested: true,
-        type: UserTweetFlowType.TweetsAndReplies,
+      TabItemData.build(
+        "回复",
+        // (key, scrollController) => _buildTabPage(
+        //   key,
+        //   scrollController,
+        (key2, scrollController2) => UserTweetFlowScreen(
+          key: key2,
+          userId: user!.restId!,
+          nested: true,
+          type: UserTweetFlowType.TweetsAndReplies,
+          scrollController: primaryController,
+        ),
+        // ),
       ),
-      UserMediaFlowScreen(
-        key: keyList[2],
-        userId: user!.restId!,
-        nested: true,
+      TabItemData.build(
+        "媒体",
+        // (key, scrollController) => _buildTabPage(
+        //   key,
+        //   scrollController,
+        (key2, scrollController2) => UserMediaFlowScreen(
+          key: key2,
+          userId: user!.restId!,
+          nested: true,
+          scrollController: primaryController,
+        ),
+        // ),
       ),
-    ];
-    _tabController = TabController(length: tabList.length, vsync: this);
+    ]);
+    _tabController = TabController(length: tabDataList.length, vsync: this);
   }
 
   fetchUserInfo() async {
@@ -123,12 +156,14 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   @override
   void initState() {
     super.initState();
-    fetchUserInfo();
     _tabController = TabController(length: 0, vsync: this);
     _refreshRotationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      fetchUserInfo();
+    });
   }
 
   @override
@@ -164,7 +199,14 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         SliverPersistentHeader(
           pinned: true,
           delegate: SliverAppBarDelegate(
-            tabBar: _buildTabBar(),
+            tabBar: ItemBuilder.buildTabBar(
+              context,
+              _tabController,
+              tabDataList.tabList,
+              onTap: onTapTab,
+              showBorder: true,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
             radius: 0,
           ),
         ),
@@ -176,8 +218,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             right: 16,
             bottom: 16,
             child: ScrollToHide(
-              scrollController: currentRefreshMixin?.getScrollController() ??
-                  ScrollController(),
+              controller: _scrollToHideController,
+              scrollController:
+                  tabDataList.getScrollControllerNotNull(currentIndex),
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -190,67 +233,19 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   _buildTabBarView() {
     return TabBarView(
       controller: _tabController,
-      children: pageList,
+      children: tabDataList.pageList,
     );
   }
 
-  _buildTabBar([double? height, EdgeInsetsGeometry? padding]) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(height ?? 56),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-            bottom: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-          ),
-        ),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 5),
-          child: TabBar(
-            controller: _tabController,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            tabs: tabList,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-            isScrollable: true,
-            dividerHeight: 0,
-            padding: padding,
-            tabAlignment: TabAlignment.start,
-            physics: const ClampingScrollPhysics(),
-            labelStyle: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.apply(fontWeightDelta: 2),
-            unselectedLabelStyle: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.apply(color: Colors.grey),
-            indicator:
-                CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-            onTap: (index) {},
-          ),
-        ),
-      ),
-    );
-  }
-
-  _buildTab(String str) {
-    return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: Container(),
-        child: GestureDetector(
-          child: Text(str),
-        ),
-      ),
-    );
+  onTapTab(int index) {
+    if (!_tabController.indexIsChanging && index == currentIndex) {
+      if (tabDataList.getScrollController(index) != null &&
+          tabDataList.getScrollController(index)!.offset > 30) {
+        scrollToTop();
+      } else {
+        refresh();
+      }
+    }
   }
 
   _buildBackgroundBanner() {
@@ -389,7 +384,11 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   _buildUserInfo() {
     String screenName = userLegacy?.screenName ?? userLegacy?.name ?? "";
-    var metaRow = Row(
+    var metaRow = Wrap(
+      spacing: 10,
+      runSpacing: 5,
+      alignment: WrapAlignment.start,
+      runAlignment: WrapAlignment.start,
       children: [
         if (Utils.isNotEmpty(userLegacy!.location))
           ItemBuilder.buildIconTextButton(
@@ -405,7 +404,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             fontSizeDelta: 1,
             clickable: false,
           ),
-        if (Utils.isNotEmpty(userLegacy!.location)) const SizedBox(width: 10),
         ItemBuilder.buildIconTextButton(
           context,
           icon: Icon(
@@ -422,8 +420,16 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       ],
     );
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      color: Theme.of(context).canvasColor,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -437,28 +443,29 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 showDetail: true,
               ),
               const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    userLegacy!.name,
-                    style: Theme.of(context).textTheme.titleLarge?.apply(
-                        fontSizeDelta: ResponsiveUtil.isMobile() ? 0 : 4),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    "@${userLegacy!.screenName}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.apply(fontSizeDelta: 2),
-                  ),
-                  if (ResponsiveUtil.isLandscape()) const SizedBox(height: 3),
-                  if (ResponsiveUtil.isLandscape()) metaRow,
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userLegacy!.name,
+                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                          fontSizeDelta: ResponsiveUtil.isMobile() ? 0 : 4),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      "@${userLegacy!.screenName}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.apply(fontSizeDelta: 2),
+                    ),
+                    if (ResponsiveUtil.isLandscape()) const SizedBox(height: 3),
+                    if (ResponsiveUtil.isLandscape()) metaRow,
+                  ],
+                ),
               ),
               const SizedBox(width: 10),
-              const Spacer(),
               ItemBuilder.buildRoundButton(
                 context,
                 text: userLegacy!.isFriend
@@ -605,6 +612,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             "加载失败",
@@ -656,11 +665,16 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
-  void refresh() {
-    currentRefreshMixin?.refresh();
+  refresh() async {
+    _refreshRotationController.repeat();
+    await scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
-  void scrollToTop() {
-    currentRefreshMixin?.scrollToTop();
+  scrollToTop() async {
+    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    _scrollToHideController.show();
   }
 }

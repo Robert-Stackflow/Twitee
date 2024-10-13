@@ -42,6 +42,23 @@ enum SearchTimelineType {
 
   bool get useTimelineTimelineModule =>
       this == SearchTimelineType.Media || this == SearchTimelineType.Lists;
+
+  static fromIndex(int index) {
+    switch (index) {
+      case 0:
+        return SearchTimelineType.Top;
+      case 1:
+        return SearchTimelineType.Latest;
+      case 2:
+        return SearchTimelineType.People;
+      case 3:
+        return SearchTimelineType.Media;
+      case 4:
+        return SearchTimelineType.Lists;
+      default:
+        return SearchTimelineType.Top;
+    }
+  }
 }
 
 class SearchApi {

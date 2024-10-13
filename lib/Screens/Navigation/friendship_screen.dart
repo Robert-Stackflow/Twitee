@@ -13,17 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Flow/friends_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
-import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
-import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Models/tab_item_data.dart';
 import '../../Utils/hive_util.dart';
-import '../../Utils/responsive_util.dart';
-import '../../Widgets/Custom/custom_tab_indicator.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
@@ -41,39 +37,56 @@ class FriendshipScreen extends StatefulWidget {
 class FriendshipScreenState extends State<FriendshipScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  List<Tab> tabList = [];
-  List<TimelineTwitterListInfo> pinnedLists = [];
-  List<Widget> pageList = [];
-  List<GlobalKey> keyList = [];
+  late AnimationController _refreshRotationController;
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
+  TabItemDataList tabDataList = TabItemDataList([]);
+
+  int get currentIndex => _tabController.index;
 
   bool get isOther => widget.userId != null;
-
-  late AnimationController _refreshRotationController;
-
-  final ScrollController _scrollController = ScrollController();
 
   initTab() {
     UserInfo? info = HiveUtil.getUserInfo();
     String userId = widget.userId ?? info!.idStr;
-    tabList = [
-      _buildTab("正在关注"),
-      _buildTab("关注者"),
-      _buildTab("好友"),
-      _buildTab("认证关注者")
-    ];
-    keyList = List.generate(4, (_) => GlobalKey());
-    pageList = [
-      UserFlowScreen(
-          key: keyList[0], type: UserFlowType.following, userId: userId),
-      UserFlowScreen(
-          key: keyList[1], type: UserFlowType.follower, userId: userId),
-      FriendsFlowScreen(key: keyList[2], userId: userId),
-      UserFlowScreen(
-          key: keyList[3],
+    tabDataList.addAll([
+      TabItemData.build(
+        "正在关注",
+        (key, scrollController) => UserFlowScreen(
+          key: key,
+          type: UserFlowType.following,
+          userId: userId,
+          scrollController: scrollController,
+        ),
+      ),
+      TabItemData.build(
+        "关注者",
+        (key, scrollController) => UserFlowScreen(
+          key: key,
+          type: UserFlowType.follower,
+          userId: userId,
+          scrollController: scrollController,
+        ),
+      ),
+      TabItemData.build(
+        "认证关注者",
+        (key, scrollController) => UserFlowScreen(
+          key: key,
           type: UserFlowType.blueVerifiedFollower,
-          userId: userId),
-    ];
-    _tabController = TabController(length: tabList.length, vsync: this);
+          userId: userId,
+          scrollController: scrollController,
+        ),
+      ),
+      TabItemData.build(
+        "好友",
+        (key, scrollController) => FriendsFlowScreen(
+          key: key,
+          userId: userId,
+          scrollController: scrollController,
+        ),
+      ),
+    ]);
+    _tabController = TabController(length: tabDataList.length, vsync: this);
   }
 
   @override
@@ -83,7 +96,6 @@ class FriendshipScreenState extends State<FriendshipScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _tabController = TabController(length: 0, vsync: this);
     initTab();
   }
 
@@ -94,24 +106,25 @@ class FriendshipScreenState extends State<FriendshipScreen>
         context: context,
         showBack: isOther,
         showMenu: true,
-        backSpacing: 0,
-        titleWidget: _buildTabBar(
-            56,
-            ResponsiveUtil.isLandscape()
-                ? const EdgeInsets.symmetric(horizontal: 10)
-                : null),
+        titleWidget: ItemBuilder.buildTabBar(
+          context,
+          _tabController,
+          tabDataList.tabList,
+          onTap: onTapTab,
+        ),
       ),
       body: Stack(
         children: [
           TabBarView(
             controller: _tabController,
-            children: pageList,
+            children: tabDataList.pageList,
           ),
           Positioned(
             right: 16,
             bottom: 16,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              controller: _scrollToHideController,
+              scrollController: tabDataList.getScrollControllerNotNull(currentIndex),
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -121,54 +134,20 @@ class FriendshipScreenState extends State<FriendshipScreen>
     );
   }
 
-  _buildTabBar([double? height, EdgeInsetsGeometry? padding]) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(height ?? 56),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        child: TabBar(
-          controller: _tabController,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          tabs: tabList,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          isScrollable: true,
-          dividerHeight: 0,
-          padding: padding,
-          tabAlignment: TabAlignment.start,
-          physics: const ClampingScrollPhysics(),
-          labelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(fontWeightDelta: 2),
-          unselectedLabelStyle: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.apply(color: Colors.grey),
-          indicator:
-              CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
-          onTap: (index) {},
-        ),
-      ),
-    );
+  onTapTab(int index) {
+    if (!_tabController.indexIsChanging && index == currentIndex) {
+      if (tabDataList.getScrollController(index) != null &&
+          tabDataList.getScrollController(index)!.offset > 30) {
+        scrollToTop();
+      } else {
+        refresh();
+      }
+    }
   }
 
-  _buildTab(String str) {
-    return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: Container(),
-        child: GestureDetector(
-          child: Text(str),
-        ),
-      ),
-    );
-  }
-
-  scrollToTop() {
-    (keyList[_tabController.index].currentState as RefreshMixin?)
-        ?.scrollToTop();
+  scrollToTop() async {
+    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    _scrollToHideController.show();
   }
 
   refresh() async {
@@ -176,7 +155,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
     await scrollToTop();
     _refreshRotationController.stop();
     _refreshRotationController.forward();
-    (keyList[_tabController.index].currentState as RefreshMixin?)?.refresh();
+    tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
   _buildFloatingButtons() {

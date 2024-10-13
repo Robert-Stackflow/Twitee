@@ -80,17 +80,28 @@ class TweetUtil {
         t.legacy!.entities.media!.isNotEmpty;
   }
 
- static String getGifVideoUrl(Media media) {
+  static int getMediaCount(TimelineTweet tweet) {
+    if (!hasMedia(tweet)) return 0;
+    Tweet t = TweetUtil.getTrueTweetByResult(tweet.tweetResults)!;
+    List<Media?> media = t.legacy!.entities.media!;
+    media = media.where((e) => e != null).map((e) => e!).toList();
+    // media=media.where((e)=>e.type==MediaType.video&&e.videoInfo!.)
+    return media.length;
+  }
+
+  static String getGifVideoUrl(Media media) {
     if (media.type == MediaType.animatedGif) {
       return media.videoInfo?.variants.first.url ?? media.mediaUrlHttps!;
     }
     return media.mediaUrlHttps!;
   }
 
-  static String processWithEntities(String fullText, Entities entities,{
-    bool replaceNewline=true,
+  static String processWithEntities(
+    String fullText,
+    Entities entities, {
+    bool replaceNewline = true,
   }) {
-    fullText = fullText.replaceAll("\n", replaceNewline?"<br>":"");
+    fullText = fullText.replaceAll("\n", replaceNewline ? "<br>" : "");
     entities.hashtags.sort((a, b) {
       return (b['text'] as String).length - (a['text'] as String).length;
     });

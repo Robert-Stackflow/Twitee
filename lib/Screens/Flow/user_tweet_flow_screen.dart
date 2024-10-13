@@ -34,6 +34,7 @@ class UserTweetFlowScreen extends StatefulWidget {
     required this.userId,
     this.nested = false,
     this.type = UserTweetFlowType.Tweets,
+    this.scrollController,
   });
 
   final String userId;
@@ -41,6 +42,8 @@ class UserTweetFlowScreen extends StatefulWidget {
   static const String routeName = "/navigtion/userTweetFlow";
 
   final bool nested;
+
+  final ScrollController? scrollController;
 
   final UserTweetFlowType type;
 
@@ -75,7 +78,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _scrollController = widget.scrollController ?? ScrollController();
     if (widget.nested) {
       _onRefresh();
     }
@@ -96,7 +99,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   refresh() async {
     _easyRefreshController.resetHeader();
     if (widget.nested) {
-      _onRefresh();
+      await _onRefresh();
     } else {
       _easyRefreshController.callRefresh(scrollController: _scrollController);
     }
@@ -240,9 +243,9 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
           (entry.content as TimelineTimelineItem).itemContent
-          is TimelineTweet &&
+              is TimelineTweet &&
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
-              .promotedMetadata ==
+                  .promotedMetadata ==
               null) {
         result.add(entry);
       } else if (entry.content is TimelineTimelineModule &&
@@ -289,11 +292,9 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return EasyRefresh.builder(
-      onRefresh: widget.nested
-          ? null
-          : () async {
-              return await _onRefresh();
-            },
+      onRefresh: () async {
+        return await _onRefresh();
+      },
       onLoad: () async {
         return await _onLoad();
       },
@@ -306,7 +307,8 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         child: WaterfallFlow.extent(
           physics: pyhsics,
           controller: widget.nested ? null : _scrollController,
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 16),
+          padding:
+              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
           maxCrossAxisExtent: 600,
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,

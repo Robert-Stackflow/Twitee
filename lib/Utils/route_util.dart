@@ -22,9 +22,14 @@ import '../Widgets/Custom/custom_cupertino_route.dart';
 import '../Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 class RouteUtil {
-  static pushMaterialRoute(BuildContext context, Widget page) {
+  static pushMaterialRoute(
+    BuildContext context,
+    Widget page, {
+    Function(dynamic)? onThen,
+  }) {
     return Navigator.push(
-        context, MaterialPageRoute(builder: (context) => page));
+            context, MaterialPageRoute(builder: (context) => page))
+        .then(onThen ?? (_) => {});
   }
 
   static pushCupertinoRoute(
@@ -97,6 +102,7 @@ class RouteUtil {
     double? preferMinHeight,
     Function(dynamic)? onThen,
     GlobalKey<DialogWrapperWidgetState>? overrideDialogNavigatorKey,
+    bool useMaterial = false,
   }) {
     if (ResponsiveUtil.isLandscape()) {
       if (overrideDialogNavigatorKey == null && dialogNavigatorState != null) {
@@ -115,7 +121,11 @@ class RouteUtil {
         );
       }
     } else {
-      pushCupertinoRoute(context, page, onThen: onThen);
+      if (useMaterial) {
+        pushMaterialRoute(context, page, onThen: onThen);
+      } else {
+        pushCupertinoRoute(context, page, onThen: onThen);
+      }
     }
   }
 }

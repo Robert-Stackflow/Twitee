@@ -92,55 +92,65 @@ class ItemBuilder {
         showBack || (showMenu && !ResponsiveUtil.isLandscape());
     return PreferredSize(
       preferredSize: const Size.fromHeight(56),
-      child: SafeArea(
-        child: Stack(
-          children: [
-            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-            Center(
-              child: Row(
-                mainAxisAlignment: ResponsiveUtil.isMobile() && centerInMobile
-                    ? MainAxisAlignment.center
-                    : MainAxisAlignment.start,
-                children: [
-                  if (showMenu && !ResponsiveUtil.isLandscape())
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: ItemBuilder.buildIconButton(
-                        context: context,
-                        icon: const Icon(Icons.menu_rounded),
-                        onTap: () => panelScreenState?.openDrawer(),
-                      ),
-                    ),
-                  if (showBack)
-                    ResponsiveUtil.isLandscape()
-                        ? Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: ToolButton(
-                              context: context,
-                              onTap: () => panelScreenState?.popPage(),
-                              iconBuilder: (_) =>
-                                  const Icon(Icons.arrow_back_rounded),
-                            ),
-                          )
-                        : Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: ItemBuilder.buildIconButton(
-                              context: context,
-                              icon: const Icon(Icons.arrow_back_rounded),
-                              onTap: () => panelScreenState?.popPage(),
-                            ),
-                          ),
-                  if (titleWidget == null)
-                    SizedBox(width: hasLeftButton ? backSpacing : spacing),
-                  titleWidget ??
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                ],
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor,
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
             ),
-          ],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+              Center(
+                child: Row(
+                  mainAxisAlignment: ResponsiveUtil.isMobile() && centerInMobile
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.start,
+                  children: [
+                    if (showMenu && !ResponsiveUtil.isLandscape())
+                      Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        child: ItemBuilder.buildIconButton(
+                          context: context,
+                          icon: const Icon(Icons.menu_rounded),
+                          onTap: () => panelScreenState?.openDrawer(),
+                        ),
+                      ),
+                    if (showBack)
+                      ResponsiveUtil.isLandscape()
+                          ? Container(
+                              margin: const EdgeInsets.only(left: 10),
+                              child: ToolButton(
+                                context: context,
+                                onTap: () => panelScreenState?.popPage(),
+                                iconBuilder: (_) =>
+                                    const Icon(Icons.arrow_back_rounded),
+                              ),
+                            )
+                          : Container(
+                              margin: const EdgeInsets.only(left: 10),
+                              child: ItemBuilder.buildIconButton(
+                                context: context,
+                                icon: const Icon(Icons.arrow_back_rounded),
+                                onTap: () => panelScreenState?.popPage(),
+                              ),
+                            ),
+                    SizedBox(width: hasLeftButton ? backSpacing : spacing),
+                    titleWidget ??
+                        Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -334,6 +344,68 @@ class ItemBuilder {
           backgroundColor ?? Theme.of(context).appBarTheme.backgroundColor,
       flexibleSpace: flexibleSpace,
       bottom: bottom,
+    );
+  }
+
+  static buildTabBar(
+    BuildContext context,
+    TabController tabController,
+    List<Widget> tabs, {
+    double? height = 56,
+    EdgeInsetsGeometry? padding,
+    ValueChanged<int>? onTap,
+    bool showBorder = false,
+    Color? background,
+    double? width,
+  }) {
+    padding ??= ResponsiveUtil.isLandscape()
+        ? const EdgeInsets.symmetric(horizontal: 10)
+        : null;
+    var titleMedium = Theme.of(context).textTheme.titleMedium;
+    var primaryColor = Theme.of(context).primaryColor;
+    return PreferredSize(
+      preferredSize: Size.fromHeight(height ?? 56),
+      child: Container(
+        height: 56,
+        width: width,
+        decoration: BoxDecoration(
+          color: background,
+          border: showBorder
+              ? Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 1,
+                  ),
+                )
+              : null,
+        ),
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          child: TabBar(
+            controller: tabController,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            tabs: tabs,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+            indicatorSize: TabBarIndicatorSize.tab,
+            isScrollable: true,
+            dividerHeight: 0,
+            padding: padding,
+            tabAlignment: TabAlignment.start,
+            physics: const ClampingScrollPhysics(),
+            labelStyle: titleMedium?.apply(
+              fontWeightDelta: 2,
+              color: ColorUtil.getComplementaryColor(primaryColor),
+            ),
+            unselectedLabelStyle: titleMedium?.apply(color: Colors.grey),
+            indicator: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // CustomTabIndicator(borderColor: Theme.of(context).primaryColor),
+            onTap: onTap,
+          ),
+        ),
+      ),
     );
   }
 
@@ -2153,7 +2225,7 @@ class ItemBuilder {
         onTap: onTap,
         child: direction == Axis.horizontal
             ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (icon != null && showIcon)
@@ -2733,6 +2805,7 @@ class ItemBuilder {
             context,
             showClose: false,
             fullScreen: true,
+            useMaterial: true,
             HeroPhotoViewScreen(
               tagPrefix: tagPrefix,
               tagSuffix: tagSuffix,
