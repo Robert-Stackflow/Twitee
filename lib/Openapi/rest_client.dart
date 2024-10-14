@@ -43,7 +43,8 @@ class RestClient {
 
   V11getClient get v11get => _v11get ??= V11getClient(_dio, baseUrl: _baseUrl);
 
-  V11postClient get v11post => _v11post ??= V11postClient(_dio, baseUrl: _baseUrl);
+  V11postClient get v11post =>
+      _v11post ??= V11postClient(_dio, baseUrl: _baseUrl);
 
   V20getClient get v20get => _v20get ??= V20getClient(_dio, baseUrl: _baseUrl);
 
@@ -51,7 +52,8 @@ class RestClient {
 
   PostClient get post => _post ??= PostClient(_dio, baseUrl: _baseUrl);
 
-  UserlistClient get userlist => _userlist ??= UserlistClient(_dio, baseUrl: _baseUrl);
+  UserlistClient get userlist =>
+      _userlist ??= UserlistClient(_dio, baseUrl: _baseUrl);
 
   ClientClient get client => _client ??= ClientClient(_dio, baseUrl: _baseUrl);
 

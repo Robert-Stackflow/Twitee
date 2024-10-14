@@ -65,6 +65,8 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
 
   bool _noMore = false;
 
+  bool _inited = false;
+
   @override
   ScrollController? getScrollController() {
     return _scrollController;
@@ -93,8 +95,11 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    // _onRefresh();
-    _easyRefreshController.callRefresh(scrollController: _scrollController);
+    if (widget.nested) {
+      await _onRefresh();
+    } else {
+      _easyRefreshController.callRefresh(scrollController: _scrollController);
+    }
   }
 
   _onRefresh() async {
@@ -122,16 +127,14 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
@@ -141,7 +144,9 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -169,7 +174,6 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -189,6 +193,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -260,11 +265,9 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return EasyRefresh.builder(
-      onRefresh: widget.nested
-          ? null
-          : () async {
-              return await _onRefresh();
-            },
+      onRefresh: () async {
+        return await _onRefresh();
+      },
       onLoad: () async {
         return await _onLoad();
       },
@@ -274,25 +277,32 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          physics: pyhsics,
-          controller: widget.nested ? null : _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            validEntries.length,
-            (index) {
-              return PostItem(
-                key: GlobalObjectKey(validEntries[index].sortIndex.toString()),
-                entry: validEntries[index],
-                feedbackActions: _getFeedBackActions(validEntries[index]),
-              );
-            },
-          ),
-        ),
+        child: !_inited || validEntries.isNotEmpty
+            ? WaterfallFlow.extent(
+                physics: pyhsics,
+                controller: widget.nested ? null : _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 600,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  validEntries.length,
+                  (index) {
+                    return PostItem(
+                      key: GlobalObjectKey(
+                          validEntries[index].sortIndex.toString()),
+                      entry: validEntries[index],
+                      feedbackActions: _getFeedBackActions(validEntries[index]),
+                    );
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无内容",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }

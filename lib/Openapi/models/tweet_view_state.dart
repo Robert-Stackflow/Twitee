@@ -10,6 +10,7 @@ enum TweetViewState {
   enabled('Enabled'),
   @JsonValue('EnabledWithCount')
   enabledWithCount('EnabledWithCount'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

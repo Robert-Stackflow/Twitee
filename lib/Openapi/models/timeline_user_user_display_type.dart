@@ -12,12 +12,14 @@ enum TimelineUserUserDisplayType {
   userDetailed('UserDetailed'),
   @JsonValue('SubscribableUser')
   subscribableUser('SubscribableUser'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineUserUserDisplayType(this.json);
 
-  factory TimelineUserUserDisplayType.fromJson(String json) => values.firstWhere(
+  factory TimelineUserUserDisplayType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

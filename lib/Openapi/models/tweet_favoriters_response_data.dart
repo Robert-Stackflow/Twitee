@@ -9,13 +9,14 @@ import 'timeline_v.dart';
 part 'tweet_favoriters_response_data.g.dart';
 
 @JsonSerializable()
-class TweetFavoritersResponseData  {
+class TweetFavoritersResponseData {
   const TweetFavoritersResponseData({
     required this.favoritersTimeline,
   });
-  
-  factory TweetFavoritersResponseData.fromJson(Map<String, Object?> json) => _$TweetFavoritersResponseDataFromJson(json);
-  
+
+  factory TweetFavoritersResponseData.fromJson(Map<String, Object?> json) =>
+      _$TweetFavoritersResponseDataFromJson(json);
+
   @JsonKey(name: 'favoriters_timeline')
   final TimelineV? favoritersTimeline;
 

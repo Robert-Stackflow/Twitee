@@ -9,13 +9,14 @@ import 'search_by_raw_query.dart';
 part 'search_timeline_data.g.dart';
 
 @JsonSerializable()
-class SearchTimelineData  {
+class SearchTimelineData {
   const SearchTimelineData({
     required this.searchByRawQuery,
   });
-  
-  factory SearchTimelineData.fromJson(Map<String, Object?> json) => _$SearchTimelineDataFromJson(json);
-  
+
+  factory SearchTimelineData.fromJson(Map<String, Object?> json) =>
+      _$SearchTimelineDataFromJson(json);
+
   @JsonKey(name: 'search_by_raw_query')
   final SearchByRawQuery? searchByRawQuery;
 

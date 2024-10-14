@@ -8,12 +8,14 @@ import 'package:json_annotation/json_annotation.dart';
 enum CommunityInvitesResultReason {
   @JsonValue('Unavailable')
   unavailable('Unavailable'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const CommunityInvitesResultReason(this.json);
 
-  factory CommunityInvitesResultReason.fromJson(String json) => values.firstWhere(
+  factory CommunityInvitesResultReason.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

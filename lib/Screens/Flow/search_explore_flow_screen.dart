@@ -13,6 +13,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Models/response_result.dart';
@@ -64,6 +65,8 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
 
   bool _noMore = false;
 
+  bool _inited = false;
+
   @override
   void initState() {
     super.initState();
@@ -111,11 +114,10 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
@@ -125,6 +127,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
     }
   }
@@ -206,20 +209,26 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
       child: ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 400,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            items.length,
-            (index) {
-              return _buildTrendItem(items[index]);
-            },
-          ),
-        ),
+        child: !_inited || items.isNotEmpty
+            ? WaterfallFlow.extent(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 400,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  items.length,
+                  (index) {
+                    return _buildTrendItem(items[index]);
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无内容",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }
@@ -244,27 +253,24 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           ),
           height: 78,
           padding: const EdgeInsets.all(10),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${trend.rank ?? ""}${showDot ? " · " : ""}${trend.trendMetadata?.domainContext ?? ""}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    trend.name ?? "",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(fontWeightDelta: 2),
-                  ),
-                  Text(
-                    trend.trendMetadata?.metaDescription ?? "",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Text(
+                "${trend.rank ?? ""}${showDot ? " · " : ""}${trend.trendMetadata?.domainContext ?? ""}",
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              AutoSizeText(
+                trend.name ?? "",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(fontWeightDelta: 2),
+                maxLines: 1,
+              ),
+              Text(
+                trend.trendMetadata?.metaDescription ?? "",
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),

@@ -80,12 +80,16 @@ class _SelectFontScreenState extends State<SelectFontScreen>
                   context: context, title: S.current.defaultFontFamily),
               ItemBuilder.buildContainerItem(
                 context: context,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   margin:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   child: Wrap(
                     runSpacing: 10,
                     spacing: 10,
+                    alignment: WrapAlignment.start,
+                    runAlignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
                     children: _buildDefaultFontList(),
                   ),
                 ),
@@ -96,12 +100,16 @@ class _SelectFontScreenState extends State<SelectFontScreen>
                   context: context, title: S.current.customFontFamily),
               ItemBuilder.buildContainerItem(
                 context: context,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   margin:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   child: Wrap(
                     runSpacing: 10,
                     spacing: 10,
+                    alignment: WrapAlignment.start,
+                    runAlignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
                     children: _buildCustomFontList(),
                   ),
                 ),

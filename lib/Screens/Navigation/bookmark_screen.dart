@@ -26,7 +26,10 @@ import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
+
+import '../../Utils/app_provider.dart';
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -38,7 +41,10 @@ class BookmarkScreen extends StatefulWidget {
 }
 
 class _BookmarkScreenState extends State<BookmarkScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        ScrollToHideMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -64,6 +70,8 @@ class _BookmarkScreenState extends State<BookmarkScreen>
 
   String currentQuery = "";
 
+  bool _inited = false;
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +88,9 @@ class _BookmarkScreenState extends State<BookmarkScreen>
         }
         currentQuery = searchController.text;
       });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      panelScreenState?.refreshScrollControllers();
     });
   }
 
@@ -135,7 +146,6 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             validEntries = _processEntries(instruction.entries);
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -154,7 +164,9 @@ class _BookmarkScreenState extends State<BookmarkScreen>
       ILogger.error("Twitee", "Failed to get bookmarks", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -199,7 +211,6 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             newEntries.addAll(_processEntries(instruction.entries));
             validEntries.addAll(newEntries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -219,6 +230,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -329,29 +341,36 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             child: ItemBuilder.buildLoadMoreNotification(
               onLoad: _onLoad,
               noMore: _noMore,
-              child: WaterfallFlow.extent(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(8),
-                maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
-                children: List.generate(
-                  validEntries.length,
-                  (index) {
-                    return PostItem(
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
-                    );
-                  },
-                ),
-              ),
+              child: !_inited || validEntries.isNotEmpty
+                  ? WaterfallFlow.extent(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(8),
+                      maxCrossAxisExtent: 600,
+                      crossAxisSpacing: 6,
+                      mainAxisSpacing: 6,
+                      children: List.generate(
+                        validEntries.length,
+                        (index) {
+                          return PostItem(
+                            entry: validEntries[index],
+                            feedbackActions:
+                                _getFeedBackActions(validEntries[index]),
+                          );
+                        },
+                      ),
+                    )
+                  : ItemBuilder.buildEmptyPlaceholder(
+                      context: context,
+                      text: "暂无内容",
+                      scrollController: _scrollController,
+                    ),
             ),
           ),
           Positioned(
-            right: 16,
-            bottom: 16,
+            right: ResponsiveUtil.isLandscape() ? 16 : 12,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              scrollControllers: [_scrollController],
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -390,5 +409,10 @@ class _BookmarkScreenState extends State<BookmarkScreen>
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return [_scrollController];
   }
 }

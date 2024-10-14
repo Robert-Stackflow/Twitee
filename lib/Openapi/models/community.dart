@@ -9,13 +9,14 @@ import 'community_data.dart';
 part 'community.g.dart';
 
 @JsonSerializable()
-class Community  {
+class Community {
   const Community({
     required this.result,
   });
-  
-  factory Community.fromJson(Map<String, Object?> json) => _$CommunityFromJson(json);
-  
+
+  factory Community.fromJson(Map<String, Object?> json) =>
+      _$CommunityFromJson(json);
+
   final CommunityData result;
 
   Map<String, Object?> toJson() => _$CommunityToJson(this);

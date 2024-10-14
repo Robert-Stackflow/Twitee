@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user_tip_jar_settings.g.dart';
 
 @JsonSerializable()
-class UserTipJarSettings  {
+class UserTipJarSettings {
   const UserTipJarSettings({
     required this.bandcampHandle,
     required this.bitcoinHandle,
@@ -18,9 +18,10 @@ class UserTipJarSettings  {
     required this.patreonHandle,
     required this.venmoHandle,
   });
-  
-  factory UserTipJarSettings.fromJson(Map<String, Object?> json) => _$UserTipJarSettingsFromJson(json);
-  
+
+  factory UserTipJarSettings.fromJson(Map<String, Object?> json) =>
+      _$UserTipJarSettingsFromJson(json);
+
   @JsonKey(name: 'bandcamp_handle')
   final String? bandcampHandle;
   @JsonKey(name: 'bitcoin_handle')

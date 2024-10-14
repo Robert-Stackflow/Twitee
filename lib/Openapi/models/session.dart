@@ -12,7 +12,7 @@ import 'user_features.dart';
 part 'session.g.dart';
 
 @JsonSerializable()
-class Session  {
+class Session {
   const Session({
     required this.ssoInitTokens,
     required this.communitiesActions,
@@ -29,9 +29,10 @@ class Session  {
     required this.userFeatures,
     required this.userId,
   });
-  
-  factory Session.fromJson(Map<String, Object?> json) => _$SessionFromJson(json);
-  
+
+  factory Session.fromJson(Map<String, Object?> json) =>
+      _$SessionFromJson(json);
+
   @JsonKey(name: 'SsoInitTokens')
   final dynamic ssoInitTokens;
   final CommunitiesActions communitiesActions;

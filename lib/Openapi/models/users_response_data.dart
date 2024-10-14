@@ -9,13 +9,14 @@ import 'user_results.dart';
 part 'users_response_data.g.dart';
 
 @JsonSerializable()
-class UsersResponseData  {
+class UsersResponseData {
   const UsersResponseData({
     required this.users,
   });
-  
-  factory UsersResponseData.fromJson(Map<String, Object?> json) => _$UsersResponseDataFromJson(json);
-  
+
+  factory UsersResponseData.fromJson(Map<String, Object?> json) =>
+      _$UsersResponseDataFromJson(json);
+
   final List<UserResults> users;
 
   Map<String, Object?> toJson() => _$UsersResponseDataToJson(this);

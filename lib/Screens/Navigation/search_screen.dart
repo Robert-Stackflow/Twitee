@@ -19,14 +19,18 @@ import 'package:twitee/Api/search_api.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/enums.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 
 import '../../Models/search_suggestion.dart';
 import '../../Models/search_timeline_tab_item.dart';
 import '../../Models/tab_item_data.dart';
+import '../../Utils/asset_util.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../../Widgets/Twitter/refresh_interface.dart';
 import '../Flow/search_explore_flow_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -39,7 +43,10 @@ class SearchScreen extends StatefulWidget {
 }
 
 class SearchScreenState extends State<SearchScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        ScrollToHideMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -54,7 +61,7 @@ class SearchScreenState extends State<SearchScreen>
   late TabController _resultTabController;
   TabItemDataList resultTabDataList = TabItemDataList([]);
 
-  int get currentResultIndex => _trendTabController.index;
+  int get currentResultIndex => _resultTabController.index;
 
   final List<String> _resultTabTitleList = ["热门", "最新", "用户", "媒体", "列表"];
 
@@ -72,6 +79,8 @@ class SearchScreenState extends State<SearchScreen>
   double searchBarWidth = 360;
 
   bool _showResult = false;
+  bool _showSuggestion = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   initTrendTab() {
     trendTabDataList.clear();
@@ -90,6 +99,7 @@ class SearchScreenState extends State<SearchScreen>
     _trendTabController =
         TabController(length: trendTabDataList.length, vsync: this);
     if (mounted) setState(() {});
+    panelScreenState?.refreshScrollControllers();
   }
 
   initResultTab() {
@@ -110,6 +120,7 @@ class SearchScreenState extends State<SearchScreen>
     _resultTabController =
         TabController(length: resultTabDataList.length, vsync: this);
     if (mounted) setState(() {});
+    panelScreenState?.refreshScrollControllers();
   }
 
   perfromSearch(String key) {
@@ -132,9 +143,11 @@ class SearchScreenState extends State<SearchScreen>
     );
     _trendTabController = TabController(length: 0, vsync: this);
     _resultTabController = TabController(length: 0, vsync: this);
-    initResultTab();
-    initTrendTab();
-    initData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initResultTab();
+      initTrendTab();
+      initData();
+    });
     _searchController.addListener(() {
       EasyDebounce.debounce(
           'search-suggestion-debouncer', const Duration(milliseconds: 100), () {
@@ -178,12 +191,22 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   initData() async {
+    _initPhase = InitPhase.connecting;
+    setState(() {});
     var res = await SearchApi.getExplorePageTimelines();
-    tabItems = res.data;
-    initTrendTab();
+    if (res.success) {
+      tabItems = res.data;
+      _initPhase = InitPhase.successful;
+      setState(() {});
+      initTrendTab();
+    } else {
+      _initPhase = InitPhase.failed;
+      setState(() {});
+    }
   }
 
   void _showSuggestions() {
+    _showSuggestion = true;
     if (_overlayEntry != null) {
       _overlayEntry!.remove();
     }
@@ -193,13 +216,18 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   void _hideSuggestions() {
+    _showSuggestion = false;
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
 
   OverlayEntry _createOverlayEntry() {
-    double width = searchBarWidth;
-    double height = 400;
+    double width = ResponsiveUtil.isLandscape()
+        ? searchBarWidth
+        : MediaQuery.sizeOf(context).width - 30;
+    double height = ResponsiveUtil.isLandscape()
+        ? 400
+        : MediaQuery.sizeOf(context).height * 0.55;
     return OverlayEntry(
       builder: (context) => Positioned(
         width: width,
@@ -207,7 +235,9 @@ class SearchScreenState extends State<SearchScreen>
         child: CompositedTransformFollower(
           link: _layerLink,
           showWhenUnlinked: true,
-          offset: const Offset(0.0, 42.0),
+          offset: ResponsiveUtil.isLandscape()
+              ? const Offset(0.0, 42.0)
+              : const Offset(-45.0, 42.0),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
@@ -227,6 +257,7 @@ class SearchScreenState extends State<SearchScreen>
               ),
             ),
             child: ListView(
+              padding: EdgeInsets.zero,
               children: [
                 if (_suggestionResponse != null)
                   ..._suggestionResponse!.topics.map((e) => _buildTopicTile(e)),
@@ -280,7 +311,8 @@ class SearchScreenState extends State<SearchScreen>
             children: [
               ItemBuilder.buildAvatar(
                 context: context,
-                imageUrl: e.profileImageUrlHttps,
+                imageUrl: TweetUtil.getBigAvatarUrl(e.profileImageUrlHttps) ??
+                    AssetUtil.avatar,
                 size: 40,
               ),
               const SizedBox(width: 8),
@@ -313,57 +345,97 @@ class SearchScreenState extends State<SearchScreen>
   Widget build(BuildContext context) {
     super.build(context);
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: ItemBuilder.buildDesktopAppBar(
-        context: context,
-        showMenu: true,
-        backSpacing: 0,
-        titleWidget: Container(
-          margin: const EdgeInsets.all(10),
-          constraints: ResponsiveUtil.isLandscape()
-              ? const BoxConstraints(
-                  maxWidth: 360, minWidth: 360, maxHeight: 56)
-              : BoxConstraints(
-                  maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
-          child: CompositedTransformTarget(
-            link: _layerLink,
-            child: ItemBuilder.buildDesktopSearchBar(
-              context: context,
-              borderRadius: 8,
-              bottomMargin: 18,
-              hintFontSizeDelta: 1,
-              focusNode: searchFocusNode,
-              controller: _searchController,
-              background: Colors.grey.withAlpha(40),
-              hintText: "搜索",
-              onSubmitted: (text) async {
-                perfromSearch(text);
-              },
+    return PopScope(
+      canPop: !(_showResult || _showSuggestion),
+      onPopInvokedWithResult: (_, __) {
+        if (_showSuggestion) {
+          _hideSuggestions();
+          if (mounted) setState(() {});
+          return;
+        }
+        if (_showResult) {
+          _searchController.clear();
+          _showResult = false;
+          _suggestionResponse = null;
+          if (mounted) setState(() {});
+          return;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: ItemBuilder.buildDesktopAppBar(
+          context: context,
+          showMenu: true,
+          showBack: _showResult && ResponsiveUtil.isLandscape(),
+          backSpacing: 0,
+          onBackTap: () {
+            _searchController.clear();
+            _showResult = false;
+            _suggestionResponse = null;
+            if (mounted) setState(() {});
+          },
+          titleWidget: Container(
+            margin: const EdgeInsets.all(10),
+            constraints: ResponsiveUtil.isLandscape()
+                ? const BoxConstraints(
+                    maxWidth: 360, minWidth: 360, maxHeight: 56)
+                : BoxConstraints(
+                    maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
+            child: CompositedTransformTarget(
+              link: _layerLink,
+              child: ItemBuilder.buildDesktopSearchBar(
+                context: context,
+                borderRadius: 8,
+                bottomMargin: 18,
+                hintFontSizeDelta: 1,
+                focusNode: searchFocusNode,
+                controller: _searchController,
+                background: Colors.grey.withAlpha(40),
+                hintText: "搜索",
+                onSubmitted: (text) async {
+                  perfromSearch(text);
+                },
+              ),
             ),
           ),
         ),
-      ),
-      body: Stack(
-        children: [
-          _showResult ? _buildResult() : _buildTrend(),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ScrollToHide(
-              controller: _scrollToHideController,
-              scrollController: _showResult
-                  ? resultTabDataList
-                      .getScrollControllerNotNull(_resultTabController.index)
-                  : trendTabDataList
-                      .getScrollControllerNotNull(_trendTabController.index),
-              hideDirection: Axis.vertical,
-              child: _buildFloatingButtons(),
-            ),
-          ),
-        ],
+        body: _buildBody(),
       ),
     );
+  }
+
+  _buildBody() {
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent);
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: initData,
+        );
+      case InitPhase.successful:
+        return Stack(
+          children: [
+            _buildTrend(),
+            if (_showResult) _buildResult(),
+            Positioned(
+              right: ResponsiveUtil.isLandscape() ? 16 : 12,
+              bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+              child: ScrollToHide(
+                controller: _scrollToHideController,
+                scrollControllers: _showResult
+                    ? resultTabDataList.scrollControllerList
+                    : trendTabDataList.scrollControllerList,
+                hideDirection: Axis.vertical,
+                child: _buildFloatingButtons(),
+              ),
+            ),
+          ],
+        );
+      default:
+        return Container();
+    }
   }
 
   _buildTrend() {
@@ -375,11 +447,22 @@ class SearchScreenState extends State<SearchScreen>
             context,
             _trendTabController,
             trendTabDataList.tabList,
+            autoScrollable: false,
             showBorder: true,
             width: MediaQuery.of(context).size.width,
             background: Theme.of(context).canvasColor,
             onTap: (index) {
               if (mounted) setState(() {});
+              if (!_trendTabController.indexIsChanging &&
+                  index == currentTrendIndex) {
+                if (trendTabDataList.getScrollController(index) != null &&
+                    trendTabDataList.getScrollController(index)!.offset >
+                        30) {
+                  scrollToTop();
+                } else {
+                  refresh();
+                }
+              }
             },
             padding: const EdgeInsets.symmetric(horizontal: 10),
           ),
@@ -394,29 +477,44 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   _buildResult() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (resultTabDataList.tabList.isNotEmpty)
-          ItemBuilder.buildTabBar(
-            context,
-            _resultTabController,
-            resultTabDataList.tabList,
-            showBorder: true,
-            width: MediaQuery.of(context).size.width,
-            background: Theme.of(context).canvasColor,
-            onTap: (index) {
-              if (mounted) setState(() {});
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (resultTabDataList.tabList.isNotEmpty)
+            ItemBuilder.buildTabBar(
+              context,
+              _resultTabController,
+              resultTabDataList.tabList,
+              showBorder: true,
+              width: MediaQuery.of(context).size.width,
+              background: Theme.of(context).canvasColor,
+              onTap: (index) {
+                if (mounted) setState(() {});
+                if (!_resultTabController.indexIsChanging &&
+                    index == currentResultIndex) {
+                  if (resultTabDataList.getScrollController(index) != null &&
+                      resultTabDataList.getScrollController(index)!.offset >
+                          30) {
+                    scrollToTop();
+                  } else {
+                    refresh();
+                  }
+                }
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+          Expanded(
+            child: TabBarView(
+              controller: _resultTabController,
+              children: resultTabDataList.pageList,
+            ),
           ),
-        Expanded(
-          child: TabBarView(
-            controller: _resultTabController,
-            children: resultTabDataList.pageList,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -431,6 +529,7 @@ class SearchScreenState extends State<SearchScreen>
           ?.scrollToTop();
     }
     _scrollToHideController.show();
+    panelScreenState?.showBottomNavigationBar();
   }
 
   refresh() async {
@@ -469,5 +568,12 @@ class SearchScreenState extends State<SearchScreen>
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return _showResult
+        ? resultTabDataList.scrollControllerList
+        : trendTabDataList.scrollControllerList;
   }
 }

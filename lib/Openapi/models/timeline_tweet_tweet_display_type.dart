@@ -14,12 +14,14 @@ enum TimelineTweetTweetDisplayType {
   mediaGrid('MediaGrid'),
   @JsonValue('CondensedTweet')
   condensedTweet('CondensedTweet'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineTweetTweetDisplayType(this.json);
 
-  factory TimelineTweetTweetDisplayType.fromJson(String json) => values.firstWhere(
+  factory TimelineTweetTweetDisplayType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

@@ -10,15 +10,16 @@ import 'type_name.dart';
 part 'community_leave_action_result.g.dart';
 
 @JsonSerializable()
-class CommunityLeaveActionResult  {
+class CommunityLeaveActionResult {
   const CommunityLeaveActionResult({
     required this.privateTypename,
     required this.message,
     required this.reason,
   });
-  
-  factory CommunityLeaveActionResult.fromJson(Map<String, Object?> json) => _$CommunityLeaveActionResultFromJson(json);
-  
+
+  factory CommunityLeaveActionResult.fromJson(Map<String, Object?> json) =>
+      _$CommunityLeaveActionResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final String message;

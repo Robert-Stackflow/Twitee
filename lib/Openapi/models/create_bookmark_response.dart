@@ -9,13 +9,14 @@ import 'create_bookmark_response_data.dart';
 part 'create_bookmark_response.g.dart';
 
 @JsonSerializable()
-class CreateBookmarkResponse  {
+class CreateBookmarkResponse {
   const CreateBookmarkResponse({
     required this.data,
   });
-  
-  factory CreateBookmarkResponse.fromJson(Map<String, Object?> json) => _$CreateBookmarkResponseFromJson(json);
-  
+
+  factory CreateBookmarkResponse.fromJson(Map<String, Object?> json) =>
+      _$CreateBookmarkResponseFromJson(json);
+
   final CreateBookmarkResponseData data;
 
   Map<String, Object?> toJson() => _$CreateBookmarkResponseToJson(this);

@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'bookmarks_timeline.g.dart';
 
 @JsonSerializable()
-class BookmarksTimeline  {
+class BookmarksTimeline {
   const BookmarksTimeline({
     required this.timeline,
   });
-  
-  factory BookmarksTimeline.fromJson(Map<String, Object?> json) => _$BookmarksTimelineFromJson(json);
-  
+
+  factory BookmarksTimeline.fromJson(Map<String, Object?> json) =>
+      _$BookmarksTimelineFromJson(json);
+
   final Timeline timeline;
 
   Map<String, Object?> toJson() => _$BookmarksTimelineToJson(this);

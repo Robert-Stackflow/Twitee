@@ -9,13 +9,14 @@ import 'note_tweet_result_rich_text_tag.dart';
 part 'note_tweet_result_rich_text.g.dart';
 
 @JsonSerializable()
-class NoteTweetResultRichText  {
+class NoteTweetResultRichText {
   const NoteTweetResultRichText({
     required this.richtextTags,
   });
-  
-  factory NoteTweetResultRichText.fromJson(Map<String, Object?> json) => _$NoteTweetResultRichTextFromJson(json);
-  
+
+  factory NoteTweetResultRichText.fromJson(Map<String, Object?> json) =>
+      _$NoteTweetResultRichTextFromJson(json);
+
   @JsonKey(name: 'richtext_tags')
   final List<NoteTweetResultRichTextTag?>? richtextTags;
 

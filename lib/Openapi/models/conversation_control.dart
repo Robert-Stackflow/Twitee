@@ -9,13 +9,14 @@ import 'conversation_control_mode.dart';
 part 'conversation_control.g.dart';
 
 @JsonSerializable()
-class ConversationControl  {
+class ConversationControl {
   const ConversationControl({
     required this.mode,
   });
-  
-  factory ConversationControl.fromJson(Map<String, Object?> json) => _$ConversationControlFromJson(json);
-  
+
+  factory ConversationControl.fromJson(Map<String, Object?> json) =>
+      _$ConversationControlFromJson(json);
+
   final ConversationControlMode mode;
 
   Map<String, Object?> toJson() => _$ConversationControlToJson(this);

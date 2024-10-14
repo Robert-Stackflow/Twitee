@@ -25,6 +25,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Utils/app_provider.dart';
+import '../../Utils/enums.dart';
 import '../../Utils/tweet_util.dart';
 
 class UserMediaFlowScreen extends StatefulWidget {
@@ -63,6 +64,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   @override
   ScrollController? getScrollController() {
@@ -104,8 +106,13 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
+      if (_initPhase != InitPhase.successful) {
+        _initPhase = InitPhase.connecting;
+        setState(() {});
+      }
       ResponseResult res = await UserApi.getUserMedia(userId: widget.userId);
       if (res.success) {
+        _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
         Timeline? timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
@@ -125,16 +132,17 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         if (mounted) setState(() {});
         if (newTweets.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
+        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
+      _initPhase = InitPhase.failed;
       IToast.showTop("加载失败：${e.toString()}");
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
@@ -148,11 +156,16 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
+      if (_initPhase != InitPhase.successful) {
+        _initPhase = InitPhase.connecting;
+        setState(() {});
+      }
       ResponseResult res = await UserApi.getUserMedia(
         userId: widget.userId,
         cursorBottom: cursorBottom?.value,
       );
       if (res.success) {
+        _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
         Timeline? timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
@@ -178,10 +191,12 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
           return IndicatorResult.success;
         }
       } else {
+        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
+      _initPhase = InitPhase.failed;
       IToast.showTop("加载失败：${e.toString()}");
       ILogger.error("Twitee", "Failed to load homeline", e, t);
       return IndicatorResult.fail;
@@ -242,6 +257,27 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    return widget.nested ? _buildBody() : _buildMainBody();
+  }
+
+  _buildBody() {
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent);
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: refresh,
+        );
+      case InitPhase.successful:
+        return _buildMainBody();
+      default:
+        return Container();
+    }
+  }
+
+  _buildMainBody() {
     return EasyRefresh.builder(
       onRefresh: widget.nested
           ? null
@@ -254,25 +290,31 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
-        onLoad: _onLoad,
-        noMore: _noMore,
-        child: GridView.extent(
-          physics: pyhsics,
-          controller: widget.nested ? null : _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 160,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            gridTweets.length,
-            (index) {
-              return _buildGridItem(160, gridTweets[index]);
-            },
-          ),
-        ),
-      ),
+      childBuilder: (context, pyhsics) => gridTweets.isNotEmpty
+          ? ItemBuilder.buildLoadMoreNotification(
+              onLoad: _onLoad,
+              noMore: _noMore,
+              child: GridView.extent(
+                physics: pyhsics,
+                controller: widget.nested ? null : _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 160,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  gridTweets.length,
+                  (index) {
+                    return _buildGridItem(160, gridTweets[index]);
+                  },
+                ),
+              ),
+            )
+          : ItemBuilder.buildEmptyPlaceholder(
+              context: context,
+              text: "暂无内容",
+              scrollController: _scrollController,
+            ),
     );
   }
 

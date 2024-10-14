@@ -9,14 +9,15 @@ import 'legacy.dart';
 part 'retweet.g.dart';
 
 @JsonSerializable()
-class Retweet  {
+class Retweet {
   const Retweet({
     required this.legacy,
     required this.restId,
   });
-  
-  factory Retweet.fromJson(Map<String, Object?> json) => _$RetweetFromJson(json);
-  
+
+  factory Retweet.fromJson(Map<String, Object?> json) =>
+      _$RetweetFromJson(json);
+
   final Legacy legacy;
   @JsonKey(name: 'rest_id')
   final String? restId;

@@ -18,6 +18,7 @@ enum ContentItemType {
   timelineMessagePrompt('TimelineMessagePrompt'),
   @JsonValue('TimelineCommunity')
   timelineCommunity('TimelineCommunity'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

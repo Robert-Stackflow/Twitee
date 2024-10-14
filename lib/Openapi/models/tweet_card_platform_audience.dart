@@ -9,13 +9,14 @@ import 'tweet_card_platform_audience_name.dart';
 part 'tweet_card_platform_audience.g.dart';
 
 @JsonSerializable()
-class TweetCardPlatformAudience  {
+class TweetCardPlatformAudience {
   const TweetCardPlatformAudience({
     required this.name,
   });
-  
-  factory TweetCardPlatformAudience.fromJson(Map<String, Object?> json) => _$TweetCardPlatformAudienceFromJson(json);
-  
+
+  factory TweetCardPlatformAudience.fromJson(Map<String, Object?> json) =>
+      _$TweetCardPlatformAudienceFromJson(json);
+
   final TweetCardPlatformAudienceName name;
 
   Map<String, Object?> toJson() => _$TweetCardPlatformAudienceToJson(this);

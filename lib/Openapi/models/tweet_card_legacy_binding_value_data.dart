@@ -10,7 +10,7 @@ import 'user_value.dart';
 part 'tweet_card_legacy_binding_value_data.g.dart';
 
 @JsonSerializable()
-class TweetCardLegacyBindingValueData  {
+class TweetCardLegacyBindingValueData {
   const TweetCardLegacyBindingValueData({
     required this.booleanValue,
     required this.imageColorValue,
@@ -20,9 +20,10 @@ class TweetCardLegacyBindingValueData  {
     required this.type,
     required this.userValue,
   });
-  
-  factory TweetCardLegacyBindingValueData.fromJson(Map<String, Object?> json) => _$TweetCardLegacyBindingValueDataFromJson(json);
-  
+
+  factory TweetCardLegacyBindingValueData.fromJson(Map<String, Object?> json) =>
+      _$TweetCardLegacyBindingValueDataFromJson(json);
+
   @JsonKey(name: 'boolean_value')
   final bool? booleanValue;
   @JsonKey(name: 'image_color_value')
@@ -37,5 +38,6 @@ class TweetCardLegacyBindingValueData  {
   @JsonKey(name: 'user_value')
   final UserValue? userValue;
 
-  Map<String, Object?> toJson() => _$TweetCardLegacyBindingValueDataToJson(this);
+  Map<String, Object?> toJson() =>
+      _$TweetCardLegacyBindingValueDataToJson(this);
 }

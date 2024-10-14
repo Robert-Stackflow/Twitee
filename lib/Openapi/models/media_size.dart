@@ -9,15 +9,16 @@ import 'media_size_resize.dart';
 part 'media_size.g.dart';
 
 @JsonSerializable()
-class MediaSize  {
+class MediaSize {
   const MediaSize({
     required this.h,
     required this.resize,
     required this.w,
   });
-  
-  factory MediaSize.fromJson(Map<String, Object?> json) => _$MediaSizeFromJson(json);
-  
+
+  factory MediaSize.fromJson(Map<String, Object?> json) =>
+      _$MediaSizeFromJson(json);
+
   final int h;
   final MediaSizeResize resize;
   final int w;

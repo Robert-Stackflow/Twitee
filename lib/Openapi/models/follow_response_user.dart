@@ -9,13 +9,14 @@ import 'follow_response_result.dart';
 part 'follow_response_user.g.dart';
 
 @JsonSerializable()
-class FollowResponseUser  {
+class FollowResponseUser {
   const FollowResponseUser({
     required this.result,
   });
-  
-  factory FollowResponseUser.fromJson(Map<String, Object?> json) => _$FollowResponseUserFromJson(json);
-  
+
+  factory FollowResponseUser.fromJson(Map<String, Object?> json) =>
+      _$FollowResponseUserFromJson(json);
+
   final FollowResponseResult result;
 
   Map<String, Object?> toJson() => _$FollowResponseUserToJson(this);

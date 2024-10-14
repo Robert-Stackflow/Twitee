@@ -9,14 +9,15 @@ import 'birdwatch_entity.dart';
 part 'birdwatch_pivot_footer.g.dart';
 
 @JsonSerializable()
-class BirdwatchPivotFooter  {
+class BirdwatchPivotFooter {
   const BirdwatchPivotFooter({
     required this.entities,
     required this.text,
   });
-  
-  factory BirdwatchPivotFooter.fromJson(Map<String, Object?> json) => _$BirdwatchPivotFooterFromJson(json);
-  
+
+  factory BirdwatchPivotFooter.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchPivotFooterFromJson(json);
+
   final List<BirdwatchEntity> entities;
   final String text;
 

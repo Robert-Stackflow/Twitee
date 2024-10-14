@@ -7,20 +7,23 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tweet_card_legacy_binding_value_data_image.g.dart';
 
 @JsonSerializable()
-class TweetCardLegacyBindingValueDataImage  {
+class TweetCardLegacyBindingValueDataImage {
   const TweetCardLegacyBindingValueDataImage({
     required this.alt,
     required this.height,
     required this.url,
     required this.width,
   });
-  
-  factory TweetCardLegacyBindingValueDataImage.fromJson(Map<String, Object?> json) => _$TweetCardLegacyBindingValueDataImageFromJson(json);
-  
+
+  factory TweetCardLegacyBindingValueDataImage.fromJson(
+          Map<String, Object?> json) =>
+      _$TweetCardLegacyBindingValueDataImageFromJson(json);
+
   final String? alt;
   final int height;
   final String url;
   final int width;
 
-  Map<String, Object?> toJson() => _$TweetCardLegacyBindingValueDataImageToJson(this);
+  Map<String, Object?> toJson() =>
+      _$TweetCardLegacyBindingValueDataImageToJson(this);
 }

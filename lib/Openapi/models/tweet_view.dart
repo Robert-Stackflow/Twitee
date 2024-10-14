@@ -9,14 +9,15 @@ import 'tweet_view_state.dart';
 part 'tweet_view.g.dart';
 
 @JsonSerializable()
-class TweetView  {
+class TweetView {
   const TweetView({
     required this.count,
     required this.state,
   });
-  
-  factory TweetView.fromJson(Map<String, Object?> json) => _$TweetViewFromJson(json);
-  
+
+  factory TweetView.fromJson(Map<String, Object?> json) =>
+      _$TweetViewFromJson(json);
+
   final String? count;
   final TweetViewState state;
 

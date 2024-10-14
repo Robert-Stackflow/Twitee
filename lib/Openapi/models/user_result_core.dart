@@ -9,13 +9,14 @@ import 'user_results.dart';
 part 'user_result_core.g.dart';
 
 @JsonSerializable()
-class UserResultCore  {
+class UserResultCore {
   const UserResultCore({
     required this.userResults,
   });
-  
-  factory UserResultCore.fromJson(Map<String, Object?> json) => _$UserResultCoreFromJson(json);
-  
+
+  factory UserResultCore.fromJson(Map<String, Object?> json) =>
+      _$UserResultCoreFromJson(json);
+
   @JsonKey(name: 'user_results')
   final UserResults? userResults;
 

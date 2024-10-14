@@ -74,6 +74,10 @@ class TweetUtil {
     }
   }
 
+  static String? getBigAvatarUrl(String? url) {
+    return url?.replaceAll("_normal.png", "_bigger.png").replaceAll("_normal.jpg", "_bigger.jpg");
+  }
+
   static bool hasMedia(TimelineTweet tweet) {
     Tweet t = TweetUtil.getTrueTweetByResult(tweet.tweetResults)!;
     return t.legacy!.entities.media != null &&

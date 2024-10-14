@@ -21,9 +21,10 @@ class TweetWithVisibilityResults extends TweetUnion {
     required this.tweet,
     required this.tweetInterstitial,
   });
-  
-  factory TweetWithVisibilityResults.fromJson(Map<String, Object?> json) => _$TweetWithVisibilityResultsFromJson(json);
-  
+
+  factory TweetWithVisibilityResults.fromJson(Map<String, Object?> json) =>
+      _$TweetWithVisibilityResultsFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final dynamic limitedActionResults;

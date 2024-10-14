@@ -55,6 +55,7 @@ class TabItemData {
             ? const [ContextMenuShowBehavior.secondaryTap]
             : const [],
         contextMenu: contextMenu ?? emptyWidget,
+        // child: AutoSizeText(str, maxLines: 1),
         child: Text(str),
       ),
     );
@@ -74,6 +75,8 @@ class TabItemDataList {
 
   List<ScrollController> get scrollControllerList =>
       mList.map((e) => e.scrollController).toList();
+
+  bool get isNotEmpty => mList.isNotEmpty;
 
   RefreshMixin? getRefreshMixin(int index) {
     if (index < 0 || index >= scrollControllerList.length) return null;
@@ -103,7 +106,7 @@ class TabItemDataList {
     return TabItemDataList(mList.sublist(start, end));
   }
 
-  clear(){
+  clear() {
     mList.clear();
   }
 }

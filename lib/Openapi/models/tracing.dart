@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tracing.g.dart';
 
 @JsonSerializable()
-class Tracing  {
+class Tracing {
   const Tracing({
     required this.traceId,
   });
-  
-  factory Tracing.fromJson(Map<String, Object?> json) => _$TracingFromJson(json);
-  
+
+  factory Tracing.fromJson(Map<String, Object?> json) =>
+      _$TracingFromJson(json);
+
   @JsonKey(name: 'trace_id')
   final String? traceId;
 

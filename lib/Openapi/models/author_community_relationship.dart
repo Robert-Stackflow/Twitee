@@ -11,15 +11,16 @@ import 'user_results.dart';
 part 'author_community_relationship.g.dart';
 
 @JsonSerializable()
-class AuthorCommunityRelationship  {
+class AuthorCommunityRelationship {
   const AuthorCommunityRelationship({
     required this.communityResults,
     required this.role,
     required this.userResults,
   });
-  
-  factory AuthorCommunityRelationship.fromJson(Map<String, Object?> json) => _$AuthorCommunityRelationshipFromJson(json);
-  
+
+  factory AuthorCommunityRelationship.fromJson(Map<String, Object?> json) =>
+      _$AuthorCommunityRelationshipFromJson(json);
+
   @JsonKey(name: 'community_results')
   final Community? communityResults;
   final AuthorCommunityRelationshipRole? role;

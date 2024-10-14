@@ -9,7 +9,7 @@ import 'tracing.dart';
 part 'error_extensions.g.dart';
 
 @JsonSerializable()
-class ErrorExtensions  {
+class ErrorExtensions {
   const ErrorExtensions({
     required this.code,
     required this.kind,
@@ -18,9 +18,10 @@ class ErrorExtensions  {
     required this.source,
     required this.tracing,
   });
-  
-  factory ErrorExtensions.fromJson(Map<String, Object?> json) => _$ErrorExtensionsFromJson(json);
-  
+
+  factory ErrorExtensions.fromJson(Map<String, Object?> json) =>
+      _$ErrorExtensionsFromJson(json);
+
   final int code;
   final String kind;
   final String name;

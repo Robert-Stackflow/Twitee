@@ -83,8 +83,7 @@ class Media {
 
   Map<String, Object?> toJson() => _$MediaToJson(this);
 
-  factory Media.clone(Media media) =>
-      Media(
+  factory Media.clone(Media media) => Media(
         additionalMediaInfo: media.additionalMediaInfo,
         allowDownloadStatus: media.allowDownloadStatus,
         displayUrl: media.displayUrl,

@@ -13,7 +13,7 @@ import 'timeline_half_cover_type.dart';
 part 'timeline_half_cover.g.dart';
 
 @JsonSerializable()
-class TimelineHalfCover  {
+class TimelineHalfCover {
   const TimelineHalfCover({
     required this.dismissible,
     required this.halfCoverDisplayType,
@@ -23,9 +23,10 @@ class TimelineHalfCover  {
     required this.secondaryText,
     required this.type,
   });
-  
-  factory TimelineHalfCover.fromJson(Map<String, Object?> json) => _$TimelineHalfCoverFromJson(json);
-  
+
+  factory TimelineHalfCover.fromJson(Map<String, Object?> json) =>
+      _$TimelineHalfCoverFromJson(json);
+
   final bool dismissible;
   final TimelineHalfCoverHalfCoverDisplayType halfCoverDisplayType;
   final List<Callback> impressionCallbacks;

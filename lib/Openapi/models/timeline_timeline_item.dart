@@ -21,9 +21,10 @@ class TimelineTimelineItem extends ContentUnion {
     required this.feedbackInfo,
     required this.itemContent,
   });
-  
-  factory TimelineTimelineItem.fromJson(Map<String, Object?> json) => _$TimelineTimelineItemFromJson(json);
-  
+
+  factory TimelineTimelineItem.fromJson(Map<String, Object?> json) =>
+      _$TimelineTimelineItemFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final ClientEventInfo? clientEventInfo;

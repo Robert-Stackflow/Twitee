@@ -34,7 +34,9 @@ class SuggestionTopic {
       roundedScore: json['rounded_score'],
       tokens: List<dynamic>.from(json['tokens']),
       inline: json['inline'],
-      resultContext: json['result_context'] != null ? ResultContext.fromJson(json['result_context']) : null,
+      resultContext: json['result_context'] != null
+          ? ResultContext.fromJson(json['result_context'])
+          : null,
     );
   }
 
@@ -72,7 +74,8 @@ class ResultContext {
       displayString: json['display_string'],
       redirectUrl: json['redirect_url'],
       redirectUrlTv: json['redirect_url_tv'],
-      types: List<TypeData>.from(json['types'].map((x) => TypeData.fromJson(x))),
+      types:
+          List<TypeData>.from(json['types'].map((x) => TypeData.fromJson(x))),
     );
   }
 
@@ -113,6 +116,7 @@ class TypeData {
     return 'TypeData(type: $type)';
   }
 }
+
 class SuggestionUser {
   int id;
   String idStr;
@@ -254,6 +258,7 @@ class SocialContext {
     return 'SocialContext(following: $following, followedBy: $followedBy)';
   }
 }
+
 class SearchSuggestionResponse {
   int numResults;
   List<SuggestionUser> users;
@@ -282,8 +287,10 @@ class SearchSuggestionResponse {
   factory SearchSuggestionResponse.fromJson(Map<String, dynamic> json) {
     return SearchSuggestionResponse(
       numResults: json['num_results'],
-      users: List<SuggestionUser>.from(json['users'].map((x) => SuggestionUser.fromJson(x))),
-      topics: List<SuggestionTopic>.from(json['topics'].map((x) => SuggestionTopic.fromJson(x))),
+      users: List<SuggestionUser>.from(
+          json['users'].map((x) => SuggestionUser.fromJson(x))),
+      topics: List<SuggestionTopic>.from(
+          json['topics'].map((x) => SuggestionTopic.fromJson(x))),
       events: List<dynamic>.from(json['events']),
       lists: List<dynamic>.from(json['lists']),
       orderedSections: List<dynamic>.from(json['ordered_sections']),

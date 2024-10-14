@@ -9,13 +9,14 @@ import 'home_timeline_response_data.dart';
 part 'timeline_response.g.dart';
 
 @JsonSerializable()
-class TimelineResponse  {
+class TimelineResponse {
   const TimelineResponse({
     required this.data,
   });
-  
-  factory TimelineResponse.fromJson(Map<String, Object?> json) => _$TimelineResponseFromJson(json);
-  
+
+  factory TimelineResponse.fromJson(Map<String, Object?> json) =>
+      _$TimelineResponseFromJson(json);
+
   final HomeTimelineResponseData data;
 
   Map<String, Object?> toJson() => _$TimelineResponseToJson(this);

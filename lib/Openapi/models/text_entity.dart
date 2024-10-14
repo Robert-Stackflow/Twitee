@@ -9,15 +9,16 @@ import 'text_entity_ref.dart';
 part 'text_entity.g.dart';
 
 @JsonSerializable()
-class TextEntity  {
+class TextEntity {
   const TextEntity({
     required this.fromIndex,
     required this.ref,
     required this.toIndex,
   });
-  
-  factory TextEntity.fromJson(Map<String, Object?> json) => _$TextEntityFromJson(json);
-  
+
+  factory TextEntity.fromJson(Map<String, Object?> json) =>
+      _$TextEntityFromJson(json);
+
   final int fromIndex;
   final TextEntityRef ref;
   final int toIndex;

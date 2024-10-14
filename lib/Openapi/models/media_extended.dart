@@ -18,7 +18,7 @@ import 'sensitive_media_warning.dart';
 part 'media_extended.g.dart';
 
 @JsonSerializable()
-class MediaExtended  {
+class MediaExtended {
   const MediaExtended({
     required this.additionalMediaInfo,
     required this.allowDownloadStatus,
@@ -42,9 +42,10 @@ class MediaExtended  {
     required this.url,
     required this.videoInfo,
   });
-  
-  factory MediaExtended.fromJson(Map<String, Object?> json) => _$MediaExtendedFromJson(json);
-  
+
+  factory MediaExtended.fromJson(Map<String, Object?> json) =>
+      _$MediaExtendedFromJson(json);
+
   @JsonKey(name: 'additional_media_info')
   final AdditionalMediaInfo? additionalMediaInfo;
   @JsonKey(name: 'allow_download_status')

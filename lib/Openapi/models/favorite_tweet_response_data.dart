@@ -9,13 +9,14 @@ import 'favorite_tweet.dart';
 part 'favorite_tweet_response_data.g.dart';
 
 @JsonSerializable()
-class FavoriteTweetResponseData  {
+class FavoriteTweetResponseData {
   const FavoriteTweetResponseData({
     required this.data,
   });
-  
-  factory FavoriteTweetResponseData.fromJson(Map<String, Object?> json) => _$FavoriteTweetResponseDataFromJson(json);
-  
+
+  factory FavoriteTweetResponseData.fromJson(Map<String, Object?> json) =>
+      _$FavoriteTweetResponseDataFromJson(json);
+
   final FavoriteTweet data;
 
   Map<String, Object?> toJson() => _$FavoriteTweetResponseDataToJson(this);

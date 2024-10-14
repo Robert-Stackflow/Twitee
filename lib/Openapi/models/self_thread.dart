@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'self_thread.g.dart';
 
 @JsonSerializable()
-class SelfThread  {
+class SelfThread {
   const SelfThread({
     required this.idStr,
   });
-  
-  factory SelfThread.fromJson(Map<String, Object?> json) => _$SelfThreadFromJson(json);
-  
+
+  factory SelfThread.fromJson(Map<String, Object?> json) =>
+      _$SelfThreadFromJson(json);
+
   @JsonKey(name: 'id_str')
   final String? idStr;
 

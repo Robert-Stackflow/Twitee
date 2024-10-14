@@ -10,12 +10,14 @@ enum UserProfessionalProfessionalType {
   business('Business'),
   @JsonValue('Creator')
   creator('Creator'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const UserProfessionalProfessionalType(this.json);
 
-  factory UserProfessionalProfessionalType.fromJson(String json) => values.firstWhere(
+  factory UserProfessionalProfessionalType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

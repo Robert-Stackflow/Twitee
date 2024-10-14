@@ -14,7 +14,8 @@ abstract class V11getClient {
   /// get friends following list
   @GET('/1.1/friends/following/list.json')
   Future<void> getFriendsFollowingList({
-    @Query('include_profile_interstitial_type') int includeProfileInterstitialType = 1,
+    @Query('include_profile_interstitial_type')
+    int includeProfileInterstitialType = 1,
     @Query('include_blocking') int includeBlocking = 1,
     @Query('include_blocked_by') int includeBlockedBy = 1,
     @Query('include_followed_by') int includeFollowedBy = 1,
@@ -25,7 +26,8 @@ abstract class V11getClient {
     @Query('include_ext_has_nft_avatar') int includeExtHasNftAvatar = 1,
     @Query('include_ext_is_blue_verified') int includeExtIsBlueVerified = 1,
     @Query('include_ext_verified_type') int includeExtVerifiedType = 1,
-    @Query('include_ext_profile_image_shape') int includeExtProfileImageShape = 1,
+    @Query('include_ext_profile_image_shape')
+    int includeExtProfileImageShape = 1,
     @Query('skip_status') int skipStatus = 1,
     @Query('cursor') int cursor = -1,
     @Query('user_id') String userId = '44196397',
@@ -38,7 +40,8 @@ abstract class V11getClient {
   Future<void> getSearchTypeahead({
     @Query('include_ext_is_blue_verified') int includeExtIsBlueVerified = 1,
     @Query('include_ext_verified_type') int includeExtVerifiedType = 1,
-    @Query('include_ext_profile_image_shape') int includeExtProfileImageShape = 1,
+    @Query('include_ext_profile_image_shape')
+    int includeExtProfileImageShape = 1,
     @Query('q') String q = 'test',
     @Query('src') String src = 'search_box',
     @Query('result_type') String resultType = 'events,users,topics',

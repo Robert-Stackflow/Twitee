@@ -16,9 +16,10 @@ class TimelineTerminateTimeline extends InstructionUnion {
     required this.direction,
     required this.type,
   });
-  
-  factory TimelineTerminateTimeline.fromJson(Map<String, Object?> json) => _$TimelineTerminateTimelineFromJson(json);
-  
+
+  factory TimelineTerminateTimeline.fromJson(Map<String, Object?> json) =>
+      _$TimelineTerminateTimelineFromJson(json);
+
   final TimelineTerminateTimelineDirection direction;
   final InstructionType type;
 

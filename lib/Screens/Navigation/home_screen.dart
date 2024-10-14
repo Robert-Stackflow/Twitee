@@ -19,11 +19,14 @@ import 'package:twitee/Models/tab_item_data.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/hive_util.dart';
+import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../../Widgets/Twitter/refresh_interface.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,7 +37,14 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class HomeScreenState extends State<HomeScreen>
+    with
+        TickerProviderStateMixin,
+        ScrollToHideMixin,
+        AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late TabController _tabController;
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
@@ -63,6 +73,8 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
+    if (mounted) setState(() {});
+    panelScreenState?.refreshScrollControllers();
   }
 
   addTabs() {
@@ -84,6 +96,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _tabController.animateTo(currentIndex.clamp(0, tabDataList.length - 1));
     _tabController = TabController(length: tabDataList.length, vsync: this);
     if (mounted) setState(() {});
+    panelScreenState?.refreshScrollControllers();
   }
 
   refreshPinnedLists() async {
@@ -102,22 +115,28 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
     );
     _tabController = TabController(length: 0, vsync: this);
-    initTab();
-    refreshPinnedLists();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initTab();
+      refreshPinnedLists();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
+        backSpacing: 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,
           tabDataList.tabList,
           onTap: onTapTab,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          autoScrollable: false,
         ),
       ),
       body: Stack(
@@ -127,11 +146,11 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: tabDataList.pageList,
           ),
           Positioned(
-            right: 16,
-            bottom: 16,
+            right: ResponsiveUtil.isLandscape() ? 16 : 12,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
             child: ScrollToHide(
               controller: _scrollToHideController,
-              scrollController: tabDataList.getScrollControllerNotNull(currentIndex),
+              scrollControllers: tabDataList.scrollControllerList,
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -142,7 +161,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   onTapTab(int index) {
-    _scrollToHideController.show();
+    panelScreenState?.showBottomNavigationBar();
     if (!_tabController.indexIsChanging && index == currentIndex) {
       if (tabDataList.getScrollController(index) != null &&
           tabDataList.getScrollController(index)!.offset > 30) {
@@ -154,8 +173,9 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   scrollToTop() async {
-    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
     _scrollToHideController.show();
+    panelScreenState?.showBottomNavigationBar();
   }
 
   refresh() async {
@@ -163,6 +183,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await scrollToTop();
     _refreshRotationController.stop();
     _refreshRotationController.forward();
+    refreshPinnedLists();
     tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
@@ -190,5 +211,10 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return tabDataList.scrollControllerList;
   }
 }

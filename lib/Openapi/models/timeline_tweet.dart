@@ -25,9 +25,10 @@ class TimelineTweet extends ItemContentUnion {
     required this.tweetDisplayType,
     required this.tweetResults,
   });
-  
-  factory TimelineTweet.fromJson(Map<String, Object?> json) => _$TimelineTweetFromJson(json);
-  
+
+  factory TimelineTweet.fromJson(Map<String, Object?> json) =>
+      _$TimelineTweetFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final Highlight? highlights;

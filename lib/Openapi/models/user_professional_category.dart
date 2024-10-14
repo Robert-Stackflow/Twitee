@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user_professional_category.g.dart';
 
 @JsonSerializable()
-class UserProfessionalCategory  {
+class UserProfessionalCategory {
   const UserProfessionalCategory({
     required this.iconName,
     required this.id,
     required this.name,
   });
-  
-  factory UserProfessionalCategory.fromJson(Map<String, Object?> json) => _$UserProfessionalCategoryFromJson(json);
-  
+
+  factory UserProfessionalCategory.fromJson(Map<String, Object?> json) =>
+      _$UserProfessionalCategoryFromJson(json);
+
   @JsonKey(name: 'icon_name')
   final String? iconName;
   final int id;

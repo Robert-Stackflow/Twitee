@@ -10,6 +10,7 @@ enum MediaSizeResize {
   crop('crop'),
   @JsonValue('fit')
   fit('fit'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

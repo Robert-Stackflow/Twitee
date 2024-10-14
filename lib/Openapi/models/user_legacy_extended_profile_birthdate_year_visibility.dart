@@ -16,12 +16,15 @@ enum UserLegacyExtendedProfileBirthdateYearVisibility {
   followers('Followers'),
   @JsonValue('Following')
   following('Following'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const UserLegacyExtendedProfileBirthdateYearVisibility(this.json);
 
-  factory UserLegacyExtendedProfileBirthdateYearVisibility.fromJson(String json) => values.firstWhere(
+  factory UserLegacyExtendedProfileBirthdateYearVisibility.fromJson(
+          String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

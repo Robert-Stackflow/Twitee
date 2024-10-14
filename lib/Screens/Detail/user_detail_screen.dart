@@ -21,19 +21,20 @@ import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
+import 'package:twitee/Utils/enums.dart';
 import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Widgets/Custom/subordinate_scroll_controller.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../Api/user_api.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Utils/responsive_util.dart';
-import '../../Utils/tweet_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
+import '../Flow/user_flow_screen.dart';
 
 class UserDetailScreen extends StatefulWidget {
   const UserDetailScreen({super.key, required this.screenName});
@@ -55,7 +56,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   User? get user => response?.data.user.result as User;
 
   UserLegacy? get userLegacy => user?.legacy;
-  bool _inited = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   late TabController _tabController;
   late AnimationController _refreshRotationController;
@@ -67,42 +68,22 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   List<UserLegacy> friendList = [];
 
-  _buildTabPage(GlobalKey key, ScrollController scrollController,
-      Widget Function(GlobalKey, ScrollController) widgetBuilder) {
-    ScrollController primaryController = PrimaryScrollController.of(context);
-    return Builder(builder: (_) {
-      if (scrollController is! SubordinateScrollController) {
-        scrollController = SubordinateScrollController(primaryController);
-      } else if ((scrollController as SubordinateScrollController).parent !=
-          primaryController) {
-        scrollController.dispose();
-        scrollController = SubordinateScrollController(primaryController);
-      }
-      return widgetBuilder.call(key, scrollController);
-    });
-  }
+  ScrollController? primaryController;
 
   initTab() {
-    ScrollController primaryController = PrimaryScrollController.of(context);
+    primaryController = PrimaryScrollController.of(context);
     tabDataList.addAll([
       TabItemData.build(
         "帖子",
-        // (key, scrollController) => _buildTabPage(
-        //   key,
-        //   scrollController,
         (key2, scrollController2) => UserTweetFlowScreen(
           key: key2,
           userId: user!.restId!,
           nested: true,
           scrollController: primaryController,
-          // ),
         ),
       ),
       TabItemData.build(
         "回复",
-        // (key, scrollController) => _buildTabPage(
-        //   key,
-        //   scrollController,
         (key2, scrollController2) => UserTweetFlowScreen(
           key: key2,
           userId: user!.restId!,
@@ -110,35 +91,33 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           type: UserTweetFlowType.TweetsAndReplies,
           scrollController: primaryController,
         ),
-        // ),
       ),
       TabItemData.build(
         "媒体",
-        // (key, scrollController) => _buildTabPage(
-        //   key,
-        //   scrollController,
         (key2, scrollController2) => UserMediaFlowScreen(
           key: key2,
           userId: user!.restId!,
           nested: true,
           scrollController: primaryController,
         ),
-        // ),
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
   }
 
   fetchUserInfo() async {
+    _initPhase = InitPhase.connecting;
     var res = await UserApi.getUserInfo(widget.screenName);
     if (res.success) {
       response = res.data;
       fetchFriendList();
       initTab();
+      _initPhase = InitPhase.successful;
     } else {
       IToast.showTop("获取用户信息失败：${res.message}");
+      _initPhase = InitPhase.failed;
     }
-    _inited = true;
+    if (response == null || userLegacy == null) _initPhase = InitPhase.failed;
     if (mounted) setState(() {});
   }
 
@@ -149,7 +128,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     } else {
       IToast.showTop("获取好友列表失败：${res.message}");
     }
-    _inited = true;
     if (mounted) setState(() {});
   }
 
@@ -172,17 +150,25 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
           context: context, title: "个人主页", showBack: true),
-      body: _inited
-          ? _buildBody()
-          : ItemBuilder.buildLoadingDialog(context,
-              text: "加载中...", background: Colors.transparent),
+      body: _buildBody(),
     );
   }
 
   _buildBody() {
-    return response == null || userLegacy == null
-        ? _buildError()
-        : _buildMainBody();
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent);
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: fetchUserInfo,
+        );
+      case InitPhase.successful:
+        return _buildMainBody();
+      default:
+        return Container();
+    }
   }
 
   _buildMainBody() {
@@ -219,8 +205,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             bottom: 16,
             child: ScrollToHide(
               controller: _scrollToHideController,
-              scrollController:
-                  tabDataList.getScrollControllerNotNull(currentIndex),
+              scrollControllers: [
+                primaryController ?? ScrollController(),
+                ...tabDataList.scrollControllerList
+              ],
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -438,7 +426,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             children: [
               ItemBuilder.buildAvatar(
                 context: context,
-                imageUrl: userLegacy!.profileImageUrlHttps ?? AssetUtil.avatar,
+                imageUrl: TweetUtil.getBigAvatarUrl(
+                        userLegacy!.profileImageUrlHttps) ??
+                    AssetUtil.avatar,
                 size: ResponsiveUtil.isMobile() ? 56 : 84,
                 showDetail: true,
               ),
@@ -544,16 +534,16 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 title: "正在关注",
                 value: "${userLegacy!.friendsCount}",
                 onTap: () {
-                  panelScreenState
-                      ?.pushPage(FriendshipScreen(userId: user!.restId));
+                  panelScreenState?.pushPage(FriendshipScreen(
+                      userId: user!.restId, initType: UserFlowType.following));
                 },
               ),
               _buildCountItem(
                 title: "关注者",
                 value: "${userLegacy!.followersCount}",
                 onTap: () {
-                  panelScreenState
-                      ?.pushPage(FriendshipScreen(userId: user!.restId));
+                  panelScreenState?.pushPage(FriendshipScreen(
+                      userId: user!.restId, initType: UserFlowType.follower));
                 },
               ),
               if (friendList.isNotEmpty)
@@ -602,28 +592,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  _buildError() {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "加载失败",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 10),
-          ItemBuilder.buildRoundButton(context, text: "重试", onTap: () {
-            fetchUserInfo();
-          }),
-        ],
       ),
     );
   }

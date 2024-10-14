@@ -8,6 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 enum CommunityDataJoinPolicy {
   @JsonValue('Open')
   open('Open'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

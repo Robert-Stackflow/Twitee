@@ -9,16 +9,17 @@ import 'media_size.dart';
 part 'media_sizes.g.dart';
 
 @JsonSerializable()
-class MediaSizes  {
+class MediaSizes {
   const MediaSizes({
     required this.large,
     required this.medium,
     required this.small,
     required this.thumb,
   });
-  
-  factory MediaSizes.fromJson(Map<String, Object?> json) => _$MediaSizesFromJson(json);
-  
+
+  factory MediaSizes.fromJson(Map<String, Object?> json) =>
+      _$MediaSizesFromJson(json);
+
   final MediaSize large;
   final MediaSize medium;
   final MediaSize small;

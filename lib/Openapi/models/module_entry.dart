@@ -11,15 +11,16 @@ import 'item_content_union.dart';
 part 'module_entry.g.dart';
 
 @JsonSerializable()
-class ModuleEntry  {
+class ModuleEntry {
   const ModuleEntry({
     required this.clientEventInfo,
     required this.feedbackInfo,
     required this.itemContent,
   });
-  
-  factory ModuleEntry.fromJson(Map<String, Object?> json) => _$ModuleEntryFromJson(json);
-  
+
+  factory ModuleEntry.fromJson(Map<String, Object?> json) =>
+      _$ModuleEntryFromJson(json);
+
   final ClientEventInfo? clientEventInfo;
   final FeedbackInfo? feedbackInfo;
   final ItemContentUnion itemContent;

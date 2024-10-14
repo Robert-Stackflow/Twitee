@@ -17,9 +17,10 @@ class TimelineReplaceEntry extends InstructionUnion {
     required this.entryIdToReplace,
     required this.type,
   });
-  
-  factory TimelineReplaceEntry.fromJson(Map<String, Object?> json) => _$TimelineReplaceEntryFromJson(json);
-  
+
+  factory TimelineReplaceEntry.fromJson(Map<String, Object?> json) =>
+      _$TimelineReplaceEntryFromJson(json);
+
   final TimelineAddEntry entry;
   @JsonKey(name: 'entry_id_to_replace')
   final String? entryIdToReplace;

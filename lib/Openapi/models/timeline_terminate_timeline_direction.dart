@@ -12,12 +12,14 @@ enum TimelineTerminateTimelineDirection {
   bottom('Bottom'),
   @JsonValue('TopAndBottom')
   topAndBottom('TopAndBottom'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineTerminateTimelineDirection(this.json);
 
-  factory TimelineTerminateTimelineDirection.fromJson(String json) => values.firstWhere(
+  factory TimelineTerminateTimelineDirection.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

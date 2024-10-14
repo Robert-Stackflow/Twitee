@@ -9,13 +9,14 @@ import 'session.dart';
 part 'other_response.g.dart';
 
 @JsonSerializable()
-class OtherResponse  {
+class OtherResponse {
   const OtherResponse({
     required this.session,
   });
-  
-  factory OtherResponse.fromJson(Map<String, Object?> json) => _$OtherResponseFromJson(json);
-  
+
+  factory OtherResponse.fromJson(Map<String, Object?> json) =>
+      _$OtherResponseFromJson(json);
+
   @JsonKey(name: 'Session')
   final Session? session;
 

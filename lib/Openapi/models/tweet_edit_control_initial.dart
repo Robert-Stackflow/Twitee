@@ -7,16 +7,17 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tweet_edit_control_initial.g.dart';
 
 @JsonSerializable()
-class TweetEditControlInitial  {
+class TweetEditControlInitial {
   const TweetEditControlInitial({
     required this.editTweetIds,
     required this.editableUntilMsecs,
     required this.editsRemaining,
     required this.isEditEligible,
   });
-  
-  factory TweetEditControlInitial.fromJson(Map<String, Object?> json) => _$TweetEditControlInitialFromJson(json);
-  
+
+  factory TweetEditControlInitial.fromJson(Map<String, Object?> json) =>
+      _$TweetEditControlInitialFromJson(json);
+
   @JsonKey(name: 'edit_tweet_ids')
   final List<String?>? editTweetIds;
   @JsonKey(name: 'editable_until_msecs')

@@ -15,9 +15,12 @@ enum TweetLegacyLimitedActions {
   @JsonValue('stale_tweet')
   staleTweet('stale_tweet'),
   @JsonValue('community_tweet_non_member_public_community')
-  communityTweetNonMemberPublicCommunity('community_tweet_non_member_public_community'),
+  communityTweetNonMemberPublicCommunity(
+      'community_tweet_non_member_public_community'),
   @JsonValue('community_tweet_non_member_closed_community')
-  communityTweetNonMemberClosedCommunity('community_tweet_non_member_closed_community'),
+  communityTweetNonMemberClosedCommunity(
+      'community_tweet_non_member_closed_community'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

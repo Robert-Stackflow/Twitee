@@ -20,12 +20,14 @@ enum TimelineGeneralContextContextType {
   conversation('Conversation'),
   @JsonValue('List')
   list('List'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineGeneralContextContextType(this.json);
 
-  factory TimelineGeneralContextContextType.fromJson(String json) => values.firstWhere(
+  factory TimelineGeneralContextContextType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

@@ -10,17 +10,19 @@ import 'type_name.dart';
 part 'super_follows_reply_user_result_data.g.dart';
 
 @JsonSerializable()
-class SuperFollowsReplyUserResultData  {
+class SuperFollowsReplyUserResultData {
   const SuperFollowsReplyUserResultData({
     required this.privateTypename,
     required this.legacy,
   });
-  
-  factory SuperFollowsReplyUserResultData.fromJson(Map<String, Object?> json) => _$SuperFollowsReplyUserResultDataFromJson(json);
-  
+
+  factory SuperFollowsReplyUserResultData.fromJson(Map<String, Object?> json) =>
+      _$SuperFollowsReplyUserResultDataFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final SuperFollowsReplyUserResultLegacy legacy;
 
-  Map<String, Object?> toJson() => _$SuperFollowsReplyUserResultDataToJson(this);
+  Map<String, Object?> toJson() =>
+      _$SuperFollowsReplyUserResultDataToJson(this);
 }

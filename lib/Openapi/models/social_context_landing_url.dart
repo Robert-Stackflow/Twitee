@@ -10,15 +10,16 @@ import 'urt_endpoint_options.dart';
 part 'social_context_landing_url.g.dart';
 
 @JsonSerializable()
-class SocialContextLandingUrl  {
+class SocialContextLandingUrl {
   const SocialContextLandingUrl({
     required this.url,
     required this.urlType,
     required this.urtEndpointOptions,
   });
-  
-  factory SocialContextLandingUrl.fromJson(Map<String, Object?> json) => _$SocialContextLandingUrlFromJson(json);
-  
+
+  factory SocialContextLandingUrl.fromJson(Map<String, Object?> json) =>
+      _$SocialContextLandingUrlFromJson(json);
+
   final String? url;
   final SocialContextLandingUrlUrlType? urlType;
   final UrtEndpointOptions? urtEndpointOptions;

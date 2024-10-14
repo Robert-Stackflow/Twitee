@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'follow_timeline.g.dart';
 
 @JsonSerializable()
-class FollowTimeline  {
+class FollowTimeline {
   const FollowTimeline({
     required this.timeline,
   });
-  
-  factory FollowTimeline.fromJson(Map<String, Object?> json) => _$FollowTimelineFromJson(json);
-  
+
+  factory FollowTimeline.fromJson(Map<String, Object?> json) =>
+      _$FollowTimelineFromJson(json);
+
   final Timeline timeline;
 
   Map<String, Object?> toJson() => _$FollowTimelineToJson(this);

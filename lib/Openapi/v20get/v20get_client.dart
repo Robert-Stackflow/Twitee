@@ -25,12 +25,15 @@ abstract class V20getClient {
     @Query('include_ext_has_nft_avatar') int includeExtHasNftAvatar = 1,
     @Query('include_ext_is_blue_verified') int includeExtIsBlueVerified = 1,
     @Query('include_ext_verified_type') int includeExtVerifiedType = 1,
-    @Query('include_ext_profile_image_shape') int includeExtProfileImageShape = 1,
-    @Query('include_profile_interstitial_type') int includeProfileInterstitialType = 1,
+    @Query('include_ext_profile_image_shape')
+    int includeExtProfileImageShape = 1,
+    @Query('include_profile_interstitial_type')
+    int includeProfileInterstitialType = 1,
     @Query('cards_platform') String cardsPlatform = 'Web-12',
     @Query('include_cards') int includeCards = 1,
     @Query('include_ext_alt_text') bool includeExtAltText = true,
-    @Query('include_ext_limited_action_results') bool includeExtLimitedActionResults = false,
+    @Query('include_ext_limited_action_results')
+    bool includeExtLimitedActionResults = false,
     @Query('include_quote_count') bool includeQuoteCount = true,
     @Query('include_reply_count') int includeReplyCount = 1,
     @Query('tweet_mode') String tweetMode = 'extended',
@@ -38,9 +41,12 @@ abstract class V20getClient {
     @Query('include_entities') bool includeEntities = true,
     @Query('include_user_entities') bool includeUserEntities = true,
     @Query('include_ext_media_color') bool includeExtMediaColor = true,
-    @Query('ext') String ext = 'mediaStats,highlightedLabel,hasNftAvatar,voiceInfo,birdwatchPivot,enrichments,superFollowMetadata,unmentionInfo,editControl,vibe',
-    @Query('include_ext_sensitive_media_warning') bool includeExtSensitiveMediaWarning = true,
-    @Query('include_ext_trusted_friends_metadata') bool includeExtTrustedFriendsMetadata = true,
+    @Query('ext') String ext =
+        'mediaStats,highlightedLabel,hasNftAvatar,voiceInfo,birdwatchPivot,enrichments,superFollowMetadata,unmentionInfo,editControl,vibe',
+    @Query('include_ext_sensitive_media_warning')
+    bool includeExtSensitiveMediaWarning = true,
+    @Query('include_ext_trusted_friends_metadata')
+    bool includeExtTrustedFriendsMetadata = true,
     @Query('send_error_codes') bool sendErrorCodes = true,
     @Query('simple_quoted_tweet') bool simpleQuotedTweet = true,
     @Query('q') String q = 'elon musk',
@@ -50,6 +56,7 @@ abstract class V20getClient {
     @Query('pc') int pc = 1,
     @Query('spelling_corrections') int spellingCorrections = 1,
     @Query('include_ext_edit_control') bool includeExtEditControl = true,
-    @Query('include_ext_media_availability') bool includeExtMediaAvailability = true,
+    @Query('include_ext_media_availability')
+    bool includeExtMediaAvailability = true,
   });
 }

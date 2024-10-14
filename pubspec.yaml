@@ -122,7 +122,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   freezed: ^2.5.7
   swagger_parser:
-    path: third-party/swagger_parser/swagger_parser
+    path: third-party/swagger_parser
   retrofit_generator: ^9.1.2
 
 swagger_parser:

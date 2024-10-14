@@ -26,9 +26,10 @@ class TimelineTimelineModule extends ContentUnion {
     required this.items,
     required this.metadata,
   });
-  
-  factory TimelineTimelineModule.fromJson(Map<String, Object?> json) => _$TimelineTimelineModuleFromJson(json);
-  
+
+  factory TimelineTimelineModule.fromJson(Map<String, Object?> json) =>
+      _$TimelineTimelineModuleFromJson(json);
+
   @JsonKey(name: '__typename')
   final String? privateTypename;
   final dynamic clientEventInfo;

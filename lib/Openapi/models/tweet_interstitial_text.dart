@@ -9,15 +9,16 @@ import 'tweet_interstitial_text_entity.dart';
 part 'tweet_interstitial_text.g.dart';
 
 @JsonSerializable()
-class TweetInterstitialText  {
+class TweetInterstitialText {
   const TweetInterstitialText({
     required this.entities,
     required this.rtl,
     required this.text,
   });
-  
-  factory TweetInterstitialText.fromJson(Map<String, Object?> json) => _$TweetInterstitialTextFromJson(json);
-  
+
+  factory TweetInterstitialText.fromJson(Map<String, Object?> json) =>
+      _$TweetInterstitialTextFromJson(json);
+
   final List<TweetInterstitialTextEntity> entities;
   final bool rtl;
   final String text;

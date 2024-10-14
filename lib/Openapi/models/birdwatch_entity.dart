@@ -9,15 +9,16 @@ import 'birdwatch_entity_ref.dart';
 part 'birdwatch_entity.g.dart';
 
 @JsonSerializable()
-class BirdwatchEntity  {
+class BirdwatchEntity {
   const BirdwatchEntity({
     required this.fromIndex,
     required this.ref,
     required this.toIndex,
   });
-  
-  factory BirdwatchEntity.fromJson(Map<String, Object?> json) => _$BirdwatchEntityFromJson(json);
-  
+
+  factory BirdwatchEntity.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchEntityFromJson(json);
+
   final int fromIndex;
   final BirdwatchEntityRef ref;
   final int toIndex;

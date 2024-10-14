@@ -9,15 +9,16 @@ import 'media_video_info_variant.dart';
 part 'media_video_info.g.dart';
 
 @JsonSerializable()
-class MediaVideoInfo  {
+class MediaVideoInfo {
   const MediaVideoInfo({
     required this.aspectRatio,
     required this.durationMillis,
     required this.variants,
   });
-  
-  factory MediaVideoInfo.fromJson(Map<String, Object?> json) => _$MediaVideoInfoFromJson(json);
-  
+
+  factory MediaVideoInfo.fromJson(Map<String, Object?> json) =>
+      _$MediaVideoInfoFromJson(json);
+
   @JsonKey(name: 'aspect_ratio')
   final List<int?>? aspectRatio;
   @JsonKey(name: 'duration_millis')

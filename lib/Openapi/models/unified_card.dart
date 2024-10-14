@@ -9,13 +9,14 @@ import 'unified_card_card_fetch_state.dart';
 part 'unified_card.g.dart';
 
 @JsonSerializable()
-class UnifiedCard  {
+class UnifiedCard {
   const UnifiedCard({
     required this.cardFetchState,
   });
-  
-  factory UnifiedCard.fromJson(Map<String, Object?> json) => _$UnifiedCardFromJson(json);
-  
+
+  factory UnifiedCard.fromJson(Map<String, Object?> json) =>
+      _$UnifiedCardFromJson(json);
+
   @JsonKey(name: 'card_fetch_state')
   final UnifiedCardCardFetchState? cardFetchState;
 

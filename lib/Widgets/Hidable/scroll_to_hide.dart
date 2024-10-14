@@ -46,25 +46,28 @@ class ScrollToHide extends StatefulWidget {
   const ScrollToHide({
     super.key,
     required this.child,
-    required this.scrollController,
+    required this.scrollControllers,
     this.duration = const Duration(milliseconds: 300),
     required this.hideDirection,
     this.width,
     this.enabled = true,
     this.height,
     this.controller,
+    this.useOpacityAnimation = true,
   });
 
   final ScrollToHideController? controller;
 
   final bool enabled;
 
+  final bool useOpacityAnimation;
+
   /// The widget that you want to hide/show based on the scroll direction.
   final Widget child;
 
   /// The `ScrollController` that is connected to the scrollable widget in your app.
   /// This is used to track the scroll position and determine whether to hide or show the child widget.
-  final ScrollController scrollController;
+  final List<ScrollController> scrollControllers;
 
   /// The duration of the animation when the child widget is hidden or shown.
   final Duration duration;
@@ -82,28 +85,50 @@ class ScrollToHide extends StatefulWidget {
   State<ScrollToHide> createState() => ScrollToHideState();
 }
 
-class ScrollToHideState extends State<ScrollToHide> {
+class ScrollToHideState extends State<ScrollToHide>
+    with TickerProviderStateMixin {
   bool isShown = true;
+
+  late AnimationController _animationController;
+  late Animation<Offset> _offsetAnimation;
 
   @override
   void initState() {
-    widget.scrollController.addListener(listen);
+    for (var scrollController in widget.scrollControllers) {
+      scrollController.addListener(listen);
+    }
     widget.controller?.doShow = show;
     widget.controller?.doHide = hide;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, 1.0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
     super.initState();
   }
 
   @override
   void dispose() {
-    widget.scrollController.removeListener(() {});
+    for (var scrollController in widget.scrollControllers) {
+      scrollController.removeListener(() {});
+    }
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(ScrollToHide oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.scrollController != widget.scrollController) {
-      widget.scrollController.addListener(listen);
+    if (oldWidget.scrollControllers != widget.scrollControllers) {
+      for (var scrollController in widget.scrollControllers) {
+        scrollController.addListener(listen);
+      }
     }
   }
 
@@ -112,22 +137,20 @@ class ScrollToHideState extends State<ScrollToHide> {
     return AnimatedOpacity(
       duration: widget.duration,
       opacity: isShown ? 1.0 : 0.0,
-      child: AnimatedContainer(
-        duration: widget.duration,
-        height: widget.hideDirection == Axis.vertical
-            ? (isShown ? widget.height : 0)
-            : widget.height,
-        width: widget.hideDirection == Axis.horizontal
-            ? (isShown ? widget.width : 0)
-            : widget.width,
-        curve: Curves.linear,
-        clipBehavior: Clip.none,
-        child: Wrap(
-          children: [
-            widget.child,
-          ],
-        ),
-      ),
+      child: widget.useOpacityAnimation == false
+          ? Wrap(
+              children: [
+                widget.child,
+              ],
+            )
+          : SlideTransition(
+              position: _offsetAnimation,
+              child: Wrap(
+                children: [
+                  widget.child,
+                ],
+              ),
+            ),
     );
   }
 
@@ -135,24 +158,27 @@ class ScrollToHideState extends State<ScrollToHide> {
   void show() {
     if (!isShown && mounted) {
       setState(() => isShown = true);
+      _animationController.reverse();
     }
   }
 
   /// Hides the child widget if it is currently shown.
   void hide() {
     if (isShown && mounted) {
-      setState(
-        () => isShown = false,
-      );
+      setState(() => isShown = false);
+      _animationController.forward();
     }
   }
 
   void listen() {
     if (widget.enabled) {
-      final direction = widget.scrollController.position.userScrollDirection;
-      if (direction == ScrollDirection.forward) {
+      if (widget.scrollControllers.any((element) =>
+          element.hasClients &&
+          element.position.userScrollDirection == ScrollDirection.forward)) {
         show();
-      } else if (direction == ScrollDirection.reverse) {
+      } else if (widget.scrollControllers.any((element) =>
+          element.hasClients &&
+          element.position.userScrollDirection == ScrollDirection.reverse)) {
         hide();
       }
     }

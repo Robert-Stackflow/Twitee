@@ -16,9 +16,10 @@ class TimelinePinEntry extends InstructionUnion {
     required this.entry,
     required this.type,
   });
-  
-  factory TimelinePinEntry.fromJson(Map<String, Object?> json) => _$TimelinePinEntryFromJson(json);
-  
+
+  factory TimelinePinEntry.fromJson(Map<String, Object?> json) =>
+      _$TimelinePinEntryFromJson(json);
+
   final TimelineAddEntry entry;
   final InstructionType type;
 

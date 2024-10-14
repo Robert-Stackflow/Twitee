@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'community_rule.g.dart';
 
 @JsonSerializable()
-class CommunityRule  {
+class CommunityRule {
   const CommunityRule({
     required this.description,
     required this.name,
     required this.restId,
   });
-  
-  factory CommunityRule.fromJson(Map<String, Object?> json) => _$CommunityRuleFromJson(json);
-  
+
+  factory CommunityRule.fromJson(Map<String, Object?> json) =>
+      _$CommunityRuleFromJson(json);
+
   final String? description;
   final String name;
   @JsonKey(name: 'rest_id')

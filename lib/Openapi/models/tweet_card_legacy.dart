@@ -11,7 +11,7 @@ import 'user_results.dart';
 part 'tweet_card_legacy.g.dart';
 
 @JsonSerializable()
-class TweetCardLegacy  {
+class TweetCardLegacy {
   const TweetCardLegacy({
     required this.bindingValues,
     required this.cardPlatform,
@@ -19,9 +19,10 @@ class TweetCardLegacy  {
     required this.url,
     required this.userRefsResults,
   });
-  
-  factory TweetCardLegacy.fromJson(Map<String, Object?> json) => _$TweetCardLegacyFromJson(json);
-  
+
+  factory TweetCardLegacy.fromJson(Map<String, Object?> json) =>
+      _$TweetCardLegacyFromJson(json);
+
   @JsonKey(name: 'binding_values')
   final List<TweetCardLegacyBindingValue?>? bindingValues;
   @JsonKey(name: 'card_platform')

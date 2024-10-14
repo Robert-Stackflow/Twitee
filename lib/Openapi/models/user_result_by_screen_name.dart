@@ -9,14 +9,15 @@ import 'user_result_by_screen_name_result.dart';
 part 'user_result_by_screen_name.g.dart';
 
 @JsonSerializable()
-class UserResultByScreenName  {
+class UserResultByScreenName {
   const UserResultByScreenName({
     required this.id,
     required this.result,
   });
-  
-  factory UserResultByScreenName.fromJson(Map<String, Object?> json) => _$UserResultByScreenNameFromJson(json);
-  
+
+  factory UserResultByScreenName.fromJson(Map<String, Object?> json) =>
+      _$UserResultByScreenNameFromJson(json);
+
   final String id;
   final UserResultByScreenNameResult result;
 

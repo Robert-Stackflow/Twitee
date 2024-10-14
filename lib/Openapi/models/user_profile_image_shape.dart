@@ -12,6 +12,7 @@ enum UserProfileImageShape {
   square('Square'),
   @JsonValue('Hexagon')
   hexagon('Hexagon'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

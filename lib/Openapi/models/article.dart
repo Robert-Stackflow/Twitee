@@ -9,13 +9,14 @@ import 'article_results.dart';
 part 'article.g.dart';
 
 @JsonSerializable()
-class Article  {
+class Article {
   const Article({
     required this.articleResults,
   });
-  
-  factory Article.fromJson(Map<String, Object?> json) => _$ArticleFromJson(json);
-  
+
+  factory Article.fromJson(Map<String, Object?> json) =>
+      _$ArticleFromJson(json);
+
   @JsonKey(name: 'article_results')
   final ArticleResults? articleResults;
 

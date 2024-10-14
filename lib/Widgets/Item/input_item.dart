@@ -290,12 +290,15 @@ class InputItemState extends State<InputItem> {
                           borderSide: BorderSide(
                               color: textTheme.bodySmall!.color!, width: 0.5)),
                       prefixIcon: null,
-                      errorStyle: textTheme.bodySmall?.apply(color: Colors.redAccent),
+                      errorStyle:
+                          textTheme.bodySmall?.apply(color: Colors.redAccent),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.redAccent, width: 1)),
+                          borderSide:
+                              BorderSide(color: Colors.redAccent, width: 1)),
                       errorMaxLines: 1,
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.redAccent, width: 2)),
+                          borderSide:
+                              BorderSide(color: Colors.redAccent, width: 2)),
                     ),
                     contextMenuBuilder: (contextMenuContext, details) =>
                         ItemBuilder.editTextContextMenuBuilder(

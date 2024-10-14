@@ -19,7 +19,7 @@ import 'user_results.dart';
 part 'community_data.g.dart';
 
 @JsonSerializable()
-class CommunityData  {
+class CommunityData {
   const CommunityData({
     required this.privateTypename,
     required this.actions,
@@ -48,9 +48,10 @@ class CommunityData  {
     required this.urls,
     required this.viewerRelationship,
   });
-  
-  factory CommunityData.fromJson(Map<String, Object?> json) => _$CommunityDataFromJson(json);
-  
+
+  factory CommunityData.fromJson(Map<String, Object?> json) =>
+      _$CommunityDataFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final CommunityActions actions;

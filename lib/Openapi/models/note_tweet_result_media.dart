@@ -9,13 +9,14 @@ import 'note_tweet_result_media_inline_media.dart';
 part 'note_tweet_result_media.g.dart';
 
 @JsonSerializable()
-class NoteTweetResultMedia  {
+class NoteTweetResultMedia {
   const NoteTweetResultMedia({
     required this.inlineMedia,
   });
-  
-  factory NoteTweetResultMedia.fromJson(Map<String, Object?> json) => _$NoteTweetResultMediaFromJson(json);
-  
+
+  factory NoteTweetResultMedia.fromJson(Map<String, Object?> json) =>
+      _$NoteTweetResultMediaFromJson(json);
+
   @JsonKey(name: 'inline_media')
   final List<NoteTweetResultMediaInlineMedia?>? inlineMedia;
 

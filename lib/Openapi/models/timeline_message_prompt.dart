@@ -14,9 +14,10 @@ class TimelineMessagePrompt extends ItemContentUnion {
   const TimelineMessagePrompt({
     required this.privateTypename,
   });
-  
-  factory TimelineMessagePrompt.fromJson(Map<String, Object?> json) => _$TimelineMessagePromptFromJson(json);
-  
+
+  factory TimelineMessagePrompt.fromJson(Map<String, Object?> json) =>
+      _$TimelineMessagePromptFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
 

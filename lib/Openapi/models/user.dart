@@ -43,9 +43,9 @@ class User extends UserUnion {
     required this.userSeedTweetCount,
     required this.verificationInfo,
   });
-  
+
   factory User.fromJson(Map<String, Object?> json) => _$UserFromJson(json);
-  
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   @JsonKey(name: 'affiliates_highlighted_label')

@@ -15,7 +15,7 @@
 
 import 'package:twitee/Openapi/models/item_content_union.dart';
 
-class TimelineTrend extends ItemContentUnion{
+class TimelineTrend extends ItemContentUnion {
   String? itemType;
   String? sTypename;
   List<dynamic>? associatedCards;
@@ -26,12 +26,12 @@ class TimelineTrend extends ItemContentUnion{
 
   TimelineTrend(
       {this.itemType,
-        this.sTypename,
-        this.associatedCards,
-        this.name,
-        this.rank,
-        this.trendUrl,
-        this.trendMetadata});
+      this.sTypename,
+      this.associatedCards,
+      this.name,
+      this.rank,
+      this.trendUrl,
+      this.trendMetadata});
 
   TimelineTrend.fromJson(Map<String, dynamic> json) {
     itemType = json['itemType'];
@@ -44,9 +44,8 @@ class TimelineTrend extends ItemContentUnion{
     }
     name = json['name'];
     rank = json['rank'];
-    trendUrl = json['trend_url'] != null
-        ? TrendUrl.fromJson(json['trend_url'])
-        : null;
+    trendUrl =
+        json['trend_url'] != null ? TrendUrl.fromJson(json['trend_url']) : null;
     trendMetadata = json['trend_metadata'] != null
         ? TrendMetadata.fromJson(json['trend_metadata'])
         : null;

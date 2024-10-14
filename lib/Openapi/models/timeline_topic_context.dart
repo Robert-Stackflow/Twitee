@@ -18,9 +18,10 @@ class TimelineTopicContext extends SocialContextUnion {
     required this.topic,
     required this.type,
   });
-  
-  factory TimelineTopicContext.fromJson(Map<String, Object?> json) => _$TimelineTopicContextFromJson(json);
-  
+
+  factory TimelineTopicContext.fromJson(Map<String, Object?> json) =>
+      _$TimelineTopicContextFromJson(json);
+
   final TimelineTopicContextFunctionalityType? functionalityType;
   final TopicContext? topic;
   final SocialContextUnionType? type;

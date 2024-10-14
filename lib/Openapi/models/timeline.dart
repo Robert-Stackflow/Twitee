@@ -9,15 +9,16 @@ import 'instruction_union.dart';
 part 'timeline.g.dart';
 
 @JsonSerializable()
-class Timeline  {
+class Timeline {
   const Timeline({
     required this.instructions,
     required this.metadata,
     required this.responseObjects,
   });
-  
-  factory Timeline.fromJson(Map<String, Object?> json) => _$TimelineFromJson(json);
-  
+
+  factory Timeline.fromJson(Map<String, Object?> json) =>
+      _$TimelineFromJson(json);
+
   final List<InstructionUnion> instructions;
   final dynamic metadata;
   final dynamic responseObjects;

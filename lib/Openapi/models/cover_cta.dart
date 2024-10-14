@@ -12,7 +12,7 @@ import 'timeline_cover_behavior.dart';
 part 'cover_cta.g.dart';
 
 @JsonSerializable()
-class CoverCta  {
+class CoverCta {
   const CoverCta({
     required this.text,
     required this.buttonStyle,
@@ -20,9 +20,10 @@ class CoverCta  {
     required this.clientEventInfo,
     required this.ctaBehavior,
   });
-  
-  factory CoverCta.fromJson(Map<String, Object?> json) => _$CoverCtaFromJson(json);
-  
+
+  factory CoverCta.fromJson(Map<String, Object?> json) =>
+      _$CoverCtaFromJson(json);
+
   @JsonKey(name: 'Text')
   final String text;
   final CoverCtaButtonStyle? buttonStyle;

@@ -16,6 +16,7 @@ enum CursorType {
   showMoreThreads('ShowMoreThreads'),
   @JsonValue('Gap')
   gap('Gap'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

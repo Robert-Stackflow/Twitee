@@ -24,9 +24,10 @@ class TimelineTimelineCursor extends ItemContentUnion {
     required this.stopOnEmptyResponse,
     required this.value,
   });
-  
-  factory TimelineTimelineCursor.fromJson(Map<String, Object?> json) => _$TimelineTimelineCursorFromJson(json);
-  
+
+  factory TimelineTimelineCursor.fromJson(Map<String, Object?> json) =>
+      _$TimelineTimelineCursorFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final CursorType cursorType;

@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'create_bookmark_response_data.g.dart';
 
 @JsonSerializable()
-class CreateBookmarkResponseData  {
+class CreateBookmarkResponseData {
   const CreateBookmarkResponseData({
     required this.tweetBookmarkPut,
   });
-  
-  factory CreateBookmarkResponseData.fromJson(Map<String, Object?> json) => _$CreateBookmarkResponseDataFromJson(json);
-  
+
+  factory CreateBookmarkResponseData.fromJson(Map<String, Object?> json) =>
+      _$CreateBookmarkResponseDataFromJson(json);
+
   @JsonKey(name: 'tweet_bookmark_put')
   final String? tweetBookmarkPut;
 

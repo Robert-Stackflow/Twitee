@@ -10,14 +10,15 @@ import 'type_name.dart';
 part 'user_tweets_result.g.dart';
 
 @JsonSerializable()
-class UserTweetsResult  {
+class UserTweetsResult {
   const UserTweetsResult({
     required this.privateTypename,
     required this.timelineV2,
   });
-  
-  factory UserTweetsResult.fromJson(Map<String, Object?> json) => _$UserTweetsResultFromJson(json);
-  
+
+  factory UserTweetsResult.fromJson(Map<String, Object?> json) =>
+      _$UserTweetsResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   @JsonKey(name: 'timeline_v2')

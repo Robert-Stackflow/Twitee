@@ -7,14 +7,15 @@ import 'package:json_annotation/json_annotation.dart';
 part 'location.g.dart';
 
 @JsonSerializable()
-class Location  {
+class Location {
   const Location({
     required this.column,
     required this.line,
   });
-  
-  factory Location.fromJson(Map<String, Object?> json) => _$LocationFromJson(json);
-  
+
+  factory Location.fromJson(Map<String, Object?> json) =>
+      _$LocationFromJson(json);
+
   final int column;
   final int line;
 

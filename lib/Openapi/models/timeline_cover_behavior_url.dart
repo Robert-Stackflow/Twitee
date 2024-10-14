@@ -9,14 +9,15 @@ import 'timeline_cover_behavior_url_url_type.dart';
 part 'timeline_cover_behavior_url.g.dart';
 
 @JsonSerializable()
-class TimelineCoverBehaviorUrl  {
+class TimelineCoverBehaviorUrl {
   const TimelineCoverBehaviorUrl({
     required this.url,
     required this.urlType,
   });
-  
-  factory TimelineCoverBehaviorUrl.fromJson(Map<String, Object?> json) => _$TimelineCoverBehaviorUrlFromJson(json);
-  
+
+  factory TimelineCoverBehaviorUrl.fromJson(Map<String, Object?> json) =>
+      _$TimelineCoverBehaviorUrlFromJson(json);
+
   final String url;
   @JsonKey(name: 'url_type')
   final TimelineCoverBehaviorUrlUrlType? urlType;

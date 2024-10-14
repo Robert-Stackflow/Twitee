@@ -9,13 +9,14 @@ import 'create_retweet.dart';
 part 'create_retweet_response_result.g.dart';
 
 @JsonSerializable()
-class CreateRetweetResponseResult  {
+class CreateRetweetResponseResult {
   const CreateRetweetResponseResult({
     required this.retweetResults,
   });
-  
-  factory CreateRetweetResponseResult.fromJson(Map<String, Object?> json) => _$CreateRetweetResponseResultFromJson(json);
-  
+
+  factory CreateRetweetResponseResult.fromJson(Map<String, Object?> json) =>
+      _$CreateRetweetResponseResultFromJson(json);
+
   @JsonKey(name: 'retweet_results')
   final CreateRetweet? retweetResults;
 

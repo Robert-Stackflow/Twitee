@@ -12,6 +12,7 @@ enum ConversationControlMode {
   verified('Verified'),
   @JsonValue('ByInvitation')
   byInvitation('ByInvitation'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

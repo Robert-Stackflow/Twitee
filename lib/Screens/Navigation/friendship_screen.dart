@@ -17,16 +17,20 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Flow/friends_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Models/tab_item_data.dart';
+import '../../Utils/app_provider.dart';
 import '../../Utils/hive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
 class FriendshipScreen extends StatefulWidget {
-  const FriendshipScreen({super.key, this.userId});
+  const FriendshipScreen({super.key, this.userId, this.initType});
 
   final String? userId;
+
+  final UserFlowType? initType;
 
   static const String routeName = "/navigtion/friendship";
 
@@ -35,7 +39,7 @@ class FriendshipScreen extends StatefulWidget {
 }
 
 class FriendshipScreenState extends State<FriendshipScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, ScrollToHideMixin {
   late TabController _tabController;
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
@@ -87,6 +91,9 @@ class FriendshipScreenState extends State<FriendshipScreen>
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
+    if(widget.initType != null) {
+      _tabController.index = widget.initType!.index;
+    }
   }
 
   @override
@@ -105,12 +112,14 @@ class FriendshipScreenState extends State<FriendshipScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showBack: isOther,
-        showMenu: true,
+        backSpacing: 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,
           tabDataList.tabList,
           onTap: onTapTab,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          autoScrollable: false,
         ),
       ),
       body: Stack(
@@ -124,7 +133,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
             bottom: 16,
             child: ScrollToHide(
               controller: _scrollToHideController,
-              scrollController: tabDataList.getScrollControllerNotNull(currentIndex),
+              scrollControllers: tabDataList.scrollControllerList,
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -148,6 +157,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
   scrollToTop() async {
     await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
     _scrollToHideController.show();
+    panelScreenState?.showBottomNavigationBar();
   }
 
   refresh() async {
@@ -182,5 +192,10 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return tabDataList.scrollControllerList;
   }
 }

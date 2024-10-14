@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'topic_context.g.dart';
 
 @JsonSerializable()
-class TopicContext  {
+class TopicContext {
   const TopicContext({
     required this.description,
     required this.following,
@@ -17,9 +17,10 @@ class TopicContext  {
     required this.notInterested,
     required this.topicId,
   });
-  
-  factory TopicContext.fromJson(Map<String, Object?> json) => _$TopicContextFromJson(json);
-  
+
+  factory TopicContext.fromJson(Map<String, Object?> json) =>
+      _$TopicContextFromJson(json);
+
   final String? description;
   final bool? following;
   @JsonKey(name: 'icon_url')

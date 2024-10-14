@@ -10,14 +10,15 @@ import 'timeline_cover_behavior_url.dart';
 part 'timeline_cover_behavior.g.dart';
 
 @JsonSerializable()
-class TimelineCoverBehavior  {
+class TimelineCoverBehavior {
   const TimelineCoverBehavior({
     required this.type,
     required this.url,
   });
-  
-  factory TimelineCoverBehavior.fromJson(Map<String, Object?> json) => _$TimelineCoverBehaviorFromJson(json);
-  
+
+  factory TimelineCoverBehavior.fromJson(Map<String, Object?> json) =>
+      _$TimelineCoverBehaviorFromJson(json);
+
   final TimelineCoverBehaviorType type;
   final TimelineCoverBehaviorUrl? url;
 

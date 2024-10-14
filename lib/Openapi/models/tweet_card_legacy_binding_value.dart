@@ -9,14 +9,15 @@ import 'tweet_card_legacy_binding_value_data.dart';
 part 'tweet_card_legacy_binding_value.g.dart';
 
 @JsonSerializable()
-class TweetCardLegacyBindingValue  {
+class TweetCardLegacyBindingValue {
   const TweetCardLegacyBindingValue({
     required this.key,
     required this.value,
   });
-  
-  factory TweetCardLegacyBindingValue.fromJson(Map<String, Object?> json) => _$TweetCardLegacyBindingValueFromJson(json);
-  
+
+  factory TweetCardLegacyBindingValue.fromJson(Map<String, Object?> json) =>
+      _$TweetCardLegacyBindingValueFromJson(json);
+
   final String key;
   final TweetCardLegacyBindingValueData value;
 

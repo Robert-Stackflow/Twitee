@@ -10,14 +10,15 @@ import 'tweet_card_platform_device.dart';
 part 'tweet_card_platform.g.dart';
 
 @JsonSerializable()
-class TweetCardPlatform  {
+class TweetCardPlatform {
   const TweetCardPlatform({
     required this.audience,
     required this.device,
   });
-  
-  factory TweetCardPlatform.fromJson(Map<String, Object?> json) => _$TweetCardPlatformFromJson(json);
-  
+
+  factory TweetCardPlatform.fromJson(Map<String, Object?> json) =>
+      _$TweetCardPlatformFromJson(json);
+
   final TweetCardPlatformAudience audience;
   final TweetCardPlatformDevice device;
 

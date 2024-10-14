@@ -9,13 +9,14 @@ import 'user_union.dart';
 part 'user_results.g.dart';
 
 @JsonSerializable()
-class UserResults  {
+class UserResults {
   const UserResults({
     required this.result,
   });
-  
-  factory UserResults.fromJson(Map<String, Object?> json) => _$UserResultsFromJson(json);
-  
+
+  factory UserResults.fromJson(Map<String, Object?> json) =>
+      _$UserResultsFromJson(json);
+
   final UserUnion? result;
 
   Map<String, Object?> toJson() => _$UserResultsToJson(this);

@@ -14,6 +14,7 @@ enum DisplayType {
   verticalGrid('VerticalGrid'),
   @JsonValue('Carousel')
   carousel('Carousel'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

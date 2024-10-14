@@ -7,14 +7,15 @@ import 'package:json_annotation/json_annotation.dart';
 part 'urt_endpoint_request_params.g.dart';
 
 @JsonSerializable()
-class UrtEndpointRequestParams  {
+class UrtEndpointRequestParams {
   const UrtEndpointRequestParams({
     required this.key,
     required this.value,
   });
-  
-  factory UrtEndpointRequestParams.fromJson(Map<String, Object?> json) => _$UrtEndpointRequestParamsFromJson(json);
-  
+
+  factory UrtEndpointRequestParams.fromJson(Map<String, Object?> json) =>
+      _$UrtEndpointRequestParamsFromJson(json);
+
   final String key;
   final String value;
 

@@ -315,4 +315,3 @@ export 'models/user_professional_professional_type.dart';
 export 'models/user_verification_info_reason_description_entities_ref_url_type.dart';
 // Root client
 export 'rest_client.dart';
-

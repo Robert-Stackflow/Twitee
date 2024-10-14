@@ -14,9 +14,10 @@ class TimelineCommunity extends ItemContentUnion {
   const TimelineCommunity({
     required this.privateTypename,
   });
-  
-  factory TimelineCommunity.fromJson(Map<String, Object?> json) => _$TimelineCommunityFromJson(json);
-  
+
+  factory TimelineCommunity.fromJson(Map<String, Object?> json) =>
+      _$TimelineCommunityFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
 

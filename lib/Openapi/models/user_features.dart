@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user_features.g.dart';
 
 @JsonSerializable()
-class UserFeatures  {
+class UserFeatures {
   const UserFeatures({
     required this.mediatoolStudioLibrary,
   });
-  
-  factory UserFeatures.fromJson(Map<String, Object?> json) => _$UserFeaturesFromJson(json);
-  
+
+  factory UserFeatures.fromJson(Map<String, Object?> json) =>
+      _$UserFeaturesFromJson(json);
+
   @JsonKey(name: 'mediatool_studio_library')
   final bool? mediatoolStudioLibrary;
 

@@ -87,20 +87,25 @@ class ItemBuilder {
     double backSpacing = 10,
     double spacing = 20,
     bool centerInMobile = false,
+    Function()? onBackTap,
   }) {
     bool hasLeftButton =
         showBack || (showMenu && !ResponsiveUtil.isLandscape());
+    var finalTitle = titleWidget ??
+        Text(title, style: Theme.of(context).textTheme.titleLarge);
     return PreferredSize(
       preferredSize: const Size.fromHeight(56),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
-          border: Border(
-            bottom: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-          ),
+          border: ResponsiveUtil.isLandscape()
+              ? Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 1,
+                  ),
+                )
+              : null,
         ),
         child: SafeArea(
           child: Stack(
@@ -127,7 +132,8 @@ class ItemBuilder {
                               margin: const EdgeInsets.only(left: 10),
                               child: ToolButton(
                                 context: context,
-                                onTap: () => panelScreenState?.popPage(),
+                                onTap: onBackTap ??
+                                    () => panelScreenState?.popPage(),
                                 iconBuilder: (_) =>
                                     const Icon(Icons.arrow_back_rounded),
                               ),
@@ -140,12 +146,11 @@ class ItemBuilder {
                                 onTap: () => panelScreenState?.popPage(),
                               ),
                             ),
-                    SizedBox(width: hasLeftButton ? backSpacing : spacing),
-                    titleWidget ??
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                    if (!(titleWidget != null && ResponsiveUtil.isLandscape()))
+                      SizedBox(width: hasLeftButton ? backSpacing : spacing),
+                    ResponsiveUtil.isLandscape()
+                        ? finalTitle
+                        : Expanded(child: finalTitle),
                   ],
                 ),
               ),
@@ -357,10 +362,12 @@ class ItemBuilder {
     bool showBorder = false,
     Color? background,
     double? width,
+    bool autoScrollable = true,
   }) {
     padding ??= ResponsiveUtil.isLandscape()
         ? const EdgeInsets.symmetric(horizontal: 10)
         : null;
+    bool scrollable = !(autoScrollable && !ResponsiveUtil.isLandscape());
     var titleMedium = Theme.of(context).textTheme.titleMedium;
     var primaryColor = Theme.of(context).primaryColor;
     return PreferredSize(
@@ -387,10 +394,10 @@ class ItemBuilder {
             tabs: tabs,
             labelPadding: const EdgeInsets.symmetric(horizontal: 10),
             indicatorSize: TabBarIndicatorSize.tab,
-            isScrollable: true,
             dividerHeight: 0,
             padding: padding,
-            tabAlignment: TabAlignment.start,
+            isScrollable: scrollable,
+            tabAlignment: scrollable ? TabAlignment.start : null,
             physics: const ClampingScrollPhysics(),
             labelStyle: titleMedium?.apply(
               fontWeightDelta: 2,
@@ -636,6 +643,7 @@ class ItemBuilder {
     required dynamic icon,
     required Function()? onTap,
     Function(BuildContext context, dynamic value, Widget? child)? onChangemode,
+    EdgeInsets? padding,
     int quarterTurns = 0,
   }) {
     return Material(
@@ -650,6 +658,7 @@ class ItemBuilder {
             context: context,
             icon: icon,
             onTap: onTap,
+            padding: padding,
             quarterTurns: quarterTurns,
           );
         },
@@ -813,6 +822,37 @@ class ItemBuilder {
                         ),
                       ),
                     ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget buildListTile({
+    required BuildContext context,
+    required String title,
+    required IconData leading,
+    Function()? onTap,
+    EdgeInsets? padding,
+  }) {
+    return Material(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: padding ??
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          child: Row(
+            children: [
+              Icon(leading, size: 28),
+              const SizedBox(width: 20),
+              Text(
+                title,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(fontSizeDelta: 3),
+              ),
             ],
           ),
         ),
@@ -1214,11 +1254,12 @@ class ItemBuilder {
     EdgeInsets? padding,
     Border? border,
     double? height,
+    Alignment? alignment,
   }) {
     return Container(
       height: height,
       padding: padding,
-      alignment: Alignment.center,
+      alignment: alignment ?? Alignment.center,
       decoration: BoxDecoration(
         color: backgroundColor ?? Theme.of(context).canvasColor,
         borderRadius: BorderRadius.vertical(
@@ -1467,6 +1508,7 @@ class ItemBuilder {
     return SizedBox(
       width: width,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           ItemBuilder.buildClickItem(
             GestureDetector(
@@ -1669,35 +1711,50 @@ class ItemBuilder {
   static Widget buildEmptyPlaceholder({
     required BuildContext context,
     required String text,
-    double size = 50,
+    double size = 30,
     bool showButton = false,
     String? buttonText,
+    ScrollController? scrollController,
     Function()? onTap,
   }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return ListView(
+      controller: scrollController,
       children: [
-        const SizedBox(height: 10),
-        AssetUtil.load(
-          AssetUtil.emptyIcon,
-          size: size,
+        const SizedBox(height: 50),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  Icon(
+                    Icons.inbox_rounded,
+                    size: size,
+                    color: Theme.of(context).textTheme.labelLarge?.color,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  if (showButton) const SizedBox(height: 10),
+                  if (showButton)
+                    ItemBuilder.buildRoundButton(
+                      context,
+                      text: buttonText,
+                      background: Theme.of(context).primaryColor,
+                      onTap: onTap,
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        if (showButton) const SizedBox(height: 10),
-        if (showButton)
-          ItemBuilder.buildRoundButton(
-            context,
-            text: buttonText,
-            background: Theme.of(context).primaryColor,
-            onTap: onTap,
-          ),
       ],
     );
   }
@@ -1792,6 +1849,32 @@ class ItemBuilder {
                   style: Theme.of(context).textTheme.labelLarge),
           ],
         ),
+      ),
+    );
+  }
+
+  static buildError({
+    required BuildContext context,
+    String? text,
+    String? buttonText,
+    Function()? onTap,
+  }) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text ?? "加载失败",
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 10),
+          ItemBuilder.buildRoundButton(context,
+              text: buttonText ?? "重试", onTap: onTap),
+        ],
       ),
     );
   }

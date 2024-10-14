@@ -9,13 +9,14 @@ import 'media_extended.dart';
 part 'extended_entities.g.dart';
 
 @JsonSerializable()
-class ExtendedEntities  {
+class ExtendedEntities {
   const ExtendedEntities({
     required this.media,
   });
-  
-  factory ExtendedEntities.fromJson(Map<String, Object?> json) => _$ExtendedEntitiesFromJson(json);
-  
+
+  factory ExtendedEntities.fromJson(Map<String, Object?> json) =>
+      _$ExtendedEntitiesFromJson(json);
+
   final List<MediaExtended> media;
 
   Map<String, Object?> toJson() => _$ExtendedEntitiesToJson(this);

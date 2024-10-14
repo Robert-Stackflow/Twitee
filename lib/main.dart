@@ -83,15 +83,7 @@ Future<void> initApp(WidgetsBinding widgetsBinding) async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 1024 * 1024 * 1024 * 2;
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   Hive.defaultDirectory = await FileUtil.getHiveDir();
-  if (HiveUtil.isFirstLogin()) {
-    await HiveUtil.initConfig();
-    HiveUtil.setFirstLogin();
-  }
-  if (haveMigratedToSupportDirectory) {
-    HiveUtil.put(HiveUtil.haveMigratedToSupportDirectoryKey, true);
-  }
-  HiveUtil.put(
-      HiveUtil.oldVersionKey, (await PackageInfo.fromPlatform()).version);
+  await HiveUtil.initialize();
   await DatabaseManager.initDataBase();
   NotificationUtil.init();
   await BiometricUtil.initStorage();
@@ -188,68 +180,64 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: appProvider),
       ],
       child: Consumer<AppProvider>(
-        builder: (context, appProvider, child) =>
-            MaterialApp(
-              navigatorKey: globalNavigatorKey,
-              navigatorObservers: [routeObserver],
-              title: title,
-              theme: appProvider.getBrightness() == null ||
+        builder: (context, appProvider, child) => MaterialApp(
+          navigatorKey: globalNavigatorKey,
+          navigatorObservers: [routeObserver],
+          title: title,
+          theme: appProvider.getBrightness() == null ||
                   appProvider.getBrightness() == Brightness.light
-                  ? appProvider.lightTheme.toThemeData()
-                  : appProvider.darkTheme.toThemeData(),
-              darkTheme: appProvider.getBrightness() == null ||
+              ? appProvider.lightTheme.toThemeData()
+              : appProvider.darkTheme.toThemeData(),
+          darkTheme: appProvider.getBrightness() == null ||
                   appProvider.getBrightness() == Brightness.dark
-                  ? appProvider.darkTheme.toThemeData()
-                  : appProvider.lightTheme.toThemeData(),
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                S.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
+              ? appProvider.darkTheme.toThemeData()
+              : appProvider.lightTheme.toThemeData(),
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          locale: appProvider.locale,
+          supportedLocales: S.delegate.supportedLocales,
+          localeResolutionCallback: (locale, supportedLocales) {
+            ILogger.debug("Twitee",
+                "Locale: $locale, Supported: $supportedLocales, appProvider.locale: ${appProvider.locale}");
+            if (appProvider.locale != null) {
+              return appProvider.locale;
+            } else if (locale != null && supportedLocales.contains(locale)) {
+              return locale;
+            } else {
+              try {
+                return Localizations.localeOf(context);
+              } catch (e, t) {
+                ILogger.error(
+                    "Twitee",
+                    "Failed to get locale by Localizations.localeOf(context)",
+                    e,
+                    t);
+                return const Locale("en", "US");
+              }
+            }
+          },
+          home: ItemBuilder.buildContextMenuOverlay(home),
+          builder: (context, widget) {
+            return Overlay(
+              initialEntries: [
+                if (widget != null) ...[
+                  OverlayEntry(
+                    builder: (context) => MediaQuery(
+                      data: MediaQuery.of(context)
+                          .copyWith(textScaler: TextScaler.noScaling),
+                      child: widget,
+                    ),
+                  ),
+                ],
               ],
-              locale: appProvider.locale,
-              supportedLocales: S.delegate.supportedLocales,
-              localeResolutionCallback: (locale, supportedLocales) {
-                ILogger.debug("Twitee",
-                    "Locale: $locale, Supported: $supportedLocales, appProvider.locale: ${appProvider
-                        .locale}");
-                if (appProvider.locale != null) {
-                  return appProvider.locale;
-                } else
-                if (locale != null && supportedLocales.contains(locale)) {
-                  return locale;
-                } else {
-                  try {
-                    return Localizations.localeOf(context);
-                  } catch (e, t) {
-                    ILogger.error(
-                        "Twitee",
-                        "Failed to get locale by Localizations.localeOf(context)",
-                        e,
-                        t);
-                    return const Locale("en", "US");
-                  }
-                }
-              },
-              home: ItemBuilder.buildContextMenuOverlay(home),
-              builder: (context, widget) {
-                return Overlay(
-                  initialEntries: [
-                    if (widget != null) ...[
-                      OverlayEntry(
-                        builder: (context) =>
-                            MediaQuery(
-                              data: MediaQuery.of(context)
-                                  .copyWith(textScaler: TextScaler.noScaling),
-                              child: widget,
-                            ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
+            );
+          },
+        ),
       ),
     );
   }

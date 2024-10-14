@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user_value.g.dart';
 
 @JsonSerializable()
-class UserValue  {
+class UserValue {
   const UserValue({
     required this.idStr,
   });
-  
-  factory UserValue.fromJson(Map<String, Object?> json) => _$UserValueFromJson(json);
-  
+
+  factory UserValue.fromJson(Map<String, Object?> json) =>
+      _$UserValueFromJson(json);
+
   @JsonKey(name: 'id_str')
   final String? idStr;
 

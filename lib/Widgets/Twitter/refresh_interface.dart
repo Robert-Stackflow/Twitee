@@ -24,3 +24,7 @@ mixin RefreshMixin {
 
   ScrollController? getScrollController();
 }
+
+mixin ScrollToHideMixin {
+  List<ScrollController> getScrollControllers();
+}

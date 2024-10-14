@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'birdwatch_pivot_note.g.dart';
 
 @JsonSerializable()
-class BirdwatchPivotNote  {
+class BirdwatchPivotNote {
   const BirdwatchPivotNote({
     required this.restId,
   });
-  
-  factory BirdwatchPivotNote.fromJson(Map<String, Object?> json) => _$BirdwatchPivotNoteFromJson(json);
-  
+
+  factory BirdwatchPivotNote.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchPivotNoteFromJson(json);
+
   @JsonKey(name: 'rest_id')
   final String? restId;
 

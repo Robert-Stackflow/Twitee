@@ -9,6 +9,7 @@ enum BirdwatchPivotVisualStyle {
   /// The name has been replaced because it contains a keyword. Original name: `Default`.
   @JsonValue('Default')
   valueDefault('Default'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

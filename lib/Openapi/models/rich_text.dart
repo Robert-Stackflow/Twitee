@@ -7,14 +7,15 @@ import 'package:json_annotation/json_annotation.dart';
 part 'rich_text.g.dart';
 
 @JsonSerializable()
-class RichText  {
+class RichText {
   const RichText({
     required this.entities,
     required this.text,
   });
-  
-  factory RichText.fromJson(Map<String, Object?> json) => _$RichTextFromJson(json);
-  
+
+  factory RichText.fromJson(Map<String, Object?> json) =>
+      _$RichTextFromJson(json);
+
   final List<dynamic> entities;
   final String text;
 

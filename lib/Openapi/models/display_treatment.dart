@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'display_treatment.g.dart';
 
 @JsonSerializable()
-class DisplayTreatment  {
+class DisplayTreatment {
   const DisplayTreatment({
     required this.actionText,
   });
-  
-  factory DisplayTreatment.fromJson(Map<String, Object?> json) => _$DisplayTreatmentFromJson(json);
-  
+
+  factory DisplayTreatment.fromJson(Map<String, Object?> json) =>
+      _$DisplayTreatmentFromJson(json);
+
   final String actionText;
 
   Map<String, Object?> toJson() => _$DisplayTreatmentToJson(this);

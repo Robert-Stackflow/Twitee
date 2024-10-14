@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'favorite_tweet.g.dart';
 
 @JsonSerializable()
-class FavoriteTweet  {
+class FavoriteTweet {
   const FavoriteTweet({
     required this.favoriteTweet,
   });
-  
-  factory FavoriteTweet.fromJson(Map<String, Object?> json) => _$FavoriteTweetFromJson(json);
-  
+
+  factory FavoriteTweet.fromJson(Map<String, Object?> json) =>
+      _$FavoriteTweetFromJson(json);
+
   @JsonKey(name: 'favorite_tweet')
   final String? favoriteTweet;
 

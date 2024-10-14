@@ -23,6 +23,7 @@ import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
@@ -34,6 +35,8 @@ import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
 import '../../Openapi/models/timeline_tweet.dart';
 import '../../Openapi/models/user_tweets_response.dart';
+import '../../Utils/app_provider.dart';
+import '../../Utils/responsive_util.dart';
 
 class LikeScreen extends StatefulWidget {
   const LikeScreen({super.key, required this.userId});
@@ -47,7 +50,10 @@ class LikeScreen extends StatefulWidget {
 }
 
 class _LikeScreenState extends State<LikeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        ScrollToHideMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -67,6 +73,8 @@ class _LikeScreenState extends State<LikeScreen>
 
   bool _noMore = false;
 
+  bool _inited = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +82,9 @@ class _LikeScreenState extends State<LikeScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      panelScreenState?.refreshScrollControllers();
+    });
   }
 
   _scrollToTop() async {
@@ -110,16 +121,14 @@ class _LikeScreenState extends State<LikeScreen>
             validEntries = _processEntries(instruction.entries);
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         return IndicatorResult.fail;
       }
@@ -128,7 +137,9 @@ class _LikeScreenState extends State<LikeScreen>
       ILogger.error("Twitee", "Failed to get likes", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -143,9 +154,9 @@ class _LikeScreenState extends State<LikeScreen>
         cursorBottom: cursorBottom!.value,
       );
       if (res.success) {
-        var response = res.data;
+        UserTweetsResponse response = res.data;
         Timeline? timeline;
-        timeline = response.data.userLegacy.result.timelineV2?.timeline;
+        timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }
@@ -161,7 +172,6 @@ class _LikeScreenState extends State<LikeScreen>
             newEntries.addAll(_processEntries(instruction.entries));
             validEntries.addAll(newEntries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -179,6 +189,7 @@ class _LikeScreenState extends State<LikeScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -266,29 +277,36 @@ class _LikeScreenState extends State<LikeScreen>
             child: ItemBuilder.buildLoadMoreNotification(
               onLoad: _onLoad,
               noMore: _noMore,
-              child: WaterfallFlow.extent(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(8),
-                maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
-                children: List.generate(
-                  validEntries.length,
-                  (index) {
-                    return PostItem(
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
-                    );
-                  },
-                ),
-              ),
+              child: !_inited || validEntries.isNotEmpty
+                  ? WaterfallFlow.extent(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(8),
+                      maxCrossAxisExtent: 600,
+                      crossAxisSpacing: 6,
+                      mainAxisSpacing: 6,
+                      children: List.generate(
+                        validEntries.length,
+                        (index) {
+                          return PostItem(
+                            entry: validEntries[index],
+                            feedbackActions:
+                                _getFeedBackActions(validEntries[index]),
+                          );
+                        },
+                      ),
+                    )
+                  : ItemBuilder.buildEmptyPlaceholder(
+                      context: context,
+                      text: "暂无内容",
+                      scrollController: _scrollController,
+                    ),
             ),
           ),
           Positioned(
-            right: 16,
-            bottom: 16,
+            right: ResponsiveUtil.isLandscape() ? 16 : 12,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              scrollControllers: [_scrollController],
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -327,5 +345,10 @@ class _LikeScreenState extends State<LikeScreen>
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return [_scrollController];
   }
 }

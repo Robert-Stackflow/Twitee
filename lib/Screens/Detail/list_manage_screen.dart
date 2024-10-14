@@ -250,10 +250,10 @@ class _ListManageScreenState extends State<ListManageScreen>
             ),
           ),
           Positioned(
-            right: 16,
-            bottom: 16,
+            right: ResponsiveUtil.isLandscape() ? 16 : 12,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
             child: ScrollToHide(
-              scrollController: _scrollController,
+              scrollControllers: [_scrollController],
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),

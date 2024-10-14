@@ -16,9 +16,10 @@ class UserUnavailable extends UserUnion {
     required this.message,
     required this.reason,
   });
-  
-  factory UserUnavailable.fromJson(Map<String, Object?> json) => _$UserUnavailableFromJson(json);
-  
+
+  factory UserUnavailable.fromJson(Map<String, Object?> json) =>
+      _$UserUnavailableFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final String? message;

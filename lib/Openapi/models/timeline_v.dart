@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'timeline_v.g.dart';
 
 @JsonSerializable()
-class TimelineV  {
+class TimelineV {
   const TimelineV({
     required this.timeline,
   });
-  
-  factory TimelineV.fromJson(Map<String, Object?> json) => _$TimelineVFromJson(json);
-  
+
+  factory TimelineV.fromJson(Map<String, Object?> json) =>
+      _$TimelineVFromJson(json);
+
   final Timeline? timeline;
 
   Map<String, Object?> toJson() => _$TimelineVToJson(this);

@@ -7,14 +7,15 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tweet_card_platform_device.g.dart';
 
 @JsonSerializable()
-class TweetCardPlatformDevice  {
+class TweetCardPlatformDevice {
   const TweetCardPlatformDevice({
     required this.name,
     required this.version,
   });
-  
-  factory TweetCardPlatformDevice.fromJson(Map<String, Object?> json) => _$TweetCardPlatformDeviceFromJson(json);
-  
+
+  factory TweetCardPlatformDevice.fromJson(Map<String, Object?> json) =>
+      _$TweetCardPlatformDeviceFromJson(json);
+
   final String name;
   final String version;
 

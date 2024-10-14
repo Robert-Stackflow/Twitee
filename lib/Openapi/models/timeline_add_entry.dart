@@ -9,15 +9,16 @@ import 'content_union.dart';
 part 'timeline_add_entry.g.dart';
 
 @JsonSerializable()
-class TimelineAddEntry  {
+class TimelineAddEntry {
   const TimelineAddEntry({
     required this.content,
     required this.entryId,
     required this.sortIndex,
   });
-  
-  factory TimelineAddEntry.fromJson(Map<String, Object?> json) => _$TimelineAddEntryFromJson(json);
-  
+
+  factory TimelineAddEntry.fromJson(Map<String, Object?> json) =>
+      _$TimelineAddEntryFromJson(json);
+
   final ContentUnion content;
   final String entryId;
   final String sortIndex;

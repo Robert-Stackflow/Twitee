@@ -10,14 +10,14 @@ import 'errors_data.dart';
 part 'errors.g.dart';
 
 @JsonSerializable()
-class Errors  {
+class Errors {
   const Errors({
     required this.data,
     required this.errors,
   });
-  
+
   factory Errors.fromJson(Map<String, Object?> json) => _$ErrorsFromJson(json);
-  
+
   final ErrorsData? data;
   final List<Error> errors;
 

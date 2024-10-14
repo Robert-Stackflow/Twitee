@@ -9,13 +9,14 @@ import 'delete_retweet.dart';
 part 'delete_retweet_response_result.g.dart';
 
 @JsonSerializable()
-class DeleteRetweetResponseResult  {
+class DeleteRetweetResponseResult {
   const DeleteRetweetResponseResult({
     required this.retweetResults,
   });
-  
-  factory DeleteRetweetResponseResult.fromJson(Map<String, Object?> json) => _$DeleteRetweetResponseResultFromJson(json);
-  
+
+  factory DeleteRetweetResponseResult.fromJson(Map<String, Object?> json) =>
+      _$DeleteRetweetResponseResultFromJson(json);
+
   @JsonKey(name: 'retweet_results')
   final DeleteRetweet? retweetResults;
 

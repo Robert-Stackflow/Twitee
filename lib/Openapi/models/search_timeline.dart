@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'search_timeline.g.dart';
 
 @JsonSerializable()
-class SearchTimeline  {
+class SearchTimeline {
   const SearchTimeline({
     required this.timeline,
   });
-  
-  factory SearchTimeline.fromJson(Map<String, Object?> json) => _$SearchTimelineFromJson(json);
-  
+
+  factory SearchTimeline.fromJson(Map<String, Object?> json) =>
+      _$SearchTimelineFromJson(json);
+
   final Timeline timeline;
 
   Map<String, Object?> toJson() => _$SearchTimelineToJson(this);

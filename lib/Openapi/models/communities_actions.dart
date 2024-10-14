@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'communities_actions.g.dart';
 
 @JsonSerializable()
-class CommunitiesActions  {
+class CommunitiesActions {
   const CommunitiesActions({
     required this.create,
   });
-  
-  factory CommunitiesActions.fromJson(Map<String, Object?> json) => _$CommunitiesActionsFromJson(json);
-  
+
+  factory CommunitiesActions.fromJson(Map<String, Object?> json) =>
+      _$CommunitiesActionsFromJson(json);
+
   final bool create;
 
   Map<String, Object?> toJson() => _$CommunitiesActionsToJson(this);

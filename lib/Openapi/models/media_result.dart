@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'media_result.g.dart';
 
 @JsonSerializable()
-class MediaResult  {
+class MediaResult {
   const MediaResult({
     required this.mediaKey,
   });
-  
-  factory MediaResult.fromJson(Map<String, Object?> json) => _$MediaResultFromJson(json);
-  
+
+  factory MediaResult.fromJson(Map<String, Object?> json) =>
+      _$MediaResultFromJson(json);
+
   @JsonKey(name: 'media_key')
   final String? mediaKey;
 

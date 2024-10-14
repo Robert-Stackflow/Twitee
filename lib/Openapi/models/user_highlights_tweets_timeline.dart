@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'user_highlights_tweets_timeline.g.dart';
 
 @JsonSerializable()
-class UserHighlightsTweetsTimeline  {
+class UserHighlightsTweetsTimeline {
   const UserHighlightsTweetsTimeline({
     required this.timeline,
   });
-  
-  factory UserHighlightsTweetsTimeline.fromJson(Map<String, Object?> json) => _$UserHighlightsTweetsTimelineFromJson(json);
-  
+
+  factory UserHighlightsTweetsTimeline.fromJson(Map<String, Object?> json) =>
+      _$UserHighlightsTweetsTimelineFromJson(json);
+
   final Timeline timeline;
 
   Map<String, Object?> toJson() => _$UserHighlightsTweetsTimelineToJson(this);

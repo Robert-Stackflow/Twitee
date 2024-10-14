@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'media_video_info_variant.g.dart';
 
 @JsonSerializable()
-class MediaVideoInfoVariant  {
+class MediaVideoInfoVariant {
   const MediaVideoInfoVariant({
     required this.bitrate,
     required this.contentType,
     required this.url,
   });
-  
-  factory MediaVideoInfoVariant.fromJson(Map<String, Object?> json) => _$MediaVideoInfoVariantFromJson(json);
-  
+
+  factory MediaVideoInfoVariant.fromJson(Map<String, Object?> json) =>
+      _$MediaVideoInfoVariantFromJson(json);
+
   final int? bitrate;
   @JsonKey(name: 'content_type')
   final String? contentType;

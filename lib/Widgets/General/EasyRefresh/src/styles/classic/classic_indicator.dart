@@ -296,7 +296,7 @@ class _ClassicIndicatorState extends State<_ClassicIndicator>
       icon = SizedBox(
         child: widget.noMoreIcon ??
             const Icon(
-              Icons.inbox_outlined,
+              Icons.inbox_rounded,
             ),
       );
     } else if (_mode == IndicatorMode.processing ||
@@ -320,7 +320,7 @@ class _ClassicIndicatorState extends State<_ClassicIndicator>
         icon = SizedBox(
           child: widget.failedIcon ??
               const Icon(
-                Icons.error_outline,
+                Icons.error_outline_rounded,
               ),
         );
       } else {
@@ -330,7 +330,7 @@ class _ClassicIndicatorState extends State<_ClassicIndicator>
               Transform.rotate(
                 angle: _axis == Axis.vertical ? 0 : -math.pi / 2,
                 child: const Icon(
-                  Icons.done,
+                  Icons.done_rounded,
                 ),
               ),
         );
@@ -341,10 +341,10 @@ class _ClassicIndicatorState extends State<_ClassicIndicator>
         child: Transform.rotate(
           angle: -math.pi * _iconAnimationController.value,
           child: Icon(widget.reverse
-              ? (_axis == Axis.vertical ? Icons.arrow_upward : Icons.arrow_back)
+              ? (_axis == Axis.vertical ? Icons.arrow_upward_rounded : Icons.arrow_back_rounded)
               : (_axis == Axis.vertical
-                  ? Icons.arrow_downward
-                  : Icons.arrow_forward)),
+                  ? Icons.arrow_downward_rounded
+                  : Icons.arrow_forward_rounded)),
         ),
       );
     }

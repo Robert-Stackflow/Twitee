@@ -9,14 +9,15 @@ import 'module_entry.dart';
 part 'module_item.g.dart';
 
 @JsonSerializable()
-class ModuleItem  {
+class ModuleItem {
   const ModuleItem({
     required this.entryId,
     required this.item,
   });
-  
-  factory ModuleItem.fromJson(Map<String, Object?> json) => _$ModuleItemFromJson(json);
-  
+
+  factory ModuleItem.fromJson(Map<String, Object?> json) =>
+      _$ModuleItemFromJson(json);
+
   final String entryId;
   final ModuleEntry item;
 

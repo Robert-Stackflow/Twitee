@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'timestamp.g.dart';
 
 @JsonSerializable()
-class Timestamp  {
+class Timestamp {
   const Timestamp({
     required this.indices,
     required this.seconds,
     required this.text,
   });
-  
-  factory Timestamp.fromJson(Map<String, Object?> json) => _$TimestampFromJson(json);
-  
+
+  factory Timestamp.fromJson(Map<String, Object?> json) =>
+      _$TimestampFromJson(json);
+
   final List<int> indices;
   final int seconds;
   final String text;

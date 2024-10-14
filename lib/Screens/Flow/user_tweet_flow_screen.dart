@@ -26,6 +26,8 @@ import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Utils/enums.dart';
+
 enum UserTweetFlowType { Tweets, TweetsAndReplies }
 
 class UserTweetFlowScreen extends StatefulWidget {
@@ -69,6 +71,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   @override
   ScrollController? getScrollController() {
@@ -110,6 +113,10 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
+      if (_initPhase != InitPhase.successful) {
+        _initPhase = InitPhase.connecting;
+        setState(() {});
+      }
       ResponseResult res;
       switch (widget.type) {
         case UserTweetFlowType.Tweets:
@@ -124,6 +131,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
           break;
       }
       if (res.success) {
+        _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
         Timeline? timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
@@ -145,21 +153,23 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
+        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
       IToast.showTop("加载失败：${e.toString()}");
       ILogger.error("Twitee", "Failed to get homeline", e, t);
+      _initPhase = InitPhase.failed;
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -168,6 +178,10 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
+      if (_initPhase != InitPhase.successful) {
+        _initPhase = InitPhase.connecting;
+        setState(() {});
+      }
       ResponseResult res;
       switch (widget.type) {
         case UserTweetFlowType.Tweets:
@@ -184,6 +198,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
           break;
       }
       if (res.success) {
+        _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
         Timeline? timeline = response.data.user.result.timelineV2?.timeline;
         if (timeline == null) {
@@ -201,7 +216,6 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -213,14 +227,17 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         }
       } else {
         IToast.showTop("加载失败：${res.message}");
+        _initPhase = InitPhase.failed;
         return IndicatorResult.fail;
       }
     } catch (e, t) {
       IToast.showTop("加载失败：${e.toString()}");
       ILogger.error("Twitee", "Failed to load homeline", e, t);
+      _initPhase = InitPhase.failed;
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -291,6 +308,27 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    return widget.nested ? _buildBody() : _buildMainBody();
+  }
+
+  _buildBody() {
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent);
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: refresh,
+        );
+      case InitPhase.successful:
+        return _buildMainBody();
+      default:
+        return Container();
+    }
+  }
+
+  _buildMainBody() {
     return EasyRefresh.builder(
       onRefresh: () async {
         return await _onRefresh();
@@ -304,25 +342,32 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          physics: pyhsics,
-          controller: widget.nested ? null : _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            validEntries.length,
-            (index) {
-              return PostItem(
-                key: GlobalObjectKey(validEntries[index].sortIndex.toString()),
-                entry: validEntries[index],
-                feedbackActions: _getFeedBackActions(validEntries[index]),
-              );
-            },
-          ),
-        ),
+        child: validEntries.isNotEmpty
+            ? WaterfallFlow.extent(
+                physics: pyhsics,
+                controller: widget.nested ? null : _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 600,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  validEntries.length,
+                  (index) {
+                    return PostItem(
+                      key: GlobalObjectKey(
+                          validEntries[index].sortIndex.toString()),
+                      entry: validEntries[index],
+                      feedbackActions: _getFeedBackActions(validEntries[index]),
+                    );
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无内容",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }

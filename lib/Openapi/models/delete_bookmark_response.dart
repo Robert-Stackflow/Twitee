@@ -9,13 +9,14 @@ import 'delete_bookmark_response_data.dart';
 part 'delete_bookmark_response.g.dart';
 
 @JsonSerializable()
-class DeleteBookmarkResponse  {
+class DeleteBookmarkResponse {
   const DeleteBookmarkResponse({
     required this.data,
   });
-  
-  factory DeleteBookmarkResponse.fromJson(Map<String, Object?> json) => _$DeleteBookmarkResponseFromJson(json);
-  
+
+  factory DeleteBookmarkResponse.fromJson(Map<String, Object?> json) =>
+      _$DeleteBookmarkResponseFromJson(json);
+
   final DeleteBookmarkResponseData data;
 
   Map<String, Object?> toJson() => _$DeleteBookmarkResponseToJson(this);

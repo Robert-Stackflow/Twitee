@@ -8,12 +8,14 @@ import 'package:json_annotation/json_annotation.dart';
 enum TimelineCoverBehaviorUrlUrlType {
   @JsonValue('ExternalUrl')
   externalUrl('ExternalUrl'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineCoverBehaviorUrlUrlType(this.json);
 
-  factory TimelineCoverBehaviorUrlUrlType.fromJson(String json) => values.firstWhere(
+  factory TimelineCoverBehaviorUrlUrlType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

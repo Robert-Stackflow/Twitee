@@ -109,10 +109,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   String getMp4Url(Media media) {
-    return media.videoInfo!.variants
+    List<MediaVideoInfoVariant> videoList = media.videoInfo!.variants
         .where((element) => element.contentType == "video/mp4")
-        .first
-        .url;
+        .toList();
+    videoList.sort((a, b) => b.bitrate!.compareTo(a.bitrate!));
+    return videoList[0].url;
   }
 
   initVideo(TimelineAddEntry entry) {
@@ -657,6 +658,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     User? retweetedUser,
   }) {
     String fullText = _getFullText(tweet);
+    var userResultUnion = tweet.core!.userResults!.result;
+    User user = userResultUnion as User;
     var body = Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.all(12),
@@ -665,24 +668,43 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         children: [
           if (retweetedUser != null) _buildRetweetRow(retweetedUser),
           if (retweetedUser != null) const SizedBox(height: 8),
-          _buildUserRow(tweet, isQuote: false),
-          const SizedBox(height: 8),
-          ItemBuilder.buildHtmlWidget(
-            context,
-            fullText,
-            style: Theme.of(context).textTheme.bodyMedium,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemBuilder.buildAvatar(
+                context: context,
+                imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
+                size: 40,
+                isOval: user.profileImageShape == UserProfileImageShape.circle,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildUserRow(tweet, isQuote: false, showAvatar: false),
+                    const SizedBox(height: 8),
+                    ItemBuilder.buildHtmlWidget(
+                      context,
+                      fullText,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    ..._buildTranslation(tweet),
+                    if (hasMedia(tweet)) _buildMedia(tweet),
+                    if (hasMedia(tweet) && tweet.quotedStatusResult != null)
+                      const SizedBox(height: 12),
+                    if (tweet.quotedStatusResult != null)
+                      _buildQuoteTweet(TweetUtil.getTrueTweetByResult(
+                          tweet.quotedStatusResult)!),
+                    const SizedBox(height: 16),
+                    _buildOperations(tweet),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          ..._buildTranslation(tweet),
-          if (hasMedia(tweet)) _buildMedia(tweet),
-          if (hasMedia(tweet) && tweet.quotedStatusResult != null)
-            const SizedBox(height: 12),
-          if (tweet.quotedStatusResult != null)
-            _buildQuoteTweet(
-                TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
-          const SizedBox(height: 16),
-          _buildOperations(tweet),
-          const SizedBox(height: 4),
         ],
       ),
     );
@@ -889,8 +911,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     bool isQueto = false,
     double size = 80,
     double radius = 0,
+    bool isSingle = false,
   }) {
     double ratio = isQueto ? 1 : media.sizes.large.w / media.sizes.large.h;
+    ratio = ratio.clamp(0.8, 2);
     return Stack(
       children: [
         Container(
@@ -905,8 +929,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             borderRadius: BorderRadius.circular(radius),
             child: ItemBuilder.buildHeroCachedImage(
               context: context,
-              width: size,
-              height: size / ratio,
+              width: isSingle ? null : size,
+              height: isSingle ? null : size * 2,
               fit: BoxFit.cover,
               showLoading: false,
               imageUrl: media.mediaUrlHttps!,
@@ -924,6 +948,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             ),
           ),
+        if (media.type == MediaType.video)
+          Positioned(
+            left: 5,
+            bottom: 5,
+            child: ItemBuilder.buildTransparentTag(
+              context,
+              text: "视频",
+              borderRadius: 4,
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            ),
+          ),
       ],
     );
   }
@@ -931,93 +966,108 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   _buildVideoMedia(
     Media media, {
     bool showPanel = false,
+    bool isQueto = false,
+    bool isSingle = false,
+    double size = 80,
     double radius = 0,
   }) {
-    bool isGif = media.type == MediaType.animatedGif;
-    String videoUrl = isGif ? media.url : getMp4Url(media);
-    VideoPlayerController? controller = _videoControllers[videoUrl];
-    if (controller == null) {
-      _createController(videoUrl, isGif: true);
-    }
-    controller = _videoControllers[videoUrl];
-    if (controller == null) return emptyWidget;
-    return VisibilityDetector(
-      key: Key(videoUrl),
-      onVisibilityChanged: (info) {
-        if (!isGif) {
-          VideoPlayerController? videoController = _videoControllers[videoUrl];
-          if (videoController == null) return;
-          bool isVisible = _isVisibleMap[videoUrl] ?? false;
-          bool hasPlayedOnce = _hasPlayedOnceMap[videoUrl] ?? false;
-          if (!isVisible && info.visibleFraction > 0.5) {
-            if (!hasPlayedOnce && !videoController.value.isPlaying) {
-              _playbackManager.play(videoController);
+    if (isQueto) {
+      return _buildImageMedia(media, radius: radius, isQueto: true);
+    } else {
+      double ratio = media.sizes.large.w / media.sizes.large.h;
+      ratio = ratio.clamp(0.8, 2);
+      bool isGif = media.type == MediaType.animatedGif;
+      String videoUrl = isGif ? media.url : getMp4Url(media);
+      VideoPlayerController? controller = _videoControllers[videoUrl];
+      if (controller == null) {
+        _createController(videoUrl, isGif: true);
+      }
+      controller = _videoControllers[videoUrl];
+      if (controller == null) return emptyWidget;
+      var container = Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        constraints: BoxConstraints(
+            maxHeight: 450, maxWidth: MediaQuery.sizeOf(context).width),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: VideoControlPanel(
+            controller,
+            showClosedCaptionButton: false,
+            showFullscreenButton: false,
+            showPanel: showPanel,
+            showPlayPauseButton: true,
+            showSeekBar: true,
+            showDurationAndPositionText: true,
+            onPlayEnded: () {
+              _hasPlayedOnceMap[videoUrl] = true;
+            },
+            onPlayClicked: () {
+              if (!isGif) {
+                if (controller!.value.isPlaying) {
+                  _playbackManager.play(controller);
+                } else {
+                  _playbackManager.pause(controller);
+                }
+              }
+            },
+          ),
+        ),
+      );
+      return VisibilityDetector(
+        key: Key(videoUrl),
+        onVisibilityChanged: (info) {
+          if (!isGif) {
+            VideoPlayerController? videoController =
+                _videoControllers[videoUrl];
+            if (videoController == null) return;
+            bool isVisible = _isVisibleMap[videoUrl] ?? false;
+            bool hasPlayedOnce = _hasPlayedOnceMap[videoUrl] ?? false;
+            if (!isVisible && info.visibleFraction > 0.5) {
+              if (!hasPlayedOnce && !videoController.value.isPlaying) {
+                _playbackManager.play(videoController);
+              }
+              setState(() {
+                isVisible = true;
+                _isVisibleMap[videoUrl] = true;
+              });
+            } else if (isVisible && info.visibleFraction < 0.5) {
+              if (videoController.value.isPlaying) {
+                _playbackManager.pause(videoController);
+              }
+              setState(() {
+                isVisible = false;
+                _isVisibleMap[videoUrl] = false;
+              });
             }
-            setState(() {
-              isVisible = true;
-              _isVisibleMap[videoUrl] = true;
-            });
-          } else if (isVisible && info.visibleFraction < 0.5) {
-            if (videoController.value.isPlaying) {
-              _playbackManager.pause(videoController);
-            }
-            setState(() {
-              isVisible = false;
-              _isVisibleMap[videoUrl] = false;
-            });
           }
-        }
-      },
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(radius),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(radius),
-              ),
-              constraints: const BoxConstraints(maxHeight: 450),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(radius),
-                child: VideoControlPanel(
-                  controller,
-                  showClosedCaptionButton: false,
-                  showFullscreenButton: false,
-                  showPanel: showPanel,
-                  showPlayPauseButton: true,
-                  showSeekBar: true,
-                  showDurationAndPositionText: true,
-                  onPlayEnded: () {
-                    _hasPlayedOnceMap[videoUrl] = true;
-                  },
-                  onPlayClicked: () {
-                    if (!isGif) {
-                      if (controller!.value.isPlaying) {
-                        _playbackManager.play(controller);
-                      } else {
-                        _playbackManager.pause(controller);
-                      }
-                    }
-                  },
+        },
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: isSingle
+                  ? AspectRatio(aspectRatio: ratio, child: container)
+                  : container,
+            ),
+            if (media.type == MediaType.animatedGif)
+              Positioned(
+                left: 10,
+                bottom: 10,
+                child: ItemBuilder.buildTransparentTag(
+                  context,
+                  text: "GIF",
+                  borderRadius: 4,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 ),
               ),
-            ),
-          ),
-          if (media.type == MediaType.animatedGif)
-            Positioned(
-              left: 10,
-              bottom: 10,
-              child: ItemBuilder.buildTransparentTag(
-                context,
-                text: "GIF",
-                borderRadius: 4,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              ),
-            ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
 
   _buildGifMedia(
@@ -1050,13 +1100,23 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               media[index],
               size: 300,
               radius: isSingle ? 12 : 0,
+              isSingle: isSingle,
             );
           case MediaType.video:
-            return _buildVideoMedia(media[index],
-                radius: isSingle ? 12 : 0, showPanel: isSingle);
+            return _buildVideoMedia(
+              media[index],
+              size: double.infinity,
+              radius: isSingle ? 12 : 0,
+              showPanel: isSingle,
+            );
+          case MediaType.animatedGif:
+            return _buildGifMedia(
+              media[0],
+              isQueto: false,
+              radius: isSingle ? 12 : 0,
+            );
           default:
-            return _buildGifMedia(media[0],
-                isQueto: false, radius: isSingle ? 12 : 0);
+            return emptyWidget;
         }
       },
     );
@@ -1067,11 +1127,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     List<Media> media = getMedia(tweet);
     switch (media[0].type) {
       case MediaType.photo:
-        return _buildImageMedia(media[0], radius: 8, isQueto: true);
+        return _buildImageMedia(media[0],
+            radius: 8, isQueto: true, isSingle: true);
       case MediaType.video:
-        return _buildVideoMedia(media[0]);
-      default:
+        return _buildVideoMedia(media[0],
+            isQueto: true, radius: 8, isSingle: true);
+      case MediaType.animatedGif:
         return _buildGifMedia(media[0], isQueto: true, radius: 8);
+      default:
+        return emptyWidget;
     }
   }
 

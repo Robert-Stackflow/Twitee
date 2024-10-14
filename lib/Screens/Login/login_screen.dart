@@ -22,20 +22,16 @@ import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Widgets/Dialog/custom_dialog.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 
+import '../../Utils/asset_util.dart';
+import '../../Utils/enums.dart';
 import '../../Utils/request_util.dart';
 import '../../Widgets/Item/input_item.dart';
 import '../../Widgets/Item/item_builder.dart';
-
-enum ConnectState {
-  haveNotConnected,
-  connecting,
-  successful,
-  failed,
-}
 
 class LoginByPasswordScreen extends StatefulWidget {
   const LoginByPasswordScreen({super.key});
@@ -57,8 +53,8 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
   late PinPutValidateAsyncController _2FAValidateAsyncController;
   String _guestToken = "";
   String _flowToken = "";
-  ConnectState _inited = ConnectState.connecting;
-  ConnectState _connected = ConnectState.haveNotConnected;
+  InitPhase _inited = InitPhase.connecting;
+  InitPhase _connected = InitPhase.haveNotConnected;
   final FocusNode _pinFocusNode = FocusNode();
   UserInfo? _userInfo;
   String errorMessage = "";
@@ -121,13 +117,13 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       errorMessage = message;
       if (mounted) {
         setState(() {
-          _inited = ConnectState.failed;
+          _inited = InitPhase.failed;
         });
       }
     }
 
     setState(() {
-      _inited = ConnectState.connecting;
+      _inited = InitPhase.connecting;
     });
 
     var res = await LoginApi.getGuestToken();
@@ -149,7 +145,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
     }
     _flowToken = res.data;
     setState(() {
-      _inited = ConnectState.successful;
+      _inited = InitPhase.successful;
     });
     ILogger.info("Init Login", "Get flow_token: $_flowToken");
   }
@@ -157,18 +153,18 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
   Future<void> _login() async {
     success() async {
       setState(() {
-        _connected = ConnectState.connecting;
+        _connected = InitPhase.connecting;
       });
       controller.animateToPage(5,
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
       await LoginApi.fetchCsrfToken(_guestToken);
       await RequestUtil.shareCookie();
-      mainScreenState?.login();
       if (_userInfo != null) {
         await HiveUtil.setUserInfo(_userInfo!);
       }
+      mainScreenState?.login();
       setState(() {
-        _connected = ConnectState.successful;
+        _connected = InitPhase.successful;
       });
       if (ResponsiveUtil.isLandscape()) {
         dialogNavigatorState?.popPage();
@@ -290,7 +286,6 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         }
         break;
       case 3:
-        print(_userInfo);
         bool valid = (await _2FAValidateAsyncController.validate()) == null;
         if (!valid) return;
         String pin = _2FAValidateAsyncController.controller.text;
@@ -331,13 +326,13 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
 
   _buildBody() {
     switch (_inited) {
-      case ConnectState.connecting:
+      case InitPhase.connecting:
         return ItemBuilder.buildLoadingDialog(
           context,
           text: "初始化中...",
           background: Theme.of(context).scaffoldBackgroundColor,
         );
-      case ConnectState.failed:
+      case InitPhase.failed:
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           alignment: Alignment.center,
@@ -359,7 +354,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             ],
           ),
         );
-      case ConnectState.successful:
+      case InitPhase.successful:
         return _buildMainBody();
       default:
         return emptyWidget;
@@ -499,7 +494,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                       message: "正在准备连接至Twitee...",
                       body: ItemBuilder.buildLoadingDialog(
                         context,
-                        text: _connected == ConnectState.successful
+                        text: _connected == InitPhase.successful
                             ? "连接成功"
                             : "连接中...",
                         background: Colors.transparent,
@@ -512,7 +507,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             ),
           ),
           const SizedBox(height: 30),
-          if (_connected == ConnectState.haveNotConnected)
+          if (_connected == InitPhase.haveNotConnected)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 50),
               child: ItemBuilder.buildRoundButton(
@@ -535,7 +530,9 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       children: [
         ItemBuilder.buildAvatar(
           context: context,
-          imageUrl: _userInfo!.profileImageUrlHttps,
+          imageUrl:
+              TweetUtil.getBigAvatarUrl(_userInfo!.profileImageUrlHttps) ??
+                  AssetUtil.avatar,
           size: 36,
         ),
         const SizedBox(width: 10),
@@ -585,12 +582,11 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                   ),
                 ],
               ),
-              const Spacer(),
               if (_userInfo != null) _buildUserInfo(),
               const SizedBox(height: 10),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           body,
         ],
       ),

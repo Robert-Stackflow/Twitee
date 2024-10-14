@@ -12,6 +12,7 @@ enum MediaExtendedType {
   video('video'),
   @JsonValue('animated_gif')
   animatedGif('animated_gif'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

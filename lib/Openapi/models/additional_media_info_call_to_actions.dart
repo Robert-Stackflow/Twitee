@@ -9,18 +9,21 @@ import 'additional_media_info_call_to_actions_url.dart';
 part 'additional_media_info_call_to_actions.g.dart';
 
 @JsonSerializable()
-class AdditionalMediaInfoCallToActions  {
+class AdditionalMediaInfoCallToActions {
   const AdditionalMediaInfoCallToActions({
     required this.visitSite,
     required this.watchNow,
   });
-  
-  factory AdditionalMediaInfoCallToActions.fromJson(Map<String, Object?> json) => _$AdditionalMediaInfoCallToActionsFromJson(json);
-  
+
+  factory AdditionalMediaInfoCallToActions.fromJson(
+          Map<String, Object?> json) =>
+      _$AdditionalMediaInfoCallToActionsFromJson(json);
+
   @JsonKey(name: 'visit_site')
   final AdditionalMediaInfoCallToActionsUrl? visitSite;
   @JsonKey(name: 'watch_now')
   final AdditionalMediaInfoCallToActionsUrl? watchNow;
 
-  Map<String, Object?> toJson() => _$AdditionalMediaInfoCallToActionsToJson(this);
+  Map<String, Object?> toJson() =>
+      _$AdditionalMediaInfoCallToActionsToJson(this);
 }

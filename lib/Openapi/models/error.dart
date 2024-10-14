@@ -11,7 +11,7 @@ import 'tracing.dart';
 part 'error.g.dart';
 
 @JsonSerializable()
-class Error  {
+class Error {
   const Error({
     required this.code,
     required this.extensions,
@@ -24,9 +24,9 @@ class Error  {
     required this.source,
     required this.tracing,
   });
-  
+
   factory Error.fromJson(Map<String, Object?> json) => _$ErrorFromJson(json);
-  
+
   final int code;
   final ErrorExtensions extensions;
   final String kind;

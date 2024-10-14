@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'callback.g.dart';
 
 @JsonSerializable()
-class Callback  {
+class Callback {
   const Callback({
     required this.endpoint,
   });
-  
-  factory Callback.fromJson(Map<String, Object?> json) => _$CallbackFromJson(json);
-  
+
+  factory Callback.fromJson(Map<String, Object?> json) =>
+      _$CallbackFromJson(json);
+
   final String endpoint;
 
   Map<String, Object?> toJson() => _$CallbackToJson(this);

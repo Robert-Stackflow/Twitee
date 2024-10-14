@@ -11,7 +11,7 @@ import 'article_metadata.dart';
 part 'article_result.g.dart';
 
 @JsonSerializable()
-class ArticleResult  {
+class ArticleResult {
   const ArticleResult({
     required this.coverMedia,
     required this.id,
@@ -21,9 +21,10 @@ class ArticleResult  {
     required this.restId,
     required this.title,
   });
-  
-  factory ArticleResult.fromJson(Map<String, Object?> json) => _$ArticleResultFromJson(json);
-  
+
+  factory ArticleResult.fromJson(Map<String, Object?> json) =>
+      _$ArticleResultFromJson(json);
+
   @JsonKey(name: 'cover_media')
   final ArticleCoverMedia? coverMedia;
   final String id;

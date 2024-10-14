@@ -19,9 +19,10 @@ class TimelineGeneralContext extends SocialContextUnion {
     required this.text,
     required this.type,
   });
-  
-  factory TimelineGeneralContext.fromJson(Map<String, Object?> json) => _$TimelineGeneralContextFromJson(json);
-  
+
+  factory TimelineGeneralContext.fromJson(Map<String, Object?> json) =>
+      _$TimelineGeneralContextFromJson(json);
+
   final TimelineGeneralContextContextType? contextType;
   final SocialContextLandingUrl? landingUrl;
   final String? text;

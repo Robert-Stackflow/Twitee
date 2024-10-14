@@ -164,7 +164,7 @@ class _CupertinoIndicatorState extends State<_CupertinoIndicator>
                   child: widget.emptyWidget!,
                 )
               : Icon(
-                  CupertinoIcons.archivebox,
+                  Icons.inbox_rounded,
                   key: const ValueKey('noMore'),
                   color: widget.foregroundColor,
                 )

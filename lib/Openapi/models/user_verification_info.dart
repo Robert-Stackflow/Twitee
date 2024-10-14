@@ -9,14 +9,15 @@ import 'user_verification_info_reason.dart';
 part 'user_verification_info.g.dart';
 
 @JsonSerializable()
-class UserVerificationInfo  {
+class UserVerificationInfo {
   const UserVerificationInfo({
     required this.isIdentityVerified,
     required this.reason,
   });
-  
-  factory UserVerificationInfo.fromJson(Map<String, Object?> json) => _$UserVerificationInfoFromJson(json);
-  
+
+  factory UserVerificationInfo.fromJson(Map<String, Object?> json) =>
+      _$UserVerificationInfoFromJson(json);
+
   @JsonKey(name: 'is_identity_verified')
   final bool? isIdentityVerified;
   final UserVerificationInfoReason? reason;

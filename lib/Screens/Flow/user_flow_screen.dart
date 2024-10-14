@@ -72,6 +72,8 @@ class _UserFlowScreenState extends State<UserFlowScreen>
 
   bool _noMore = false;
 
+  bool _inited = false;
+
   @override
   void initState() {
     super.initState();
@@ -124,16 +126,14 @@ class _UserFlowScreenState extends State<UserFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
@@ -143,7 +143,9 @@ class _UserFlowScreenState extends State<UserFlowScreen>
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -176,7 +178,6 @@ class _UserFlowScreenState extends State<UserFlowScreen>
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -196,6 +197,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -241,20 +243,26 @@ class _UserFlowScreenState extends State<UserFlowScreen>
       child: ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            validEntries.length,
-            (index) {
-              return _buildUserItem(validEntries[index]);
-            },
-          ),
-        ),
+        child: validEntries.isNotEmpty || !_inited
+            ? WaterfallFlow.extent(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 600,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  validEntries.length,
+                  (index) {
+                    return _buildUserItem(validEntries[index]);
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无内容",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }

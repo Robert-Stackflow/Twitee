@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tweet_previous_counts.g.dart';
 
 @JsonSerializable()
-class TweetPreviousCounts  {
+class TweetPreviousCounts {
   const TweetPreviousCounts({
     required this.bookmarkCount,
     required this.favoriteCount,
@@ -15,9 +15,10 @@ class TweetPreviousCounts  {
     required this.replyCount,
     required this.retweetCount,
   });
-  
-  factory TweetPreviousCounts.fromJson(Map<String, Object?> json) => _$TweetPreviousCountsFromJson(json);
-  
+
+  factory TweetPreviousCounts.fromJson(Map<String, Object?> json) =>
+      _$TweetPreviousCountsFromJson(json);
+
   @JsonKey(name: 'bookmark_count')
   final int? bookmarkCount;
   @JsonKey(name: 'favorite_count')

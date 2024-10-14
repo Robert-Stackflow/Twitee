@@ -7,14 +7,15 @@ import 'package:json_annotation/json_annotation.dart';
 part 'text_highlight.g.dart';
 
 @JsonSerializable()
-class TextHighlight  {
+class TextHighlight {
   const TextHighlight({
     required this.endIndex,
     required this.startIndex,
   });
-  
-  factory TextHighlight.fromJson(Map<String, Object?> json) => _$TextHighlightFromJson(json);
-  
+
+  factory TextHighlight.fromJson(Map<String, Object?> json) =>
+      _$TextHighlightFromJson(json);
+
   final int endIndex;
   final int startIndex;
 

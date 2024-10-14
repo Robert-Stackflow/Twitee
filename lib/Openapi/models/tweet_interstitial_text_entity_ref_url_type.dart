@@ -8,12 +8,14 @@ import 'package:json_annotation/json_annotation.dart';
 enum TweetInterstitialTextEntityRefUrlType {
   @JsonValue('ExternalUrl')
   externalUrl('ExternalUrl'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TweetInterstitialTextEntityRefUrlType(this.json);
 
-  factory TweetInterstitialTextEntityRefUrlType.fromJson(String json) => values.firstWhere(
+  factory TweetInterstitialTextEntityRefUrlType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

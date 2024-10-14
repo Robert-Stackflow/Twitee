@@ -59,6 +59,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+  bool _inited = false;
 
   @override
   void initState() {
@@ -95,14 +96,12 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       if (res.success) {
         List<UserLegacy> newEntries = res.data;
         users = newEntries;
-        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
@@ -112,7 +111,9 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -126,7 +127,6 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       if (res.success) {
         List<UserLegacy> newEntries = res.data;
         users.addAll(newEntries);
-        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -144,6 +144,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -163,20 +164,26 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       child: ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
-          padding:
-              const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-          children: List.generate(
-            users.length,
-            (index) {
-              return UserItem(userLegacy: users[index]);
-            },
-          ),
-        ),
+        child: users.isNotEmpty || !_inited
+            ? WaterfallFlow.extent(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16)),
+                maxCrossAxisExtent: 600,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 6,
+                children: List.generate(
+                  users.length,
+                  (index) {
+                    return UserItem(userLegacy: users[index]);
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无好友",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }

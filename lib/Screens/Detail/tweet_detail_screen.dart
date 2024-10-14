@@ -22,6 +22,7 @@ import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
 
 import '../../Models/tab_item_data.dart';
+import '../../Utils/enums.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
@@ -44,60 +45,52 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
 
   TweetDetailResponse? tweetDetailResponse;
   TimelineAddEntry? tweetEntry;
-  bool _inited = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   late TabController _tabController;
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
-  ScrollToHideController();
+      ScrollToHideController();
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
+  ScrollController? primaryController;
 
   initTab() {
-    // TabItemData.build(
-    //   "帖子",
-    //       (key, scrollController) => UserTweetFlowScreen(
-    //     key: key,
-    //     userId: user!.restId!,
-    //     nested: true,
-    //   ),
-    // ),
+    primaryController = PrimaryScrollController.of(context);
     tabDataList.addAll([
       TabItemData.build(
         "最相关",
-            (key, scrollController) =>
-            TimelineFlowScreen(
-              key: key,
-              nested: true,
-              scrollController: scrollController,
-            ),
+        (key, scrollController) => TimelineFlowScreen(
+          key: key,
+          nested: true,
+          scrollController: primaryController,
+        ),
       ),
       TabItemData.build(
         "最新",
-            (key, scrollController) =>
-            TimelineFlowScreen(
-              key: key,
-              nested: true,
-              scrollController: scrollController,
-            ),
+        (key, scrollController) => TimelineFlowScreen(
+          key: key,
+          nested: true,
+          scrollController: primaryController,
+        ),
       ),
       TabItemData.build(
         "最多点赞",
-            (key, scrollController) =>
-            TimelineFlowScreen(
-              key: key,
-              nested: true,
-              scrollController: scrollController,
-            ),
+        (key, scrollController) => TimelineFlowScreen(
+          key: key,
+          nested: true,
+          scrollController: primaryController,
+        ),
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
   }
 
   fetchDetail() async {
+    _initPhase = InitPhase.connecting;
     ResponseResult response =
-    await PostApi.getTweetDetail(tweetId: widget.tweetId);
+        await PostApi.getTweetDetail(tweetId: widget.tweetId);
     if (response.success) {
       tweetDetailResponse = response.data;
       Timeline? timeline =
@@ -109,10 +102,14 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
           }
         }
       }
+      _initPhase = InitPhase.successful;
     } else {
       IToast.showTop("获取详情失败：$response.message");
+      _initPhase = InitPhase.failed;
     }
-    _inited = true;
+    if (tweetDetailResponse == null || tweetEntry == null) {
+      _initPhase = InitPhase.failed;
+    }
     setState(() {});
   }
 
@@ -120,7 +117,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     for (TimelineAddEntry entry in entries) {
       if (entry.content is TimelineTimelineItem &&
           (entry.content as TimelineTimelineItem).itemContent
-          is TimelineTweet) {
+              is TimelineTweet) {
         tweetEntry = entry;
         break;
       }
@@ -136,7 +133,9 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
       vsync: this,
     );
     fetchDetail();
-    initTab();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initTab();
+    });
   }
 
   @override
@@ -145,29 +144,42 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
           context: context, title: "帖子详情", showBack: true),
-      body: _inited
-          ? _buildBody()
-          : ItemBuilder.buildLoadingDialog(context,
-          text: "加载中...", background: Colors.transparent),
+      body: _buildBody(),
     );
   }
 
   _buildBody() {
-    return tweetDetailResponse == null || tweetEntry == null
-        ? _buildError()
-        : _buildMainBody();
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent);
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: fetchDetail,
+        );
+      case InitPhase.successful:
+        return _buildMainBody();
+      default:
+        return Container();
+    }
   }
 
   _buildMainBody() {
     return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) =>
-      [
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverToBoxAdapter(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(color: Theme
-                .of(context)
-                .canvasColor),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                ),
+              ),
+            ),
             child: PostItem(
               entry: tweetEntry!,
               isDetail: true,
@@ -197,8 +209,10 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
             bottom: 16,
             child: ScrollToHide(
               controller: _scrollToHideController,
-              scrollController:
-              tabDataList.getScrollControllerNotNull(currentIndex),
+              scrollControllers: [
+                primaryController ?? ScrollController(),
+                ...tabDataList.scrollControllerList
+              ],
               hideDirection: Axis.vertical,
               child: _buildFloatingButtons(),
             ),
@@ -226,31 +240,6 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     }
   }
 
-  _buildError() {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "加载失败",
-            style: Theme
-                .of(context)
-                .textTheme
-                .titleMedium,
-          ),
-          const SizedBox(height: 10),
-          ItemBuilder.buildRoundButton(context, text: "重试", onTap: () {
-            fetchDetail();
-          }),
-        ],
-      ),
-    );
-  }
-
   _buildFloatingButtons() {
     return Column(
       children: [
@@ -258,7 +247,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
           context: context,
           icon: RotationTransition(
             turns:
-            Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
+                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
             child: const Icon(Icons.refresh_rounded),
           ),
           onTap: () async {

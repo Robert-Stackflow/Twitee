@@ -169,7 +169,7 @@ class ThemeColorData {
       name: "极简黑",
       background: const Color(0xFF151515),
       canvasBackground: const Color(0xFF232326),
-      primaryColor: const Color(0xFFE8E8E8),//F1F1F1
+      primaryColor: const Color(0xFFE8E8E8), //F1F1F1
       iconColor: const Color(0xFFCACACA),
       splashColor: const Color(0x12cccccc),
       highlightColor: const Color(0x12cfcfcf),

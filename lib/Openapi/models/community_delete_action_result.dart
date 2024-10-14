@@ -10,14 +10,15 @@ import 'type_name.dart';
 part 'community_delete_action_result.g.dart';
 
 @JsonSerializable()
-class CommunityDeleteActionResult  {
+class CommunityDeleteActionResult {
   const CommunityDeleteActionResult({
     required this.privateTypename,
     required this.reason,
   });
-  
-  factory CommunityDeleteActionResult.fromJson(Map<String, Object?> json) => _$CommunityDeleteActionResultFromJson(json);
-  
+
+  factory CommunityDeleteActionResult.fromJson(Map<String, Object?> json) =>
+      _$CommunityDeleteActionResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final CommunityDeleteActionResultReason reason;

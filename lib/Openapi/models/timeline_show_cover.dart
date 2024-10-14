@@ -18,9 +18,10 @@ class TimelineShowCover extends InstructionUnion {
     required this.cover,
     required this.type,
   });
-  
-  factory TimelineShowCover.fromJson(Map<String, Object?> json) => _$TimelineShowCoverFromJson(json);
-  
+
+  factory TimelineShowCover.fromJson(Map<String, Object?> json) =>
+      _$TimelineShowCoverFromJson(json);
+
   final ClientEventInfo clientEventInfo;
   final TimelineHalfCover cover;
   final InstructionType type;

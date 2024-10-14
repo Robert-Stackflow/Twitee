@@ -9,13 +9,14 @@ import 'super_follows_reply_user_result_data.dart';
 part 'super_follows_reply_user_result.g.dart';
 
 @JsonSerializable()
-class SuperFollowsReplyUserResult  {
+class SuperFollowsReplyUserResult {
   const SuperFollowsReplyUserResult({
     required this.result,
   });
-  
-  factory SuperFollowsReplyUserResult.fromJson(Map<String, Object?> json) => _$SuperFollowsReplyUserResultFromJson(json);
-  
+
+  factory SuperFollowsReplyUserResult.fromJson(Map<String, Object?> json) =>
+      _$SuperFollowsReplyUserResultFromJson(json);
+
   final SuperFollowsReplyUserResultData result;
 
   Map<String, Object?> toJson() => _$SuperFollowsReplyUserResultToJson(this);

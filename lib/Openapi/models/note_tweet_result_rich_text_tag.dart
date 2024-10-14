@@ -9,15 +9,16 @@ import 'richtext_types_richtext_types.dart';
 part 'note_tweet_result_rich_text_tag.g.dart';
 
 @JsonSerializable()
-class NoteTweetResultRichTextTag  {
+class NoteTweetResultRichTextTag {
   const NoteTweetResultRichTextTag({
     required this.fromIndex,
     required this.richtextTypes,
     required this.toIndex,
   });
-  
-  factory NoteTweetResultRichTextTag.fromJson(Map<String, Object?> json) => _$NoteTweetResultRichTextTagFromJson(json);
-  
+
+  factory NoteTweetResultRichTextTag.fromJson(Map<String, Object?> json) =>
+      _$NoteTweetResultRichTextTagFromJson(json);
+
   @JsonKey(name: 'from_index')
   final int? fromIndex;
   @JsonKey(name: 'richtext_types')

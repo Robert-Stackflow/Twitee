@@ -14,9 +14,10 @@ class TweetTombstone extends TweetUnion {
   const TweetTombstone({
     required this.privateTypename,
   });
-  
-  factory TweetTombstone.fromJson(Map<String, Object?> json) => _$TweetTombstoneFromJson(json);
-  
+
+  factory TweetTombstone.fromJson(Map<String, Object?> json) =>
+      _$TweetTombstoneFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
 

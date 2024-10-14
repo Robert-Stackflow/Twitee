@@ -17,7 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlaybackManager extends ChangeNotifier {
-  static final VideoPlaybackManager _instance = VideoPlaybackManager._internal();
+  static final VideoPlaybackManager _instance =
+      VideoPlaybackManager._internal();
 
   factory VideoPlaybackManager() {
     return _instance;

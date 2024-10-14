@@ -9,15 +9,16 @@ import 'user_verification_info_reason_description.dart';
 part 'user_verification_info_reason.g.dart';
 
 @JsonSerializable()
-class UserVerificationInfoReason  {
+class UserVerificationInfoReason {
   const UserVerificationInfoReason({
     required this.description,
     required this.overrideVerifiedYear,
     required this.verifiedSinceMsec,
   });
-  
-  factory UserVerificationInfoReason.fromJson(Map<String, Object?> json) => _$UserVerificationInfoReasonFromJson(json);
-  
+
+  factory UserVerificationInfoReason.fromJson(Map<String, Object?> json) =>
+      _$UserVerificationInfoReasonFromJson(json);
+
   final UserVerificationInfoReasonDescription description;
   @JsonKey(name: 'override_verified_year')
   final int? overrideVerifiedYear;

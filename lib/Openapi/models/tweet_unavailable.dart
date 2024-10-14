@@ -15,9 +15,10 @@ class TweetUnavailable extends TweetUnion {
     required this.privateTypename,
     required this.reason,
   });
-  
-  factory TweetUnavailable.fromJson(Map<String, Object?> json) => _$TweetUnavailableFromJson(json);
-  
+
+  factory TweetUnavailable.fromJson(Map<String, Object?> json) =>
+      _$TweetUnavailableFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final String? reason;

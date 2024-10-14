@@ -10,7 +10,7 @@ import 'user_result_by_screen_name_legacy.dart';
 part 'user_result_by_screen_name_result.g.dart';
 
 @JsonSerializable()
-class UserResultByScreenNameResult  {
+class UserResultByScreenNameResult {
   const UserResultByScreenNameResult({
     required this.privateTypename,
     required this.id,
@@ -18,9 +18,10 @@ class UserResultByScreenNameResult  {
     required this.profilemodules,
     required this.restId,
   });
-  
-  factory UserResultByScreenNameResult.fromJson(Map<String, Object?> json) => _$UserResultByScreenNameResultFromJson(json);
-  
+
+  factory UserResultByScreenNameResult.fromJson(Map<String, Object?> json) =>
+      _$UserResultByScreenNameResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final String id;

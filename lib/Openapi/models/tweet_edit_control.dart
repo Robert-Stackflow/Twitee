@@ -9,7 +9,7 @@ import 'tweet_edit_control_initial.dart';
 part 'tweet_edit_control.g.dart';
 
 @JsonSerializable()
-class TweetEditControl  {
+class TweetEditControl {
   const TweetEditControl({
     required this.editControlInitial,
     required this.editTweetIds,
@@ -18,9 +18,10 @@ class TweetEditControl  {
     required this.initialTweetId,
     required this.isEditEligible,
   });
-  
-  factory TweetEditControl.fromJson(Map<String, Object?> json) => _$TweetEditControlFromJson(json);
-  
+
+  factory TweetEditControl.fromJson(Map<String, Object?> json) =>
+      _$TweetEditControlFromJson(json);
+
   @JsonKey(name: 'edit_control_initial')
   final TweetEditControlInitial? editControlInitial;
   @JsonKey(name: 'edit_tweet_ids')

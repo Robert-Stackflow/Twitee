@@ -9,14 +9,15 @@ import 'urt_endpoint_request_params.dart';
 part 'urt_endpoint_options.g.dart';
 
 @JsonSerializable()
-class UrtEndpointOptions  {
+class UrtEndpointOptions {
   const UrtEndpointOptions({
     required this.requestParams,
     required this.title,
   });
-  
-  factory UrtEndpointOptions.fromJson(Map<String, Object?> json) => _$UrtEndpointOptionsFromJson(json);
-  
+
+  factory UrtEndpointOptions.fromJson(Map<String, Object?> json) =>
+      _$UrtEndpointOptionsFromJson(json);
+
   final List<UrtEndpointRequestParams> requestParams;
   final String title;
 

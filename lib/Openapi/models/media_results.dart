@@ -9,13 +9,14 @@ import 'media_result.dart';
 part 'media_results.g.dart';
 
 @JsonSerializable()
-class MediaResults  {
+class MediaResults {
   const MediaResults({
     required this.result,
   });
-  
-  factory MediaResults.fromJson(Map<String, Object?> json) => _$MediaResultsFromJson(json);
-  
+
+  factory MediaResults.fromJson(Map<String, Object?> json) =>
+      _$MediaResultsFromJson(json);
+
   final MediaResult result;
 
   Map<String, Object?> toJson() => _$MediaResultsToJson(this);

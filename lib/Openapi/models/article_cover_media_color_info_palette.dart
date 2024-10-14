@@ -9,16 +9,19 @@ import 'article_cover_media_color_info_palette_rgb.dart';
 part 'article_cover_media_color_info_palette.g.dart';
 
 @JsonSerializable()
-class ArticleCoverMediaColorInfoPalette  {
+class ArticleCoverMediaColorInfoPalette {
   const ArticleCoverMediaColorInfoPalette({
     required this.percentage,
     required this.rgb,
   });
-  
-  factory ArticleCoverMediaColorInfoPalette.fromJson(Map<String, Object?> json) => _$ArticleCoverMediaColorInfoPaletteFromJson(json);
-  
+
+  factory ArticleCoverMediaColorInfoPalette.fromJson(
+          Map<String, Object?> json) =>
+      _$ArticleCoverMediaColorInfoPaletteFromJson(json);
+
   final num percentage;
   final ArticleCoverMediaColorInfoPaletteRgb rgb;
 
-  Map<String, Object?> toJson() => _$ArticleCoverMediaColorInfoPaletteToJson(this);
+  Map<String, Object?> toJson() =>
+      _$ArticleCoverMediaColorInfoPaletteToJson(this);
 }

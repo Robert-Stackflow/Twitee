@@ -9,14 +9,15 @@ import 'note_tweet_result.dart';
 part 'note_tweet.g.dart';
 
 @JsonSerializable()
-class NoteTweet  {
+class NoteTweet {
   const NoteTweet({
     required this.isExpandable,
     required this.noteTweetResults,
   });
-  
-  factory NoteTweet.fromJson(Map<String, Object?> json) => _$NoteTweetFromJson(json);
-  
+
+  factory NoteTweet.fromJson(Map<String, Object?> json) =>
+      _$NoteTweetFromJson(json);
+
   @JsonKey(name: 'is_expandable')
   final bool? isExpandable;
   @JsonKey(name: 'note_tweet_results')

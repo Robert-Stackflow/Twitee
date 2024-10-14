@@ -12,16 +12,17 @@ import 'type_name.dart';
 part 'tweet_interstitial.g.dart';
 
 @JsonSerializable()
-class TweetInterstitial  {
+class TweetInterstitial {
   const TweetInterstitial({
     required this.privateTypename,
     required this.displayType,
     required this.revealText,
     required this.text,
   });
-  
-  factory TweetInterstitial.fromJson(Map<String, Object?> json) => _$TweetInterstitialFromJson(json);
-  
+
+  factory TweetInterstitial.fromJson(Map<String, Object?> json) =>
+      _$TweetInterstitialFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final TweetInterstitialDisplayType displayType;

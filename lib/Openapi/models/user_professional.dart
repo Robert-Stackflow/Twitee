@@ -10,15 +10,16 @@ import 'user_professional_professional_type.dart';
 part 'user_professional.g.dart';
 
 @JsonSerializable()
-class UserProfessional  {
+class UserProfessional {
   const UserProfessional({
     required this.category,
     required this.professionalType,
     required this.restId,
   });
-  
-  factory UserProfessional.fromJson(Map<String, Object?> json) => _$UserProfessionalFromJson(json);
-  
+
+  factory UserProfessional.fromJson(Map<String, Object?> json) =>
+      _$UserProfessionalFromJson(json);
+
   final List<UserProfessionalCategory> category;
   @JsonKey(name: 'professional_type')
   final UserProfessionalProfessionalType? professionalType;

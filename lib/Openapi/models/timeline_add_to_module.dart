@@ -18,9 +18,10 @@ class TimelineAddToModule extends InstructionUnion {
     required this.prepend,
     required this.type,
   });
-  
-  factory TimelineAddToModule.fromJson(Map<String, Object?> json) => _$TimelineAddToModuleFromJson(json);
-  
+
+  factory TimelineAddToModule.fromJson(Map<String, Object?> json) =>
+      _$TimelineAddToModuleFromJson(json);
+
   final String moduleEntryId;
   final List<ModuleItem> moduleItems;
   final bool? prepend;

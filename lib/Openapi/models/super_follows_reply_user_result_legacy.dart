@@ -7,15 +7,18 @@ import 'package:json_annotation/json_annotation.dart';
 part 'super_follows_reply_user_result_legacy.g.dart';
 
 @JsonSerializable()
-class SuperFollowsReplyUserResultLegacy  {
+class SuperFollowsReplyUserResultLegacy {
   const SuperFollowsReplyUserResultLegacy({
     required this.screenName,
   });
-  
-  factory SuperFollowsReplyUserResultLegacy.fromJson(Map<String, Object?> json) => _$SuperFollowsReplyUserResultLegacyFromJson(json);
-  
+
+  factory SuperFollowsReplyUserResultLegacy.fromJson(
+          Map<String, Object?> json) =>
+      _$SuperFollowsReplyUserResultLegacyFromJson(json);
+
   @JsonKey(name: 'screen_name')
   final String? screenName;
 
-  Map<String, Object?> toJson() => _$SuperFollowsReplyUserResultLegacyToJson(this);
+  Map<String, Object?> toJson() =>
+      _$SuperFollowsReplyUserResultLegacyToJson(this);
 }

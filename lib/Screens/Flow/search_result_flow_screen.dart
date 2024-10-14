@@ -74,6 +74,8 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
 
   bool _noMore = false;
 
+  bool _inited = false;
+
   @override
   void initState() {
     super.initState();
@@ -129,14 +131,12 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         } else if (_isMedia) {
           _refreshGridTweets();
         }
-        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
         IToast.showTop("加载失败：${res.message}");
         return IndicatorResult.fail;
@@ -146,7 +146,9 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -180,7 +182,6 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         } else if (_isMedia) {
           _refreshGridTweets();
         }
-        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -198,6 +199,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -284,8 +286,24 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: _buildBody(),
+      child: !_inited || hasResult()
+          ? _buildBody()
+          : ItemBuilder.buildEmptyPlaceholder(
+              context: context,
+              text: "暂无搜索结果",
+              scrollController: _scrollController,
+            ),
     );
+  }
+
+  bool hasResult() {
+    if (_isMedia) {
+      return gridTweets.isNotEmpty;
+    } else if (_isList) {
+      return timelineTwitterLists.isNotEmpty;
+    } else {
+      return validEntries.isNotEmpty;
+    }
   }
 
   _buildBody() {
@@ -334,7 +352,8 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       child: useGrid
           ? GridView.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
+              padding: const EdgeInsets.all(8)
+                  .add(const EdgeInsets.only(bottom: 16)),
               maxCrossAxisExtent: maxCrossAxisExtent,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,
@@ -342,7 +361,8 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
             )
           : WaterfallFlow.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16)),
+              padding: const EdgeInsets.all(8)
+                  .add(const EdgeInsets.only(bottom: 16)),
               maxCrossAxisExtent: maxCrossAxisExtent,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,

@@ -8,12 +8,14 @@ import 'package:json_annotation/json_annotation.dart';
 enum TimelineShowAlertDisplayLocation {
   @JsonValue('Top')
   top('Top'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineShowAlertDisplayLocation(this.json);
 
-  factory TimelineShowAlertDisplayLocation.fromJson(String json) => values.firstWhere(
+  factory TimelineShowAlertDisplayLocation.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

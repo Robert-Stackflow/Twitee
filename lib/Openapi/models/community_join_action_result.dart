@@ -9,13 +9,14 @@ import 'type_name.dart';
 part 'community_join_action_result.g.dart';
 
 @JsonSerializable()
-class CommunityJoinActionResult  {
+class CommunityJoinActionResult {
   const CommunityJoinActionResult({
     required this.privateTypename,
   });
-  
-  factory CommunityJoinActionResult.fromJson(Map<String, Object?> json) => _$CommunityJoinActionResultFromJson(json);
-  
+
+  factory CommunityJoinActionResult.fromJson(Map<String, Object?> json) =>
+      _$CommunityJoinActionResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
 

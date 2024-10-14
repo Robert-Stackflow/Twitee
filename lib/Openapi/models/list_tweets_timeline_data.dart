@@ -9,13 +9,14 @@ import 'list_tweets_timeline_list.dart';
 part 'list_tweets_timeline_data.g.dart';
 
 @JsonSerializable()
-class ListTweetsTimelineData  {
+class ListTweetsTimelineData {
   const ListTweetsTimelineData({
     required this.list,
   });
-  
-  factory ListTweetsTimelineData.fromJson(Map<String, Object?> json) => _$ListTweetsTimelineDataFromJson(json);
-  
+
+  factory ListTweetsTimelineData.fromJson(Map<String, Object?> json) =>
+      _$ListTweetsTimelineDataFromJson(json);
+
   final ListTweetsTimelineList list;
 
   Map<String, Object?> toJson() => _$ListTweetsTimelineDataToJson(this);

@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'feedback_info.g.dart';
 
 @JsonSerializable()
-class FeedbackInfo  {
+class FeedbackInfo {
   const FeedbackInfo({
     required this.feedbackKeys,
   });
-  
-  factory FeedbackInfo.fromJson(Map<String, Object?> json) => _$FeedbackInfoFromJson(json);
-  
+
+  factory FeedbackInfo.fromJson(Map<String, Object?> json) =>
+      _$FeedbackInfoFromJson(json);
+
   final List<String?>? feedbackKeys;
 
   Map<String, Object?> toJson() => _$FeedbackInfoToJson(this);

@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'tweet_detail_response_data.g.dart';
 
 @JsonSerializable()
-class TweetDetailResponseData  {
+class TweetDetailResponseData {
   const TweetDetailResponseData({
     required this.threadedConversationWithInjectionsV2,
   });
-  
-  factory TweetDetailResponseData.fromJson(Map<String, Object?> json) => _$TweetDetailResponseDataFromJson(json);
-  
+
+  factory TweetDetailResponseData.fromJson(Map<String, Object?> json) =>
+      _$TweetDetailResponseDataFromJson(json);
+
   @JsonKey(name: 'threaded_conversation_with_injections_v2')
   final Timeline? threadedConversationWithInjectionsV2;
 

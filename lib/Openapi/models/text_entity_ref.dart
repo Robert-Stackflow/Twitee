@@ -10,15 +10,16 @@ import 'text_entity_ref_url_type.dart';
 part 'text_entity_ref.g.dart';
 
 @JsonSerializable()
-class TextEntityRef  {
+class TextEntityRef {
   const TextEntityRef({
     required this.type,
     required this.url,
     required this.urlType,
   });
-  
-  factory TextEntityRef.fromJson(Map<String, Object?> json) => _$TextEntityRefFromJson(json);
-  
+
+  factory TextEntityRef.fromJson(Map<String, Object?> json) =>
+      _$TextEntityRefFromJson(json);
+
   final TextEntityRefType type;
   final String url;
   final TextEntityRefUrlType urlType;

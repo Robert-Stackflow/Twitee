@@ -22,9 +22,10 @@ class TimelineUser extends ItemContentUnion {
     required this.userDisplayType,
     required this.userResults,
   });
-  
-  factory TimelineUser.fromJson(Map<String, Object?> json) => _$TimelineUserFromJson(json);
-  
+
+  factory TimelineUser.fromJson(Map<String, Object?> json) =>
+      _$TimelineUserFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final ContentItemType itemType;

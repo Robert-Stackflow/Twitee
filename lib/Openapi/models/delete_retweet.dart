@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'delete_retweet.g.dart';
 
 @JsonSerializable()
-class DeleteRetweet  {
+class DeleteRetweet {
   const DeleteRetweet({
     required this.result,
   });
-  
-  factory DeleteRetweet.fromJson(Map<String, Object?> json) => _$DeleteRetweetFromJson(json);
-  
+
+  factory DeleteRetweet.fromJson(Map<String, Object?> json) =>
+      _$DeleteRetweetFromJson(json);
+
   final dynamic result;
 
   Map<String, Object?> toJson() => _$DeleteRetweetToJson(this);

@@ -7,14 +7,17 @@ import 'package:json_annotation/json_annotation.dart';
 part 'additional_media_info_call_to_actions_url.g.dart';
 
 @JsonSerializable()
-class AdditionalMediaInfoCallToActionsUrl  {
+class AdditionalMediaInfoCallToActionsUrl {
   const AdditionalMediaInfoCallToActionsUrl({
     required this.url,
   });
-  
-  factory AdditionalMediaInfoCallToActionsUrl.fromJson(Map<String, Object?> json) => _$AdditionalMediaInfoCallToActionsUrlFromJson(json);
-  
+
+  factory AdditionalMediaInfoCallToActionsUrl.fromJson(
+          Map<String, Object?> json) =>
+      _$AdditionalMediaInfoCallToActionsUrlFromJson(json);
+
   final String url;
 
-  Map<String, Object?> toJson() => _$AdditionalMediaInfoCallToActionsUrlToJson(this);
+  Map<String, Object?> toJson() =>
+      _$AdditionalMediaInfoCallToActionsUrlToJson(this);
 }

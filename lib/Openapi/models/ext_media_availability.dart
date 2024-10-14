@@ -9,14 +9,15 @@ import 'ext_media_availability_status.dart';
 part 'ext_media_availability.g.dart';
 
 @JsonSerializable()
-class ExtMediaAvailability  {
+class ExtMediaAvailability {
   const ExtMediaAvailability({
     required this.reason,
     required this.status,
   });
-  
-  factory ExtMediaAvailability.fromJson(Map<String, Object?> json) => _$ExtMediaAvailabilityFromJson(json);
-  
+
+  factory ExtMediaAvailability.fromJson(Map<String, Object?> json) =>
+      _$ExtMediaAvailabilityFromJson(json);
+
   final String? reason;
   final ExtMediaAvailabilityStatus? status;
 

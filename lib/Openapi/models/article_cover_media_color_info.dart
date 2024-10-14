@@ -9,13 +9,14 @@ import 'article_cover_media_color_info_palette.dart';
 part 'article_cover_media_color_info.g.dart';
 
 @JsonSerializable()
-class ArticleCoverMediaColorInfo  {
+class ArticleCoverMediaColorInfo {
   const ArticleCoverMediaColorInfo({
     required this.palette,
   });
-  
-  factory ArticleCoverMediaColorInfo.fromJson(Map<String, Object?> json) => _$ArticleCoverMediaColorInfoFromJson(json);
-  
+
+  factory ArticleCoverMediaColorInfo.fromJson(Map<String, Object?> json) =>
+      _$ArticleCoverMediaColorInfoFromJson(json);
+
   final List<ArticleCoverMediaColorInfoPalette> palette;
 
   Map<String, Object?> toJson() => _$ArticleCoverMediaColorInfoToJson(this);

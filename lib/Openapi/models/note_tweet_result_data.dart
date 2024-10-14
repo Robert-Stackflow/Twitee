@@ -11,7 +11,7 @@ import 'note_tweet_result_rich_text.dart';
 part 'note_tweet_result_data.g.dart';
 
 @JsonSerializable()
-class NoteTweetResultData  {
+class NoteTweetResultData {
   const NoteTweetResultData({
     required this.entitySet,
     required this.id,
@@ -19,9 +19,10 @@ class NoteTweetResultData  {
     required this.richtext,
     required this.text,
   });
-  
-  factory NoteTweetResultData.fromJson(Map<String, Object?> json) => _$NoteTweetResultDataFromJson(json);
-  
+
+  factory NoteTweetResultData.fromJson(Map<String, Object?> json) =>
+      _$NoteTweetResultDataFromJson(json);
+
   @JsonKey(name: 'entity_set')
   final Entities? entitySet;
   final String id;

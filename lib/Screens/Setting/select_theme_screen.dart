@@ -76,6 +76,7 @@ class _SelectThemeScreenState extends State<SelectThemeScreen>
                   context: context, title: S.current.lightTheme),
               ItemBuilder.buildContainerItem(
                 context: context,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   child: SingleChildScrollView(
@@ -94,6 +95,7 @@ class _SelectThemeScreenState extends State<SelectThemeScreen>
                   context: context, title: S.current.darkTheme),
               ItemBuilder.buildContainerItem(
                 context: context,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   child: SingleChildScrollView(

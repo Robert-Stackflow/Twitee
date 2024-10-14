@@ -12,16 +12,17 @@ import 'community_pin_action_result.dart';
 part 'community_actions.g.dart';
 
 @JsonSerializable()
-class CommunityActions  {
+class CommunityActions {
   const CommunityActions({
     required this.deleteActionResult,
     required this.joinActionResult,
     required this.leaveActionResult,
     required this.pinActionResult,
   });
-  
-  factory CommunityActions.fromJson(Map<String, Object?> json) => _$CommunityActionsFromJson(json);
-  
+
+  factory CommunityActions.fromJson(Map<String, Object?> json) =>
+      _$CommunityActionsFromJson(json);
+
   @JsonKey(name: 'delete_action_result')
   final CommunityDeleteActionResult? deleteActionResult;
   @JsonKey(name: 'join_action_result')

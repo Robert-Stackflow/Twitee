@@ -173,8 +173,7 @@ class FileUtil {
       String? filePath = await FileUtil.saveFile(
         dialogTitle: S.current.exportLog,
         fileName:
-        "Twitee-Logs-${Utils.getFormattedDate(DateTime.now())}-${ResponsiveUtil
-            .deviceName}.zip",
+            "Twitee-Logs-${Utils.getFormattedDate(DateTime.now())}-${ResponsiveUtil.deviceName}.zip",
         type: FileType.custom,
         allowedExtensions: ['zip'],
         lockParentWindow: true,
@@ -214,8 +213,7 @@ class FileUtil {
         String? filePath = await FileUtil.saveFile(
           dialogTitle: S.current.exportLog,
           fileName:
-          "Twitee-Logs-${Utils.getFormattedDate(
-              DateTime.now())}-${ResponsiveUtil.deviceName}.zip",
+              "Twitee-Logs-${Utils.getFormattedDate(DateTime.now())}-${ResponsiveUtil.deviceName}.zip",
           type: FileType.custom,
           allowedExtensions: ['zip'],
           lockParentWindow: true,
@@ -239,12 +237,11 @@ class FileUtil {
     if (!await directory.exists()) {
       return true;
     }
-    return directory
-        .listSync()
-        .isEmpty;
+    return directory.listSync().isEmpty;
   }
 
-  static Future<void> createBakDir(Directory sourceDir, [
+  static Future<void> createBakDir(
+    Directory sourceDir, [
     Directory? destDir,
   ]) async {
     Directory directory = destDir ?? Directory("${sourceDir.path}-bak");
@@ -256,8 +253,8 @@ class FileUtil {
     await copyDirectoryTo(sourceDir, directory);
   }
 
-  static Future<void> copyDirectoryTo(Directory oldDir,
-      Directory newDir) async {
+  static Future<void> copyDirectoryTo(
+      Directory oldDir, Directory newDir) async {
     ILogger.info(
         "Twitee", "Copy directory from ${oldDir.path} to ${newDir.path}");
     if (!await oldDir.exists()) {
@@ -346,7 +343,7 @@ class FileUtil {
 
   static Future<String> getDatabaseDir() async {
     Directory directory =
-    Directory(join(await getApplicationDir(), "Database"));
+        Directory(join(await getApplicationDir(), "Database"));
     if (!await directory.exists()) {
       await directory.create(recursive: true);
     }
@@ -354,30 +351,24 @@ class FileUtil {
   }
 
   static String getFileNameWithExtension(String imageUrl) {
-    return Uri
-        .parse(imageUrl)
-        .pathSegments
-        .last;
+    return Uri.parse(imageUrl).pathSegments.last;
   }
 
   static String getFileExtension(String imageUrl) {
-    return getFileNameWithExtension(imageUrl)
-        .split('.')
-        .last;
+    return getFileNameWithExtension(imageUrl).split('.').last;
   }
 
   static String getFileName(String imageUrl) {
-    return getFileNameWithExtension(imageUrl)
-        .split('.')
-        .first;
+    return getFileNameWithExtension(imageUrl).split('.').first;
   }
 
-  static Future<void> downloadAndUpdate(BuildContext context,
-      String apkUrl,
-      String htmlUrl, {
-        String? version,
-        Function(double)? onReceiveProgress,
-      }) async {
+  static Future<void> downloadAndUpdate(
+    BuildContext context,
+    String apkUrl,
+    String htmlUrl, {
+    String? version,
+    Function(double)? onReceiveProgress,
+  }) async {
     bool enableNotification = await Permission.notification.isGranted;
     if (Utils.isNotEmpty(apkUrl)) {
       double progressValue = 0.0;
@@ -422,8 +413,8 @@ class FileUtil {
                   cancelButtonText: S.current.updateLater,
                   confirmButtonText: S.current.immediatelyInstall,
                   onTapConfirm: () async {
-                    await InstallPlugin.install(savePath);
-                  });
+                await InstallPlugin.install(savePath);
+              });
             }
           } else {
             UriUtil.openExternal(htmlUrl);
@@ -453,10 +444,11 @@ class FileUtil {
     }
   }
 
-  static Future<File> copyAndRenameFile(File file,
-      String newFileName, {
-        String? dir,
-      }) async {
+  static Future<File> copyAndRenameFile(
+    File file,
+    String newFileName, {
+    String? dir,
+  }) async {
     dir ??= file.parent.path;
     String newPath = '$dir/$newFileName';
     File copiedFile = await file.copy(newPath);
@@ -464,12 +456,12 @@ class FileUtil {
     return copiedFile;
   }
 
-  static Future<ReleaseAsset> getAndroidAsset(String latestVersion,
-      ReleaseItem item) async {
+  static Future<ReleaseAsset> getAndroidAsset(
+      String latestVersion, ReleaseItem item) async {
     ReleaseAsset? resAsset;
     List<ReleaseAsset> assets = item.assets.where((element) {
       return ["application/vnd.android.package-archive", "raw"]
-          .contains(element.contentType) &&
+              .contains(element.contentType) &&
           element.name.endsWith(".apk");
     }).toList();
     ReleaseAsset generalAsset = assets.firstWhere((element) {
@@ -481,14 +473,10 @@ class FileUtil {
     try {
       AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
       List<String> supportedAbis =
-      androidInfo.supportedAbis.map((e) => e.toLowerCase()).toList();
+          androidInfo.supportedAbis.map((e) => e.toLowerCase()).toList();
       for (var asset in assets) {
         String abi =
-            asset.name
-                .split("Twitee-$latestVersion-")
-                .last
-                .split(".")
-                .first;
+            asset.name.split("Twitee-$latestVersion-").last.split(".").first;
         for (var supportedAbi in supportedAbis) {
           if (abi.toLowerCase().contains(supportedAbi)) {
             resAsset = asset;
@@ -546,11 +534,11 @@ class FileUtil {
     }
   }
 
-  static ReleaseAsset getWindowsPortableAsset(String latestVersion,
-      ReleaseItem item) {
+  static ReleaseAsset getWindowsPortableAsset(
+      String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return ["application/zip", "application/x-zip-compressed", "raw"]
-          .contains(element.contentType) &&
+              .contains(element.contentType) &&
           element.name.contains("windows") &&
           element.name.endsWith(".zip");
     });
@@ -558,11 +546,11 @@ class FileUtil {
     return asset;
   }
 
-  static ReleaseAsset getWindowsInstallerAsset(String latestVersion,
-      ReleaseItem item) {
+  static ReleaseAsset getWindowsInstallerAsset(
+      String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return ["application/x-msdownload", "application/x-msdos-program", "raw"]
-          .contains(element.contentType) &&
+              .contains(element.contentType) &&
           element.name.contains("windows") &&
           element.name.endsWith(".exe");
     });
@@ -570,29 +558,29 @@ class FileUtil {
     return asset;
   }
 
-  static ReleaseAsset getLinuxDebianAsset(String latestVersion,
-      ReleaseItem item) {
+  static ReleaseAsset getLinuxDebianAsset(
+      String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return [
-        "application/vnd.debian.binary-package",
-        "application/x-debian-package",
-        "raw"
-      ].contains(element.contentType) &&
+            "application/vnd.debian.binary-package",
+            "application/x-debian-package",
+            "raw"
+          ].contains(element.contentType) &&
           element.name.endsWith(".deb");
     });
     asset.pkgsDownloadUrl = Utils.getDownloadUrl(latestVersion, asset.name);
     return asset;
   }
 
-  static ReleaseAsset getLinuxTarGzAsset(String latestVersion,
-      ReleaseItem item) {
+  static ReleaseAsset getLinuxTarGzAsset(
+      String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return [
-        "application/gzip",
-        "application/x-gzip",
-        "application/x-tar",
-        "raw"
-      ].contains(element.contentType) &&
+            "application/gzip",
+            "application/x-gzip",
+            "application/x-tar",
+            "raw"
+          ].contains(element.contentType) &&
           element.name.endsWith(".tar.gz");
     });
     asset.pkgsDownloadUrl = Utils.getDownloadUrl(latestVersion, asset.name);
@@ -602,7 +590,7 @@ class FileUtil {
   static ReleaseAsset getIosIpaAsset(String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return ["application/octet-stream", "raw"]
-          .contains(element.contentType) &&
+              .contains(element.contentType) &&
           element.name.endsWith(".ipa");
     });
     asset.pkgsDownloadUrl = Utils.getDownloadUrl(latestVersion, asset.name);
@@ -612,11 +600,10 @@ class FileUtil {
   static ReleaseAsset getMacosDmgAsset(String latestVersion, ReleaseItem item) {
     var asset = item.assets.firstWhere((element) {
       return ["application/x-apple-diskimage", "raw"]
-          .contains(element.contentType) &&
+              .contains(element.contentType) &&
           element.name.endsWith(".dmg");
     });
     asset.pkgsDownloadUrl = Utils.getDownloadUrl(latestVersion, asset.name);
     return asset;
   }
-
 }

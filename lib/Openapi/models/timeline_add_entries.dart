@@ -16,9 +16,10 @@ class TimelineAddEntries extends InstructionUnion {
     required this.entries,
     required this.type,
   });
-  
-  factory TimelineAddEntries.fromJson(Map<String, Object?> json) => _$TimelineAddEntriesFromJson(json);
-  
+
+  factory TimelineAddEntries.fromJson(Map<String, Object?> json) =>
+      _$TimelineAddEntriesFromJson(json);
+
   final List<TimelineAddEntry> entries;
   final InstructionType type;
 

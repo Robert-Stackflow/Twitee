@@ -9,18 +9,21 @@ import 'tweet_interstitial_text.dart';
 part 'media_visibility_results_blurred_image_interstitial.g.dart';
 
 @JsonSerializable()
-class MediaVisibilityResultsBlurredImageInterstitial  {
+class MediaVisibilityResultsBlurredImageInterstitial {
   const MediaVisibilityResultsBlurredImageInterstitial({
     required this.opacity,
     required this.text,
     required this.title,
   });
-  
-  factory MediaVisibilityResultsBlurredImageInterstitial.fromJson(Map<String, Object?> json) => _$MediaVisibilityResultsBlurredImageInterstitialFromJson(json);
-  
+
+  factory MediaVisibilityResultsBlurredImageInterstitial.fromJson(
+          Map<String, Object?> json) =>
+      _$MediaVisibilityResultsBlurredImageInterstitialFromJson(json);
+
   final num opacity;
   final TweetInterstitialText text;
   final TweetInterstitialText title;
 
-  Map<String, Object?> toJson() => _$MediaVisibilityResultsBlurredImageInterstitialToJson(this);
+  Map<String, Object?> toJson() =>
+      _$MediaVisibilityResultsBlurredImageInterstitialToJson(this);
 }

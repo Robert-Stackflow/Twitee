@@ -14,9 +14,10 @@ class TimelineClearCache extends InstructionUnion {
   const TimelineClearCache({
     required this.type,
   });
-  
-  factory TimelineClearCache.fromJson(Map<String, Object?> json) => _$TimelineClearCacheFromJson(json);
-  
+
+  factory TimelineClearCache.fromJson(Map<String, Object?> json) =>
+      _$TimelineClearCacheFromJson(json);
+
   final InstructionType type;
 
   Map<String, Object?> toJson() => _$TimelineClearCacheToJson(this);

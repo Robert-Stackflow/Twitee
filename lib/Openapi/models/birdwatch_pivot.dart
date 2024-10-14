@@ -14,7 +14,7 @@ import 'birdwatch_pivot_visual_style.dart';
 part 'birdwatch_pivot.g.dart';
 
 @JsonSerializable()
-class BirdwatchPivot  {
+class BirdwatchPivot {
   const BirdwatchPivot({
     required this.callToAction,
     required this.destinationUrl,
@@ -26,9 +26,10 @@ class BirdwatchPivot  {
     required this.title,
     required this.visualStyle,
   });
-  
-  factory BirdwatchPivot.fromJson(Map<String, Object?> json) => _$BirdwatchPivotFromJson(json);
-  
+
+  factory BirdwatchPivot.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchPivotFromJson(json);
+
   final BirdwatchPivotCallToAction? callToAction;
   final String destinationUrl;
   final BirdwatchPivotFooter footer;

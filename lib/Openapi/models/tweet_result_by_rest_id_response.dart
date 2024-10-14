@@ -9,13 +9,14 @@ import 'tweet_result_by_rest_id_data.dart';
 part 'tweet_result_by_rest_id_response.g.dart';
 
 @JsonSerializable()
-class TweetResultByRestIdResponse  {
+class TweetResultByRestIdResponse {
   const TweetResultByRestIdResponse({
     required this.data,
   });
-  
-  factory TweetResultByRestIdResponse.fromJson(Map<String, Object?> json) => _$TweetResultByRestIdResponseFromJson(json);
-  
+
+  factory TweetResultByRestIdResponse.fromJson(Map<String, Object?> json) =>
+      _$TweetResultByRestIdResponseFromJson(json);
+
   final TweetResultByRestIdData data;
 
   Map<String, Object?> toJson() => _$TweetResultByRestIdResponseToJson(this);

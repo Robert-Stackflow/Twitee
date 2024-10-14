@@ -10,15 +10,16 @@ import 'type_name.dart';
 part 'community_invites_result.g.dart';
 
 @JsonSerializable()
-class CommunityInvitesResult  {
+class CommunityInvitesResult {
   const CommunityInvitesResult({
     required this.privateTypename,
     required this.message,
     required this.reason,
   });
-  
-  factory CommunityInvitesResult.fromJson(Map<String, Object?> json) => _$CommunityInvitesResultFromJson(json);
-  
+
+  factory CommunityInvitesResult.fromJson(Map<String, Object?> json) =>
+      _$CommunityInvitesResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final String message;

@@ -9,13 +9,14 @@ import 'tweet_detail_response_data.dart';
 part 'tweet_detail_response.g.dart';
 
 @JsonSerializable()
-class TweetDetailResponse  {
+class TweetDetailResponse {
   const TweetDetailResponse({
     required this.data,
   });
-  
-  factory TweetDetailResponse.fromJson(Map<String, Object?> json) => _$TweetDetailResponseFromJson(json);
-  
+
+  factory TweetDetailResponse.fromJson(Map<String, Object?> json) =>
+      _$TweetDetailResponseFromJson(json);
+
   final TweetDetailResponseData data;
 
   Map<String, Object?> toJson() => _$TweetDetailResponseToJson(this);

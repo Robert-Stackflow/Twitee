@@ -10,14 +10,15 @@ import 'type_name.dart';
 part 'follow_response_result.g.dart';
 
 @JsonSerializable()
-class FollowResponseResult  {
+class FollowResponseResult {
   const FollowResponseResult({
     required this.privateTypename,
     required this.timeline,
   });
-  
-  factory FollowResponseResult.fromJson(Map<String, Object?> json) => _$FollowResponseResultFromJson(json);
-  
+
+  factory FollowResponseResult.fromJson(Map<String, Object?> json) =>
+      _$FollowResponseResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final FollowTimeline timeline;

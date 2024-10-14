@@ -7,16 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'url.g.dart';
 
 @JsonSerializable()
-class Url  {
+class Url {
   const Url({
     required this.displayUrl,
     required this.expandedUrl,
     required this.indices,
     required this.url,
   });
-  
+
   factory Url.fromJson(Map<String, Object?> json) => _$UrlFromJson(json);
-  
+
   @JsonKey(name: 'display_url')
   final String? displayUrl;
   @JsonKey(name: 'expanded_url')

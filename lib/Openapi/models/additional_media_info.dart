@@ -10,7 +10,7 @@ import 'user_result_core.dart';
 part 'additional_media_info.g.dart';
 
 @JsonSerializable()
-class AdditionalMediaInfo  {
+class AdditionalMediaInfo {
   const AdditionalMediaInfo({
     required this.callToActions,
     required this.description,
@@ -19,9 +19,10 @@ class AdditionalMediaInfo  {
     required this.sourceUser,
     required this.title,
   });
-  
-  factory AdditionalMediaInfo.fromJson(Map<String, Object?> json) => _$AdditionalMediaInfoFromJson(json);
-  
+
+  factory AdditionalMediaInfo.fromJson(Map<String, Object?> json) =>
+      _$AdditionalMediaInfoFromJson(json);
+
   @JsonKey(name: 'call_to_actions')
   final AdditionalMediaInfoCallToActions? callToActions;
   final String? description;

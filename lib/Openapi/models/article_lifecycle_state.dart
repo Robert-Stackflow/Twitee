@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'article_lifecycle_state.g.dart';
 
 @JsonSerializable()
-class ArticleLifecycleState  {
+class ArticleLifecycleState {
   const ArticleLifecycleState({
     required this.modifiedAtSecs,
   });
-  
-  factory ArticleLifecycleState.fromJson(Map<String, Object?> json) => _$ArticleLifecycleStateFromJson(json);
-  
+
+  factory ArticleLifecycleState.fromJson(Map<String, Object?> json) =>
+      _$ArticleLifecycleStateFromJson(json);
+
   @JsonKey(name: 'modified_at_secs')
   final int? modifiedAtSecs;
 

@@ -9,13 +9,14 @@ import 'timeline.dart';
 part 'home_timeline_home.g.dart';
 
 @JsonSerializable()
-class HomeTimelineHome  {
+class HomeTimelineHome {
   const HomeTimelineHome({
     required this.homeTimelineUrt,
   });
-  
-  factory HomeTimelineHome.fromJson(Map<String, Object?> json) => _$HomeTimelineHomeFromJson(json);
-  
+
+  factory HomeTimelineHome.fromJson(Map<String, Object?> json) =>
+      _$HomeTimelineHomeFromJson(json);
+
   @JsonKey(name: 'home_timeline_urt')
   final Timeline? homeTimelineUrt;
 

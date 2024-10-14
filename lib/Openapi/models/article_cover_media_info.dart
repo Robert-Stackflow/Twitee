@@ -10,7 +10,7 @@ import 'type_name.dart';
 part 'article_cover_media_info.g.dart';
 
 @JsonSerializable()
-class ArticleCoverMediaInfo  {
+class ArticleCoverMediaInfo {
   const ArticleCoverMediaInfo({
     required this.privateTypename,
     required this.colorInfo,
@@ -18,9 +18,10 @@ class ArticleCoverMediaInfo  {
     required this.originalImgUrl,
     required this.originalImgWidth,
   });
-  
-  factory ArticleCoverMediaInfo.fromJson(Map<String, Object?> json) => _$ArticleCoverMediaInfoFromJson(json);
-  
+
+  factory ArticleCoverMediaInfo.fromJson(Map<String, Object?> json) =>
+      _$ArticleCoverMediaInfoFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   @JsonKey(name: 'color_info')

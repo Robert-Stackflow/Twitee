@@ -9,13 +9,14 @@ import 'profile_response_data.dart';
 part 'profile_response.g.dart';
 
 @JsonSerializable()
-class ProfileResponse  {
+class ProfileResponse {
   const ProfileResponse({
     required this.data,
   });
-  
-  factory ProfileResponse.fromJson(Map<String, Object?> json) => _$ProfileResponseFromJson(json);
-  
+
+  factory ProfileResponse.fromJson(Map<String, Object?> json) =>
+      _$ProfileResponseFromJson(json);
+
   final ProfileResponseData data;
 
   Map<String, Object?> toJson() => _$ProfileResponseToJson(this);

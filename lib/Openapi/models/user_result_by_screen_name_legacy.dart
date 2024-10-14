@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user_result_by_screen_name_legacy.g.dart';
 
 @JsonSerializable()
-class UserResultByScreenNameLegacy  {
+class UserResultByScreenNameLegacy {
   const UserResultByScreenNameLegacy({
     required this.blockedBy,
     required this.blocking,
@@ -17,9 +17,10 @@ class UserResultByScreenNameLegacy  {
     required this.protected,
     required this.screenName,
   });
-  
-  factory UserResultByScreenNameLegacy.fromJson(Map<String, Object?> json) => _$UserResultByScreenNameLegacyFromJson(json);
-  
+
+  factory UserResultByScreenNameLegacy.fromJson(Map<String, Object?> json) =>
+      _$UserResultByScreenNameLegacyFromJson(json);
+
   @JsonKey(name: 'blocked_by')
   final bool? blockedBy;
   final bool? blocking;

@@ -9,13 +9,14 @@ import 'text_highlight.dart';
 part 'highlight.g.dart';
 
 @JsonSerializable()
-class Highlight  {
+class Highlight {
   const Highlight({
     required this.textHighlights,
   });
-  
-  factory Highlight.fromJson(Map<String, Object?> json) => _$HighlightFromJson(json);
-  
+
+  factory Highlight.fromJson(Map<String, Object?> json) =>
+      _$HighlightFromJson(json);
+
   final List<TextHighlight> textHighlights;
 
   Map<String, Object?> toJson() => _$HighlightToJson(this);

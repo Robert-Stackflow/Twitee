@@ -9,13 +9,14 @@ import 'tweet_union.dart';
 part 'quoted_ref_result.g.dart';
 
 @JsonSerializable()
-class QuotedRefResult  {
+class QuotedRefResult {
   const QuotedRefResult({
     required this.result,
   });
-  
-  factory QuotedRefResult.fromJson(Map<String, Object?> json) => _$QuotedRefResultFromJson(json);
-  
+
+  factory QuotedRefResult.fromJson(Map<String, Object?> json) =>
+      _$QuotedRefResultFromJson(json);
+
   final TweetUnion? result;
 
   Map<String, Object?> toJson() => _$QuotedRefResultToJson(this);

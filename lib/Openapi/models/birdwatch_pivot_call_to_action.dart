@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'birdwatch_pivot_call_to_action.g.dart';
 
 @JsonSerializable()
-class BirdwatchPivotCallToAction  {
+class BirdwatchPivotCallToAction {
   const BirdwatchPivotCallToAction({
     required this.destinationUrl,
     required this.prompt,
     required this.title,
   });
-  
-  factory BirdwatchPivotCallToAction.fromJson(Map<String, Object?> json) => _$BirdwatchPivotCallToActionFromJson(json);
-  
+
+  factory BirdwatchPivotCallToAction.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchPivotCallToActionFromJson(json);
+
   final String destinationUrl;
   final String prompt;
   final String title;

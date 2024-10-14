@@ -40,8 +40,8 @@ class TwitterImageGridState extends State<TwitterImageGrid>
 
   late List<MediaSize> sizes;
   double calculatedAspectRatio = 1.0;
-  double maxAspectRatio = 3.0;
-  double minAspectRatio = 0.5;
+  double maxAspectRatio = 2.0;
+  double minAspectRatio = 0.8;
 
   double get aspectRatio =>
       calculatedAspectRatio.clamp(minAspectRatio, maxAspectRatio);
@@ -65,6 +65,7 @@ class TwitterImageGridState extends State<TwitterImageGrid>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     int count = widget.itemCount;
     if (count == 0) {
       return emptyWidget;
@@ -124,16 +125,18 @@ class TwitterImageGridState extends State<TwitterImageGrid>
               child: widget.itemBuilder(context, 0),
             ),
             const SizedBox(width: 4),
-            Column(
-              children: [
-                Expanded(
-                  child: widget.itemBuilder(context, 1),
-                ),
-                const SizedBox(height: 4),
-                Expanded(
-                  child: widget.itemBuilder(context, 2),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: widget.itemBuilder(context, 1),
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: widget.itemBuilder(context, 2),
+                  ),
+                ],
+              ),
             )
           ],
         ),

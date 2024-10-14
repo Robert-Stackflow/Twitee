@@ -10,16 +10,17 @@ import 'birdwatch_entity_ref_url_type.dart';
 part 'birdwatch_entity_ref.g.dart';
 
 @JsonSerializable()
-class BirdwatchEntityRef  {
+class BirdwatchEntityRef {
   const BirdwatchEntityRef({
     required this.text,
     required this.type,
     required this.url,
     required this.urlType,
   });
-  
-  factory BirdwatchEntityRef.fromJson(Map<String, Object?> json) => _$BirdwatchEntityRefFromJson(json);
-  
+
+  factory BirdwatchEntityRef.fromJson(Map<String, Object?> json) =>
+      _$BirdwatchEntityRefFromJson(json);
+
   final String? text;
   final BirdwatchEntityRefType type;
   final String? url;

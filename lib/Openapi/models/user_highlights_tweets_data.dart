@@ -9,13 +9,14 @@ import 'user_highlights_tweets_user.dart';
 part 'user_highlights_tweets_data.g.dart';
 
 @JsonSerializable()
-class UserHighlightsTweetsData  {
+class UserHighlightsTweetsData {
   const UserHighlightsTweetsData({
     required this.user,
   });
-  
-  factory UserHighlightsTweetsData.fromJson(Map<String, Object?> json) => _$UserHighlightsTweetsDataFromJson(json);
-  
+
+  factory UserHighlightsTweetsData.fromJson(Map<String, Object?> json) =>
+      _$UserHighlightsTweetsDataFromJson(json);
+
   final UserHighlightsTweetsUser user;
 
   Map<String, Object?> toJson() => _$UserHighlightsTweetsDataToJson(this);

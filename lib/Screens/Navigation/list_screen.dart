@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Utils/route_util.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Api/data_api.dart';
 import '../../Models/response_result.dart';
@@ -26,8 +27,11 @@ import '../../Openapi/models/timeline_add_entries.dart';
 import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Utils/app_provider.dart';
+import '../../Utils/enums.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
+import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Flow/list_flow_screen.dart';
@@ -44,7 +48,10 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        ScrollToHideMixin {
   @override
   bool get wantKeepAlive => true;
   late TabController _tabController;
@@ -55,9 +62,10 @@ class _ListScreenState extends State<ListScreen>
 
   int get currentIndex => _tabController.index;
   List<TimelineTwitterList> validItems = [];
-  bool inited = false;
+  InitPhase _initPhase = InitPhase.haveNotConnected;
 
   fetchLists() async {
+    _initPhase = InitPhase.connecting;
     try {
       ResponseResult res;
       res = await DataApi.getLists(userId: widget.userId);
@@ -66,17 +74,20 @@ class _ListScreenState extends State<ListScreen>
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validItems = _processEntries(instruction.entries);
-            setState(() {
-              inited = true;
-            });
+            _initPhase = InitPhase.successful;
             initTab();
           }
         }
+      } else {
+        _initPhase = InitPhase.failed;
+        IToast.showTop("加载列表失败");
       }
     } catch (e, t) {
+      _initPhase = InitPhase.failed;
       IToast.showTop("加载失败");
       ILogger.error("Twitee", "Failed to get lists", e, t);
     }
+    setState(() {});
   }
 
   List<TimelineTwitterList> _processEntries(List<TimelineAddEntry> entries) {
@@ -106,8 +117,11 @@ class _ListScreenState extends State<ListScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    initTab();
-    fetchLists();
+    _tabController = TabController(length: 0, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initTab();
+      fetchLists();
+    });
   }
 
   initTab() {
@@ -135,49 +149,56 @@ class _ListScreenState extends State<ListScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        titleWidget: Row(
-          children: [
-            SizedBox(width: inited ? 0 : 20),
-            if (!inited)
-              Text(
-                "加载列表中...",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            if (inited)
-              ItemBuilder.buildTabBar(
-                context,
-                _tabController,
-                tabDataList.tabList,
-                onTap: onTapTab,
-              ),
-          ],
+        titleWidget: ItemBuilder.buildTabBar(
+          context,
+          _tabController,
+          tabDataList.tabList,
+          onTap: onTapTab,
+          autoScrollable: false,
         ),
       ),
-      body: Stack(
-        children: [
-          TabBarView(
-            controller: _tabController,
-            children: tabDataList.pageList,
-          ),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ScrollToHide(
-              controller: _scrollToHideController,
-              scrollController:
-                  tabDataList.getScrollControllerNotNull(currentIndex),
-              hideDirection: Axis.vertical,
-              child: _buildFloatingButtons(),
-            ),
-          ),
-        ],
-      ),
+      body: _buildBody(),
     );
   }
 
+  _buildBody() {
+    switch (_initPhase) {
+      case InitPhase.connecting:
+        return ItemBuilder.buildLoadingDialog(context,
+            background: Colors.transparent, text: "加载列表中...");
+      case InitPhase.failed:
+        return ItemBuilder.buildError(
+          context: context,
+          onTap: fetchLists,
+        );
+      case InitPhase.successful:
+        return tabDataList.isNotEmpty
+            ? Stack(
+                children: [
+                  TabBarView(
+                    controller: _tabController,
+                    children: tabDataList.pageList,
+                  ),
+                  Positioned(
+                    right: ResponsiveUtil.isLandscape() ? 16 : 12,
+                    bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+                    child: ScrollToHide(
+                      controller: _scrollToHideController,
+                      scrollControllers: tabDataList.scrollControllerList,
+                      hideDirection: Axis.vertical,
+                      child: _buildFloatingButtons(),
+                    ),
+                  ),
+                ],
+              )
+            : ItemBuilder.buildError(
+                context: context, text: "暂无列表", buttonText: "新建", onTap: () {});
+      default:
+        return Container();
+    }
+  }
+
   onTapTab(int index) {
-    _scrollToHideController.show();
-    _scrollToHideController.show();
     if (!_tabController.indexIsChanging && index == currentIndex) {
       if (tabDataList.getScrollController(index) != null &&
           tabDataList.getScrollController(index)!.offset > 30) {
@@ -189,8 +210,9 @@ class _ListScreenState extends State<ListScreen>
   }
 
   scrollToTop() async {
-    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
     _scrollToHideController.show();
+    panelScreenState?.showBottomNavigationBar();
   }
 
   refresh() async {
@@ -234,5 +256,10 @@ class _ListScreenState extends State<ListScreen>
         ),
       ],
     );
+  }
+
+  @override
+  List<ScrollController> getScrollControllers() {
+    return tabDataList.scrollControllerList;
   }
 }

@@ -14,7 +14,7 @@ import 'user_mention.dart';
 part 'entities.g.dart';
 
 @JsonSerializable()
-class Entities  {
+class Entities {
   const Entities({
     required this.hashtags,
     required this.media,
@@ -23,10 +23,12 @@ class Entities  {
     required this.urls,
     required this.userMentions,
   });
-  
-  factory Entities.fromJson(Map<String, Object?> json) => _$EntitiesFromJson(json);
 
-  factory Entities.fromJsonWithoutMedia(Map<String, Object?> json) => _$EntitiesFromJsonWithoutMedia(json);
+  factory Entities.fromJson(Map<String, Object?> json) =>
+      _$EntitiesFromJson(json);
+
+  factory Entities.fromJsonWithoutMedia(Map<String, Object?> json) =>
+      _$EntitiesFromJsonWithoutMedia(json);
 
   final List<Hashtag> hashtags;
   final List<Media?>? media;

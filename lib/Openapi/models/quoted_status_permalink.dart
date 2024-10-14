@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'quoted_status_permalink.g.dart';
 
 @JsonSerializable()
-class QuotedStatusPermalink  {
+class QuotedStatusPermalink {
   const QuotedStatusPermalink({
     required this.display,
     required this.expanded,
     required this.url,
   });
-  
-  factory QuotedStatusPermalink.fromJson(Map<String, Object?> json) => _$QuotedStatusPermalinkFromJson(json);
-  
+
+  factory QuotedStatusPermalink.fromJson(Map<String, Object?> json) =>
+      _$QuotedStatusPermalinkFromJson(json);
+
   final String display;
   final String expanded;
   final String url;

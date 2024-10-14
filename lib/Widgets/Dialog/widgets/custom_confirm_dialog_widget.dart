@@ -13,8 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../../Utils/utils.dart';
 import '../colors.dart';
@@ -67,15 +69,14 @@ class CustomConfirmDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    double preferWidth = MediaQuery.sizeOf(context).width - 20 * 2;
     return Align(
       alignment: align,
       child: Material(
         color: Colors.transparent,
         child: Container(
-          constraints: const BoxConstraints(
-            maxWidth: 340,
-          ),
-          margin: margin ?? const EdgeInsets.all(24),
+          constraints: BoxConstraints(maxWidth: min(380, preferWidth)),
+          margin: margin ?? const EdgeInsets.all(20),
           padding: padding ??
               const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
           decoration: BoxDecoration(

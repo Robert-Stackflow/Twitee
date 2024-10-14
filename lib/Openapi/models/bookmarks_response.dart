@@ -9,13 +9,14 @@ import 'bookmarks_response_data.dart';
 part 'bookmarks_response.g.dart';
 
 @JsonSerializable()
-class BookmarksResponse  {
+class BookmarksResponse {
   const BookmarksResponse({
     required this.data,
   });
-  
-  factory BookmarksResponse.fromJson(Map<String, Object?> json) => _$BookmarksResponseFromJson(json);
-  
+
+  factory BookmarksResponse.fromJson(Map<String, Object?> json) =>
+      _$BookmarksResponseFromJson(json);
+
   final BookmarksResponseData data;
 
   Map<String, Object?> toJson() => _$BookmarksResponseToJson(this);

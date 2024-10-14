@@ -26,9 +26,10 @@ class TimelineShowAlert extends InstructionUnion {
     required this.type,
     required this.usersResults,
   });
-  
-  factory TimelineShowAlert.fromJson(Map<String, Object?> json) => _$TimelineShowAlertFromJson(json);
-  
+
+  factory TimelineShowAlert.fromJson(Map<String, Object?> json) =>
+      _$TimelineShowAlertFromJson(json);
+
   final TimelineShowAlertAlertType? alertType;
   final dynamic colorConfig;
   final int? displayDurationMs;

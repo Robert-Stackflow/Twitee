@@ -9,13 +9,14 @@ import 'unfavorite_tweet.dart';
 part 'unfavorite_tweet_response_data.g.dart';
 
 @JsonSerializable()
-class UnfavoriteTweetResponseData  {
+class UnfavoriteTweetResponseData {
   const UnfavoriteTweetResponseData({
     required this.data,
   });
-  
-  factory UnfavoriteTweetResponseData.fromJson(Map<String, Object?> json) => _$UnfavoriteTweetResponseDataFromJson(json);
-  
+
+  factory UnfavoriteTweetResponseData.fromJson(Map<String, Object?> json) =>
+      _$UnfavoriteTweetResponseDataFromJson(json);
+
   final UnfavoriteTweet data;
 
   Map<String, Object?> toJson() => _$UnfavoriteTweetResponseDataToJson(this);

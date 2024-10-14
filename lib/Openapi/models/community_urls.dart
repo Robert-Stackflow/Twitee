@@ -9,13 +9,14 @@ import 'community_urls_permalink.dart';
 part 'community_urls.g.dart';
 
 @JsonSerializable()
-class CommunityUrls  {
+class CommunityUrls {
   const CommunityUrls({
     required this.permalink,
   });
-  
-  factory CommunityUrls.fromJson(Map<String, Object?> json) => _$CommunityUrlsFromJson(json);
-  
+
+  factory CommunityUrls.fromJson(Map<String, Object?> json) =>
+      _$CommunityUrlsFromJson(json);
+
   final CommunityUrlsPermalink permalink;
 
   Map<String, Object?> toJson() => _$CommunityUrlsToJson(this);

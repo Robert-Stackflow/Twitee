@@ -17,6 +17,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/enums.dart';
@@ -93,6 +94,18 @@ class HiveUtil {
   static const String oldVersionKey = "oldVersion";
   static const String haveMigratedToSupportDirectoryKey =
       "haveMigratedToSupportDirectory";
+
+  static initialize() async {
+    if (HiveUtil.isFirstLogin()) {
+      await HiveUtil.initConfig();
+      HiveUtil.setFirstLogin();
+    }
+    if (haveMigratedToSupportDirectory) {
+      HiveUtil.put(HiveUtil.haveMigratedToSupportDirectoryKey, true);
+    }
+    HiveUtil.put(
+        HiveUtil.oldVersionKey, (await PackageInfo.fromPlatform()).version);
+  }
 
   static initConfig() async {
     await HiveUtil.put(HiveUtil.inappWebviewKey, true);

@@ -313,7 +313,7 @@ class _BezierIndicatorState extends State<_BezierIndicator>
             child: Center(
               child: widget.noMoreWidget ??
                   Icon(
-                    Icons.inbox_outlined,
+                    Icons.inbox_rounded,
                     color: _foregroundColor,
                     size: 32,
                   ),

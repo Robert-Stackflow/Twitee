@@ -85,3 +85,10 @@ enum TrayKey {
 
   const TrayKey(this.key);
 }
+
+enum InitPhase {
+  haveNotConnected,
+  connecting,
+  successful,
+  failed;
+}

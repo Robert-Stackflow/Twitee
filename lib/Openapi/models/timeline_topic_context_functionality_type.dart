@@ -8,12 +8,14 @@ import 'package:json_annotation/json_annotation.dart';
 enum TimelineTopicContextFunctionalityType {
   @JsonValue('Basic')
   basic('Basic'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const TimelineTopicContextFunctionalityType(this.json);
 
-  factory TimelineTopicContextFunctionalityType.fromJson(String json) => values.firstWhere(
+  factory TimelineTopicContextFunctionalityType.fromJson(String json) =>
+      values.firstWhere(
         (e) => e.json == json,
         orElse: () => $unknown,
       );

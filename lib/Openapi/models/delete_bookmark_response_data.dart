@@ -7,13 +7,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'delete_bookmark_response_data.g.dart';
 
 @JsonSerializable()
-class DeleteBookmarkResponseData  {
+class DeleteBookmarkResponseData {
   const DeleteBookmarkResponseData({
     required this.tweetBookmarkDelete,
   });
-  
-  factory DeleteBookmarkResponseData.fromJson(Map<String, Object?> json) => _$DeleteBookmarkResponseDataFromJson(json);
-  
+
+  factory DeleteBookmarkResponseData.fromJson(Map<String, Object?> json) =>
+      _$DeleteBookmarkResponseDataFromJson(json);
+
   @JsonKey(name: 'tweet_bookmark_delete')
   final String? tweetBookmarkDelete;
 
