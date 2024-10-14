@@ -1676,7 +1676,7 @@ packages:
   swagger_parser:
     dependency: "direct dev"
     description:
-      path: "third-party/swagger_parser/swagger_parser"
+      path: "third-party/swagger_parser"
       relative: true
     source: path
     version: "1.19.1"
