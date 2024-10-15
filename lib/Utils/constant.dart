@@ -19,6 +19,8 @@ import 'package:twitee/Utils/responsive_util.dart';
 
 import '../generated/l10n.dart';
 
+const double searchBarWidth = 320;
+
 const defaultPhone = "";
 const defaultPassword = "";
 const defaultLofterID = "";

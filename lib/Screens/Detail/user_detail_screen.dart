@@ -24,6 +24,7 @@ import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
+import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../Api/user_api.dart';
@@ -503,8 +504,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 icon: const Icon(Icons.more_horiz_rounded),
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 onTap: () {
-                  context.contextMenuOverlay
-                      .show(_buildMoreContextMenuButtons());
+                  BottomSheetBuilder.showContextMenu(
+                      context, _buildMoreContextMenuButtons());
                 },
               ),
             ],
@@ -546,13 +547,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       userId: user!.restId, initType: UserFlowType.follower));
                 },
               ),
-              if (friendList.isNotEmpty)
-                _buildCountItem(
-                  title: "关注了此账号",
-                  value: friendList.map((e) => e.name).join("、"),
-                ),
             ],
           ),
+          const SizedBox(height: 10),
+          if (friendList.isNotEmpty)
+            _buildCountItem(
+              title: "关注了此账号",
+              value: friendList.map((e) => e.name).join("、"),
+              fontSizeDelta: -2,
+            ),
           const SizedBox(height: 10),
           ItemBuilder.buildHtmlWidget(
             context,
@@ -569,6 +572,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     required String title,
     required String value,
     Function()? onTap,
+    double fontSizeDelta = 0,
   }) {
     return ItemBuilder.buildClickItem(
       clickable: onTap != null,
@@ -582,12 +586,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
-                    ?.apply(fontWeightDelta: 2),
+                    ?.apply(fontWeightDelta: 2, fontSizeDelta: fontSizeDelta),
               ),
               const WidgetSpan(child: SizedBox(width: 4)),
               TextSpan(
                 text: title,
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleMedium?.apply(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontSizeDelta: fontSizeDelta,
+                    ),
               ),
             ],
           ),

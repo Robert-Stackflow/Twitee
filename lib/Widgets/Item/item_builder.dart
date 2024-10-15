@@ -30,10 +30,13 @@ import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Utils/lottie_util.dart';
 import 'package:twitee/Utils/route_util.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/Selectable/my_context_menu_item.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../../Openapi/models/media.dart';
 import '../../Resources/colors.dart';
+import '../../Screens/Detail/search_result_screen.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/color_util.dart';
@@ -45,6 +48,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../generated/l10n.dart';
+import '../Custom/hero_media_view_screen.dart';
 import '../Custom/hero_photo_view_screen.dart';
 import '../Scaffold/my_appbar.dart';
 import '../Scaffold/my_popupmenu.dart';
@@ -98,14 +102,12 @@ class ItemBuilder {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
-          border: ResponsiveUtil.isLandscape()
-              ? Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
-                )
-              : null,
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+          ),
         ),
         child: SafeArea(
           child: Stack(
@@ -146,7 +148,10 @@ class ItemBuilder {
                                 onTap: () => panelScreenState?.popPage(),
                               ),
                             ),
-                    if (!(titleWidget != null && ResponsiveUtil.isLandscape()))
+                    if ((!(titleWidget != null &&
+                                ResponsiveUtil.isLandscape()) &&
+                            !hasLeftButton) ||
+                        hasLeftButton)
                       SizedBox(width: hasLeftButton ? backSpacing : spacing),
                     ResponsiveUtil.isLandscape()
                         ? finalTitle
@@ -168,8 +173,9 @@ class ItemBuilder {
     List<Widget>? actions,
     required BuildContext context,
     bool transparent = false,
+    bool showLeading = true,
   }) {
-    bool showLeading = !ResponsiveUtil.isLandscape();
+    bool finalShowLeading = showLeading && !ResponsiveUtil.isLandscape();
     return PreferredSize(
       preferredSize: const Size(0, 56),
       child: Selector<AppProvider, bool>(
@@ -188,9 +194,9 @@ class ItemBuilder {
           useBackdropFilter: enableFrostedGlassEffect,
           elevation: 0,
           scrolledUnderElevation: 0,
-          leadingWidth: showLeading ? 56.0 : 0.0,
+          leadingWidth: finalShowLeading ? 56.0 : 0.0,
           automaticallyImplyLeading: false,
-          leading: showLeading
+          leading: finalShowLeading
               ? Container(
                   margin: const EdgeInsets.only(left: 5),
                   child: buildIconButton(
@@ -205,7 +211,7 @@ class ItemBuilder {
               : null,
           title: title.isNotEmpty
               ? Container(
-                  margin: EdgeInsets.only(left: showLeading ? 5 : 20),
+                  margin: EdgeInsets.only(left: finalShowLeading ? 5 : 20),
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.apply(
@@ -2478,7 +2484,8 @@ class ItemBuilder {
               type: ContextMenuButtonType.custom,
               onPressed: () {
                 if (Utils.isNotEmpty(details.selectedText)) {
-                  searchScreenState?.perfromSearch(details.selectedText!);
+                  panelScreenState?.pushPage(
+                      SearchResultScreen(searchKey: details.selectedText!));
                 }
                 details.hideToolbar();
               },
@@ -2561,7 +2568,8 @@ class ItemBuilder {
           type: ContextMenuButtonType.custom,
           onPressed: () {
             if (Utils.isNotEmpty(selectedText)) {
-              searchScreenState?.perfromSearch(selectedText);
+              panelScreenState
+                  ?.pushPage(SearchResultScreen(searchKey: selectedText));
             }
             details.hideToolbar();
           },
@@ -2809,7 +2817,6 @@ class ItemBuilder {
                               MaterialPageRoute(
                                 builder: (context) => HeroPhotoViewScreen(
                                   tagPrefix: tagPrefix,
-                                  tagSuffix: tagSuffix,
                                   imageUrls: [tagUrl],
                                   useMainColor: false,
                                   title: title,
@@ -2824,7 +2831,6 @@ class ItemBuilder {
                               fullScreen: true,
                               HeroPhotoViewScreen(
                                 tagPrefix: tagPrefix,
-                                tagSuffix: tagSuffix,
                                 imageUrls: [tagUrl],
                                 useMainColor: false,
                                 title: title,
@@ -2878,7 +2884,6 @@ class ItemBuilder {
     String? title,
     String? caption,
     String? tagPrefix,
-    String? tagSuffix,
     bool isOrigin = true,
   }) {
     return ItemBuilder.buildClickItem(
@@ -2891,9 +2896,8 @@ class ItemBuilder {
             useMaterial: true,
             HeroPhotoViewScreen(
               tagPrefix: tagPrefix,
-              tagSuffix: tagSuffix,
               imageUrls:
-                  isOrigin ? ImageUtil.getOrignUrls([imageUrl]) : [imageUrl],
+                  isOrigin ? ImageUtil.getOriginalUrls([imageUrl]) : [imageUrl],
               useMainColor: false,
               title: title,
               captions: [caption ?? ""],
@@ -2902,7 +2906,9 @@ class ItemBuilder {
         },
         child: Hero(
           tag: Utils.getHeroTag(
-              tagSuffix: tagSuffix, tagPrefix: tagPrefix, url: imageUrl),
+            tagPrefix: tagPrefix,
+            url: imageUrl,
+          ),
           child: ItemBuilder.buildCachedImage(
             context: context,
             imageUrl: imageUrl,
@@ -2913,6 +2919,62 @@ class ItemBuilder {
             topPadding: topPadding,
             placeholderBackground: placeholderBackground,
             fit: fit,
+          ),
+        ),
+      ),
+    );
+  }
+
+  static buildMediaHeroCachedImage({
+    required int index,
+    required List<Media> medias,
+    required BuildContext context,
+    BoxFit? fit = BoxFit.cover,
+    bool showLoading = true,
+    double? width,
+    double? height,
+    Color? placeholderBackground,
+    double topPadding = 0,
+    double bottomPadding = 0,
+    String? title,
+    String? caption,
+    String? tagPrefix,
+    bool simpleError = false,
+  }) {
+    return ItemBuilder.buildClickItem(
+      GestureDetector(
+        onTap: () {
+          RouteUtil.pushDialogRoute(
+            context,
+            showClose: false,
+            fullScreen: true,
+            useMaterial: true,
+            HeroMediaViewScreen(
+              tagPrefix: tagPrefix,
+              medias: medias,
+              useMainColor: false,
+              title: title,
+              captions: [caption ?? ""],
+              initIndex: index,
+            ),
+          );
+        },
+        child: Hero(
+          tag: Utils.getHeroTag(
+            tagPrefix: tagPrefix,
+            url: TweetUtil.getMediaImageUrl(medias[index]),
+          ),
+          child: ItemBuilder.buildCachedImage(
+            context: context,
+            imageUrl: TweetUtil.getMediaImageUrl(medias[index]),
+            width: width,
+            height: height,
+            showLoading: showLoading,
+            bottomPadding: bottomPadding,
+            topPadding: topPadding,
+            placeholderBackground: placeholderBackground,
+            fit: fit,
+            simpleError: simpleError,
           ),
         ),
       ),

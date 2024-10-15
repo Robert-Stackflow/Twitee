@@ -211,10 +211,8 @@ class _ListManageScreenState extends State<ListManageScreen>
               onTap: () {},
             ),
             if (ResponsiveUtil.isLandscape())
-              Container(
-                margin: const EdgeInsets.only(right: 5),
-                child: ItemBuilder.buildBlankIconButton(context),
-              ),
+              ItemBuilder.buildBlankIconButton(context),
+            const SizedBox(width: 5),
           ],
         ),
       ),
@@ -250,8 +248,8 @@ class _ListManageScreenState extends State<ListManageScreen>
             ),
           ),
           Positioned(
-            right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+            right: 16,
+            bottom: 16,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
               hideDirection: Axis.vertical,

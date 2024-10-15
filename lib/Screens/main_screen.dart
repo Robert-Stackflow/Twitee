@@ -45,6 +45,7 @@ import '../Utils/ilogger.dart';
 import '../Utils/lottie_util.dart';
 import '../Utils/route_util.dart';
 import '../Utils/utils.dart';
+import '../Widgets/BottomSheet/bottom_sheet_builder.dart';
 import '../Widgets/General/EasyRefresh/easy_refresh.dart';
 import '../Widgets/General/LottieCupertinoRefresh/lottie_cupertino_refresh.dart';
 import '../Widgets/Scaffold/my_scaffold.dart';
@@ -267,12 +268,18 @@ class MainScreenState extends State<MainScreen>
           .then((value) => setState(() => _isMaximized = value));
     }
     ResponsiveUtil.checkSizeCondition();
-    EasyRefresh.defaultHeaderBuilder = () => LottieCupertinoHeader(
+    // EasyRefresh.defaultHeaderBuilder = () => LottieCupertinoHeader(
+    //       backgroundColor: Theme.of(context).canvasColor,
+    //       indicator:
+    //           LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
+    //       hapticFeedback: true,
+    //       triggerOffset: 40,
+    //     );
+    EasyRefresh.defaultHeaderBuilder = () => MaterialHeader(
           backgroundColor: Theme.of(context).canvasColor,
-          indicator:
-              LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
-          hapticFeedback: true,
-          triggerOffset: 40,
+          color: Theme.of(context).primaryColor,
+          noMoreIcon: Icon(Icons.done_all_rounded,
+              color: Theme.of(context).primaryColor),
         );
     EasyRefresh.defaultFooterBuilder = () => LottieCupertinoFooter(
           indicator:
@@ -550,8 +557,7 @@ class MainScreenState extends State<MainScreen>
                         RouteUtil.pushDialogRoute(
                             context, const LoginByPasswordScreen());
                       } else {
-                        context.contextMenuOverlay
-                            .show(_buildAvatarContextMenuButtons());
+                        BottomSheetBuilder.showContextMenu(context, _buildAvatarContextMenuButtons());
                       }
                     },
                     child: ItemBuilder.buildAvatar(

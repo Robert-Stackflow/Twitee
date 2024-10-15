@@ -84,10 +84,9 @@ class Utils {
 
   static String getHeroTag({
     String? tagPrefix,
-    String? tagSuffix,
     String? url,
   }) {
-    return "${Utils.processEmpty(tagPrefix)}-${Utils.processEmpty(url)}-${Utils.processEmpty(tagSuffix)}";
+    return "${Utils.processEmpty(tagPrefix)}-${Utils.processEmpty(url)}";
   }
 
   static Future<void> enableSafeMode() async {
@@ -209,8 +208,13 @@ class Utils {
   static Map formatCountToMap(int count) {
     if (count < 10000) {
       return {"count": count.toString()};
-    } else {
+    } else if (count < 10000 * 10000) {
       return {"count": (count / 10000).toStringAsFixed(1), "scale": "万"};
+    } else {
+      return {
+        "count": (count / 10000 / 10000).toStringAsFixed(1),
+        "scale": "亿"
+      };
     }
   }
 
@@ -318,12 +322,16 @@ class Utils {
     var dateFormat = DateFormat("yyyy-MM-dd");
     var dateFormat2 = DateFormat("MM-dd");
     var diff = now.difference(date);
+    bool isSameDay =
+        now.year == date.year && now.month == date.month && now.day == date.day;
     if (date.year != now.year) {
       return dateFormat.format(date);
     } else if (diff.inDays > 7) {
       return dateFormat2.format(date);
     } else if (diff.inDays > 0) {
       return S.current.dayAgo(diff.inDays + 1);
+    } else if (isSameDay) {
+      return S.current.hourAgo(diff.inHours);
     } else if (diff.inHours > 0) {
       return "${date.hour < 10 ? "0${date.hour}" : date.hour}:${date.minute < 10 ? "0${date.minute}" : date.minute}";
     } else if (diff.inSeconds > 60) {

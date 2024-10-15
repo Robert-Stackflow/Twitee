@@ -13,11 +13,11 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:local_notifier/local_notifier.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/utils.dart';
 
 import 'app_provider.dart';
 
@@ -107,5 +107,24 @@ class IToast {
     notification.onClickAction = onClickAction;
     notification.show();
     return notification;
+  }
+
+  static showSnackBar(
+    String message, {
+    String? buttonText,
+    Function()? onTap,
+  }) {
+    SnackBar snackBar = SnackBar(
+      content: Text(message),
+      action: SnackBarAction(
+        label: buttonText ?? "OK",
+        onPressed: onTap ?? () {},
+      ),
+      backgroundColor: Colors.black,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.only(bottom: 86, left: 24, right: 24),
+    );
+    ScaffoldMessenger.of(rootContext).showSnackBar(snackBar);
+    return snackBar;
   }
 }

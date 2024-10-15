@@ -10,16 +10,24 @@ import 'package:share_plus/share_plus.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/utils.dart';
 
-import '../Models/filename_field.dart';
-import '../Models/illust.dart';
-import 'constant.dart';
+import '../Openapi/models/media.dart';
 import 'file_util.dart';
 import 'hive_util.dart';
 import 'itoast.dart';
 
 class ImageUtil {
-  static List<String> getOrignUrls(List<String> urls) {
-    return urls.map((e) => "$e?format=jpg&name=orig").toList();
+  static List<String> getOriginalUrls(List<String> urls) {
+    return urls.map((e) => getOriginalUrl(e)).toList();
+  }
+
+  static String getOriginalUrl(String url) {
+    print("getOriginalUrl: $url ${FileUtil.getFileExtension(url)}");
+    if (FileUtil.getFileExtension(url) == "jpg") {
+      return "$url?format=jpg&name=orig";
+    } else if (FileUtil.getFileExtension(url) == "png") {
+      return "$url?format=png&name=orig";
+    }
+    return url;
   }
 
   static Future<ShareResultStatus> shareImage(
@@ -154,41 +162,29 @@ class ImageUtil {
     }
   }
 
-  static Future<bool> saveIllust(
+  static Future<bool> saveMedia(
     BuildContext context,
-    Illust illust, {
+    Media media, {
     bool showToast = true,
   }) async {
-    return saveImage(context, illust.url,
-        fileName: getFileNameByIllust(illust), showToast: showToast);
+    return saveImage(context, media.url,
+        fileName: getFileNameByMedia(media), showToast: showToast);
   }
 
-  static getFileNameByIllust(Illust illust) {
-    String fileNameFormat = HiveUtil.getString(HiveUtil.filenameFormatKey,
-            defaultValue: defaultFilenameFormat) ??
-        defaultFilenameFormat;
-    illust.originalName =
-        illust.originalName.replaceAll(".${illust.extension}", "");
-    String fileName = fileNameFormat
-        .replaceAll(FilenameField.blogNickName.format, illust.blogNickName)
-        .replaceAll(FilenameField.blogId.format, illust.blogId.toString())
-        .replaceAll(FilenameField.blogLofterId.format, illust.blogLofterId)
-        .replaceAll(FilenameField.originalName.format, illust.originalName)
-        .replaceAll(FilenameField.part.format, illust.part.toString())
-        .replaceAll(FilenameField.postId.format, illust.postId.toString())
-        .replaceAll(FilenameField.timestamp.format,
-            DateTime.now().millisecondsSinceEpoch.toString());
-    return '$fileName.${illust.extension}';
+  static getFileNameByMedia(Media media) {
+    String fileName = FileUtil.getFileName(
+        media.mediaUrlHttps ?? "${DateTime.now().millisecondsSinceEpoch}.jpg");
+    return fileName;
   }
 
-  static Future<bool> saveIllusts(
+  static Future<bool> saveMedias(
     BuildContext context,
-    List<Illust> illusts, {
+    List<Media> medias, {
     bool showToast = true,
   }) async {
     try {
-      List<bool> statusList = await Future.wait(illusts.map((e) async {
-        return await saveIllust(context, e, showToast: false);
+      List<bool> statusList = await Future.wait(medias.map((e) async {
+        return await saveMedia(context, e, showToast: false);
       }).toList());
       bool result = statusList.every((element) => element);
       if (showToast) {
@@ -233,16 +229,16 @@ class ImageUtil {
     return null;
   }
 
-  static Future<bool> saveVideoByIllust(
+  static Future<bool> saveVideoByMedia(
     BuildContext context,
-    Illust illust, {
+    Media media, {
     bool showToast = true,
     Function(int, int)? onReceiveProgress,
   }) async {
     return saveVideo(
       context,
-      illust.url,
-      fileName: getFileNameByIllust(illust),
+      media.url,
+      fileName: getFileNameByMedia(media),
       showToast: showToast,
       onReceiveProgress: onReceiveProgress,
     );

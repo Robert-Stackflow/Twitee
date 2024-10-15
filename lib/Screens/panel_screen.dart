@@ -357,9 +357,9 @@ class PanelScreenState extends State<PanelScreen>
                               ],
                             ),
                             const SizedBox(height: 16),
-                            Wrap(
-                              spacing: 20,
-                              runSpacing: 5,
+                            Row(
+                              // spacing: 20,
+                              // runSpacing: 5,
                               children: [
                                 _buildCountItem(
                                   title: "正在关注",
@@ -374,6 +374,7 @@ class PanelScreenState extends State<PanelScreen>
                                     );
                                   },
                                 ),
+                                const SizedBox(width: 20),
                                 _buildCountItem(
                                   title: "关注者",
                                   value: user != null

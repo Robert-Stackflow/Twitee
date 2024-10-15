@@ -75,7 +75,9 @@ class TweetUtil {
   }
 
   static String? getBigAvatarUrl(String? url) {
-    return url?.replaceAll("_normal.png", "_bigger.png").replaceAll("_normal.jpg", "_bigger.jpg");
+    return url
+        ?.replaceAll("_normal.png", "_bigger.png")
+        .replaceAll("_normal.jpg", "_bigger.jpg");
   }
 
   static bool hasMedia(TimelineTweet tweet) {
@@ -98,6 +100,19 @@ class TweetUtil {
       return media.videoInfo?.variants.first.url ?? media.mediaUrlHttps!;
     }
     return media.mediaUrlHttps!;
+  }
+
+  static String getMediaImageUrl(Media media) {
+    switch (media.type) {
+      case MediaType.photo:
+        return media.mediaUrlHttps!;
+      case MediaType.video:
+        return media.mediaUrlHttps!;
+      case MediaType.animatedGif:
+        return media.mediaUrlHttps!;
+      default:
+        return media.mediaUrlHttps ?? "";
+    }
   }
 
   static String processWithEntities(

@@ -30,11 +30,18 @@ import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/request_util.dart';
+import '../../Widgets/Custom/custom_cupertino_route.dart';
 import '../../Widgets/Item/input_item.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../main_screen.dart';
 
 class LoginByPasswordScreen extends StatefulWidget {
-  const LoginByPasswordScreen({super.key});
+  const LoginByPasswordScreen({
+    super.key,
+    this.jumpToMain = false,
+  });
+
+  final bool jumpToMain;
 
   static const String routeName = "/login/password";
 
@@ -50,7 +57,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       _alternativeIdentifierValidateAsyncController;
   late InputValidateAsyncController _passwordValidateAsyncController;
   late InputValidateAsyncController _backupCodeValidateAsyncController;
-  late PinPutValidateAsyncController _2FAValidateAsyncController;
+  late PinPutValidateAsyncController _twoFAValidateAsyncController;
   String _guestToken = "";
   String _flowToken = "";
   InitPhase _inited = InitPhase.connecting;
@@ -99,7 +106,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       },
       controller: TextEditingController(),
     );
-    _2FAValidateAsyncController = PinPutValidateAsyncController(
+    _twoFAValidateAsyncController = PinPutValidateAsyncController(
       listen: false,
       validator: (text) async {
         if (text.isEmpty) {
@@ -170,7 +177,14 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         dialogNavigatorState?.popPage();
         mainScreenState?.fetchUserInfo();
       } else {
-        Navigator.pop(context);
+        if (widget.jumpToMain) {
+          globalNavigatorState?.pushAndRemoveUntil(
+            CustomCupertinoPageRoute(builder: (context) => const MainScreen()),
+            (route) => false,
+          );
+        } else {
+          Navigator.pop(context);
+        }
       }
     }
 
@@ -286,16 +300,16 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         }
         break;
       case 3:
-        bool valid = (await _2FAValidateAsyncController.validate()) == null;
+        bool valid = (await _twoFAValidateAsyncController.validate()) == null;
         if (!valid) return;
-        String pin = _2FAValidateAsyncController.controller.text;
+        String pin = _twoFAValidateAsyncController.controller.text;
         CustomLoadingDialog.showLoading(title: "验证一次性代码中...");
         var res = await LoginApi.check2FA(_guestToken, _flowToken, pin);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _2FAValidateAsyncController.setError("一次性代码错误");
+            _twoFAValidateAsyncController.setError("一次性代码错误");
           } else {
-            _2FAValidateAsyncController
+            _twoFAValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
           }
           _pinFocusNode.requestFocus();
@@ -318,6 +332,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         title: "登录到你的Twitter帐户",
         context: context,
         leading: Icons.close_rounded,
+        showLeading: !widget.jumpToMain,
         transparent: true,
       ),
       body: _buildBody(),
@@ -461,8 +476,9 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                         child: ItemBuilder.buildPinPut(
                           context: context,
                           pinValidateAsyncController:
-                              _2FAValidateAsyncController,
-                          pinController: _2FAValidateAsyncController.controller,
+                              _twoFAValidateAsyncController,
+                          pinController:
+                              _twoFAValidateAsyncController.controller,
                           onCompleted: (_) {
                             _login();
                           },

@@ -154,7 +154,7 @@ class WindowButton extends StatelessWidget {
             getBackgroundColor(MouseState()..isMouseOver = true).withOpacity(0);
         var padding = this.padding ?? EdgeInsets.all(defaultPadding);
         var animationMs =
-            mouseState.isMouseOver ? (animate ? 100 : 0) : (animate ? 200 : 0);
+            mouseState.isMouseOver ? (animate ? 50 : 0) : (animate ? 100 : 0);
         Widget iconWithPadding = Padding(
           padding: padding,
           child: Transform.rotate(

@@ -29,6 +29,8 @@ import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Widgets/Twitter/grid_item.dart';
+
 class SearchResultFlowScreen extends StatefulWidget {
   const SearchResultFlowScreen({
     super.key,
@@ -312,9 +314,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         maxCrossAxisExtent: 160,
         children: List.generate(
           gridTweets.length,
-          (index) {
-            return _buildGridItem(160, gridTweets[index]);
-          },
+          (index) => GridItem(size: 160, timelineTweet: gridTweets[index]),
         ),
         useGrid: true,
       );
@@ -368,29 +368,6 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
               mainAxisSpacing: 6,
               children: children,
             ),
-    );
-  }
-
-  _buildGridItem(double size, TimelineTweet timelineTweet) {
-    Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {},
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: ItemBuilder.buildCachedImage(
-            imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
-            width: size,
-            height: size,
-            context: context,
-            fit: BoxFit.cover,
-            showLoading: false,
-          ),
-        ),
-      ),
     );
   }
 

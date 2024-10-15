@@ -24,6 +24,7 @@ import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Utils/video_player_manager.dart';
+import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Twitter/twitter_image_grid.dart';
 import 'package:video_player/video_player.dart';
@@ -86,6 +87,19 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
 
   bool hasMedia(Tweet tweet) {
     return tweet.legacy!.entities.media != null;
+  }
+
+  bool hasQueto(Tweet tweet) {
+    return tweet.quotedStatusResult != null;
+  }
+
+  bool hasTranslation(Tweet tweet) {
+    String translation = _getTranslation(tweet);
+    return Utils.isNotEmpty(translation);
+  }
+
+  bool hasRichContent(Tweet tweet) {
+    return hasMedia(tweet) || hasQueto(tweet) || hasTranslation(tweet);
   }
 
   List<Media> getMedia(Tweet tweet) {
@@ -412,14 +426,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   title: "取消关注 @$screenName？",
                   message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                   onTapConfirm: () async {
-                var res = await UserApi.unfollow(userId: user.restId!);
-                if (res.success) {
-                  user.legacy.following = false;
-                  setState(() {});
-                  IToast.showTop("已取消关注@$screenName");
-                } else {
-                  IToast.showTop("取消关注@$screenName失败");
-                }
+                // var res = await UserApi.unfollow(userId: user.restId!);
+                    print("object");
+                IToast.showSnackBar("正在", buttonText: "撤销");
+                // if (res.success) {
+                //   user.legacy.following = false;
+                //   setState(() {});
+                //   IToast.showTop("已取消关注@$screenName");
+                // } else {
+                //   IToast.showTop("取消关注@$screenName失败");
+                // }
               });
             } else {
               var res = await UserApi.follow(userId: user.restId!);
@@ -558,7 +574,6 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     bool isFirst = false,
     bool isLast = false,
   }) {
-    String fullText = _getFullText(tweet);
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
     double avatarSize = 40;
@@ -575,10 +590,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       );
     }
     var body = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12).add(
+      padding: const EdgeInsets.symmetric(horizontal: 8).add(
         EdgeInsets.only(
-          top: isFirst ? 12 : 0,
-          bottom: isLast ? 12 : 0,
+          top: 8,
+          bottom: isLast ? 8 : 0,
         ),
       ),
       child: Stack(
@@ -592,33 +607,18 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
                 size: avatarSize,
                 isOval: user.profileImageShape == UserProfileImageShape.circle,
+                onTap: () {
+                  panelScreenState?.pushPage(UserDetailScreen(
+                      screenName: user.legacy.screenName ?? ""));
+                },
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildUserRow(tweet, isQuote: false, showAvatar: false),
-                      const SizedBox(height: 8),
-                      ItemBuilder.buildHtmlWidget(
-                        context,
-                        fullText,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      ..._buildTranslation(tweet),
-                      if (hasMedia(tweet)) _buildMedia(tweet),
-                      if (hasMedia(tweet) && tweet.quotedStatusResult != null)
-                        const SizedBox(height: 12),
-                      if (tweet.quotedStatusResult != null)
-                        _buildQuoteTweet(TweetUtil.getTrueTweetByResult(
-                            tweet.quotedStatusResult)!),
-                      const SizedBox(height: 16),
-                      _buildOperations(tweet),
-                      const SizedBox(height: 4),
-                    ],
+                  child: _buildTweetContent(
+                    tweet,
+                    bottom: isLast ? 0 : 8,
                   ),
                 ),
               ),
@@ -634,35 +634,43 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 color: Theme.of(context).dividerColor,
               ),
             ),
+          if (!isFirst)
+            Positioned(
+              left: avatarSize / 2,
+              top: -10,
+              child: Container(
+                width: 1,
+                height: 10,
+                color: Theme.of(context).dividerColor,
+              ),
+            ),
         ],
       ),
     );
-    return widget.isDetail
-        ? body
-        : Material(
-            color: Theme.of(context).canvasColor,
-            borderRadius: borderRadius,
-            child: InkWell(
-              borderRadius: borderRadius,
-              onTap: () {
-                panelScreenState
-                    ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
-              },
-              child: body,
-            ),
-          );
+    var extendedBody = Material(
+      color: Theme.of(context).canvasColor,
+      borderRadius: borderRadius,
+      child: InkWell(
+        borderRadius: borderRadius,
+        onTap: () {
+          panelScreenState?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
+        },
+        child: body,
+      ),
+    );
+    return widget.isDetail ? body : extendedBody;
   }
 
   _buildNormalTweet(
     Tweet tweet, {
     User? retweetedUser,
   }) {
-    String fullText = _getFullText(tweet);
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
     var body = Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-      padding: const EdgeInsets.all(12),
+      padding:
+          widget.isDetail ? const EdgeInsets.all(12) : const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -676,33 +684,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
                 size: 40,
                 isOval: user.profileImageShape == UserProfileImageShape.circle,
+                onTap: () {
+                  panelScreenState?.pushPage(UserDetailScreen(
+                      screenName: user.legacy.screenName ?? ""));
+                },
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildUserRow(tweet, isQuote: false, showAvatar: false),
-                    const SizedBox(height: 8),
-                    ItemBuilder.buildHtmlWidget(
-                      context,
-                      fullText,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    ..._buildTranslation(tweet),
-                    if (hasMedia(tweet)) _buildMedia(tweet),
-                    if (hasMedia(tweet) && tweet.quotedStatusResult != null)
-                      const SizedBox(height: 12),
-                    if (tweet.quotedStatusResult != null)
-                      _buildQuoteTweet(TweetUtil.getTrueTweetByResult(
-                          tweet.quotedStatusResult)!),
-                    const SizedBox(height: 16),
-                    _buildOperations(tweet),
-                    const SizedBox(height: 4),
-                  ],
-                ),
-              ),
+              Expanded(child: _buildTweetContent(tweet)),
             ],
           ),
         ],
@@ -722,6 +710,38 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               child: body,
             ),
           );
+  }
+
+  _buildTweetContent(
+    Tweet tweet, {
+    double bottom = 8,
+  }) {
+    String fullText = _getFullText(tweet);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildUserRow(tweet, isQuote: false, showAvatar: false),
+        const SizedBox(height: 8),
+        if (Utils.isNotEmpty(fullText))
+          ItemBuilder.buildHtmlWidget(
+            context,
+            fullText,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
+        ..._buildTranslation(tweet),
+        if (hasTranslation(tweet) && (hasMedia(tweet) || hasQueto(tweet)))
+          const SizedBox(height: 8),
+        if (hasMedia(tweet)) _buildMedia(tweet),
+        if (hasMedia(tweet) && hasQueto(tweet)) const SizedBox(height: 8),
+        if (hasQueto(tweet))
+          _buildQuoteTweet(
+              TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
+        SizedBox(height: hasRichContent(tweet) ? 12 : 4),
+        _buildOperations(tweet),
+        SizedBox(height: bottom),
+      ],
+    );
   }
 
   _buildQuoteTweet(
@@ -792,7 +812,6 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             ],
           ),
         ),
-        const SizedBox(height: 8),
       ];
     } else {
       return [];
@@ -898,8 +917,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               color: Theme.of(context).iconTheme.color,
             ),
             onTap: () {
-              context.contextMenuOverlay
-                  .show(_buildMoreContextMenuButtons(tweet, user));
+              BottomSheetBuilder.showContextMenu(
+                  context, _buildMoreContextMenuButtons(tweet, user));
             },
           ),
       ],
@@ -907,7 +926,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildImageMedia(
-    Media media, {
+    Media media,
+    int index,
+    List<Media> medias, {
     bool isQueto = false,
     double size = 80,
     double radius = 0,
@@ -927,13 +948,19 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(radius),
-            child: ItemBuilder.buildHeroCachedImage(
+            child: ItemBuilder.buildMediaHeroCachedImage(
               context: context,
-              width: isSingle ? null : size,
-              height: isSingle ? null : size * 2,
+              width: isSingle ? size : size,
+              height: isSingle
+                  ? size / ratio
+                  : isQueto
+                      ? size
+                      : size * 2,
               fit: BoxFit.cover,
               showLoading: false,
-              imageUrl: media.mediaUrlHttps!,
+              medias: medias,
+              index: index,
+              simpleError: isQueto,
             ),
           ),
         ),
@@ -964,7 +991,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildVideoMedia(
-    Media media, {
+    Media media,
+    int index,
+    List<Media> medias, {
     bool showPanel = false,
     bool isQueto = false,
     bool isSingle = false,
@@ -972,7 +1001,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     double radius = 0,
   }) {
     if (isQueto) {
-      return _buildImageMedia(media, radius: radius, isQueto: true);
+      return _buildImageMedia(media, index, medias,
+          radius: radius, isQueto: true);
     } else {
       double ratio = media.sizes.large.w / media.sizes.large.h;
       ratio = ratio.clamp(0.8, 2);
@@ -1071,47 +1101,56 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildGifMedia(
-    Media media, {
+    Media media,
+    int index,
+    List<Media> medias, {
     bool isQueto = false,
     double radius = 0,
   }) {
     if (isQueto) {
-      return _buildImageMedia(media, radius: radius, isQueto: true);
+      return _buildImageMedia(media, index, medias,
+          radius: radius, isQueto: true);
     } else {
       String videoUrl = TweetUtil.getGifVideoUrl(media);
       Media tmp = Media.clone(media);
       tmp.url = videoUrl;
-      return _buildVideoMedia(tmp, radius: radius);
+      return _buildVideoMedia(tmp, index, medias, radius: radius);
     }
   }
 
   _buildMedia(Tweet tweet) {
     if (!hasMedia(tweet)) return emptyWidget;
-    List<Media> media = getMedia(tweet);
-    List<MediaSize> sizes = media.map((e) => e.sizes.large).toList();
-    bool isSingle = media.length == 1;
+    List<Media> medias = getMedia(tweet);
+    List<MediaSize> sizes = medias.map((e) => e.sizes.large).toList();
+    bool isSingle = medias.length == 1;
     return TwitterImageGrid(
       sizes: sizes,
-      itemCount: media.length,
+      itemCount: medias.length,
       itemBuilder: (BuildContext context, int index) {
-        switch (media[index].type) {
+        switch (medias[index].type) {
           case MediaType.photo:
             return _buildImageMedia(
-              media[index],
+              medias[index],
+              index,
+              medias,
               size: 300,
               radius: isSingle ? 12 : 0,
               isSingle: isSingle,
             );
           case MediaType.video:
             return _buildVideoMedia(
-              media[index],
+              medias[index],
+              index,
+              medias,
               size: double.infinity,
               radius: isSingle ? 12 : 0,
               showPanel: isSingle,
             );
           case MediaType.animatedGif:
             return _buildGifMedia(
-              media[0],
+              medias[0],
+              index,
+              medias,
               isQueto: false,
               radius: isSingle ? 12 : 0,
             );
@@ -1127,224 +1166,228 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     List<Media> media = getMedia(tweet);
     switch (media[0].type) {
       case MediaType.photo:
-        return _buildImageMedia(media[0],
+        return _buildImageMedia(media[0], 0, media,
             radius: 8, isQueto: true, isSingle: true);
       case MediaType.video:
-        return _buildVideoMedia(media[0],
+        return _buildVideoMedia(media[0], 0, media,
             isQueto: true, radius: 8, isSingle: true);
       case MediaType.animatedGif:
-        return _buildGifMedia(media[0], isQueto: true, radius: 8);
+        return _buildGifMedia(media[0], 0, media, isQueto: true, radius: 8);
       default:
         return emptyWidget;
     }
   }
 
   _buildOperations(Tweet tweet) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        ItemBuilder.buildIconTextButton(
-          context,
-          tooltip:
-              "${Utils.formatCountWithDot(tweet.legacy!.replyCount ?? 0)} 回复",
-          icon: Icon(
-            Icons.mode_comment_outlined,
-            size: 18,
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ItemBuilder.buildIconTextButton(
+            context,
+            tooltip:
+                "${Utils.formatCountWithDot(tweet.legacy!.replyCount ?? 0)} 回复",
+            icon: Icon(
+              Icons.mode_comment_outlined,
+              size: 18,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
             color: Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: -1,
+            text: (tweet.legacy!.replyCount ?? 0).toString(),
           ),
-          color: Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: -1,
-          text: (tweet.legacy!.replyCount ?? 0).toString(),
-        ),
-        ItemBuilder.buildIconTextButton(
-          context,
-          tooltip:
-              "${Utils.formatCountWithDot(tweet.legacy!.retweetCount ?? 0)} 转推",
-          icon: Icon(
-            tweet.legacy!.retweeted
-                ? Icons.repeat_rounded
-                : Icons.repeat_outlined,
-            size: 18,
+          ItemBuilder.buildIconTextButton(
+            context,
+            tooltip:
+                "${Utils.formatCountWithDot(tweet.legacy!.retweetCount ?? 0)} 转推",
+            icon: Icon(
+              tweet.legacy!.retweeted
+                  ? Icons.repeat_rounded
+                  : Icons.repeat_outlined,
+              size: 18,
+              color: tweet.legacy!.retweeted
+                  ? Colors.green
+                  : Theme.of(context).textTheme.bodySmall?.color,
+            ),
             color: tweet.legacy!.retweeted
                 ? Colors.green
                 : Theme.of(context).textTheme.bodySmall?.color,
-          ),
-          color: tweet.legacy!.retweeted
-              ? Colors.green
-              : Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: -1,
-          text: Utils.formatCount(tweet.legacy!.retweetCount ?? 0),
-          onTap: () async {
-            if (tweet.legacy!.retweeted) {
-              var res = await PostApi.deleteRetweet(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.retweeted = false;
-                tweet.legacy!.retweetCount =
-                    (tweet.legacy!.retweetCount ?? 0) - 1;
-                setState(() {});
-                IToast.showTop("已取消转推");
-              } else {
-                IToast.showTop("取消转推失败");
-              }
-            } else {
-              var res = await PostApi.retweet(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.retweeted = true;
-                tweet.legacy!.retweetCount =
-                    (tweet.legacy!.retweetCount ?? 0) + 1;
-                setState(() {});
-                IToast.showTop("已转推");
-              } else {
-                IToast.showTop("转推失败");
-              }
-            }
-          },
-        ),
-        ItemBuilder.buildIconTextButton(
-          context,
-          tooltip:
-              "${Utils.formatCountWithDot(tweet.legacy!.favoriteCount ?? 0)} 喜欢",
-          icon: Icon(
-            tweet.legacy!.favorited
-                ? Icons.favorite_rounded
-                : Icons.favorite_border_rounded,
-            size: 18,
-            color: tweet.legacy!.favorited
-                ? Colors.redAccent
-                : Theme.of(context).textTheme.bodySmall?.color,
-          ),
-          color: tweet.legacy!.favorited
-              ? Colors.redAccent
-              : Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: -1,
-          text: Utils.formatCount(tweet.legacy!.favoriteCount ?? 0),
-          onTap: () async {
-            if (tweet.legacy!.favorited) {
-              var res = await PostApi.unlike(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.favorited = false;
-                tweet.legacy!.favoriteCount =
-                    (tweet.legacy!.favoriteCount ?? 0) - 1;
-                setState(() {});
-                IToast.showTop("已取消喜欢");
-              } else {
-                IToast.showTop("取消喜欢失败");
-              }
-            } else {
-              var res = await PostApi.like(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.favorited = true;
-                tweet.legacy!.favoriteCount =
-                    (tweet.legacy!.favoriteCount ?? 0) + 1;
-                setState(() {});
-                IToast.showTop("已喜欢");
-              } else {
-                IToast.showTop("喜欢失败");
-              }
-            }
-          },
-        ),
-        ItemBuilder.buildIconTextButton(
-          context,
-          tooltip:
-              "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
-          icon: Icon(
-            Icons.remove_red_eye_outlined,
-            size: 18,
-            color: Theme.of(context).textTheme.bodySmall?.color,
-          ),
-          color: Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: -1,
-          text: Utils.formatCount(int.tryParse(tweet.views?.count ?? "") ?? 0),
-        ),
-        ItemBuilder.buildIconTextButton(
-          context,
-          tooltip:
-              "${Utils.formatCountWithDot(tweet.legacy!.bookmarkCount ?? 0)} 已添加书签",
-          icon: Icon(
-            tweet.legacy!.bookmarked
-                ? Icons.bookmark_rounded
-                : Icons.bookmark_border_rounded,
-            size: 18,
-            color: tweet.legacy!.bookmarked
-                ? Colors.blueAccent
-                : Theme.of(context).textTheme.bodySmall?.color,
-          ),
-          color: tweet.legacy!.bookmarked
-              ? Colors.blueAccent
-              : Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: -1,
-          text: Utils.formatCount(tweet.legacy!.bookmarkCount ?? 0),
-          onTap: () async {
-            if (tweet.legacy!.bookmarked) {
-              var res = await PostApi.deleteBookmark(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.bookmarked = false;
-                tweet.legacy!.bookmarkCount =
-                    (tweet.legacy!.bookmarkCount ?? 0) - 1;
-                setState(() {});
-                IToast.showTop("已移除书签");
-              } else {
-                IToast.showTop("移除书签失败");
-              }
-            } else {
-              var res = await PostApi.createBookmark(tweetId: tweet.restId!);
-              if (res.success) {
-                tweet.legacy!.bookmarked = true;
-                tweet.legacy!.bookmarkCount =
-                    (tweet.legacy!.bookmarkCount ?? 0) + 1;
-                setState(() {});
-                IToast.showTop("已添加书签");
-              } else {
-                IToast.showTop("添加书签失败");
-              }
-            }
-          },
-        ),
-        if (tweet.isTranslatable ?? true)
-          ItemBuilder.buildIconTextButton(
-            context,
-            icon: tweet.isTranslating
-                ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(
-                          Theme.of(context).textTheme.bodySmall?.color),
-                      strokeWidth: 2,
-                      value: null,
-                    ),
-                  )
-                : Icon(
-                    Icons.translate_rounded,
-                    size: 16,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-            color: Theme.of(context).textTheme.bodySmall?.color,
             fontSizeDelta: -1,
+            text: Utils.formatCount(tweet.legacy!.retweetCount ?? 0),
             onTap: () async {
-              if (tweet.isTranslating) return;
-              Locale locale = Localizations.localeOf(context);
-              tweet.isTranslating = true;
-              setState(() {});
-              var res = await PostApi.translate(
-                tweetId: tweet.restId!,
-                destinationLanguage: locale.toString(),
-              );
-              tweet.isTranslating = false;
-              setState(() {});
-              if (res.success) {
-                tweet.translation = res.data;
-                if (Utils.isEmpty(tweet.translation?.translation)) {
-                  IToast.showTop("翻译结果为空");
+              if (tweet.legacy!.retweeted) {
+                var res = await PostApi.deleteRetweet(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.retweeted = false;
+                  tweet.legacy!.retweetCount =
+                      (tweet.legacy!.retweetCount ?? 0) - 1;
+                  setState(() {});
+                  IToast.showTop("已取消转推");
+                } else {
+                  IToast.showTop("取消转推失败");
                 }
-                setState(() {});
               } else {
-                IToast.showTop("翻译失败：${res.message}");
+                var res = await PostApi.retweet(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.retweeted = true;
+                  tweet.legacy!.retweetCount =
+                      (tweet.legacy!.retweetCount ?? 0) + 1;
+                  setState(() {});
+                  IToast.showTop("已转推");
+                } else {
+                  IToast.showTop("转推失败");
+                }
               }
             },
           ),
-      ],
+          ItemBuilder.buildIconTextButton(
+            context,
+            tooltip:
+                "${Utils.formatCountWithDot(tweet.legacy!.favoriteCount ?? 0)} 喜欢",
+            icon: Icon(
+              tweet.legacy!.favorited
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              size: 18,
+              color: tweet.legacy!.favorited
+                  ? Colors.redAccent
+                  : Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            color: tweet.legacy!.favorited
+                ? Colors.redAccent
+                : Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: -1,
+            text: Utils.formatCount(tweet.legacy!.favoriteCount ?? 0),
+            onTap: () async {
+              if (tweet.legacy!.favorited) {
+                var res = await PostApi.unlike(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.favorited = false;
+                  tweet.legacy!.favoriteCount =
+                      (tweet.legacy!.favoriteCount ?? 0) - 1;
+                  setState(() {});
+                  IToast.showTop("已取消喜欢");
+                } else {
+                  IToast.showTop("取消喜欢失败");
+                }
+              } else {
+                var res = await PostApi.like(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.favorited = true;
+                  tweet.legacy!.favoriteCount =
+                      (tweet.legacy!.favoriteCount ?? 0) + 1;
+                  setState(() {});
+                  IToast.showTop("已喜欢");
+                } else {
+                  IToast.showTop("喜欢失败");
+                }
+              }
+            },
+          ),
+          ItemBuilder.buildIconTextButton(
+            context,
+            tooltip:
+                "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
+            icon: Icon(
+              Icons.remove_red_eye_outlined,
+              size: 18,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            color: Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: -1,
+            text:
+                Utils.formatCount(int.tryParse(tweet.views?.count ?? "") ?? 0),
+          ),
+          ItemBuilder.buildIconTextButton(
+            context,
+            tooltip:
+                "${Utils.formatCountWithDot(tweet.legacy!.bookmarkCount ?? 0)} 已添加书签",
+            icon: Icon(
+              tweet.legacy!.bookmarked
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_border_rounded,
+              size: 18,
+              color: tweet.legacy!.bookmarked
+                  ? Colors.blueAccent
+                  : Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            color: tweet.legacy!.bookmarked
+                ? Colors.blueAccent
+                : Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: -1,
+            text: Utils.formatCount(tweet.legacy!.bookmarkCount ?? 0),
+            onTap: () async {
+              if (tweet.legacy!.bookmarked) {
+                var res = await PostApi.deleteBookmark(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.bookmarked = false;
+                  tweet.legacy!.bookmarkCount =
+                      (tweet.legacy!.bookmarkCount ?? 0) - 1;
+                  setState(() {});
+                  IToast.showTop("已移除书签");
+                } else {
+                  IToast.showTop("移除书签失败");
+                }
+              } else {
+                var res = await PostApi.createBookmark(tweetId: tweet.restId!);
+                if (res.success) {
+                  tweet.legacy!.bookmarked = true;
+                  tweet.legacy!.bookmarkCount =
+                      (tweet.legacy!.bookmarkCount ?? 0) + 1;
+                  setState(() {});
+                  IToast.showTop("已添加书签");
+                } else {
+                  IToast.showTop("添加书签失败");
+                }
+              }
+            },
+          ),
+          if (tweet.isTranslatable ?? true)
+            ItemBuilder.buildIconTextButton(
+              context,
+              icon: tweet.isTranslating
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(
+                            Theme.of(context).textTheme.bodySmall?.color),
+                        strokeWidth: 2,
+                        value: null,
+                      ),
+                    )
+                  : Icon(
+                      Icons.translate_rounded,
+                      size: 16,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+              color: Theme.of(context).textTheme.bodySmall?.color,
+              fontSizeDelta: -1,
+              onTap: () async {
+                if (tweet.isTranslating) return;
+                Locale locale = Localizations.localeOf(context);
+                tweet.isTranslating = true;
+                setState(() {});
+                var res = await PostApi.translate(
+                  tweetId: tweet.restId!,
+                  destinationLanguage: locale.toString(),
+                );
+                tweet.isTranslating = false;
+                setState(() {});
+                if (res.success) {
+                  tweet.translation = res.data;
+                  if (Utils.isEmpty(tweet.translation?.translation)) {
+                    IToast.showTop("翻译结果为空");
+                  }
+                  setState(() {});
+                } else {
+                  IToast.showTop("翻译失败：${res.message}");
+                }
+              },
+            ),
+        ],
+      ),
     );
   }
 

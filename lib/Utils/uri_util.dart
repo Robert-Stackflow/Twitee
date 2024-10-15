@@ -13,14 +13,17 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:twitee/Screens/Detail/search_result_screen.dart';
+import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/webview_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/route_util.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Widgets/Dialog/custom_dialog.dart';
@@ -90,6 +93,30 @@ class UriUtil {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  static bool isUserUrl(String url) {
+    const pattern = r'^https?:\/\/x\.com\/[a-zA-Z0-9_-]+\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(url);
+  }
+
+  static String extractUserScreenName(String url) {
+    const pattern = r'^https?:\/\/x\.com\/([a-zA-Z0-9_-]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.firstMatch(url)!.group(1)!;
+  }
+
+  static bool isHashTagUrl(String url) {
+    const pattern = r'^https?:\/\/x\.com\/hashtag\/([^\s\/]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(url);
+  }
+
+  static String extractHashTag(String url) {
+    const pattern = r'^https?:\/\/x\.com\/hashtag\/([^\s\/]+)\/?$';
+    final regExp = RegExp(pattern);
+    return "#${regExp.firstMatch(url)!.group(1)!}";
+  }
+
   static Future<bool> processUrl(
     BuildContext context,
     String url, {
@@ -99,16 +126,27 @@ class UriUtil {
     try {
       if (!quiet) CustomLoadingDialog.showLoading(title: S.current.loading);
       url = Uri.decodeComponent(url);
-      if (!quiet) await CustomLoadingDialog.dismissLoading();
-      if (!quiet) {
-        if (pass) {
-          if (HiveUtil.getBool(HiveUtil.inappWebviewKey, defaultValue: true)) {
-            UriUtil.openInternal(context, url);
+      if (isUserUrl(url)) {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        panelScreenState?.pushPage(
+            UserDetailScreen(screenName: extractUserScreenName(url)));
+      } else if (isHashTagUrl(url)) {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        panelScreenState
+            ?.pushPage(SearchResultScreen(searchKey: extractHashTag(url)));
+      } else {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        if (!quiet) {
+          if (pass) {
+            if (HiveUtil.getBool(HiveUtil.inappWebviewKey,
+                defaultValue: true)) {
+              UriUtil.openInternal(context, url);
+            } else {
+              UriUtil.openExternal(url);
+            }
           } else {
-            UriUtil.openExternal(url);
+            IToast.showTop(S.current.notSupportedUri(url));
           }
-        } else {
-          IToast.showTop(S.current.notSupportedUri(url));
         }
       }
       return false;

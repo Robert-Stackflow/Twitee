@@ -31,6 +31,7 @@ import 'package:protocol_handler/protocol_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Database/database_manager.dart';
 import 'package:twitee/Screens/Lock/pin_verify_screen.dart';
+import 'package:twitee/Screens/Login/login_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/biometric_util.dart';
 import 'package:twitee/Utils/file_util.dart';
@@ -38,6 +39,7 @@ import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_util.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_manager/window_manager.dart';
 
 import './Utils/ilogger.dart';
@@ -49,7 +51,6 @@ import 'Utils/responsive_util.dart';
 import 'Utils/utils.dart';
 import 'Widgets/Custom/keyboard_handler.dart';
 import 'generated/l10n.dart';
-import 'package:video_player_win/video_player_win_plugin.dart';
 
 const List<String> kWindowsSchemes = ["twitee", "com.cloudchewie.twitee"];
 
@@ -63,15 +64,20 @@ Future<void> runMyApp(List<String> args) async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   await initApp(widgetsBinding);
   late Widget home;
-  if (HiveUtil.canGuestureLock()) {
-    home = const PinVerifyScreen(
-      isModal: true,
-      autoAuth: true,
-      jumpToMain: true,
-      showWindowTitle: true,
-    );
+  String? csrfToken = await RequestUtil.getCsrfToken();
+  if (Utils.isEmpty(csrfToken)) {
+    home = const LoginByPasswordScreen(jumpToMain: true);
   } else {
-    home = MainScreen(key: mainScreenKey);
+    if (HiveUtil.canGuestureLock()) {
+      home = const PinVerifyScreen(
+        isModal: true,
+        autoAuth: true,
+        jumpToMain: true,
+        showWindowTitle: true,
+      );
+    } else {
+      home = MainScreen(key: mainScreenKey);
+    }
   }
   runApp(MyApp(home: KeyboardHandler(key: keyboardHandlerKey, child: home)));
   FlutterNativeSplash.remove();

@@ -16,15 +16,13 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
-import 'package:twitee/Screens/Detail/search_result_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
+import 'package:twitee/Screens/Flow/search_result_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
-import 'package:twitee/Utils/enums.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 
 import '../../Models/search_suggestion.dart';
-import '../../Models/search_timeline_tab_item.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
@@ -32,18 +30,19 @@ import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Twitter/refresh_interface.dart';
-import '../Flow/search_explore_flow_screen.dart';
 
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+class SearchResultScreen extends StatefulWidget {
+  const SearchResultScreen({super.key, required this.searchKey});
 
-  static const String routeName = "/navigtion/search";
+  final String searchKey;
+
+  static const String routeName = "/navigtion/searchResult";
 
   @override
-  State<SearchScreen> createState() => SearchScreenState();
+  State<SearchResultScreen> createState() => SearchResultScreenState();
 }
 
-class SearchScreenState extends State<SearchScreen>
+class SearchResultScreenState extends State<SearchResultScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
@@ -51,13 +50,14 @@ class SearchScreenState extends State<SearchScreen>
   @override
   bool get wantKeepAlive => true;
 
-  late TabController _trendTabController;
   final ScrollToHideController _scrollToHideController =
       ScrollToHideController();
-  TabItemDataList trendTabDataList = TabItemDataList([]);
+  late TabController _resultTabController;
+  TabItemDataList resultTabDataList = TabItemDataList([]);
 
-  int get currentTrendIndex => _trendTabController.index;
-  List<SearchTimelineTabItem> tabItems = [];
+  int get currentResultIndex => _resultTabController.index;
+
+  final List<String> _resultTabTitleList = ["热门", "最新", "用户", "媒体", "列表"];
 
   OverlayEntry? _overlayEntry;
 
@@ -71,31 +71,34 @@ class SearchScreenState extends State<SearchScreen>
   SearchSuggestionResponse? _suggestionResponse;
 
   bool _showSuggestion = false;
-  InitPhase _initPhase = InitPhase.haveNotConnected;
 
-  initTrendTab() {
-    trendTabDataList.clear();
-    for (int i = 0; i < tabItems.length; i++) {
-      trendTabDataList.add(
+  initResultTab() {
+    resultTabDataList.clear();
+    for (int i = 0; i < _resultTabTitleList.length; i++) {
+      resultTabDataList.add(
         TabItemData.build(
-          tabItems[i].labelText!,
-          (key, scrollController) => SearchExploreFlowScreen(
+          _resultTabTitleList[i],
+          (key, scrollController) => SearchResultFlowScreen(
             key: key,
-            tabItem: tabItems[i],
+            type: SearchTimelineType.fromIndex(i),
+            query: _searchController.text,
             scrollController: scrollController,
           ),
         ),
       );
     }
-    _trendTabController =
-        TabController(length: trendTabDataList.length, vsync: this);
+    _resultTabController =
+        TabController(length: resultTabDataList.length, vsync: this);
     if (mounted) setState(() {});
     panelScreenState?.refreshScrollControllers();
   }
 
   perfromSearch(String key) {
     if (key.isEmpty) return;
-    panelScreenState?.pushPage(SearchResultScreen(searchKey: key));
+    _searchController.text = key;
+    refresh();
+    _hideSuggestions();
+    initResultTab();
   }
 
   @override
@@ -105,10 +108,10 @@ class SearchScreenState extends State<SearchScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _trendTabController = TabController(length: 0, vsync: this);
+    _resultTabController = TabController(length: 0, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      initTrendTab();
-      initData();
+      initResultTab();
+      perfromSearch(widget.searchKey);
     });
     _searchController.addListener(() {
       EasyDebounce.debounce(
@@ -123,8 +126,6 @@ class SearchScreenState extends State<SearchScreen>
     searchFocusNode.addListener(() {
       if (searchFocusNode.hasFocus) {
         _showSuggestions();
-      } else {
-        _hideSuggestions();
       }
     });
   }
@@ -133,9 +134,8 @@ class SearchScreenState extends State<SearchScreen>
     if (_searchController.text.isEmpty) return;
     var res = await SearchApi.getSuggestion(query: _searchController.text);
     if (res.success) {
-      setState(() {
-        _suggestionResponse = res.data;
-      });
+      _suggestionResponse = res.data;
+      if (mounted) setState(() {});
       if (searchFocusNode.hasFocus) {
         _showSuggestions();
       }
@@ -148,21 +148,6 @@ class SearchScreenState extends State<SearchScreen>
   void dispose() {
     EasyDebounce.cancelAll();
     super.dispose();
-  }
-
-  initData() async {
-    _initPhase = InitPhase.connecting;
-    setState(() {});
-    var res = await SearchApi.getExplorePageTimelines();
-    if (res.success) {
-      tabItems = res.data;
-      _initPhase = InitPhase.successful;
-      setState(() {});
-      initTrendTab();
-    } else {
-      _initPhase = InitPhase.failed;
-      setState(() {});
-    }
   }
 
   void _showSuggestions() {
@@ -306,7 +291,7 @@ class SearchScreenState extends State<SearchScreen>
     super.build(context);
     double width = MediaQuery.of(context).size.width;
     return PopScope(
-      canPop: !_showSuggestion,
+      canPop: !(_showSuggestion),
       onPopInvokedWithResult: (_, __) {
         if (_showSuggestion) {
           _hideSuggestions();
@@ -318,14 +303,19 @@ class SearchScreenState extends State<SearchScreen>
         backgroundColor: Colors.transparent,
         appBar: ItemBuilder.buildDesktopAppBar(
           context: context,
-          showMenu: true,
-          showBack: false,
+          showMenu: false,
+          showBack: true,
           backSpacing: 0,
+          onBackTap: () {
+            panelScreenState?.popPage();
+          },
           titleWidget: Container(
             margin: const EdgeInsets.all(10),
             constraints: ResponsiveUtil.isLandscape()
                 ? const BoxConstraints(
-                    maxWidth: searchBarWidth, minWidth: searchBarWidth, maxHeight: 56)
+                    maxWidth: searchBarWidth,
+                    minWidth: searchBarWidth,
+                    maxHeight: 56)
                 : BoxConstraints(
                     maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
             child: CompositedTransformTarget(
@@ -352,75 +342,69 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   _buildBody() {
-    switch (_initPhase) {
-      case InitPhase.connecting:
-        return ItemBuilder.buildLoadingDialog(context,
-            background: Colors.transparent);
-      case InitPhase.failed:
-        return ItemBuilder.buildError(
-          context: context,
-          onTap: initData,
-        );
-      case InitPhase.successful:
-        return Stack(
-          children: [
-            _buildTrend(),
-            Positioned(
-              right: ResponsiveUtil.isLandscape() ? 16 : 12,
-              bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
-              child: ScrollToHide(
-                controller: _scrollToHideController,
-                scrollControllers: trendTabDataList.scrollControllerList,
-                hideDirection: Axis.vertical,
-                child: _buildFloatingButtons(),
-              ),
-            ),
-          ],
-        );
-      default:
-        return Container();
-    }
-  }
-
-  _buildTrend() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        if (trendTabDataList.tabList.isNotEmpty)
-          ItemBuilder.buildTabBar(
-            context,
-            _trendTabController,
-            trendTabDataList.tabList,
-            autoScrollable: false,
-            showBorder: true,
-            width: MediaQuery.of(context).size.width,
-            background: Theme.of(context).canvasColor,
-            onTap: (index) {
-              if (mounted) setState(() {});
-              if (!_trendTabController.indexIsChanging &&
-                  index == currentTrendIndex) {
-                if (trendTabDataList.getScrollController(index) != null &&
-                    trendTabDataList.getScrollController(index)!.offset > 30) {
-                  scrollToTop();
-                } else {
-                  refresh();
-                }
-              }
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-          ),
-        Expanded(
-          child: TabBarView(
-            controller: _trendTabController,
-            children: trendTabDataList.pageList,
+        _buildResult(),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: ScrollToHide(
+            controller: _scrollToHideController,
+            scrollControllers: resultTabDataList.scrollControllerList,
+            hideDirection: Axis.vertical,
+            child: _buildFloatingButtons(),
           ),
         ),
       ],
     );
   }
 
+  _buildResult() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (resultTabDataList.tabList.isNotEmpty)
+            ItemBuilder.buildTabBar(
+              context,
+              _resultTabController,
+              resultTabDataList.tabList,
+              showBorder: true,
+              width: MediaQuery.of(context).size.width,
+              background: Theme.of(context).canvasColor,
+              onTap: (index) {
+                if (mounted) setState(() {});
+                if (!_resultTabController.indexIsChanging &&
+                    index == currentResultIndex) {
+                  if (resultTabDataList.getScrollController(index) != null &&
+                      resultTabDataList.getScrollController(index)!.offset >
+                          30) {
+                    scrollToTop();
+                  } else {
+                    refresh();
+                  }
+                }
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+          Expanded(
+            child: TabBarView(
+              controller: _resultTabController,
+              children: resultTabDataList.pageList,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   scrollToTop() {
-    trendTabDataList.getRefreshMixin(_trendTabController.index)?.scrollToTop();
+    resultTabDataList
+        .getRefreshMixin(_resultTabController.index)
+        ?.scrollToTop();
     _scrollToHideController.show();
     panelScreenState?.showBottomNavigationBar();
   }
@@ -430,7 +414,7 @@ class SearchScreenState extends State<SearchScreen>
     await scrollToTop();
     _refreshRotationController.stop();
     _refreshRotationController.forward();
-    trendTabDataList.getRefreshMixin(_trendTabController.index)?.refresh();
+    resultTabDataList.getRefreshMixin(_resultTabController.index)?.refresh();
   }
 
   _buildFloatingButtons() {
@@ -461,6 +445,6 @@ class SearchScreenState extends State<SearchScreen>
 
   @override
   List<ScrollController> getScrollControllers() {
-    return trendTabDataList.scrollControllerList;
+    return resultTabDataList.scrollControllerList;
   }
 }

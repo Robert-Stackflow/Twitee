@@ -25,8 +25,10 @@ import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/color_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/image_util.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
 
+import '../../Openapi/models/media.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/responsive_util.dart';
@@ -37,10 +39,10 @@ import '../Item/item_builder.dart';
 
 enum DownloadState { none, loading, succeed, failed }
 
-class HeroPhotoViewScreen extends StatefulWidget {
-  const HeroPhotoViewScreen({
+class HeroMediaViewScreen extends StatefulWidget {
+  const HeroMediaViewScreen({
     super.key,
-    required this.imageUrls,
+    required this.medias,
     this.initialScale = PhotoViewComputedScale.contained,
     this.minScale = PhotoViewComputedScale.contained,
     this.maxScale,
@@ -57,7 +59,7 @@ class HeroPhotoViewScreen extends StatefulWidget {
 
   final String? title;
   final String? tagPrefix;
-  final List<String> imageUrls;
+  final List<Media> medias;
   final List<String>? captions;
   final dynamic initialScale;
   final dynamic minScale;
@@ -70,14 +72,14 @@ class HeroPhotoViewScreen extends StatefulWidget {
   final Function()? onDownloadSuccess;
 
   @override
-  State<HeroPhotoViewScreen> createState() => HeroPhotoViewScreenState();
+  State<HeroMediaViewScreen> createState() => HeroMediaViewScreenState();
 }
 
-class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
+class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-  late final List<String> imageUrls;
+  late final List<Media> medias;
   late final List<String> captions;
   late final dynamic initialScale;
   late final dynamic minScale;
@@ -91,6 +93,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
   DownloadState allDownloadState = DownloadState.none;
   late PageController _pageController;
   final List<PhotoViewController> _viewControllers = [];
+  bool isHD = false;
 
   @override
   void initState() {
@@ -103,8 +106,8 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
     super.initState();
     setDownloadState(DownloadState.none, recover: false);
     setAllDownloadState(DownloadState.none, recover: false);
-    imageUrls = widget.imageUrls;
-    _viewControllers.addAll(List.generate(imageUrls.length, (index) {
+    medias = widget.medias;
+    _viewControllers.addAll(List.generate(medias.length, (index) {
       return PhotoViewController();
     }));
     captions = widget.captions ?? [];
@@ -112,20 +115,20 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
     maxScale = widget.maxScale;
     initialScale = widget.initialScale;
     currentIndex = widget.initIndex ?? 0;
-    currentIndex = max(0, min(currentIndex, imageUrls.length - 1));
+    currentIndex = max(0, min(currentIndex, medias.length - 1));
     _pageController = PageController(initialPage: currentIndex);
     if (widget.mainColors != null &&
-        widget.mainColors!.length >= imageUrls.length &&
+        widget.mainColors!.length >= medias.length &&
         HiveUtil.getBool(HiveUtil.followMainColorKey)) {
       mainColors = widget.mainColors!;
     } else {
-      mainColors = List.filled(imageUrls.length,
+      mainColors = List.filled(medias.length,
           ResponsiveUtil.isLandscape() ? Colors.transparent : Colors.black);
       if (widget.useMainColor &&
           HiveUtil.getBool(HiveUtil.followMainColorKey)) {
         ColorUtil.getMainColors(
           context,
-          imageUrls.map((e) => getUrl(imageUrls.indexOf(e))).toList(),
+          medias.map((e) => getUrl(medias.indexOf(e))).toList(),
         ).then((value) {
           if (mounted) setState(() {});
           mainColors = value;
@@ -146,7 +149,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
       body: Stack(
         alignment: Alignment.center,
         children: [
-          imageUrls.length == 1 ? _buildSinglePage() : _buildMultiplePage(),
+          medias.length == 1 ? _buildSinglePage() : _buildMultiplePage(),
           if (getCaption(currentIndex).isNotEmpty)
             Positioned(
               bottom: 60,
@@ -162,7 +165,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 ),
               ),
             ),
-          if (imageUrls.length > 1 && ResponsiveUtil.isDesktop())
+          if (medias.length > 1 && ResponsiveUtil.isDesktop())
             Positioned(
               left: 16,
               child: Container(
@@ -194,7 +197,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 ),
               ),
             ),
-          if (imageUrls.length > 1 && ResponsiveUtil.isDesktop())
+          if (medias.length > 1 && ResponsiveUtil.isDesktop())
             Positioned(
               right: 16,
               child: Container(
@@ -202,7 +205,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 height: 40,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: currentIndex == imageUrls.length - 1
+                  color: currentIndex == medias.length - 1
                       ? Colors.black.withOpacity(0.1)
                       : Colors.black.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(20),
@@ -214,7 +217,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                         curve: Curves.easeInOut);
                   },
                   child: MouseRegion(
-                    cursor: currentIndex == imageUrls.length - 1
+                    cursor: currentIndex == medias.length - 1
                         ? SystemMouseCursors.basic
                         : SystemMouseCursors.click,
                     child: const Icon(
@@ -232,7 +235,8 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
   }
 
   String getUrl(int index) {
-    return imageUrls[index];
+    String url = TweetUtil.getMediaImageUrl(medias[index]);
+    return isHD ? ImageUtil.getOriginalUrl(url) : url;
   }
 
   getCaption(index) {
@@ -252,7 +256,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
   PointerSignalEventListener get onPointerSignal => (event) {
         if (event is PointerScrollEvent &&
             currentIndex >= 0 &&
-            currentIndex < imageUrls.length) {
+            currentIndex < medias.length) {
           final delta = event.scrollDelta.dy;
           final scale = _viewControllers[currentIndex].scale ?? 1.0;
           final newScale = scale - delta / 1000;
@@ -306,7 +310,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           return PhotoViewGalleryPageOptions(
             controller: _viewControllers[index],
             imageProvider: CachedNetworkImageProvider(getUrl(index)),
-            initialScale: getPreferedScale(imageUrls[index]),
+            initialScale: getPreferedScale(medias[index]),
             minScale: minScale,
             maxScale: maxScale,
             heroAttributes: PhotoViewHeroAttributes(
@@ -321,7 +325,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
             // },
           );
         },
-        itemCount: imageUrls.length,
+        itemCount: medias.length,
         onPageChanged: (index) async {
           if (widget.onIndexChanged != null) {
             widget.onIndexChanged!(index);
@@ -415,9 +419,9 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
       onLeadingTap: () {
         Navigator.pop(context);
       },
-      title: imageUrls.length > 1
+      title: medias.length > 1
           ? Text(
-              "${currentIndex + 1}/${imageUrls.length}",
+              "${currentIndex + 1}/${medias.length}",
               style: Theme.of(context).textTheme.titleLarge?.apply(
                     color: Colors.white,
                   ),
@@ -431,6 +435,20 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 )
               : emptyWidget,
       actions: [
+        ToolButton(
+          context: context,
+          iconBuilder: (context) => Icon(
+            isHD ? Icons.hd_rounded : Icons.hd_outlined,
+            color: Colors.white,
+            size: 22,
+          ),
+          onTap: () {
+            isHD = !isHD;
+            setState(() {});
+            updateCurrentUrl();
+          },
+        ),
+        const SizedBox(width: 5),
         ToolButton(
           context: context,
           iconBuilder: (context) => Padding(
@@ -467,10 +485,9 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           onTap: () {
             if (downloadState == DownloadState.none) {
               setDownloadState(DownloadState.loading, recover: false);
-
-              ImageUtil.saveImage(
+              ImageUtil.saveMedia(
                 context,
-                currentUrl,
+                medias[currentIndex],
               ).then((res) {
                 if (res) {
                   widget.onDownloadSuccess?.call();
@@ -483,7 +500,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           },
         ),
         const SizedBox(width: 5),
-        if (imageUrls.length > 1)
+        if (medias.length > 1)
           ToolButton(
             context: context,
             iconBuilder: (context) => Padding(
@@ -493,13 +510,9 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
             onTap: () {
               if (allDownloadState == DownloadState.none) {
                 setAllDownloadState(DownloadState.loading, recover: false);
-                ImageUtil.saveImages(
+                ImageUtil.saveMedias(
                   context,
-                  imageUrls
-                      .map(
-                        (e) => getUrl(imageUrls.indexOf(e)),
-                      )
-                      .toList(),
+                  medias,
                 ).then((res) {
                   if (res) {
                     widget.onDownloadSuccess?.call();
@@ -511,7 +524,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
               }
             },
           ),
-        if (imageUrls.length > 1) const SizedBox(width: 5),
+        if (medias.length > 1) const SizedBox(width: 5),
         if (ResponsiveUtil.isLandscape())
           ToolButton(
             context: context,

@@ -17,16 +17,15 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Detail/tweet_detail_screen.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
-import '../../Utils/app_provider.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/tweet_util.dart';
+import '../../Widgets/Twitter/grid_item.dart';
 
 class UserMediaFlowScreen extends StatefulWidget {
   const UserMediaFlowScreen({
@@ -304,9 +303,8 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
                 mainAxisSpacing: 6,
                 children: List.generate(
                   gridTweets.length,
-                  (index) {
-                    return _buildGridItem(160, gridTweets[index]);
-                  },
+                  (index) =>
+                      GridItem(size: 160, timelineTweet: gridTweets[index]),
                 ),
               ),
             )
@@ -315,45 +313,6 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
               text: "暂无内容",
               scrollController: _scrollController,
             ),
-    );
-  }
-
-  _buildGridItem(double size, TimelineTweet timelineTweet) {
-    Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
-    int count = TweetUtil.getMediaCount(timelineTweet);
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            panelScreenState
-                ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
-          },
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: ItemBuilder.buildCachedImage(
-                  imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
-                  width: size,
-                  height: size,
-                  context: context,
-                  fit: BoxFit.cover,
-                  showLoading: false,
-                ),
-              ),
-              if (count > 1)
-                const Positioned(
-                  right: 8,
-                  bottom: 8,
-                  child: Icon(
-                    Icons.collections_outlined,
-                    color: Colors.white,
-                  ),
-                )
-            ],
-          )),
     );
   }
 }

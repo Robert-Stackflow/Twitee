@@ -99,10 +99,19 @@ class _MyCachedNetworkImageState extends State<MyCachedNetworkImage> {
   }
 
   Widget _simpleErrorWidget(BuildContext context, String url, dynamic error) {
-    return ItemBuilder.buildIconButton(
-      context: context,
-      icon: const Icon(Icons.refresh_rounded),
-      onTap: _retryLoadImage,
+    print(url);
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: 40,
+        minWidth: 40,
+        maxWidth: 40,
+        maxHeight: 40,
+      ),
+      child: ItemBuilder.buildIconButton(
+        context: context,
+        icon: const Icon(Icons.refresh_rounded),
+        onTap: _retryLoadImage,
+      ),
     );
   }
 
