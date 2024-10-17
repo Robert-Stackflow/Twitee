@@ -14,6 +14,8 @@ enum CursorType {
   showMore('ShowMore'),
   @JsonValue('ShowMoreThreads')
   showMoreThreads('ShowMoreThreads'),
+  @JsonValue('ShowMoreThreadsPrompt')
+  showMoreThreadsPrompt('ShowMoreThreadsPrompt'),
   @JsonValue('Gap')
   gap('Gap'),
 

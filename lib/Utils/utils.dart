@@ -330,7 +330,7 @@ class Utils {
       return dateFormat2.format(date);
     } else if (diff.inDays > 0) {
       return S.current.dayAgo(diff.inDays + 1);
-    } else if (isSameDay) {
+    } else if (isSameDay && diff.inHours > 0) {
       return S.current.hourAgo(diff.inHours);
     } else if (diff.inHours > 0) {
       return "${date.hour < 10 ? "0${date.hour}" : date.hour}:${date.minute < 10 ? "0${date.minute}" : date.minute}";

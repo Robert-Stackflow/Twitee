@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/post_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
 
@@ -26,6 +25,7 @@ import '../../Utils/enums.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../Flow/comment_flow_screen.dart';
 
 class TweetDetailScreen extends StatefulWidget {
   const TweetDetailScreen({super.key, required this.tweetId});
@@ -61,24 +61,29 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     tabDataList.addAll([
       TabItemData.build(
         "最相关",
-        (key, scrollController) => TimelineFlowScreen(
+        (key, scrollController) => CommentFlowScreen(
           key: key,
+          tweetId: widget.tweetId,
           nested: true,
           scrollController: primaryController,
         ),
       ),
       TabItemData.build(
         "最新",
-        (key, scrollController) => TimelineFlowScreen(
+        (key, scrollController) => CommentFlowScreen(
           key: key,
+          tweetId: widget.tweetId,
+          rankType: RankType.Recency,
           nested: true,
           scrollController: primaryController,
         ),
       ),
       TabItemData.build(
         "最多点赞",
-        (key, scrollController) => TimelineFlowScreen(
+        (key, scrollController) => CommentFlowScreen(
           key: key,
+          tweetId: widget.tweetId,
+          rankType: RankType.Likes,
           nested: true,
           scrollController: primaryController,
         ),
@@ -143,7 +148,10 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     super.build(context);
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
-          context: context, title: "帖子详情", showBack: true),
+        context: context,
+        title: "帖子详情",
+        showBack: true,
+      ),
       body: _buildBody(),
     );
   }

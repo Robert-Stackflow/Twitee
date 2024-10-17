@@ -150,7 +150,6 @@ class _ListScreenState extends State<ListScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        backSpacing: 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,

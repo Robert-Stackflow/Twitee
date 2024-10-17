@@ -13,8 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/lottie_util.dart';
 import 'package:flutter/material.dart';
+import 'package:twitee/Utils/lottie_util.dart';
 
 class LoadingDialogWidget extends StatefulWidget {
   final bool dismissible;
@@ -51,7 +51,12 @@ class LoadingDialogWidgetState extends State<LoadingDialogWidget> {
               borderRadius: BorderRadius.circular(16),
               color: Theme.of(context).canvasColor,
             ),
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+            padding: const EdgeInsets.only(
+              top: 20,
+              bottom: 20,
+              left: 30,
+              right: 30,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -60,10 +65,10 @@ class LoadingDialogWidgetState extends State<LoadingDialogWidget> {
                 LottieUtil.load(
                   LottieUtil.getLoadingPath(context),
                   size: widget.size,
-                  fit: BoxFit.fill,
-                  scale: widget.scale * 1.8,
+                  fit: BoxFit.contain,
+                  scale: widget.scale * 2,
                 ),
-                if (widget.title != null) const SizedBox(height: 16),
+                if (widget.title != null) const SizedBox(height: 10),
                 if (widget.title != null)
                   Text(
                     widget.title!,

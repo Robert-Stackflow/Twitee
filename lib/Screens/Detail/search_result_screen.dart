@@ -305,7 +305,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
           context: context,
           showMenu: false,
           showBack: true,
-          backSpacing: 0,
+          spacing: 0,
           onBackTap: () {
             panelScreenState?.popPage();
           },
@@ -323,6 +323,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
               child: ItemBuilder.buildDesktopSearchBar(
                 context: context,
                 borderRadius: 8,
+                tag: "SearchTimeline",
                 bottomMargin: 18,
                 hintFontSizeDelta: 1,
                 focusNode: searchFocusNode,

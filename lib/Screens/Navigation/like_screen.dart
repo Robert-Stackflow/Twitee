@@ -260,6 +260,7 @@ class _LikeScreenState extends State<LikeScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
+        spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "喜欢",
       ),
       body: Stack(

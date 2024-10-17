@@ -88,82 +88,122 @@ class ItemBuilder {
     Widget? titleWidget,
     bool showBack = false,
     bool showMenu = false,
-    double backSpacing = 10,
-    double spacing = 20,
+    double spacing = 10,
     bool centerInMobile = false,
     Function()? onBackTap,
+    List<Widget> actions = const [],
   }) {
-    bool hasLeftButton =
-        showBack || (showMenu && !ResponsiveUtil.isLandscape());
-    var finalTitle = titleWidget ??
-        Text(title, style: Theme.of(context).textTheme.titleLarge);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(56),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          border: Border(
-            bottom: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
+    if (ResponsiveUtil.isLandscape()) {
+      bool hasLeftButton =
+          showBack || (showMenu && !ResponsiveUtil.isLandscape());
+      var finalTitle = titleWidget ??
+          Text(title, style: Theme.of(context).textTheme.titleLarge);
+      return PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            child: Stack(
+              children: [
+                if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+                Center(
+                  child: Row(
+                    mainAxisAlignment:
+                        ResponsiveUtil.isMobile() && centerInMobile
+                            ? MainAxisAlignment.center
+                            : MainAxisAlignment.start,
+                    children: [
+                      if (showMenu && !ResponsiveUtil.isLandscape())
+                        Container(
+                          margin: const EdgeInsets.only(left: 10),
+                          child: ItemBuilder.buildIconButton(
+                            context: context,
+                            icon: const Icon(Icons.menu_rounded),
+                            onTap: () => panelScreenState?.openDrawer(),
+                          ),
+                        ),
+                      if (showBack)
+                        ResponsiveUtil.isLandscape()
+                            ? Container(
+                                margin: const EdgeInsets.only(left: 10),
+                                child: ToolButton(
+                                  context: context,
+                                  onTap: onBackTap ??
+                                      () => panelScreenState?.popPage(),
+                                  iconBuilder: (_) =>
+                                      const Icon(Icons.arrow_back_rounded),
+                                ),
+                              )
+                            : Container(
+                                margin: const EdgeInsets.only(left: 10),
+                                child: ItemBuilder.buildIconButton(
+                                  context: context,
+                                  icon: const Icon(Icons.arrow_back_rounded),
+                                  onTap: () => panelScreenState?.popPage(),
+                                ),
+                              ),
+                      if ((!(titleWidget != null &&
+                                  ResponsiveUtil.isLandscape()) &&
+                              !hasLeftButton) ||
+                          hasLeftButton)
+                        SizedBox(width: spacing),
+                      ResponsiveUtil.isLandscape()
+                          ? finalTitle
+                          : Expanded(child: finalTitle),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
-              Center(
-                child: Row(
-                  mainAxisAlignment: ResponsiveUtil.isMobile() && centerInMobile
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
-                  children: [
-                    if (showMenu && !ResponsiveUtil.isLandscape())
-                      Container(
-                        margin: const EdgeInsets.only(left: 10),
-                        child: ItemBuilder.buildIconButton(
-                          context: context,
-                          icon: const Icon(Icons.menu_rounded),
-                          onTap: () => panelScreenState?.openDrawer(),
-                        ),
-                      ),
-                    if (showBack)
-                      ResponsiveUtil.isLandscape()
-                          ? Container(
-                              margin: const EdgeInsets.only(left: 10),
-                              child: ToolButton(
-                                context: context,
-                                onTap: onBackTap ??
-                                    () => panelScreenState?.popPage(),
-                                iconBuilder: (_) =>
-                                    const Icon(Icons.arrow_back_rounded),
-                              ),
-                            )
-                          : Container(
-                              margin: const EdgeInsets.only(left: 10),
-                              child: ItemBuilder.buildIconButton(
-                                context: context,
-                                icon: const Icon(Icons.arrow_back_rounded),
-                                onTap: () => panelScreenState?.popPage(),
-                              ),
-                            ),
-                    if ((!(titleWidget != null &&
-                                ResponsiveUtil.isLandscape()) &&
-                            !hasLeftButton) ||
-                        hasLeftButton)
-                      SizedBox(width: hasLeftButton ? backSpacing : spacing),
-                    ResponsiveUtil.isLandscape()
-                        ? finalTitle
-                        : Expanded(child: finalTitle),
-                  ],
-                ),
+      );
+    } else {
+      return PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).dividerColor,
+                width: 1,
               ),
-            ],
+            ),
+          ),
+          child: ItemBuilder.buildAppBar(
+            context: context,
+            leading: showMenu ? Icons.menu_rounded : Icons.arrow_back_rounded,
+            onLeadingTap: showMenu
+                ? () => panelScreenState?.openDrawer()
+                : onBackTap ?? () => panelScreenState?.popPage(),
+            backgroundColor: Theme.of(context).canvasColor,
+            leftSpacing: 10,
+            leadingTitleSpacing: spacing,
+            actions: actions,
+            title: titleWidget != null
+                ? Container(
+                    constraints: const BoxConstraints(maxHeight: 60),
+                    child: titleWidget,
+                  )
+                : Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.apply(
+                          fontWeightDelta: 2,
+                        ),
+                  ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   static buildSimpleAppBar({
@@ -237,6 +277,8 @@ class ItemBuilder {
     List<Widget>? actions,
     required BuildContext context,
     bool transparent = false,
+    double leftSpacing = 10,
+    double leadingTitleSpacing = 10,
     bool forceShowClose = false,
   }) {
     bool showLeading =
@@ -264,7 +306,7 @@ class ItemBuilder {
           leadingWidth: showLeading ? 56.0 : 0.0,
           leading: showLeading
               ? Container(
-                  margin: const EdgeInsets.only(left: 5),
+                  margin: EdgeInsets.only(left: leftSpacing),
                   child: buildIconButton(
                     context: context,
                     icon: Icon(leading,
@@ -278,11 +320,15 @@ class ItemBuilder {
               ? Center(
                   child: Container(
                       margin: EdgeInsets.only(
-                          left: center ? 0 : (showLeading ? 4 : 20)),
+                          left: center
+                              ? 0
+                              : (showLeading ? leadingTitleSpacing : 20)),
                       child: title))
               : Container(
                   margin: EdgeInsets.only(
-                      left: center ? 0 : (showLeading ? 4 : 20)),
+                      left: center
+                          ? 0
+                          : (showLeading ? leadingTitleSpacing : 20)),
                   child: title,
                 ),
           actions: actions,
@@ -1782,7 +1828,7 @@ class ItemBuilder {
     Function()? onTap,
   }) {
     return ItemBuilder.buildClickItem(
-      clickable: onTap!=null,
+      clickable: onTap != null,
       GestureDetector(
         onTap: onTap,
         child: Container(
@@ -2099,61 +2145,66 @@ class ItemBuilder {
     double borderRadius = 50,
     double? bottomMargin,
     double hintFontSizeDelta = 0,
+    String? tag,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: background ?? Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Center(
-              child: Material(
-                color: Colors.transparent,
-                child: TextField(
-                  focusNode: focusNode,
-                  contextMenuBuilder: (contextMenuContext, details) =>
-                      ItemBuilder.editTextContextMenuBuilder(
-                          contextMenuContext, details,
-                          context: context),
-                  controller: controller,
-                  cursorColor: Theme.of(context).primaryColor,
-                  cursorRadius: const Radius.circular(5),
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: onSubmitted,
-                  style: Theme.of(context).textTheme.titleSmall?.apply(
-                        fontSizeDelta: hintFontSizeDelta,
-                      ),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(left: 8),
-                    border:
-                        const OutlineInputBorder(borderSide: BorderSide.none),
-                    hintText: hintText,
-                    hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                          color: Theme.of(context).textTheme.labelSmall?.color,
+    return Hero(
+      tag: tag ?? Utils.generateUid(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: background ?? Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Center(
+                child: Material(
+                  color: Colors.transparent,
+                  child: TextField(
+                    focusNode: focusNode,
+                    contextMenuBuilder: (contextMenuContext, details) =>
+                        ItemBuilder.editTextContextMenuBuilder(
+                            contextMenuContext, details,
+                            context: context),
+                    controller: controller,
+                    cursorColor: Theme.of(context).primaryColor,
+                    cursorRadius: const Radius.circular(5),
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: onSubmitted,
+                    style: Theme.of(context).textTheme.titleSmall?.apply(
                           fontSizeDelta: hintFontSizeDelta,
                         ),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(left: 8),
+                      border:
+                          const OutlineInputBorder(borderSide: BorderSide.none),
+                      hintText: hintText,
+                      hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
+                            color:
+                                Theme.of(context).textTheme.labelSmall?.color,
+                            fontSizeDelta: hintFontSizeDelta,
+                          ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: () {
-              onSubmitted(controller?.text);
-            },
-            child: buildClickItem(
-              AssetUtil.loadDouble(
-                context,
-                AssetUtil.searchLightIcon,
-                AssetUtil.searchDarkIcon,
-                size: 20,
+            GestureDetector(
+              onTap: () {
+                onSubmitted(controller?.text);
+              },
+              child: buildClickItem(
+                AssetUtil.loadDouble(
+                  context,
+                  AssetUtil.searchLightIcon,
+                  AssetUtil.searchDarkIcon,
+                  size: 20,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

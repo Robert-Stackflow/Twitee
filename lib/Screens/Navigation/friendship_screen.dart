@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Flow/friends_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Models/tab_item_data.dart';
@@ -91,7 +92,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
-    if(widget.initType != null) {
+    if (widget.initType != null) {
       _tabController.index = widget.initType!.index;
     }
   }
@@ -112,7 +113,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showBack: isOther,
-        backSpacing: 10,
+        spacing: isOther && ResponsiveUtil.isLandscape() ? 0 : 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,

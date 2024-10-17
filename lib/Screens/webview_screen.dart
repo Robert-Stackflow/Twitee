@@ -15,14 +15,13 @@
 
 import 'dart:collection';
 
-import 'package:twitee/Resources/theme.dart';
-import 'package:twitee/Utils/hive_util.dart';
-import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Utils/request_util.dart';
-import 'package:twitee/Utils/uri_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:twitee/Resources/theme.dart';
+import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/request_util.dart';
+import 'package:twitee/Utils/uri_util.dart';
 
 import '../Utils/Tuple/tuple.dart';
 import '../Utils/constant.dart';
@@ -264,6 +263,7 @@ class _WebviewScreenState extends State<WebviewScreen>
                     color: Theme.of(context).primaryColor,
                     backgroundColor: Colors.transparent,
                     minHeight: 2,
+                    borderRadius:  const BorderRadius.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10)),
                   )
                 : emptyWidget,
             _buildErrorPage(),

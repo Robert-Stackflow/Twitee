@@ -149,7 +149,7 @@ class _CustomIndicatorState extends State<_CustomIndicator>
                   child: widget.emptyWidget!,
                 )
               : Icon(
-                  CupertinoIcons.archivebox,
+                  Icons.inbox_rounded,
                   key: const ValueKey('noMoreDefault'),
                   color: widget.foregroundColor,
                 )

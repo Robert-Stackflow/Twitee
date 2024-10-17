@@ -129,7 +129,6 @@ class HomeScreenState extends State<HomeScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        backSpacing: 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,

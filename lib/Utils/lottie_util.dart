@@ -23,6 +23,7 @@ class LottieUtil {
   static const String celebrate = "assets/lottie/celebrate.json";
   static const String loadingHourglass = "assets/lottie/loading_hourglass.json";
   static const String loadingInfinity = "assets/lottie/loading_infinity.json";
+  static const String loadingCircular = "assets/lottie/loading_circular.json";
   static const String moonLight = "assets/lottie/moon_light.json";
   static const String sunLight = "assets/lottie/sun_light.json";
 
@@ -63,7 +64,7 @@ class LottieUtil {
     bool forceDark = false,
     bool useInfinity = true,
   }) {
-    String path = useInfinity ? loadingInfinity : loadingHourglass;
+    String path = useInfinity ? loadingCircular : loadingHourglass;
     return Utils.isDark(context) || forceDark
         ? forceDark
             ? path

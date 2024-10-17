@@ -341,6 +341,7 @@ class PostApi {
   static Future<ResponseResult> getTweetDetail({
     required String tweetId,
     RankType rankType = RankType.Relevance,
+    String? cursorBottom,
   }) async {
     try {
       ILogger.info("Twitee API", "Getting tweet detail");
@@ -351,11 +352,12 @@ class PostApi {
           "variables": jsonEncode({
             "focalTweetId": tweetId,
             "referrer": "home",
+            "cursor": cursorBottom,
             "controller_data":
                 "DAACDAABDAABCgABAkAABEoCAAMKAAIAAAAAAAEBAAoACdWUvTi8Qt8rCAALAAAAAg8ADAMAAAALAwACSgQAQAIAAQEKAA6cMjFW+ypM9AAAAAA=",
             "with_rux_injections": false,
             "rankingMode": rankType.value,
-            "includePromotedContent": true,
+            "includePromotedContent": false,
             "withCommunity": true,
             "withQuickPromoteEligibilityTweetFields": true,
             "withBirdwatchNotes": true,

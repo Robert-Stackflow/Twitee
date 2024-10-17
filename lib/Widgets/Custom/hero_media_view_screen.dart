@@ -353,6 +353,15 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
                 ),
               ),
               filterQuality: FilterQuality.high,
+              errorBuilder: (context, error, stackTrace) {
+                return ItemBuilder.buildError(
+                  context: context,
+                  text: error.toString(),
+                  onTap: () {
+                    setState(() {});
+                  },
+                );
+              },
             );
           } else {
             return PhotoViewGalleryPageOptions.customChild(

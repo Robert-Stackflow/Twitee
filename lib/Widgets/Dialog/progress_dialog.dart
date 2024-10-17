@@ -230,7 +230,7 @@ class _LoadingDialogIndicatorState extends State<LoadingDialogIndicator>
     return LottieUtil.load(
       LottieUtil.getLoadingPath(context),
       size: 40,
-      scale: 1.8,
+      scale: 2.5,
     );
   }
 

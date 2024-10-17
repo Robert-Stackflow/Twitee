@@ -318,7 +318,7 @@ class SearchScreenState extends State<SearchScreen>
           context: context,
           showMenu: true,
           showBack: false,
-          backSpacing: 0,
+          spacing: 0,
           titleWidget: Container(
             margin: const EdgeInsets.all(10),
             constraints: ResponsiveUtil.isLandscape()

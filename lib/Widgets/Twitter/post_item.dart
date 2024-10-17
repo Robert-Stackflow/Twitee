@@ -21,6 +21,7 @@ import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Utils/video_player_manager.dart';
@@ -69,10 +70,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   final Map<String, bool> _hasPlayedOnceMap = {};
   final VideoPlaybackManager _playbackManager = VideoPlaybackManager();
 
-  bool get _isConversation =>
-      widget.entry.content is TimelineTimelineModule &&
-      (widget.entry.content as TimelineTimelineModule).displayType ==
+  bool _isConversation(TimelineAddEntry entry) =>
+      _isModule(entry) &&
+      (entry.content as TimelineTimelineModule).displayType ==
           DisplayType.verticalConversation;
+
+  bool _isModule(TimelineAddEntry entry) =>
+      entry.content is TimelineTimelineModule;
 
   @override
   void initState() {
@@ -81,8 +85,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   initVideo(TimelineAddEntry entry) {
-    if (_isConversation) {
-    } else {
+    if (_isConversation(entry)) {
+    } else if (!_isModule(entry)) {
       var timelineTweet =
           (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
       Tweet? tweet = TweetUtil.getTrueTweet(timelineTweet);
@@ -142,7 +146,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildItem(TimelineAddEntry entry) {
-    if (_isConversation) {
+    if (_isConversation(entry)) {
       TimelineTimelineModule module = (entry.content as TimelineTimelineModule);
       List<ModuleItem> items = module.items!
           .where((e) => e != null)
@@ -152,7 +156,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       List<TimelineTweet> tweets =
           items.map((e) => e.item.itemContent as TimelineTweet).toList();
       return _buildConversation(tweets);
-    } else {
+    } else if (!_isModule(entry)) {
       var timelineTweet =
           (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
       User? retweetedUser = TweetUtil.getRetweetedUser(timelineTweet);
@@ -531,15 +535,20 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     double avatarSize = 40;
     BorderRadius borderRadius = BorderRadius.zero;
     if (isFirst) {
-      borderRadius = const BorderRadius.only(
-        topLeft: Radius.circular(8),
-        topRight: Radius.circular(8),
-      );
-    } else if (isLast) {
-      borderRadius = const BorderRadius.only(
-        bottomLeft: Radius.circular(8),
-        bottomRight: Radius.circular(8),
-      );
+      borderRadius = borderRadius
+          .add(const BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(8),
+          ))
+          .resolve(null);
+    }
+    if (isLast) {
+      borderRadius = borderRadius
+          .add(const BorderRadius.only(
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ))
+          .resolve(null);
     }
     var body = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8).add(
@@ -576,6 +585,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               ),
             ],
           ),
+          if (widget.isDetail) _buildOperations(tweet),
           if (!isLast)
             Positioned(
               left: avatarSize / 2,
@@ -645,6 +655,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               Expanded(child: _buildTweetContent(tweet)),
             ],
           ),
+          if (widget.isDetail) _buildOperations(tweet),
         ],
       ),
     );
@@ -692,8 +703,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           _buildQuoteTweet(
               TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
         SizedBox(height: TweetUtil.hasRichContent(tweet) ? 12 : 4),
-        _buildOperations(tweet),
-        SizedBox(height: bottom),
+        if (!widget.isDetail) _buildOperations(tweet),
+        if (!widget.isDetail) SizedBox(height: bottom),
       ],
     );
   }
@@ -866,9 +877,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ItemBuilder.buildIconButton(
             context: context,
             icon: Icon(
-              Icons.more_horiz_rounded,
-              size: 22,
-              color: Theme.of(context).iconTheme.color,
+              ResponsiveUtil.isLandscape()
+                  ? Icons.more_horiz_rounded
+                  : Icons.more_vert_rounded,
+              size: 20,
+              color: Theme.of(context).textTheme.labelSmall?.color,
             ),
             onTap: () {
               BottomSheetBuilder.showContextMenu(
@@ -888,6 +901,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     double radius = 0,
     bool isSingle = false,
   }) {
+    String tag = Utils.generateUid();
     double ratio = isQueto ? 1 : media.sizes.large.w / media.sizes.large.h;
     ratio = ratio.clamp(0.8, 2);
     return Stack(
@@ -915,6 +929,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               medias: medias,
               index: index,
               simpleError: isQueto,
+              tagPrefix: tag,
             ),
           ),
         ),
@@ -971,7 +986,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     } else {
       double ratio = media.sizes.large.w / media.sizes.large.h;
       ratio = ratio.clamp(0.8, 2);
-      bool isGif = media.type == MediaType.animatedGif;
+      bool isGif = (media.type == MediaType.animatedGif);
       String videoUrl =
           isGif ? TweetUtil.getGifVideoUrl(media) : TweetUtil.getMp4Url(media);
       VideoPlayerController? controller = _videoControllers[videoUrl];
@@ -1030,12 +1045,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             },
             placeholder: ItemBuilder.buildMediaHeroCachedImage(
               context: context,
-              width: isSingle ? size : size,
-              height: isSingle
-                  ? size / ratio
-                  : isQueto
-                      ? size
-                      : size * 2,
+              width: double.infinity,
+              height: double.infinity,
               fit: BoxFit.cover,
               showLoading: false,
               medias: medias,
@@ -1094,10 +1105,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       return _buildImageMedia(media, index, medias,
           radius: radius, isQueto: true);
     } else {
-      String videoUrl = TweetUtil.getGifVideoUrl(media);
-      Media tmp = Media.clone(media);
-      tmp.url = videoUrl;
-      return _buildVideoMedia(tmp, index, medias, radius: radius);
+      return _buildVideoMedia(media, index, medias, radius: radius);
     }
   }
 
@@ -1131,7 +1139,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             );
           case MediaType.animatedGif:
             return _buildGifMedia(
-              medias[0],
+              medias[index],
               index,
               medias,
               isQueto: false,
@@ -1163,7 +1171,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
 
   _buildOperations(Tweet tweet) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
+      margin: EdgeInsets.only(left: widget.isDetail ? 8 : 0, right: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

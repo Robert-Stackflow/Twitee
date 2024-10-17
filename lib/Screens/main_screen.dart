@@ -31,6 +31,7 @@ import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/user_util.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
+import 'package:twitee/Widgets/General/LottieMaterialRefresh/lottie_material_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
 import 'package:twitee/Widgets/Window/window_caption.dart';
@@ -278,12 +279,12 @@ class MainScreenState extends State<MainScreen>
     EasyRefresh.defaultHeaderBuilder = () => MaterialHeader(
           backgroundColor: Theme.of(context).canvasColor,
           color: Theme.of(context).primaryColor,
-          noMoreIcon: Icon(Icons.done_all_rounded,
+          noMoreIcon: Icon(Icons.inbox_rounded,
               color: Theme.of(context).primaryColor),
         );
     EasyRefresh.defaultFooterBuilder = () => LottieCupertinoFooter(
           indicator:
-              LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 1.5),
+              LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 2.5),
         );
     Utils.setSafeMode(HiveUtil.getBool(HiveUtil.enableSafeModeKey,
         defaultValue: defaultEnableSafeMode));
@@ -458,6 +459,7 @@ class MainScreenState extends State<MainScreen>
                     selected:
                         hideNavigator && sidebarChoice == SideBarChoice.Search,
                     icon: Icons.search_rounded,
+                    selectedIcon: Icons.manage_search_rounded,
                     onTap: () async {
                       appProvider.sidebarChoice = SideBarChoice.Search;
                       panelScreenState?.popAll();
@@ -557,7 +559,8 @@ class MainScreenState extends State<MainScreen>
                         RouteUtil.pushDialogRoute(
                             context, const LoginByPasswordScreen());
                       } else {
-                        BottomSheetBuilder.showContextMenu(context, _buildAvatarContextMenuButtons());
+                        BottomSheetBuilder.showContextMenu(
+                            context, _buildAvatarContextMenuButtons());
                       }
                     },
                     child: ItemBuilder.buildAvatar(

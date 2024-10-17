@@ -282,7 +282,7 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
             child: pageOption.child,
           )
         : PhotoView(
-            key: ObjectKey(index),
+            key: ObjectKey("$index${pageOption.imageProvider}"),
             imageProvider: pageOption.imageProvider,
             loadingBuilder: widget.loadingBuilder,
             // backgroundDecoration: widget.backgroundDecoration,

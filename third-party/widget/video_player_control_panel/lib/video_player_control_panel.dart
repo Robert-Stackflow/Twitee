@@ -791,7 +791,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         _buildGestureWidget(),
         if (widget.showDetailPanel)
           Positioned(left: 0, bottom: 0, right: 0, child: _buildBottomPanel()),
-        if (isMobile)
+        if (isMobile && !widget.isGif)
           Center(child: _buildPlayPauseButton(true, iconSize * 2.5)),
         if (!isDesktop && widget.onPrevClicked != null)
           Align(
@@ -1013,7 +1013,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
           _buildBufferingWidget(),
           _buildPanelWidget(),
           if (!widget.showDetailPanel) _buildSmallWidget(),
-          if (!widget.showDetailPanel) _buildSmallFullScreen(),
+          if (!widget.showDetailPanel && !widget.isGif) _buildSmallFullScreen(),
         ],
       ),
     );

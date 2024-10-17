@@ -13,8 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:blur/blur.dart';
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
@@ -115,6 +117,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   fetchUserInfo() async {
     myInfo = HiveUtil.getUserInfo();
     _initPhase = InitPhase.connecting;
+    setState(() {});
     var res = await UserApi.getUserInfo(widget.screenName);
     if (res.success) {
       response = res.data;
@@ -147,6 +150,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       fetchUserInfo();
     });
@@ -156,8 +160,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: ItemBuilder.buildDesktopAppBar(
-          context: context, title: "个人主页", showBack: true),
+      appBar: ResponsiveUtil.isLandscape()
+          ? ItemBuilder.buildDesktopAppBar(
+              context: context, title: "个人主页", showBack: true)
+          : null,
       body: _buildBody(),
     );
   }
@@ -182,10 +188,49 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   _buildMainBody() {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        if (ResponsiveUtil.isMobile())
+          ItemBuilder.buildSliverAppBar(
+            context: context,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
+            title: Text(
+              "个人主页",
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.apply(color: Colors.white),
+            ),
+            leading: ItemBuilder.buildIconButton(
+              context: context,
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            backgroundWidget: _buildBlurBackground(
+                height: kToolbarHeight + MediaQuery.paddingOf(context).top),
+            pinned: true,
+            actions: [
+              ItemBuilder.buildIconButton(
+                context: context,
+                icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                onTap: () {
+                  BottomSheetBuilder.showContextMenu(
+                      context, _buildMoreContextMenuButtons());
+                },
+              ),
+              const SizedBox(width: 5),
+            ],
+            expandedHeight: 140.0,
+            collapsedHeight: kToolbarHeight,
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: _buildBackgroundBanner(),
+            ),
+          ),
         SliverToBoxAdapter(
           child: Column(
             children: [
-              _buildBackgroundBanner(),
+              if (ResponsiveUtil.isLandscape()) _buildBackgroundBanner(),
               _buildUserInfo(),
             ],
           ),
@@ -244,18 +289,48 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     }
   }
 
-  _buildBackgroundBanner() {
-    return SizedBox(
-      height: 180,
-      width: double.infinity,
-      child: ItemBuilder.buildHeroCachedImage(
-        imageUrl: userLegacy?.profileBannerUrl ?? "",
-        context: context,
-        fit: BoxFit.cover,
-        showLoading: false,
-        isOrigin: false,
-      ),
+  Widget _buildBlurBackground({
+    double blurRadius = 10,
+    double? height,
+  }) {
+    return Blur(
+      blur: blurRadius,
+      blurColor: Colors.black12,
+      child: Utils.isNotEmpty(userLegacy?.profileBannerUrl)
+          ? SizedBox(
+              height: height,
+              width: double.infinity,
+              child: ItemBuilder.buildHeroCachedImage(
+                imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
+                context: context,
+                fit: BoxFit.cover,
+                showLoading: false,
+                isOrigin: false,
+              ),
+            )
+          : AssetUtil.load(
+              AssetUtil.banner,
+              fit: BoxFit.cover,
+              height: height,
+              width: double.infinity,
+            ),
     );
+  }
+
+  _buildBackgroundBanner() {
+    return Utils.isNotEmpty(userLegacy?.profileBannerUrl)
+        ? SizedBox(
+            height: 180,
+            width: double.infinity,
+            child: ItemBuilder.buildHeroCachedImage(
+              imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
+              context: context,
+              fit: BoxFit.cover,
+              showLoading: false,
+              isOrigin: false,
+            ),
+          )
+        : AssetUtil.load(AssetUtil.banner, fit: BoxFit.cover);
   }
 
   _buildMoreContextMenuButtons() {
@@ -508,15 +583,17 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   },
                 ),
               const SizedBox(width: 10),
-              ItemBuilder.buildRoundButton(
-                context,
-                icon: const Icon(Icons.more_horiz_rounded),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                onTap: () {
-                  BottomSheetBuilder.showContextMenu(
-                      context, _buildMoreContextMenuButtons());
-                },
-              ),
+              if (ResponsiveUtil.isLandscape())
+                ItemBuilder.buildRoundButton(
+                  context,
+                  icon: const Icon(Icons.more_horiz_rounded),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  onTap: () {
+                    BottomSheetBuilder.showContextMenu(
+                        context, _buildMoreContextMenuButtons());
+                  },
+                ),
             ],
           ),
           const SizedBox(height: 10),

@@ -18,6 +18,7 @@ import 'package:flutter/cupertino.dart';
 
 class AssetUtil {
   static const String avatar = "assets/avatar.png";
+  static const String banner = "assets/banner.jpg";
   static const String searchDarkIcon = "assets/icon/search_dark.png";
   static const String searchGreyIcon = "assets/icon/search_grey.png";
   static const String searchLightIcon = "assets/icon/search_light.png";

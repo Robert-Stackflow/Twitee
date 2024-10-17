@@ -14,6 +14,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
@@ -271,7 +272,7 @@ class PanelScreenState extends State<PanelScreen>
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search_rounded),
-            activeIcon: Icon(Icons.search_rounded),
+            activeIcon: Icon(Icons.manage_search_rounded),
             label: "搜索",
           ),
           BottomNavigationBarItem(
