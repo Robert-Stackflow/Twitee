@@ -22,25 +22,22 @@ dependencies:
   path_drawing: ^1.0.1 # 路径绘制
   auto_size_text: ^3.0.0 # 自适应文本
   flutter_inappwebview: ^6.0.0 # Webview
-  flutter_widget_from_html: ^0.15.2 # 将HTML渲染成组件
+  flutter_widget_from_html_core: ^0.15.2 # 将HTML渲染成组件
+  fwfh_cached_network_image: ^0.14.3
   cached_network_image: ^3.4.1 # 缓存网络图片
   flutter_slidable:
-    path: third-party/flutter_slidable
+    path: third-party/widget/flutter_slidable
   group_button:
-    path: third-party/group_button
+    path: third-party/widget/group_button
   context_menus:
-    path: third-party/context_menus
+    path: third-party/widget/context_menus
   pinput:
-    path: third-party/pinput
-  smart_snackbars:
-    path: third-party/smart_snackbars
+    path: third-party/widget/pinput
   # 视频
   video_player: ^2.9.2
-#  video_player_media_kit: ^1.0.5
-#  media_kit_libs_linux: any
-  video_player_win: ^2.3.11 # 视频播放
+  video_player_win: ^3.1.0
   video_player_control_panel:
-    path: third-party/video_player_control_panel
+    path: third-party/widget/video_player_control_panel
   visibility_detector: ^0.4.0+2 # 可见性检测
   # 存储
   path:
@@ -69,6 +66,8 @@ dependencies:
   pretty_qr_code: ^3.3.0 # 二维码
   local_proxy: ^0.0.3 # 系统代理
   easy_debounce: ^2.0.3 # 防抖
+  biometric_storage:
+    path: third-party/tool/biometric_storage
   # 系统
   provider: ^6.0.5 # 状态管理
   local_auth: ^2.2.0 # 指纹验证
@@ -78,11 +77,9 @@ dependencies:
   share_plus: ^10.0.2 # 分享
   protocol_handler: ^0.2.0 # 协议处理
   url_launcher: ^6.3.0 # URL跳转
-  biometric_storage:
-    path: third-party/biometric_storage
   # 平台适配
   saf:
-    path: third-party/saf
+    path: third-party/tool/saf
   handy_window: ^0.4.0
   native_device_orientation: ^2.0.3 # 设备方向
   process_run: ^1.0.0+1 # 运行
@@ -102,7 +99,7 @@ dependencies:
   local_notifier: ^0.1.6 # 本地通知
   shell_executor: ^0.1.6 # 执行命令
   window_manager:
-    path: third-party/window_manager
+    path: third-party/cross_platform/window_manager
 #  desktop_multi_window:
 #    path: third-party/desktop_multi_window
   # OpenAPI
@@ -124,96 +121,32 @@ dev_dependencies:
   json_serializable: ^6.7.1
   freezed: ^2.5.7
   swagger_parser:
-    path: third-party/swagger_parser
+    path: third-party/tool/swagger_parser
   retrofit_generator: ^9.1.2
 
 swagger_parser:
   schema_path: tools/schemes/compatible.yaml
-
-  # Sets the url of the OpenApi schema.
   schema_url: https://petstore.swagger.io/v2/swagger.json
-
-  # Required. Sets output directory for generated files (Clients and DTOs).
   output_directory: lib/Openapi
-
-  # Optional. Set API name for folder and export file
-  # If not specified, the file name is used.
   name: null
-
-  # Optional. Sets the programming language.
-  # Current available languages are: dart, kotlin.
   language: dart
-
-  # Optional (dart only).
-  # Current available serializers are: json_serializable, freezed, dart_mappable.
   json_serializer: json_serializable
-
-  # Optional. Set default content-type for all requests.
   default_content_type: "application/json"
-
-  # Optional (dart only).
-  # Support @Extras annotation for interceptors.
-  # If the value is 'true', then the annotation will be added to all requests.
   extras_parameter_by_default: false
-
-  # Optional (dart only).
-  # Support @DioOptions annotation for interceptors.
-  # If the value is 'true', then the annotation will be added to all requests.
   dio_options_parameter_by_default: false
-
-  # Optional (dart only). Set 'true' to generate root client
-  # with interface and all clients instances.
   root_client: true
-
-  # Optional (dart only). Set root client name.
   root_client_name: RestClient
-
-  # Optional (dart only). Set 'true' to generate export file.
   export_file: true
-
-  # Optional. Set to 'true' to put the all api in its folder.
   put_in_folder: false
-
-  # Optional. Set 'true' to put all clients in clients folder.
   put_clients_in_folder: false
-
-  # Optional. Set to 'true' to squash all clients in one client.
   merge_clients: false
-
-  # Optional. Set postfix for Client class and file.
   client_postfix: Client
-
-  # Optional. Set 'true' to use only the endpoint path for the method name.
-  # Set 'false' to use operationId
   path_method_name: false
-
-  # Optional (dart only). Set 'true' to include toJson() in enums.
-  # If set to false, serialization will use .name instead.
   enums_to_json: false
-
-  # Optional. Set 'true' to set enum prefix from parent component.
   enums_parent_prefix: true
-
-  # Optional (dart only). Set 'true' to maintain backwards compatibility
-  # when adding new values on the backend.
   unknown_enum_value: true
-
-  # Optional. Set 'false' to not put a comment at the beginning of the generated files.
   mark_files_as_generated: true
-
-  # Optional (dart only). Set 'true' to wrap all request return types with HttpResponse.
   original_http_response: false
-
-  # Optional. Set regex replacement rules for the names of the generated classes/enums.
-  # All rules are applied in order.
-  replacement_rules:
-    # Example of rule
-    - pattern: "[0-9]+"
-      replacement: ""
-
-  # Optional. Skip parameters with names.
-  skipped_parameters:
-    - 'X-Some-Token'
 
 msix_config:
   display_name: Twitee

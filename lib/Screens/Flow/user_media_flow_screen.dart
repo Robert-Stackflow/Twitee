@@ -236,7 +236,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
       TimelineTimelineModule module = entry.content as TimelineTimelineModule;
       tweets.addAll(filterTweet(module.items ?? []));
     }
-    return tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+    return tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
   }
 
   filterTweet(List<ModuleItem?> moduleItems) {
@@ -250,7 +250,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         tweets.add(item.item.itemContent as TimelineTweet);
       }
     }
-    return tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+    return tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
   }
 
   @override

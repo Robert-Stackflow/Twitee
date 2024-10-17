@@ -110,7 +110,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     if (tweetDetailResponse == null || tweetEntry == null) {
       _initPhase = InitPhase.failed;
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   _processEntries(List<TimelineAddEntry> entries) {

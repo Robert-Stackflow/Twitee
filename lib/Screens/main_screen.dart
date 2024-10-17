@@ -537,17 +537,17 @@ class MainScreenState extends State<MainScreen>
                       panelScreenState?.popAll();
                     },
                   ),
-                  const SizedBox(height: 8),
-                  ToolButton(
-                    context: context,
-                    selected: hideNavigator &&
-                        sidebarChoice == SideBarChoice.Download,
-                    icon: Icons.save_alt_rounded,
-                    onTap: () async {
-                      appProvider.sidebarChoice = SideBarChoice.Download;
-                      panelScreenState?.popAll();
-                    },
-                  ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   selected: hideNavigator &&
+                  //       sidebarChoice == SideBarChoice.Download,
+                  //   icon: Icons.save_alt_rounded,
+                  //   onTap: () async {
+                  //     appProvider.sidebarChoice = SideBarChoice.Download;
+                  //     panelScreenState?.popAll();
+                  //   },
+                  // ),
                   const Spacer(),
                   const SizedBox(height: 8),
                   GestureDetector(

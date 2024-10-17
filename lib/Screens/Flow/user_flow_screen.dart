@@ -260,7 +260,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无内容",
+                text: "暂无用户",
                 scrollController: _scrollController,
               ),
       ),

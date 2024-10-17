@@ -21,7 +21,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:group_button/group_button.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
@@ -407,7 +407,10 @@ class ItemBuilder {
             physics: const ClampingScrollPhysics(),
             labelStyle: titleMedium?.apply(
               fontWeightDelta: 2,
-              color: ColorUtil.getComplementaryColor(primaryColor),
+              // color: ColorUtil.getComplementaryColor(primaryColor),
+              color: Utils.isDark(context)
+                  ? Colors.black
+                  : const Color(0xFFF1F1F1),
             ),
             unselectedLabelStyle: titleMedium?.apply(color: Colors.grey),
             indicator: BoxDecoration(
@@ -1772,35 +1775,44 @@ class ItemBuilder {
     int? width,
     int? height,
     double opacity = 0.6,
-    double? borderRadius,
+    double? radius,
     EdgeInsetsGeometry? padding,
     double? fontSizeDelta,
     dynamic icon,
+    Function()? onTap,
   }) {
-    return Container(
-      padding: isCircle
-          ? padding ?? const EdgeInsets.all(5)
-          : padding ?? const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        color: Colors.grey.withOpacity(opacity),
-        borderRadius: isCircle
-            ? null
-            : BorderRadius.all(Radius.circular(borderRadius ?? 50)),
-      ),
-      child: Row(
-        children: [
-          if (icon != null) icon,
-          if (icon != null && Utils.isNotEmpty(text)) const SizedBox(width: 3),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall?.apply(
-                  color: Colors.white,
-                  fontSizeDelta: fontSizeDelta ?? -1,
-                ),
+    return ItemBuilder.buildClickItem(
+      clickable: onTap!=null,
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: isCircle
+              ? padding ?? const EdgeInsets.all(5)
+              : padding ??
+                  const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+            color: Colors.grey.withOpacity(opacity),
+            borderRadius: isCircle
+                ? null
+                : BorderRadius.all(Radius.circular(radius ?? 50)),
           ),
-        ],
+          child: Row(
+            children: [
+              if (icon != null) icon,
+              if (icon != null && Utils.isNotEmpty(text))
+                const SizedBox(width: 3),
+              Text(
+                text,
+                style: Theme.of(context).textTheme.bodySmall?.apply(
+                      color: Colors.white,
+                      fontSizeDelta: fontSizeDelta ?? -1,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

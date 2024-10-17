@@ -21,18 +21,23 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/color_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
+import 'package:video_player/video_player.dart';
+import 'package:video_player_control_panel/video_player_control_panel.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
-import '../../Openapi/models/media.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
+import '../../Utils/ilogger.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
+import '../../Utils/video_player_manager.dart';
 import '../General/PhotoView/photo_view.dart';
 import '../General/PhotoView/photo_view_gallery.dart';
 import '../Item/item_builder.dart';
@@ -84,7 +89,6 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
   late final dynamic initialScale;
   late final dynamic minScale;
   late final dynamic maxScale;
-  String currentUrl = "";
   int currentIndex = 0;
   List<Color> mainColors = [];
   late dynamic downloadIcon;
@@ -94,6 +98,44 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
   late PageController _pageController;
   final List<PhotoViewController> _viewControllers = [];
   bool isHD = false;
+
+  final Map<String, VideoPlayerController> _videoControllers = {};
+  final Map<String, bool> _isVisibleMap = {};
+  final VideoPlaybackManager _playbackManager = VideoPlaybackManager();
+
+  initVideo() {
+    List<Media> videoMedia = widget.medias
+        .where((element) => element.type == MediaType.video)
+        .toList();
+    for (Media media in videoMedia) {
+      _createController(TweetUtil.getMp4Url(media));
+    }
+  }
+
+  _createController(
+    String videoUrl, {
+    bool isGif = false,
+  }) {
+    _videoControllers[videoUrl] = VideoPlayerController.networkUrl(
+      Uri.parse(videoUrl),
+      videoPlayerOptions: VideoPlayerOptions(),
+    );
+    VideoPlayerController controller = _videoControllers[videoUrl]!;
+    controller.initialize().then((value) {
+      if (controller.value.isInitialized) {
+        if (isGif) {
+          controller.setLooping(true);
+          controller.play();
+        } else {
+          if (_isVisibleMap[videoUrl] ?? false) {
+            _playbackManager.play(controller);
+          }
+        }
+      }
+    }).catchError((e, t) {
+      ILogger.error("VideoController", "controller.initialize() error.", e, t);
+    });
+  }
 
   @override
   void initState() {
@@ -110,7 +152,9 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
     _viewControllers.addAll(List.generate(medias.length, (index) {
       return PhotoViewController();
     }));
-    captions = widget.captions ?? [];
+    initVideo();
+    captions =
+        widget.captions ?? medias.map((e) => e.extAltText ?? "").toList();
     minScale = widget.minScale;
     maxScale = widget.maxScale;
     initialScale = widget.initialScale;
@@ -128,14 +172,21 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           HiveUtil.getBool(HiveUtil.followMainColorKey)) {
         ColorUtil.getMainColors(
           context,
-          medias.map((e) => getUrl(medias.indexOf(e))).toList(),
+          medias.map((e) => getImageUrlByMedia(e)).toList(),
         ).then((value) {
           if (mounted) setState(() {});
           mainColors = value;
         });
       }
     }
-    updateCurrentUrl();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    for (VideoPlayerController controller in _videoControllers.values) {
+      controller.dispose();
+    }
   }
 
   @override
@@ -149,7 +200,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
       body: Stack(
         alignment: Alignment.center,
         children: [
-          medias.length == 1 ? _buildSinglePage() : _buildMultiplePage(),
+          _buildMultiplePage(),
           if (getCaption(currentIndex).isNotEmpty)
             Positioned(
               bottom: 60,
@@ -157,7 +208,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
                 child: ItemBuilder.buildTransparentTag(
                   context,
                   text: getCaption(currentIndex),
-                  borderRadius: 8,
+                  radius: 8,
                   opacity: 0.4,
                   fontSizeDelta: 3,
                   padding:
@@ -234,18 +285,27 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
     );
   }
 
-  String getUrl(int index) {
-    String url = TweetUtil.getMediaImageUrl(medias[index]);
+  String getImageUrlByMedia(Media media) {
+    String url = TweetUtil.getMediaImageUrl(media);
     return isHD ? ImageUtil.getOriginalUrl(url) : url;
+  }
+
+  String getPlayUrlByMedia(Media media) {
+    switch (media.type) {
+      case MediaType.photo:
+        return getImageUrlByMedia(media);
+      case MediaType.video:
+        return TweetUtil.getMp4Url(media);
+      case MediaType.animatedGif:
+        return TweetUtil.getGifVideoUrl(media);
+      default:
+        return "";
+    }
   }
 
   getCaption(index) {
     if (index > captions.length - 1) return "";
     return captions[index];
-  }
-
-  updateCurrentUrl() {
-    currentUrl = getUrl(currentIndex);
   }
 
   getPreferedScale(dynamic item) {
@@ -264,36 +324,6 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
         }
       };
 
-  Widget _buildSinglePage() {
-    return Container(
-      constraints: BoxConstraints.expand(
-        height: MediaQuery.sizeOf(context).height,
-      ),
-      child: Listener(
-        onPointerSignal: onPointerSignal,
-        child: PhotoView(
-          controller: _viewControllers[0],
-          imageProvider: CachedNetworkImageProvider(currentUrl, scale: 2),
-          initialScale: getPreferedScale(currentUrl),
-          minScale: minScale,
-          maxScale: maxScale,
-          backgroundDecoration: BoxDecoration(
-              color: Utils.getDarkColor(mainColors[currentIndex])),
-          heroAttributes: PhotoViewHeroAttributes(
-            tag: Utils.getHeroTag(
-              tagPrefix: widget.tagPrefix,
-              url: currentUrl,
-            ),
-          ),
-          loadingBuilder: (context, event) => _buildLoading(
-            event,
-            index: currentIndex,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildMultiplePage() {
     return Listener(
       onPointerSignal: onPointerSignal,
@@ -307,23 +337,39 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           index: currentIndex,
         ),
         builder: (BuildContext context, int index) {
-          return PhotoViewGalleryPageOptions(
-            controller: _viewControllers[index],
-            imageProvider: CachedNetworkImageProvider(getUrl(index)),
-            initialScale: getPreferedScale(medias[index]),
-            minScale: minScale,
-            maxScale: maxScale,
-            heroAttributes: PhotoViewHeroAttributes(
-              tag: Utils.getHeroTag(
-                tagPrefix: widget.tagPrefix,
-                url: getUrl(index),
+          var media = medias[index];
+          if (media.type == MediaType.photo) {
+            return PhotoViewGalleryPageOptions(
+              controller: _viewControllers[index],
+              imageProvider:
+                  CachedNetworkImageProvider(getImageUrlByMedia(media)),
+              initialScale: getPreferedScale(medias[index]),
+              minScale: minScale,
+              maxScale: maxScale,
+              heroAttributes: PhotoViewHeroAttributes(
+                tag: Utils.getHeroTag(
+                  tagPrefix: widget.tagPrefix,
+                  url: getImageUrlByMedia(medias[index]),
+                ),
               ),
-            ),
-            filterQuality: FilterQuality.high,
-            // onTapDown: (_, __, ___) {
-            //   Navigator.pop(context);
-            // },
-          );
+              filterQuality: FilterQuality.high,
+            );
+          } else {
+            return PhotoViewGalleryPageOptions.customChild(
+              controller: _viewControllers[index],
+              child: _buildMedia(medias[index]),
+              minScale: minScale,
+              maxScale: maxScale,
+              initialScale: getPreferedScale(medias[index]),
+              heroAttributes: PhotoViewHeroAttributes(
+                tag: Utils.getHeroTag(
+                  tagPrefix: widget.tagPrefix,
+                  url: getImageUrlByMedia(medias[index]),
+                ),
+              ),
+              filterQuality: FilterQuality.high,
+            );
+          }
         },
         itemCount: medias.length,
         onPageChanged: (index) async {
@@ -332,10 +378,104 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           }
           setState(() {
             currentIndex = index;
-            updateCurrentUrl();
           });
           setDownloadState(DownloadState.none, recover: false);
         },
+      ),
+    );
+  }
+
+  _buildMedia(Media media) {
+    switch (media.type) {
+      case MediaType.video:
+      case MediaType.animatedGif:
+        return _buildVideoMedia(media);
+      default:
+        return emptyWidget;
+    }
+  }
+
+  _buildVideoMedia(
+    Media media, {
+    double radius = 0,
+  }) {
+    double ratio = media.sizes.large.w / media.sizes.large.h;
+    ratio = ratio.clamp(0.8, 2);
+    bool isGif = media.type == MediaType.animatedGif;
+    String videoUrl =
+        isGif ? TweetUtil.getGifVideoUrl(media) : TweetUtil.getMp4Url(media);
+    VideoPlayerController? controller = _videoControllers[videoUrl];
+    if (controller == null) {
+      _createController(videoUrl, isGif: isGif);
+    }
+    controller = _videoControllers[videoUrl];
+    if (controller == null) return emptyWidget;
+    var container = Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      constraints: BoxConstraints(
+          maxHeight: 450, maxWidth: MediaQuery.sizeOf(context).width),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: VideoControlPanel(
+          controller,
+          showClosedCaptionButton: false,
+          showFullscreenButton: false,
+          showDetailPanel: true,
+          showPlayPauseButton: true,
+          showSeekBar: true,
+          isGif: false,
+          showDurationAndPositionText: true,
+          onPlayClicked: () {
+            if (!isGif) {
+              if (controller!.value.isPlaying) {
+                _playbackManager.play(controller);
+              } else {
+                _playbackManager.pause(controller);
+              }
+            }
+          },
+          placeholder: ItemBuilder.buildCachedImage(
+            imageUrl: getImageUrlByMedia(media),
+            context: context,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            showLoading: false,
+          ),
+        ),
+      ),
+    );
+    return VisibilityDetector(
+      key: Key(videoUrl),
+      onVisibilityChanged: (info) {
+        if (!isGif) {
+          VideoPlayerController? videoController = _videoControllers[videoUrl];
+          if (videoController == null) return;
+          bool isVisible = _isVisibleMap[videoUrl] ?? false;
+          if (!isVisible && info.visibleFraction > 0.5) {
+            if (!videoController.value.isPlaying) {
+              _playbackManager.play(videoController);
+            }
+            setState(() {
+              isVisible = true;
+              _isVisibleMap[videoUrl] = true;
+            });
+          } else if (isVisible && info.visibleFraction < 0.5) {
+            if (videoController.value.isPlaying) {
+              _playbackManager.pause(videoController);
+            }
+            setState(() {
+              isVisible = false;
+              _isVisibleMap[videoUrl] = false;
+            });
+          }
+        }
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: container,
       ),
     );
   }
@@ -435,19 +575,32 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
                 )
               : emptyWidget,
       actions: [
-        ToolButton(
-          context: context,
-          iconBuilder: (context) => Icon(
-            isHD ? Icons.hd_rounded : Icons.hd_outlined,
-            color: Colors.white,
-            size: 22,
+        // if (Utils.isNotEmpty(medias[currentIndex].extAltText))
+        //   ToolButton(
+        //     context: context,
+        //     iconBuilder: (context) => const Icon(Icons.text_fields_rounded,
+        //         color: Colors.white, size: 22),
+        //     onTap: () {
+        //       DialogBuilder.showInfoDialog(context,
+        //           title: "ALT", message: medias[currentIndex].extAltText!);
+        //     },
+        //   ),
+        // if (Utils.isNotEmpty(medias[currentIndex].extAltText) &&
+        //     medias[currentIndex].type == MediaType.photo)
+        //   const SizedBox(width: 5),
+        if (medias[currentIndex].type == MediaType.photo)
+          ToolButton(
+            context: context,
+            iconBuilder: (context) => Icon(
+              isHD ? Icons.hd_rounded : Icons.hd_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
+            onTap: () {
+              isHD = !isHD;
+              setState(() {});
+            },
           ),
-          onTap: () {
-            isHD = !isHD;
-            setState(() {});
-            updateCurrentUrl();
-          },
-        ),
         const SizedBox(width: 5),
         ToolButton(
           context: context,
@@ -456,10 +609,21 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
             child: AssetUtil.load(AssetUtil.linkWhiteIcon),
           ),
           onTap: () {
+            String toast = "已复制图片链接";
+            switch (medias[currentIndex].type) {
+              case MediaType.video:
+                toast = "已复制视频链接";
+                break;
+              case MediaType.animatedGif:
+                toast = "已复制GIF链接";
+                break;
+              default:
+                break;
+            }
             Utils.copy(
               context,
-              currentUrl,
-              toastText: "已复制图片链接",
+              getPlayUrlByMedia(medias[currentIndex]),
+              toastText: toast,
             );
           },
         ),
@@ -471,7 +635,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           onTap: () {
             ImageUtil.shareImage(
               context,
-              currentUrl,
+              getImageUrlByMedia(medias[currentIndex]),
             );
           },
         ),

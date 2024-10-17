@@ -32,13 +32,14 @@ import 'package:video_player_control_panel/video_player_control_panel.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Api/post_api.dart';
-import '../../Models/translation_result.dart';
 import '../../Openapi/export.dart';
 import '../../Screens/Detail/tweet_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/ilogger.dart';
+import '../../Utils/route_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../Custom/hero_media_view_screen.dart';
 
 class PostItem extends StatefulWidget {
   const PostItem({
@@ -79,66 +80,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     initVideo(widget.entry);
   }
 
-  bool hasVideo(Tweet tweet) {
-    return hasMedia(tweet) &&
-        tweet.legacy!.entities.media!.length == 1 &&
-        tweet.legacy!.entities.media![0]!.type == MediaType.video;
-  }
-
-  bool hasMedia(Tweet tweet) {
-    return tweet.legacy!.entities.media != null;
-  }
-
-  bool hasQueto(Tweet tweet) {
-    return tweet.quotedStatusResult != null;
-  }
-
-  bool hasTranslation(Tweet tweet) {
-    String translation = _getTranslation(tweet);
-    return Utils.isNotEmpty(translation);
-  }
-
-  bool hasRichContent(Tweet tweet) {
-    return hasMedia(tweet) || hasQueto(tweet) || hasTranslation(tweet);
-  }
-
-  List<Media> getMedia(Tweet tweet) {
-    if (!hasMedia(tweet)) return [];
-    return tweet.legacy!.entities.media!
-        .where((element) => element != null)
-        .map((e) => e as Media)
-        .toList();
-  }
-
-  List<Media> getVideoMedia(Tweet tweet) {
-    List<Media> media = getMedia(tweet);
-    return media.where((element) => element.type == MediaType.video).toList();
-  }
-
-  List<Media> getGiftMedia(Tweet tweet) {
-    List<Media> media = getMedia(tweet);
-    return media
-        .where((element) => element.type == MediaType.animatedGif)
-        .toList();
-  }
-
-  String getMp4Url(Media media) {
-    List<MediaVideoInfoVariant> videoList = media.videoInfo!.variants
-        .where((element) => element.contentType == "video/mp4")
-        .toList();
-    videoList.sort((a, b) => b.bitrate!.compareTo(a.bitrate!));
-    return videoList[0].url;
-  }
-
   initVideo(TimelineAddEntry entry) {
     if (_isConversation) {
     } else {
       var timelineTweet =
           (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
       Tweet? tweet = TweetUtil.getTrueTweet(timelineTweet);
-      if (tweet != null && hasVideo(tweet)) {
-        for (Media media in getVideoMedia(tweet)) {
-          _createController(getMp4Url(media));
+      if (tweet != null && TweetUtil.hasVideo(tweet)) {
+        for (Media media in TweetUtil.getVideoMedia(tweet)) {
+          _createController(TweetUtil.getMp4Url(media));
         }
       }
     }
@@ -148,17 +98,20 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     String videoUrl, {
     bool isGif = false,
   }) {
-    _videoControllers[videoUrl] =
-        VideoPlayerController.networkUrl(Uri.parse(videoUrl));
-    _videoControllers[videoUrl]!.initialize().then((value) {
-      if (_videoControllers[videoUrl]!.value.isInitialized) {
-        if (!isGif) {
-          if (_isVisibleMap[videoUrl] ?? false) {
-            _playbackManager.play(_videoControllers[videoUrl]!);
-          }
+    _videoControllers[videoUrl] = VideoPlayerController.networkUrl(
+      Uri.parse(videoUrl),
+      videoPlayerOptions: VideoPlayerOptions(),
+    );
+    VideoPlayerController controller = _videoControllers[videoUrl]!;
+    controller.initialize().then((value) {
+      if (controller.value.isInitialized) {
+        if (isGif) {
+          controller.setLooping(true);
+          controller.play();
         } else {
-          _videoControllers[videoUrl]!.setLooping(true);
-          _videoControllers[videoUrl]!.play();
+          if (_isVisibleMap[videoUrl] ?? false) {
+            _playbackManager.play(controller);
+          }
         }
       }
     }).catchError((e, t) {
@@ -426,16 +379,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   title: "取消关注 @$screenName？",
                   message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                   onTapConfirm: () async {
-                // var res = await UserApi.unfollow(userId: user.restId!);
-                    print("object");
+                var res = await UserApi.unfollow(userId: user.restId!);
                 IToast.showSnackBar("正在", buttonText: "撤销");
-                // if (res.success) {
-                //   user.legacy.following = false;
-                //   setState(() {});
-                //   IToast.showTop("已取消关注@$screenName");
-                // } else {
-                //   IToast.showTop("取消关注@$screenName失败");
-                // }
+                if (res.success) {
+                  user.legacy.following = false;
+                  setState(() {});
+                  IToast.showTop("已取消关注@$screenName");
+                } else {
+                  IToast.showTop("取消关注@$screenName失败");
+                }
               });
             } else {
               var res = await UserApi.follow(userId: user.restId!);
@@ -716,7 +668,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Tweet tweet, {
     double bottom = 8,
   }) {
-    String fullText = _getFullText(tweet);
+    String fullText = TweetUtil.getFullText(tweet);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -730,14 +682,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ),
         if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
         ..._buildTranslation(tweet),
-        if (hasTranslation(tweet) && (hasMedia(tweet) || hasQueto(tweet)))
+        if (TweetUtil.hasTranslation(tweet) &&
+            (TweetUtil.hasMedia(tweet) || TweetUtil.hasQueto(tweet)))
           const SizedBox(height: 8),
-        if (hasMedia(tweet)) _buildMedia(tweet),
-        if (hasMedia(tweet) && hasQueto(tweet)) const SizedBox(height: 8),
-        if (hasQueto(tweet))
+        if (TweetUtil.hasMedia(tweet)) _buildMedia(tweet),
+        if (TweetUtil.hasMedia(tweet) && TweetUtil.hasQueto(tweet))
+          const SizedBox(height: 8),
+        if (TweetUtil.hasQueto(tweet))
           _buildQuoteTweet(
               TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
-        SizedBox(height: hasRichContent(tweet) ? 12 : 4),
+        SizedBox(height: TweetUtil.hasRichContent(tweet) ? 12 : 4),
         _buildOperations(tweet),
         SizedBox(height: bottom),
       ],
@@ -792,7 +746,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildTranslation(Tweet tweet) {
-    String translation = _getTranslation(tweet);
+    String translation = TweetUtil.getTranslation(tweet);
     if (Utils.isNotEmpty(translation)) {
       return [
         Container(
@@ -940,7 +894,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(radius),
             border: Border.all(
               color: Theme.of(context).dividerColor,
               width: 0.5,
@@ -971,7 +925,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             child: ItemBuilder.buildTransparentTag(
               context,
               text: "GIF",
-              borderRadius: 4,
+              radius: 4,
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             ),
           ),
@@ -982,9 +936,20 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             child: ItemBuilder.buildTransparentTag(
               context,
               text: "视频",
-              borderRadius: 4,
+              radius: 4,
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             ),
+          ),
+        if (!isQueto && Utils.isNotEmpty(media.extAltText))
+          ItemBuilder.buildTransparentTag(
+            context,
+            text: "ALT",
+            radius: 4,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            onTap: () {
+              DialogBuilder.showInfoDialog(context,
+                  title: "ALT", message: media.extAltText!);
+            },
           ),
       ],
     );
@@ -994,7 +959,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Media media,
     int index,
     List<Media> medias, {
-    bool showPanel = false,
+    bool showDetailPanel = false,
     bool isQueto = false,
     bool isSingle = false,
     double size = 80,
@@ -1007,10 +972,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       double ratio = media.sizes.large.w / media.sizes.large.h;
       ratio = ratio.clamp(0.8, 2);
       bool isGif = media.type == MediaType.animatedGif;
-      String videoUrl = isGif ? media.url : getMp4Url(media);
+      String videoUrl =
+          isGif ? TweetUtil.getGifVideoUrl(media) : TweetUtil.getMp4Url(media);
       VideoPlayerController? controller = _videoControllers[videoUrl];
       if (controller == null) {
-        _createController(videoUrl, isGif: true);
+        _createController(videoUrl, isGif: isGif);
       }
       controller = _videoControllers[videoUrl];
       if (controller == null) return emptyWidget;
@@ -1026,11 +992,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           child: VideoControlPanel(
             controller,
             showClosedCaptionButton: false,
-            showFullscreenButton: false,
-            showPanel: showPanel,
+            showFullscreenButton: true,
+            showDetailPanel: showDetailPanel && !isGif,
             showPlayPauseButton: true,
             showSeekBar: true,
+            isGif: isGif,
             showDurationAndPositionText: true,
+            onAltClicked: () {
+              DialogBuilder.showInfoDialog(context,
+                  title: "ALT", message: media.extAltText!);
+            },
+            showAltButton: !isQueto && Utils.isNotEmpty(media.extAltText),
             onPlayEnded: () {
               _hasPlayedOnceMap[videoUrl] = true;
             },
@@ -1043,6 +1015,33 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 }
               }
             },
+            onFullscreenClicked: () {
+              RouteUtil.pushDialogRoute(
+                context,
+                showClose: false,
+                fullScreen: true,
+                useMaterial: true,
+                HeroMediaViewScreen(
+                  medias: medias,
+                  useMainColor: false,
+                  initIndex: index,
+                ),
+              );
+            },
+            placeholder: ItemBuilder.buildMediaHeroCachedImage(
+              context: context,
+              width: isSingle ? size : size,
+              height: isSingle
+                  ? size / ratio
+                  : isQueto
+                      ? size
+                      : size * 2,
+              fit: BoxFit.cover,
+              showLoading: false,
+              medias: medias,
+              index: index,
+              simpleError: isQueto,
+            ),
           ),
         ),
       );
@@ -1074,27 +1073,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             }
           }
         },
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(radius),
-              child: isSingle
-                  ? AspectRatio(aspectRatio: ratio, child: container)
-                  : container,
-            ),
-            if (media.type == MediaType.animatedGif)
-              Positioned(
-                left: 10,
-                bottom: 10,
-                child: ItemBuilder.buildTransparentTag(
-                  context,
-                  text: "GIF",
-                  borderRadius: 4,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                ),
-              ),
-          ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: isSingle
+              ? AspectRatio(aspectRatio: ratio, child: container)
+              : container,
         ),
       );
     }
@@ -1119,8 +1102,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildMedia(Tweet tweet) {
-    if (!hasMedia(tweet)) return emptyWidget;
-    List<Media> medias = getMedia(tweet);
+    if (!TweetUtil.hasMedia(tweet)) return emptyWidget;
+    List<Media> medias = TweetUtil.getMedia(tweet);
     List<MediaSize> sizes = medias.map((e) => e.sizes.large).toList();
     bool isSingle = medias.length == 1;
     return TwitterImageGrid(
@@ -1144,7 +1127,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               medias,
               size: double.infinity,
               radius: isSingle ? 12 : 0,
-              showPanel: isSingle,
+              showDetailPanel: isSingle,
             );
           case MediaType.animatedGif:
             return _buildGifMedia(
@@ -1162,8 +1145,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildQuetoMedia(Tweet tweet) {
-    if (!hasMedia(tweet)) return emptyWidget;
-    List<Media> media = getMedia(tweet);
+    if (!TweetUtil.hasMedia(tweet)) return emptyWidget;
+    List<Media> media = TweetUtil.getMedia(tweet);
     switch (media[0].type) {
       case MediaType.photo:
         return _buildImageMedia(media[0], 0, media,
@@ -1389,38 +1372,5 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ],
       ),
     );
-  }
-
-  _getFullText(Tweet tweet) {
-    String fullText = tweet.legacy!.fullText!;
-    try {
-      fullText = _processTweetFullText(tweet);
-    } catch (e, t) {
-      ILogger.error("Twitee", "Failed to process tweet", e, t);
-    }
-    return fullText;
-  }
-
-  _getTranslation(Tweet tweet) {
-    String translation = tweet.translation?.translation ?? "";
-    try {
-      translation = _processTweetTranslation(tweet.translation);
-    } catch (e, t) {
-      ILogger.error("Twitee", "Failed to process tweet", e, t);
-    }
-    return translation;
-  }
-
-  String _processTweetTranslation(TranslationResult? result) {
-    if (result == null) return "";
-    String fullText = result.translation;
-    Entities entities = result.entities;
-    return TweetUtil.processWithEntities(fullText, entities);
-  }
-
-  String _processTweetFullText(Tweet tweet) {
-    String fullText = tweet.legacy!.fullText!;
-    Entities entities = tweet.legacy!.entities;
-    return TweetUtil.processWithEntities(fullText, entities);
   }
 }

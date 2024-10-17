@@ -118,7 +118,6 @@ class FriendshipScreenState extends State<FriendshipScreen>
           _tabController,
           tabDataList.tabList,
           onTap: onTapTab,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
           autoScrollable: false,
         ),
       ),

@@ -8,9 +8,11 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/utils.dart';
 
 import '../Openapi/models/media.dart';
+import '../Openapi/models/media_type.dart';
 import 'file_util.dart';
 import 'hive_util.dart';
 import 'itoast.dart';
@@ -21,7 +23,6 @@ class ImageUtil {
   }
 
   static String getOriginalUrl(String url) {
-    print("getOriginalUrl: $url ${FileUtil.getFileExtension(url)}");
     if (FileUtil.getFileExtension(url) == "jpg") {
       return "$url?format=jpg&name=orig";
     } else if (FileUtil.getFileExtension(url) == "png") {
@@ -93,12 +94,13 @@ class ImageUtil {
         image.imageUrl,
         headers: headers,
       );
-      File copiedFile = await copyAndRenameFile(
-          file, fileName ?? FileUtil.getFileNameWithExtension(imageUrl));
+      String finalFileName =
+          fileName ?? FileUtil.getFileNameWithExtension(imageUrl);
+      File copiedFile = await copyAndRenameFile(file, finalFileName);
       if (ResponsiveUtil.isMobile()) {
         var result = await ImageGallerySaver.saveFile(
           copiedFile.path,
-          name: fileName ?? FileUtil.getFileName(imageUrl),
+          name: finalFileName,
         );
         bool success = result != null && result['isSuccess'];
         if (showToast) {
@@ -112,8 +114,7 @@ class ImageUtil {
       } else {
         String? saveDirectory = await checkSaveDirectory(context);
         if (Utils.isNotEmpty(saveDirectory)) {
-          String newPath =
-              '$saveDirectory/${fileName ?? FileUtil.getFileName(imageUrl)}';
+          String newPath = '$saveDirectory/$finalFileName';
           await copiedFile.copy(newPath);
           if (showToast) {
             IToast.showTop("图片已保存至$saveDirectory");
@@ -167,14 +168,22 @@ class ImageUtil {
     Media media, {
     bool showToast = true,
   }) async {
-    return saveImage(context, media.url,
-        fileName: getFileNameByMedia(media), showToast: showToast);
-  }
-
-  static getFileNameByMedia(Media media) {
-    String fileName = FileUtil.getFileName(
-        media.mediaUrlHttps ?? "${DateTime.now().millisecondsSinceEpoch}.jpg");
-    return fileName;
+    switch (media.type) {
+      case MediaType.photo:
+        String url =
+            ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media));
+        return saveImage(
+          context,
+          ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media)),
+          fileName: FileUtil.getFileNameWithExtension(url),
+          showToast: showToast,
+        );
+      case MediaType.video:
+      case MediaType.animatedGif:
+        return saveVideoByMedia(context, media, showToast: showToast);
+      default:
+        return false;
+    }
   }
 
   static Future<bool> saveMedias(
@@ -190,10 +199,10 @@ class ImageUtil {
       if (showToast) {
         if (result) {
           if (ResponsiveUtil.isMobile()) {
-            IToast.showTop("所有图片已保存至相册");
+            IToast.showTop("所有图片或视频已保存至相册");
           } else {
             String? saveDirectory = await checkSaveDirectory(context);
-            IToast.showTop("所有图片已保存至$saveDirectory");
+            IToast.showTop("所有图片或视频已保存至$saveDirectory");
           }
         } else {
           IToast.showTop("保存失败，请重试");
@@ -235,10 +244,16 @@ class ImageUtil {
     bool showToast = true,
     Function(int, int)? onReceiveProgress,
   }) async {
+    String url = "";
+    if (media.type == MediaType.video) {
+      url = TweetUtil.getMp4Url(media);
+    } else {
+      url = TweetUtil.getGifVideoUrl(media);
+    }
     return saveVideo(
       context,
-      media.url,
-      fileName: getFileNameByMedia(media),
+      url,
+      fileName: FileUtil.getFileNameWithExtension(url),
       showToast: showToast,
       onReceiveProgress: onReceiveProgress,
     );
@@ -253,13 +268,15 @@ class ImageUtil {
   }) async {
     try {
       var appDocDir = await getTemporaryDirectory();
-      String savePath = appDocDir.path + FileUtil.getFileName(videoUrl);
+      String finalFileName =
+          fileName ?? FileUtil.getFileNameWithExtension(videoUrl);
+      String savePath = appDocDir.path + finalFileName;
       await Dio()
           .download(videoUrl, savePath, onReceiveProgress: onReceiveProgress);
       if (ResponsiveUtil.isMobile()) {
         var result = await ImageGallerySaver.saveFile(
           savePath,
-          name: fileName ?? FileUtil.getFileName(videoUrl),
+          name: finalFileName,
         );
         bool success = result != null && result['isSuccess'];
         if (showToast) {
@@ -273,8 +290,7 @@ class ImageUtil {
       } else {
         String? saveDirectory = await checkSaveDirectory(context);
         if (Utils.isNotEmpty(saveDirectory)) {
-          String newPath =
-              '$saveDirectory/${fileName ?? FileUtil.getFileName(videoUrl)}';
+          String newPath = '$saveDirectory/$finalFileName';
           await File(savePath).copy(newPath);
           if (showToast) {
             IToast.showTop("视频已保存至$saveDirectory");

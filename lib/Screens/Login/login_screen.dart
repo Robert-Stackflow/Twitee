@@ -383,7 +383,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         children: [
           const SizedBox(height: 50),
           SizedBox(
-            height: 230,
+            height: 235,
             child: PageView.builder(
               controller: controller,
               itemCount: LoginPhase.phases.length,

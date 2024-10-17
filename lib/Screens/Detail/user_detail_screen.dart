@@ -22,6 +22,7 @@ import 'package:twitee/Screens/Navigation/friendship_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
+import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
@@ -29,6 +30,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../Api/user_api.dart';
 import '../../Models/tab_item_data.dart';
+import '../../Models/user_info.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
@@ -71,6 +73,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   ScrollController? primaryController;
 
+  UserInfo? myInfo;
+
+  bool get isMyself => myInfo?.idStr == user!.restId!;
+
   initTab() {
     primaryController = PrimaryScrollController.of(context);
     tabDataList.addAll([
@@ -107,6 +113,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   }
 
   fetchUserInfo() async {
+    myInfo = HiveUtil.getUserInfo();
     _initPhase = InitPhase.connecting;
     var res = await UserApi.getUserInfo(widget.screenName);
     if (res.success) {
@@ -256,90 +263,93 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     String url = userLegacy?.url ?? "https://twitter.com/$screenName";
     return GenericContextMenu(
       buttonConfigs: [
-        ContextMenuButtonConfig(
-          "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: Icon(
-                  userLegacy?.blocking ?? false
-                      ? Icons.favorite_border_rounded
-                      : Icons.heart_broken_outlined,
-                  size: 20)),
-          onPressed: () async {
-            if (userLegacy?.blocking ?? false) {
-              var res = await UserApi.unblock(userId: user!.restId!);
-              if (res.success) {
-                userLegacy?.blocking = false;
-                if (mounted) setState(() {});
-                IToast.showTop("已取消屏蔽@$screenName");
+        if (!isMyself)
+          ContextMenuButtonConfig(
+            "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: Icon(
+                    userLegacy?.blocking ?? false
+                        ? Icons.favorite_border_rounded
+                        : Icons.heart_broken_outlined,
+                    size: 20)),
+            onPressed: () async {
+              if (userLegacy?.blocking ?? false) {
+                var res = await UserApi.unblock(userId: user!.restId!);
+                if (res.success) {
+                  userLegacy?.blocking = false;
+                  if (mounted) setState(() {});
+                  IToast.showTop("已取消屏蔽@$screenName");
+                } else {
+                  IToast.showTop("取消屏蔽@$screenName失败");
+                }
               } else {
-                IToast.showTop("取消屏蔽@$screenName失败");
+                DialogBuilder.showConfirmDialog(
+                  context,
+                  title: "屏蔽 @$screenName？",
+                  message: "他们将无法关注你或查看你的帖子，而你也将无法看到 @$screenName 的帖子或通知。",
+                  onTapConfirm: () async {
+                    var res = await UserApi.block(userId: user!.restId!);
+                    if (res.success) {
+                      userLegacy?.blocking = true;
+                      if (mounted) setState(() {});
+                      IToast.showTop("已屏蔽@$screenName");
+                    } else {
+                      IToast.showTop("屏蔽@$screenName失败");
+                    }
+                  },
+                );
               }
-            } else {
-              DialogBuilder.showConfirmDialog(
-                context,
-                title: "屏蔽 @$screenName？",
-                message: "他们将无法关注你或查看你的帖子，而你也将无法看到 @$screenName 的帖子或通知。",
-                onTapConfirm: () async {
-                  var res = await UserApi.block(userId: user!.restId!);
-                  if (res.success) {
-                    userLegacy?.blocking = true;
-                    if (mounted) setState(() {});
-                    IToast.showTop("已屏蔽@$screenName");
-                  } else {
-                    IToast.showTop("屏蔽@$screenName失败");
-                  }
-                },
-              );
-            }
-          },
-        ),
-        ContextMenuButtonConfig(
-          "${userLegacy?.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: Icon(
-                  userLegacy?.muting ?? false
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 20)),
-          onPressed: () async {
-            if (userLegacy?.muting ?? false) {
-              var res = await UserApi.unmute(userId: user!.restId!);
-              if (res.success) {
-                userLegacy?.muting = false;
-                if (mounted) setState(() {});
-                IToast.showTop("已取消隐藏@$screenName");
+            },
+          ),
+        if (!isMyself)
+          ContextMenuButtonConfig(
+            "${userLegacy?.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: Icon(
+                    userLegacy?.muting ?? false
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 20)),
+            onPressed: () async {
+              if (userLegacy?.muting ?? false) {
+                var res = await UserApi.unmute(userId: user!.restId!);
+                if (res.success) {
+                  userLegacy?.muting = false;
+                  if (mounted) setState(() {});
+                  IToast.showTop("已取消隐藏@$screenName");
+                } else {
+                  IToast.showTop("取消隐藏@$screenName失败");
+                }
               } else {
-                IToast.showTop("取消隐藏@$screenName失败");
+                DialogBuilder.showConfirmDialog(
+                  context,
+                  title: "隐藏 @$screenName？",
+                  message: "你将无法在为你推荐或已关注中看到 @$screenName 的帖子或通知。",
+                  onTapConfirm: () async {
+                    var res = await UserApi.mute(userId: user!.restId!);
+                    if (res.success) {
+                      userLegacy?.muting = true;
+                      if (mounted) setState(() {});
+                      IToast.showTop("已隐藏@$screenName");
+                    } else {
+                      IToast.showTop("隐藏@$screenName失败");
+                    }
+                  },
+                );
               }
-            } else {
-              DialogBuilder.showConfirmDialog(
-                context,
-                title: "隐藏 @$screenName？",
-                message: "你将无法在为你推荐或已关注中看到 @$screenName 的帖子或通知。",
-                onTapConfirm: () async {
-                  var res = await UserApi.mute(userId: user!.restId!);
-                  if (res.success) {
-                    userLegacy?.muting = true;
-                    if (mounted) setState(() {});
-                    IToast.showTop("已隐藏@$screenName");
-                  } else {
-                    IToast.showTop("隐藏@$screenName失败");
-                  }
-                },
-              );
-            }
-          },
-        ),
-        ContextMenuButtonConfig(
-          "从列表添加或移除 @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.playlist_add_rounded, size: 20)),
-          onPressed: () async {},
-        ),
-        ContextMenuButtonConfig.divider(),
+            },
+          ),
+        if (!isMyself)
+          ContextMenuButtonConfig(
+            "从列表添加或移除 @$screenName",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: const Icon(Icons.playlist_add_rounded, size: 20)),
+            onPressed: () async {},
+          ),
+        if (!isMyself) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享用户",
           icon: Container(
@@ -451,53 +461,52 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                           .bodySmall
                           ?.apply(fontSizeDelta: 2),
                     ),
-                    if (ResponsiveUtil.isLandscape()) const SizedBox(height: 3),
-                    if (ResponsiveUtil.isLandscape()) metaRow,
                   ],
                 ),
               ),
               const SizedBox(width: 10),
-              ItemBuilder.buildRoundButton(
-                context,
-                text: userLegacy!.isFriend
-                    ? "互相关注"
-                    : userLegacy!.following ?? false
-                        ? "正在关注"
-                        : "关注",
-                background: userLegacy!.isFriend
-                    ? Colors.green
-                    : userLegacy!.following ?? false
-                        ? null
-                        : Theme.of(context).primaryColor,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                onTap: () async {
-                  if (userLegacy!.following ?? false) {
-                    DialogBuilder.showConfirmDialog(context,
-                        title: "取消关注 @$screenName？",
-                        message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
-                        onTapConfirm: () async {
-                      var res = await UserApi.unfollow(userId: screenName);
-                      if (res.success) {
-                        userLegacy!.following = false;
-                        if (mounted) setState(() {});
-                        IToast.showTop("已取消关注@$screenName");
-                      } else {
-                        IToast.showTop("取消关注@$screenName失败");
-                      }
-                    });
-                  } else {
-                    var res = await UserApi.follow(userId: screenName);
-                    if (res.success) {
-                      userLegacy!.following = true;
-                      if (mounted) setState(() {});
-                      IToast.showTop("已关注@$screenName");
+              if (!isMyself)
+                ItemBuilder.buildRoundButton(
+                  context,
+                  text: userLegacy!.isFriend
+                      ? "互相关注"
+                      : userLegacy!.following ?? false
+                          ? "正在关注"
+                          : "关注",
+                  background: userLegacy!.isFriend
+                      ? Colors.green
+                      : userLegacy!.following ?? false
+                          ? null
+                          : Theme.of(context).primaryColor,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  onTap: () async {
+                    if (userLegacy!.following ?? false) {
+                      DialogBuilder.showConfirmDialog(context,
+                          title: "取消关注 @$screenName？",
+                          message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
+                          onTapConfirm: () async {
+                        var res = await UserApi.unfollow(userId: user!.restId!);
+                        if (res.success) {
+                          userLegacy!.following = false;
+                          if (mounted) setState(() {});
+                          IToast.showTop("已取消关注@$screenName");
+                        } else {
+                          IToast.showTop("取消关注@$screenName失败");
+                        }
+                      });
                     } else {
-                      IToast.showTop("关注@$screenName失败");
+                      var res = await UserApi.follow(userId: user!.restId!);
+                      if (res.success) {
+                        userLegacy!.following = true;
+                        if (mounted) setState(() {});
+                        IToast.showTop("已关注@$screenName");
+                      } else {
+                        IToast.showTop("关注@$screenName失败");
+                      }
                     }
-                  }
-                },
-              ),
+                  },
+                ),
               const SizedBox(width: 10),
               ItemBuilder.buildRoundButton(
                 context,
@@ -510,8 +519,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ),
             ],
           ),
-          if (ResponsiveUtil.isMobile()) const SizedBox(height: 10),
-          if (ResponsiveUtil.isMobile()) metaRow,
+          const SizedBox(height: 10),
+          metaRow,
           const SizedBox(height: 10),
           Wrap(
             spacing: 20,
@@ -549,7 +558,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          if (friendList.isNotEmpty) const SizedBox(height: 10),
           if (friendList.isNotEmpty)
             _buildCountItem(
               title: "关注了此账号",

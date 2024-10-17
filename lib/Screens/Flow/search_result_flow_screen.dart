@@ -272,7 +272,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         }
       }
     }
-    gridTweets = tweets.where((e) => TweetUtil.hasMedia(e)).toList();
+    gridTweets = tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
   }
 
   @override

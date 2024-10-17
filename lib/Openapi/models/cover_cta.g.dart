@@ -6,8 +6,9 @@ part of 'cover_cta.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CoverCta _$CoverCtaFromJson(Map<String, dynamic> json) => CoverCta(
-      text: json['Text'] as String,
+CoverCta _$CoverCtaFromJson(Map<String, dynamic> json) =>
+    CoverCta(
+      text: json['Text'] != null ? json['Text'] as String : "",
       buttonStyle: json['buttonStyle'] == null
           ? null
           : CoverCtaButtonStyle.fromJson(json['buttonStyle'] as String),
@@ -20,7 +21,8 @@ CoverCta _$CoverCtaFromJson(Map<String, dynamic> json) => CoverCta(
           json['ctaBehavior'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$CoverCtaToJson(CoverCta instance) => <String, dynamic>{
+Map<String, dynamic> _$CoverCtaToJson(CoverCta instance) =>
+    <String, dynamic>{
       'Text': instance.text,
       'buttonStyle': _$CoverCtaButtonStyleEnumMap[instance.buttonStyle],
       'callbacks': instance.callbacks,

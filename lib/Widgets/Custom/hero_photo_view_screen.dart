@@ -154,7 +154,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
                 child: ItemBuilder.buildTransparentTag(
                   context,
                   text: getCaption(currentIndex),
-                  borderRadius: 8,
+                  radius: 8,
                   opacity: 0.4,
                   fontSizeDelta: 3,
                   padding:

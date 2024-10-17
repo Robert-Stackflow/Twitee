@@ -1,4 +1,0 @@
-enum AnimateFrom {
-  fromTop,
-  fromBottom,
-}
