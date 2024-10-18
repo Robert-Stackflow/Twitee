@@ -145,7 +145,7 @@ class HomeScreenState extends State<HomeScreen>
           ),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: tabDataList.scrollControllerList,

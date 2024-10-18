@@ -281,10 +281,13 @@ class _LikeScreenState extends State<LikeScreen>
               child: !_inited || validEntries.isNotEmpty
                   ? WaterfallFlow.extent(
                       controller: _scrollController,
-                      padding: const EdgeInsets.all(8),
+                      padding: ResponsiveUtil.isLandscape()
+                          ? const EdgeInsets.all(8)
+                              .add(const EdgeInsets.only(bottom: 16))
+                          : const EdgeInsets.only(bottom: 16),
+                      mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                       maxCrossAxisExtent: 600,
                       crossAxisSpacing: 6,
-                      mainAxisSpacing: 6,
                       children: List.generate(
                         validEntries.length,
                         (index) {
@@ -305,7 +308,7 @@ class _LikeScreenState extends State<LikeScreen>
           ),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
               hideDirection: Axis.vertical,

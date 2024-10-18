@@ -367,7 +367,7 @@ class SearchScreenState extends State<SearchScreen>
             _buildTrend(),
             Positioned(
               right: ResponsiveUtil.isLandscape() ? 16 : 12,
-              bottom: ResponsiveUtil.isLandscape() ? 16 : 70,
+              bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
               child: ScrollToHide(
                 controller: _scrollToHideController,
                 scrollControllers: trendTabDataList.scrollControllerList,

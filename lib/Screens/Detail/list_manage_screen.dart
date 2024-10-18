@@ -233,11 +233,13 @@ class _ListManageScreenState extends State<ListManageScreen>
               noMore: _noMore,
               child: WaterfallFlow.extent(
                 controller: _scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   validItems.length,
                   (index) {

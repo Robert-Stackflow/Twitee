@@ -6,6 +6,7 @@ import '../../Openapi/models/user_legacy.dart';
 import '../../Screens/Detail/user_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/itoast.dart';
+import '../../Utils/responsive_util.dart';
 import '../Dialog/dialog_builder.dart';
 import '../Item/item_builder.dart';
 
@@ -24,19 +25,22 @@ class _UserItemState extends State<UserItem> {
   @override
   Widget build(BuildContext context) {
     String screenName = user.screenName ?? user.name;
+    var radius = ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
     return ItemBuilder.buildClickItem(
       Material(
         color: Theme.of(context).canvasColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: radius,
         child: InkWell(
           onTap: () {
             panelScreenState
                 ?.pushPage(UserDetailScreen(screenName: screenName));
           },
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: radius,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: radius,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(

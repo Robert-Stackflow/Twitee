@@ -257,46 +257,57 @@ class PanelScreenState extends State<PanelScreen>
       scrollControllers: getScrollControllers(),
       hideDirection: Axis.vertical,
       useOpacityAnimation: true,
-      child: MyBottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
-        showSelectedLabels: false,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
-            label: "首页",
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_rounded),
-            activeIcon: Icon(Icons.manage_search_rounded),
-            label: "搜索",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_border_rounded),
-            activeIcon: Icon(Icons.bookmark_rounded),
-            label: "收藏",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border_rounded),
-            activeIcon: Icon(Icons.favorite_rounded),
-            label: "喜欢",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.featured_play_list_outlined),
-            activeIcon: Icon(Icons.featured_play_list_rounded),
-            label: "列表",
-          ),
-        ],
-        onTap: (index) {
-          jumpToPage(index);
-        },
-        onDoubleTap: (index) {
-          jumpToPage(index);
-        },
+        ),
+        child: MyBottomNavigationBar(
+          currentIndex: _currentIndex,
+          selectedItemColor: Theme.of(context).primaryColor,
+          showSelectedLabels: false,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: false,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined,size: 28),
+              activeIcon: Icon(Icons.home_rounded,size: 28),
+              label: "首页",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search_rounded,size: 28),
+              activeIcon: Icon(Icons.manage_search_rounded,size: 28),
+              label: "搜索",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bookmark_border_rounded,size: 28),
+              activeIcon: Icon(Icons.bookmark_rounded,size: 28),
+              label: "收藏",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border_rounded,size: 28),
+              activeIcon: Icon(Icons.favorite_rounded,size: 28),
+              label: "喜欢",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.featured_play_list_outlined,size: 28),
+              activeIcon: Icon(Icons.featured_play_list_rounded,size: 28),
+              label: "列表",
+            ),
+          ],
+          onTap: (index) {
+            jumpToPage(index);
+          },
+          onDoubleTap: (index) {
+            jumpToPage(index);
+          },
+        ),
       ),
     );
   }

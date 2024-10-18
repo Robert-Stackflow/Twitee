@@ -27,6 +27,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Utils/enums.dart';
+import '../../Utils/responsive_util.dart';
 
 enum UserTweetFlowType { Tweets, TweetsAndReplies }
 
@@ -346,11 +347,13 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16)),
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                        .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,
                   (index) {

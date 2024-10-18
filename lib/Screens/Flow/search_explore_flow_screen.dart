@@ -28,6 +28,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 
 class SearchExploreFlowScreen extends StatefulWidget {
@@ -212,11 +213,13 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         child: !_inited || items.isNotEmpty
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16)),
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                        .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                 maxCrossAxisExtent: 400,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   items.length,
                   (index) {
@@ -237,20 +240,21 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
     TimelineTrend trend = item.itemContent as TimelineTrend;
     bool showDot = Utils.isNotEmpty(trend.rank) &&
         Utils.isNotEmpty(trend.trendMetadata?.domainContext);
+    var radius = ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
     return Material(
       color: Theme.of(context).canvasColor,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: radius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: radius,
         onTap: () {
           if (Utils.isNotEmpty(trend.name)) {
             searchScreenState?.perfromSearch(trend.name!);
           }
         },
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(borderRadius: radius),
           height: 78,
           padding: const EdgeInsets.all(10),
           child: Column(

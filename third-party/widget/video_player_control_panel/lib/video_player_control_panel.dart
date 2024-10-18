@@ -787,8 +787,8 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     Widget panelWidget = Stack(
       alignment: Alignment.center,
       children: [
-        if (!isDesktop) Container(color: Colors.black38),
-        _buildGestureWidget(),
+        // if (!isDesktop) Container(color: Colors.black38),
+        if (!widget.isGif) _buildGestureWidget(),
         if (widget.showDetailPanel)
           Positioned(left: 0, bottom: 0, right: 0, child: _buildBottomPanel()),
         if (isMobile && !widget.isGif)
@@ -826,7 +826,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
 
     panelWidget = Stack(
       children: [
-        _buildGestureWidget(),
+        if (!widget.isGif) _buildGestureWidget(),
         panelWidget,
       ],
     );
@@ -923,7 +923,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
                   size: 15,
                   color: Colors.white,
                 ),
-                background: Colors.grey.withOpacity(0.6),
+                background: Colors.black38.withOpacity(0.6),
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 radius: 4,
                 onTap: togglePlayPause,
@@ -993,7 +993,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         context,
         icon:
             const Icon(Icons.fullscreen_rounded, size: 15, color: Colors.white),
-        background: Colors.grey.withOpacity(0.6),
+        background: Colors.black38.withOpacity(0.6),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         radius: 4,
         onTap: () {
@@ -1152,7 +1152,7 @@ class VideoItemBuilder {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-            color: Colors.grey.withOpacity(opacity),
+            color: Colors.black38.withOpacity(opacity),
             borderRadius: isCircle
                 ? null
                 : BorderRadius.all(Radius.circular(radius ?? 50)),

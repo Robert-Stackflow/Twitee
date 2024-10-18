@@ -96,10 +96,11 @@ class GenericContextMenuBottomSheetState
             config.onPressed?.call();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
                 if (config.icon != null) config.icon!,
+                if (config.icon != null) const SizedBox(width: 3),
                 Text(
                   config.label,
                   style: Theme.of(context).textTheme.bodyMedium?.apply(

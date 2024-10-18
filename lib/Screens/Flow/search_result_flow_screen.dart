@@ -29,6 +29,7 @@ import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Utils/responsive_util.dart';
 import '../../Widgets/Twitter/grid_item.dart';
 
 class SearchResultFlowScreen extends StatefulWidget {
@@ -272,7 +273,8 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         }
       }
     }
-    gridTweets = tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
+    gridTweets =
+        tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
   }
 
   @override
@@ -361,11 +363,13 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
             )
           : WaterfallFlow.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.all(8)
-                  .add(const EdgeInsets.only(bottom: 16)),
+              padding: ResponsiveUtil.isLandscape()
+                  ? const EdgeInsets.all(8)
+                      .add(const EdgeInsets.only(bottom: 16))
+                  : const EdgeInsets.only(bottom: 16),
+              mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
               maxCrossAxisExtent: maxCrossAxisExtent,
               crossAxisSpacing: 6,
-              mainAxisSpacing: 6,
               children: children,
             ),
     );

@@ -46,7 +46,7 @@ class ListApi {
             "responsive_web_graphql_exclude_directive_enabled": true,
             "verified_phone_label_enabled": false,
             "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
-                false,
+            false,
             "responsive_web_graphql_timeline_navigation_enabled": true
           },
           "queryId": "i4KUhJqGld7MPDDx00OItA"
@@ -87,7 +87,7 @@ class ListApi {
             "responsive_web_graphql_exclude_directive_enabled": true,
             "verified_phone_label_enabled": false,
             "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
-                false,
+            false,
             "responsive_web_graphql_timeline_navigation_enabled": true
           },
           "queryId": "tMTbT1xOGFmDFNYzHCZO9w"
@@ -128,7 +128,7 @@ class ListApi {
             "responsive_web_graphql_exclude_directive_enabled": true,
             "verified_phone_label_enabled": false,
             "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
-                false,
+            false,
             "responsive_web_graphql_timeline_navigation_enabled": true
           },
           "queryId": "GwcMzNnF34gAqifbtguFgg"
@@ -148,6 +148,45 @@ class ListApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to unpin list", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getListInfo({
+    required String listId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting list info");
+      final response = await RequestUtil.get(
+        "/w46tjJuWO_Egbz_JZoiajw/ListByRestId",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode(
+              {"listId": listId}
+          ),
+          "features": jsonEncode({
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
+            "responsive_web_graphql_timeline_navigation_enabled": true
+          }),
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get list info",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: TimelineTwitterListInfo.fromJson(data['data']['list']),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get list info", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }
@@ -175,13 +214,13 @@ class ListApi {
               "creator_subscriptions_tweet_preview_api_enabled": true,
               "responsive_web_graphql_timeline_navigation_enabled": true,
               "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
-                  false,
+              false,
               "communities_web_enable_tweet_community_results_fetch": true,
               "c9s_tweet_anatomy_moderator_badge_enabled": true,
               "articles_preview_enabled": true,
               "responsive_web_edit_tweet_api_enabled": true,
               "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
-                  true,
+              true,
               "view_counts_everywhere_api_enabled": true,
               "longform_notetweets_consumption_enabled": true,
               "responsive_web_twitter_article_tweet_consumption_enabled": true,
@@ -190,7 +229,7 @@ class ListApi {
               "freedom_of_speech_not_reach_fetch_enabled": true,
               "standardized_nudges_misinfo": true,
               "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
-                  true,
+              true,
               "rweb_video_timestamps_enabled": true,
               "longform_notetweets_rich_text_read_enabled": true,
               "longform_notetweets_inline_media_enabled": true,
@@ -236,13 +275,13 @@ class ListApi {
               "creator_subscriptions_tweet_preview_api_enabled": true,
               "responsive_web_graphql_timeline_navigation_enabled": true,
               "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
-                  false,
+              false,
               "communities_web_enable_tweet_community_results_fetch": true,
               "c9s_tweet_anatomy_moderator_badge_enabled": true,
               "articles_preview_enabled": true,
               "responsive_web_edit_tweet_api_enabled": true,
               "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
-                  true,
+              true,
               "view_counts_everywhere_api_enabled": true,
               "longform_notetweets_consumption_enabled": true,
               "responsive_web_twitter_article_tweet_consumption_enabled": true,
@@ -251,7 +290,7 @@ class ListApi {
               "freedom_of_speech_not_reach_fetch_enabled": true,
               "standardized_nudges_misinfo": true,
               "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
-                  true,
+              true,
               "rweb_video_timestamps_enabled": true,
               "longform_notetweets_rich_text_read_enabled": true,
               "longform_notetweets_inline_media_enabled": true,

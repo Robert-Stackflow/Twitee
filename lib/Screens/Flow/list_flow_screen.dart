@@ -25,6 +25,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
+import '../../Utils/responsive_util.dart';
 
 class ListFlowScreen extends StatefulWidget {
   const ListFlowScreen({
@@ -32,10 +33,13 @@ class ListFlowScreen extends StatefulWidget {
     required this.listId,
     required this.userId,
     this.scrollController,
+    this.nested = false,
   });
 
   final String listId;
   final String userId;
+  final bool nested;
+
   final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/listFlow";
@@ -68,6 +72,9 @@ class _ListFlowScreenState extends State<ListFlowScreen>
   void initState() {
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
+    if (widget.nested) {
+      _onRefresh();
+    }
   }
 
   @override
@@ -87,7 +94,11 @@ class _ListFlowScreenState extends State<ListFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    _easyRefreshController.callRefresh();
+    if (widget.nested) {
+      await _onRefresh();
+    } else {
+      _easyRefreshController.callRefresh(scrollController: _scrollController);
+    }
   }
 
   _onRefresh() async {
@@ -263,12 +274,14 @@ class _ListFlowScreenState extends State<ListFlowScreen>
         noMore: _noMore,
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16)),
+                controller: widget.nested ? null : _scrollController,
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                        .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,
                   (index) {

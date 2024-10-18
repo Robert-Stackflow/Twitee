@@ -18,6 +18,7 @@ import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
@@ -281,11 +282,13 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16)),
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                        .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,
                   (index) {

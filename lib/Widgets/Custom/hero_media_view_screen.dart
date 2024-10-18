@@ -28,6 +28,7 @@ import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
+import 'package:twitee/Widgets/Window/window_caption.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_player_control_panel/video_player_control_panel.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -166,8 +167,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
         HiveUtil.getBool(HiveUtil.followMainColorKey)) {
       mainColors = widget.mainColors!;
     } else {
-      mainColors = List.filled(medias.length,
-          ResponsiveUtil.isLandscape() ? Colors.transparent : Colors.black);
+      mainColors = List.filled(medias.length, Colors.black);
       if (widget.useMainColor &&
           HiveUtil.getBool(HiveUtil.followMainColorKey)) {
         ColorUtil.getMainColors(
@@ -193,7 +193,15 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: Stack(
+          children: [
+            _buildAppBar(),
+            if (ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
+          ],
+        ),
+      ),
       extendBody: true,
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
@@ -421,38 +429,37 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
     if (controller == null) return emptyWidget;
     var container = Container(
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: mainColors[medias.indexOf(media)],
         borderRadius: BorderRadius.circular(radius),
       ),
       constraints: BoxConstraints(
           maxHeight: 450, maxWidth: MediaQuery.sizeOf(context).width),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: VideoControlPanel(
-          controller,
-          showClosedCaptionButton: false,
-          showFullscreenButton: false,
-          showDetailPanel: true,
-          showPlayPauseButton: true,
-          showSeekBar: true,
-          isGif: false,
-          showDurationAndPositionText: true,
-          onPlayClicked: () {
-            if (!isGif) {
-              if (controller!.value.isPlaying) {
-                _playbackManager.play(controller);
-              } else {
-                _playbackManager.pause(controller);
-              }
+      child: VideoControlPanel(
+        controller,
+        bgColor: mainColors[medias.indexOf(media)],
+        showClosedCaptionButton: false,
+        showFullscreenButton: false,
+        showDetailPanel: true,
+        showPlayPauseButton: true,
+        showSeekBar: true,
+        isGif: false,
+        showDurationAndPositionText: true,
+        onPlayClicked: () {
+          if (!isGif) {
+            if (controller!.value.isPlaying) {
+              _playbackManager.play(controller);
+            } else {
+              _playbackManager.pause(controller);
             }
-          },
-          placeholder: ItemBuilder.buildCachedImage(
-            imageUrl: getImageUrlByMedia(media),
-            context: context,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            showLoading: false,
-          ),
+          }
+        },
+        placeholder: ItemBuilder.buildCachedImage(
+          imageUrl: getImageUrlByMedia(media),
+          context: context,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+          showLoading: false,
         ),
       ),
     );

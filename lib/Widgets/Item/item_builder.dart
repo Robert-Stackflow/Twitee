@@ -900,13 +900,13 @@ class ItemBuilder {
           child: Row(
             children: [
               Icon(leading, size: 28),
-              const SizedBox(width: 20),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
-                    ?.apply(fontSizeDelta: 3),
+                    ?.apply(fontSizeDelta: 2),
               ),
             ],
           ),
@@ -3015,7 +3015,7 @@ class ItemBuilder {
             HeroMediaViewScreen(
               tagPrefix: tagPrefix,
               medias: medias,
-              useMainColor: false,
+              useMainColor: true,
               title: title,
               captions: [caption ?? ""],
               initIndex: index,

@@ -24,6 +24,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Utils/enums.dart';
+import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
 import '../../Widgets/Twitter/grid_item.dart';
 
@@ -298,9 +299,9 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
                 controller: widget.nested ? null : _scrollController,
                 padding: const EdgeInsets.all(8)
                     .add(const EdgeInsets.only(bottom: 16)),
+                mainAxisSpacing: 6,
                 maxCrossAxisExtent: 160,
                 crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
                 children: List.generate(
                   gridTweets.length,
                   (index) =>

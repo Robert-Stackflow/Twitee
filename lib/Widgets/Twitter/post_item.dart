@@ -177,7 +177,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: ResponsiveUtil.isLandscape()
+            ? BorderRadius.circular(8)
+            : BorderRadius.zero,
       ),
       child: Column(
         children: List.generate(
@@ -507,6 +509,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             Utils.copy(context, url, toastText: "已复制帖子链接");
           },
         ),
+        if (ResponsiveUtil.isMobile())
+          ContextMenuButtonConfig(
+            "访问原帖子",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: const Icon(Icons.view_carousel_outlined, size: 20)),
+            onPressed: () async {
+              UriUtil.openInternal(context,url);
+            },
+          ),
         ContextMenuButtonConfig(
           "在浏览器打开",
           icon: Container(
@@ -534,21 +546,23 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     User user = userResultUnion as User;
     double avatarSize = 40;
     BorderRadius borderRadius = BorderRadius.zero;
-    if (isFirst) {
-      borderRadius = borderRadius
-          .add(const BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ))
-          .resolve(null);
-    }
-    if (isLast) {
-      borderRadius = borderRadius
-          .add(const BorderRadius.only(
-            bottomLeft: Radius.circular(8),
-            bottomRight: Radius.circular(8),
-          ))
-          .resolve(null);
+    if (ResponsiveUtil.isLandscape()) {
+      if (isFirst) {
+        borderRadius = borderRadius
+            .add(const BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ))
+            .resolve(null);
+      }
+      if (isLast) {
+        borderRadius = borderRadius
+            .add(const BorderRadius.only(
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+            ))
+            .resolve(null);
+      }
     }
     var body = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8).add(
@@ -629,8 +643,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }) {
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
+    var radius = ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
     var body = Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(borderRadius: radius),
       padding:
           widget.isDetail ? const EdgeInsets.all(12) : const EdgeInsets.all(8),
       child: Column(
@@ -663,9 +680,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ? body
         : Material(
             color: Theme.of(context).canvasColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: radius,
             child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: radius,
               onTap: () {
                 panelScreenState
                     ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
@@ -995,7 +1012,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       }
       controller = _videoControllers[videoUrl];
       if (controller == null) return emptyWidget;
-      var container = Container(
+      Widget container = Container(
         decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.circular(radius),
@@ -1038,7 +1055,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 useMaterial: true,
                 HeroMediaViewScreen(
                   medias: medias,
-                  useMainColor: false,
+                  useMainColor: true,
                   initIndex: index,
                 ),
               );
@@ -1056,6 +1073,24 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ),
         ),
       );
+      if (!ResponsiveUtil.isLandscape()) {
+        container = GestureDetector(
+          onTap: () {
+            RouteUtil.pushDialogRoute(
+              context,
+              showClose: false,
+              fullScreen: true,
+              useMaterial: true,
+              HeroMediaViewScreen(
+                medias: medias,
+                useMainColor: true,
+                initIndex: index,
+              ),
+            );
+          },
+          child: container,
+        );
+      }
       return VisibilityDetector(
         key: Key(videoUrl),
         onVisibilityChanged: (info) {
@@ -1276,20 +1311,20 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               }
             },
           ),
-          ItemBuilder.buildIconTextButton(
-            context,
-            tooltip:
-                "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
-            icon: Icon(
-              Icons.remove_red_eye_outlined,
-              size: 18,
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-            color: Theme.of(context).textTheme.bodySmall?.color,
-            fontSizeDelta: -1,
-            text:
-                Utils.formatCount(int.tryParse(tweet.views?.count ?? "") ?? 0),
-          ),
+          // ItemBuilder.buildIconTextButton(
+          //   context,
+          //   tooltip:
+          //       "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
+          //   icon: Icon(
+          //     Icons.remove_red_eye_outlined,
+          //     size: 18,
+          //     color: Theme.of(context).textTheme.bodySmall?.color,
+          //   ),
+          //   color: Theme.of(context).textTheme.bodySmall?.color,
+          //   fontSizeDelta: -1,
+          //   text:
+          //       Utils.formatCount(int.tryParse(tweet.views?.count ?? "") ?? 0),
+          // ),
           ItemBuilder.buildIconTextButton(
             context,
             tooltip:
@@ -1334,49 +1369,48 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               }
             },
           ),
-          if (tweet.isTranslatable ?? true)
-            ItemBuilder.buildIconTextButton(
-              context,
-              icon: tweet.isTranslating
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation(
-                            Theme.of(context).textTheme.bodySmall?.color),
-                        strokeWidth: 2,
-                        value: null,
-                      ),
-                    )
-                  : Icon(
-                      Icons.translate_rounded,
-                      size: 16,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
+          ItemBuilder.buildIconTextButton(
+            context,
+            icon: tweet.isTranslating
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(
+                          Theme.of(context).textTheme.bodySmall?.color),
+                      strokeWidth: 2,
+                      value: null,
                     ),
-              color: Theme.of(context).textTheme.bodySmall?.color,
-              fontSizeDelta: -1,
-              onTap: () async {
-                if (tweet.isTranslating) return;
-                Locale locale = Localizations.localeOf(context);
-                tweet.isTranslating = true;
-                setState(() {});
-                var res = await PostApi.translate(
-                  tweetId: tweet.restId!,
-                  destinationLanguage: locale.toString(),
-                );
-                tweet.isTranslating = false;
-                setState(() {});
-                if (res.success) {
-                  tweet.translation = res.data;
-                  if (Utils.isEmpty(tweet.translation?.translation)) {
-                    IToast.showTop("翻译结果为空");
-                  }
-                  setState(() {});
-                } else {
-                  IToast.showTop("翻译失败：${res.message}");
+                  )
+                : Icon(
+                    Icons.translate_rounded,
+                    size: 16,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+            color: Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: -1,
+            onTap: () async {
+              if (tweet.isTranslating) return;
+              Locale locale = Localizations.localeOf(context);
+              tweet.isTranslating = true;
+              setState(() {});
+              var res = await PostApi.translate(
+                tweetId: tweet.restId!,
+                destinationLanguage: locale.toString(),
+              );
+              tweet.isTranslating = false;
+              setState(() {});
+              if (res.success) {
+                tweet.translation = res.data;
+                if (Utils.isEmpty(tweet.translation?.translation)) {
+                  IToast.showTop("翻译结果为空");
                 }
-              },
-            ),
+                setState(() {});
+              } else {
+                IToast.showTop("翻译失败：${res.message}");
+              }
+            },
+          ),
         ],
       ),
     );
