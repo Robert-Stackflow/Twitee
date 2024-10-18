@@ -14,6 +14,7 @@
  */
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
+import 'package:tray_manager/tray_manager.dart';
 import 'package:twitee/Api/login_api.dart';
 import 'package:twitee/Models/login_phase.dart';
 import 'package:twitee/Models/user_info.dart';
@@ -26,10 +27,13 @@ import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Widgets/Dialog/custom_dialog.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
+import 'package:window_manager/window_manager.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/request_util.dart';
+import '../../Utils/utils.dart';
 import '../../Widgets/Custom/custom_cupertino_route.dart';
 import '../../Widgets/Item/input_item.dart';
 import '../../Widgets/Item/item_builder.dart';
@@ -50,7 +54,7 @@ class LoginByPasswordScreen extends StatefulWidget {
 }
 
 class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WindowListener, TrayListener {
   PageController controller = PageController();
   late InputValidateAsyncController _identifierValidateAsyncController;
   late InputValidateAsyncController
@@ -65,6 +69,49 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
   final FocusNode _pinFocusNode = FocusNode();
   UserInfo? _userInfo;
   String errorMessage = "";
+  bool _isMaximized = false;
+  bool _isStayOnTop = false;
+
+  @override
+  Future<void> onWindowResize() async {
+    super.onWindowResize();
+    windowManager.setMinimumSize(minimumSize);
+    HiveUtil.setWindowSize(await windowManager.getSize());
+  }
+
+  @override
+  Future<void> onWindowResized() async {
+    super.onWindowResized();
+    HiveUtil.setWindowSize(await windowManager.getSize());
+  }
+
+  @override
+  Future<void> onWindowMove() async {
+    super.onWindowMove();
+    HiveUtil.setWindowPosition(await windowManager.getPosition());
+  }
+
+  @override
+  Future<void> onWindowMoved() async {
+    super.onWindowMoved();
+    HiveUtil.setWindowPosition(await windowManager.getPosition());
+  }
+
+  @override
+  void onWindowMaximize() {
+    windowManager.setMinimumSize(minimumSize);
+    setState(() {
+      _isMaximized = true;
+    });
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    windowManager.setMinimumSize(minimumSize);
+    setState(() {
+      _isMaximized = false;
+    });
+  }
 
   @override
   void initState() {
@@ -328,13 +375,39 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: ItemBuilder.buildSimpleAppBar(
-        title: "登录到你的Twitter帐户",
-        context: context,
-        leading: Icons.close_rounded,
-        showLeading: !widget.jumpToMain,
-        transparent: true,
-      ),
+      appBar: ResponsiveUtil.isDesktop()
+          ? PreferredSize(
+              preferredSize: const Size.fromHeight(56),
+              child: ItemBuilder.buildWindowTitle(
+                context,
+                backgroundColor: MyTheme.getBackground(context),
+                isStayOnTop: _isStayOnTop,
+                isMaximized: _isMaximized,
+                onStayOnTopTap: () {
+                  setState(() {
+                    _isStayOnTop = !_isStayOnTop;
+                    windowManager.setAlwaysOnTop(_isStayOnTop);
+                  });
+                },
+                rightButtons: [],
+                leftWidgets: [
+                  const SizedBox(width: 15),
+                  Text(
+                    "登录到你的Twitter帐户",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            )
+          : ItemBuilder.buildSimpleAppBar(
+              title: "登录到你的Twitter帐户",
+              background: MyTheme.getBackground(context),
+              context: context,
+              leading: Icons.close_rounded,
+              showLeading: !widget.jumpToMain,
+              transparent: true,
+            ),
       body: _buildBody(),
     );
   }
@@ -526,6 +599,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           if (_connected == InitPhase.haveNotConnected)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 50),
+              constraints: const BoxConstraints(maxWidth: 100),
               child: ItemBuilder.buildRoundButton(
                 context,
                 text: "下一步",
@@ -607,5 +681,23 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         ],
       ),
     );
+  }
+
+  @override
+  void onTrayIconMouseDown() {
+    Utils.displayApp();
+  }
+
+  @override
+  void onTrayIconRightMouseDown() {
+    trayManager.popUpContextMenu();
+  }
+
+  @override
+  void onTrayIconRightMouseUp() {}
+
+  @override
+  Future<void> onTrayMenuItemClick(MenuItem menuItem) async {
+    Utils.processTrayMenuItemClick(context, menuItem, true);
   }
 }

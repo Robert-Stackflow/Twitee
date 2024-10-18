@@ -214,6 +214,7 @@ class ItemBuilder {
     required BuildContext context,
     bool transparent = false,
     bool showLeading = true,
+    Color? background,
   }) {
     bool finalShowLeading = showLeading && !ResponsiveUtil.isLandscape();
     return PreferredSize(
@@ -224,13 +225,15 @@ class ItemBuilder {
           key: key,
           primary: !ResponsiveUtil.isWideLandscape(),
           backgroundColor: transparent
-              ? Theme.of(context)
-                  .scaffoldBackgroundColor
-                  .withOpacity(enableFrostedGlassEffect ? 0.2 : 1)
-              : Theme.of(context)
-                  .appBarTheme
-                  .backgroundColor!
-                  .withOpacity(enableFrostedGlassEffect ? 0.2 : 1),
+              ? background ??
+                  Theme.of(context)
+                      .scaffoldBackgroundColor
+                      .withOpacity(enableFrostedGlassEffect ? 0.2 : 1)
+              : background ??
+                  Theme.of(context)
+                      .appBarTheme
+                      .backgroundColor!
+                      .withOpacity(enableFrostedGlassEffect ? 0.2 : 1),
           useBackdropFilter: enableFrostedGlassEffect,
           elevation: 0,
           scrolledUnderElevation: 0,
@@ -899,7 +902,7 @@ class ItemBuilder {
               const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           child: Row(
             children: [
-              Icon(leading, size: 28),
+              Icon(leading, size: 26),
               const SizedBox(width: 12),
               Text(
                 title,
@@ -2737,7 +2740,7 @@ class ItemBuilder {
   static buildWindowTitle(
     BuildContext context, {
     Color? backgroundColor,
-    // List<Widget> leftWidgets = const [],
+    List<Widget> leftWidgets = const [],
     List<Widget> rightButtons = const [],
     required bool isStayOnTop,
     required bool isMaximized,
@@ -2752,7 +2755,7 @@ class ItemBuilder {
         margin: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            // ...leftWidgets,
+            ...leftWidgets,
             // const Spacer(),
             Row(
               children: [

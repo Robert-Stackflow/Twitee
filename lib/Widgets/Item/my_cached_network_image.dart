@@ -99,7 +99,6 @@ class _MyCachedNetworkImageState extends State<MyCachedNetworkImage> {
   }
 
   Widget _simpleErrorWidget(BuildContext context, String url, dynamic error) {
-    print(url);
     return Container(
       constraints: const BoxConstraints(
         minHeight: 40,

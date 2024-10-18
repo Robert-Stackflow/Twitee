@@ -75,7 +75,7 @@ class TimelineTwitterListInfo {
   final DefaultBannerMediaResults defaultBannerMediaResults;
   final String description;
   final List<String> facepileUrls;
-  final bool following;
+  bool following;
   final String id;
   final String idStr;
   final bool isMember;
@@ -85,7 +85,7 @@ class TimelineTwitterListInfo {
   final bool muting;
   final String name;
   bool pinning;
-  final int subscriberCount;
+  int subscriberCount;
   final UserResults userResults;
 
   bool get isPrivate => mode == 'Private';

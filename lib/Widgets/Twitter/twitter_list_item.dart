@@ -23,6 +23,7 @@ import 'package:twitee/Utils/hive_util.dart';
 import '../../Api/list_api.dart';
 import '../../Models/response_result.dart';
 import '../../Openapi/models/user.dart';
+import '../../Openapi/models/user_legacy.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
@@ -40,6 +41,14 @@ class TwitterListItem extends StatefulWidget {
 
 class TwitterListItemState extends State<TwitterListItem> {
   UserInfo? info = HiveUtil.getUserInfo();
+
+  TimelineTwitterListInfo get listInfo => widget.list.list;
+
+  UserLegacy? get user => listInfo.userResults.result != null
+      ? (listInfo.userResults.result! as User).legacy
+      : null;
+
+  bool get isMyself => info?.screenName == user?.screenName;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +116,7 @@ class TwitterListItemState extends State<TwitterListItem> {
                     ],
                   ),
                 ),
-                if (info?.screenName == user.legacy.screenName)
+                if (isMyself)
                   ItemBuilder.buildIconButton(
                     context: context,
                     icon: Icon(list.list.isPrivate
@@ -154,28 +163,36 @@ class TwitterListItemState extends State<TwitterListItem> {
                       }
                     },
                   ),
-                if (info?.screenName == user.legacy.screenName)
-                  ItemBuilder.buildIconButton(
-                    context: context,
-                    icon: Icon(
-                      list.list.pinning
-                          ? Icons.pin_drop_rounded
-                          : Icons.pin_drop_outlined,
-                      size: 22,
-                    ),
-                    padding: const EdgeInsets.all(9),
-                    onTap: () async {
+                ItemBuilder.buildIconButton(
+                  context: context,
+                  icon: Icon(
+                    (isMyself ? list.list.pinning : list.list.following)
+                        ? Icons.pin_drop_rounded
+                        : Icons.pin_drop_outlined,
+                    size: 22,
+                  ),
+                  padding: const EdgeInsets.all(9),
+                  onTap: () async {
+                    if (isMyself) {
                       if (list.list.pinning) {
-                        ResponseResult res =
-                            await ListApi.unpinList(listId: list.list.idStr);
-                        if (res.success) {
-                          setState(() {
-                            list.list.pinning = false;
-                          });
-                          homeScreenState?.refreshPinnedLists();
-                        } else {
-                          IToast.showTop("取消置顶失败");
-                        }
+                        DialogBuilder.showConfirmDialog(
+                          context,
+                          title: "取消置顶${listInfo.name}",
+                          message: "是否取消置顶${listInfo.name}？",
+                          onTapConfirm: () async {
+                            ResponseResult res = await ListApi.unpinList(
+                                listId: list.list.idStr);
+                            if (res.success) {
+                              setState(() {
+                                list.list.pinning = false;
+                              });
+                              homeScreenState?.refreshPinnedLists();
+                              IToast.showTop("取消置顶成功");
+                            } else {
+                              IToast.showTop("取消置顶失败");
+                            }
+                          },
+                        );
                       } else {
                         ResponseResult res =
                             await ListApi.pinList(listId: list.list.idStr);
@@ -188,8 +205,45 @@ class TwitterListItemState extends State<TwitterListItem> {
                           IToast.showTop("置顶失败");
                         }
                       }
-                    },
-                  ),
+                    } else {
+                      var listInfo = list.list;
+                      if (listInfo.following) {
+                        DialogBuilder.showConfirmDialog(
+                          context,
+                          title: "取消订阅${listInfo.name}",
+                          message: "是否取消订阅${listInfo.name}？",
+                          onTapConfirm: () async {
+                            var res = await ListApi.unSubscribe(
+                                listId: listInfo.idStr);
+                            if (res.success) {
+                              listInfo.following = false;
+                              listInfo.subscriberCount--;
+                              if (mounted) setState(() {});
+                              homeScreenState?.refreshPinnedLists();
+                              listScreenState?.refreshLists();
+                              IToast.showTop("取消订阅成功");
+                            } else {
+                              IToast.showTop("取消订阅失败：${res.message}");
+                            }
+                          },
+                        );
+                      } else {
+                        var res =
+                            await ListApi.subscribe(listId: listInfo.idStr);
+                        if (res.success) {
+                          listInfo.following = true;
+                          listInfo.subscriberCount++;
+                          if (mounted) setState(() {});
+                          homeScreenState?.refreshPinnedLists();
+                          listScreenState?.refreshLists();
+                          IToast.showTop("订阅成功");
+                        } else {
+                          IToast.showTop("订阅失败：${res.message}");
+                        }
+                      }
+                    }
+                  },
+                ),
               ],
             ),
           ),

@@ -14,9 +14,9 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
@@ -166,7 +166,10 @@ class PanelScreenState extends State<PanelScreen>
       _keyList = [
         homeScreenKey,
         searchScreenKey,
-        ...List.generate(6, (index) => GlobalKey()),
+        GlobalKey(),
+        GlobalKey(),
+        listScreenKey,
+        GlobalKey(),
       ];
       _pageList = [
         HomeScreen(key: homeScreenKey),
@@ -175,8 +178,6 @@ class PanelScreenState extends State<PanelScreen>
         LikeScreen(key: _keyList[3], userId: info.idStr),
         ListScreen(key: _keyList[4], userId: info.idStr),
         FriendshipScreen(key: _keyList[5]),
-        BookmarkScreen(key: _keyList[6]),
-        BookmarkScreen(key: _keyList[7]),
       ];
       jumpToPage(appProvider.sidebarChoice.index);
     }
@@ -225,7 +226,10 @@ class PanelScreenState extends State<PanelScreen>
                 background: Theme.of(context).primaryColor,
                 onTap: () {
                   RouteUtil.pushDialogRoute(
-                      rootContext, const LoginByPasswordScreen());
+                    rootContext,
+                    const LoginByPasswordScreen(jumpToMain: true),
+                    popAll: true,
+                  );
                 },
               ),
             ),
@@ -246,8 +250,9 @@ class PanelScreenState extends State<PanelScreen>
       ),
       extendBody: true,
       drawer: _buildDrawer(),
-      bottomNavigationBar:
-          !ResponsiveUtil.isLandscape() ? _buildBottomNavigationBar() : null,
+      bottomNavigationBar: !ResponsiveUtil.isLandscape() && !unlogin
+          ? _buildBottomNavigationBar()
+          : null,
     );
   }
 
@@ -276,28 +281,28 @@ class PanelScreenState extends State<PanelScreen>
           elevation: 0,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined,size: 28),
-              activeIcon: Icon(Icons.home_rounded,size: 28),
+              icon: Icon(Icons.home_outlined, size: 28),
+              activeIcon: Icon(Icons.home_rounded, size: 28),
               label: "首页",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search_rounded,size: 28),
-              activeIcon: Icon(Icons.manage_search_rounded,size: 28),
+              icon: Icon(Icons.search_rounded, size: 28),
+              activeIcon: Icon(Icons.manage_search_rounded, size: 28),
               label: "搜索",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_border_rounded,size: 28),
-              activeIcon: Icon(Icons.bookmark_rounded,size: 28),
+              icon: Icon(Icons.bookmark_border_rounded, size: 28),
+              activeIcon: Icon(Icons.bookmark_rounded, size: 28),
               label: "收藏",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_rounded,size: 28),
-              activeIcon: Icon(Icons.favorite_rounded,size: 28),
+              icon: Icon(Icons.favorite_border_rounded, size: 28),
+              activeIcon: Icon(Icons.favorite_rounded, size: 28),
               label: "喜欢",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.featured_play_list_outlined,size: 28),
-              activeIcon: Icon(Icons.featured_play_list_rounded,size: 28),
+              icon: Icon(Icons.featured_play_list_outlined, size: 28),
+              activeIcon: Icon(Icons.featured_play_list_rounded, size: 28),
               label: "列表",
             ),
           ],
@@ -416,6 +421,16 @@ class PanelScreenState extends State<PanelScreen>
                       UserDetailScreen(
                         screenName: info!.screenName,
                       ),
+                    );
+                  },
+                ),
+                ItemBuilder.buildListTile(
+                  context: context,
+                  title: "列表",
+                  leading: Icons.featured_play_list_outlined,
+                  onTap: () {
+                    panelScreenState?.pushPage(
+                      ListManageScreen(userId: info!.idStr),
                     );
                   },
                 ),

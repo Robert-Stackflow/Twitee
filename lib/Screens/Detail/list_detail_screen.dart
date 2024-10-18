@@ -20,10 +20,13 @@ import 'package:flutter/services.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
+import 'package:twitee/Screens/Flow/list_members_flow_screen.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
+import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
@@ -32,6 +35,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
+import 'list_members_screen.dart';
 
 class ListDetailScreen extends StatefulWidget {
   const ListDetailScreen({
@@ -71,6 +75,8 @@ class _ListDetailScreenState extends State<ListDetailScreen>
   UserLegacy? get user => listInfo!.userResults.result != null
       ? (listInfo!.userResults.result! as User).legacy
       : null;
+
+  bool get isMyself => widget.userId == user?.idStr;
 
   fetchListInfo() async {
     _initPhase = InitPhase.connecting;
@@ -207,7 +213,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
 
   Widget _buildListInfo() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
         border: Border(
@@ -221,46 +227,41 @@ class _ListDetailScreenState extends State<ListDetailScreen>
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: ResponsiveUtil.isLandscape()
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.center,
               children: [
-                Row(
+                Column(
+                  crossAxisAlignment: ResponsiveUtil.isLandscape()
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
                   children: [
-                    // ClipRRect(
-                    //   borderRadius: BorderRadius.circular(8),
-                    //   child: ItemBuilder.buildCachedImage(
-                    //     imageUrl: bannerUrl,
-                    //     context: context,
-                    //     width: 64,
-                    //     height: 64,
-                    //     showLoading: false,
-                    //     fit: BoxFit.cover,
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          listInfo!.name,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "${user!.name}@${user!.screenName} 创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.apply(fontSizeDelta: -1),
-                        ),
-                        if (Utils.isNotEmpty(listInfo!.description))
-                          const SizedBox(height: 8),
-                        if (Utils.isNotEmpty(listInfo!.description))
-                          Text(
-                            listInfo!.description,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                      ],
-                    )
+                    Text(
+                      listInfo!.name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "${user!.name}@${user!.screenName}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.apply(fontSizeDelta: 2),
+                    ),
+                    Text(
+                      "创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.apply(fontSizeDelta: 2),
+                    ),
+                    if (Utils.isNotEmpty(listInfo!.description))
+                      const SizedBox(height: 8),
+                    if (Utils.isNotEmpty(listInfo!.description))
+                      Text(
+                        listInfo!.description,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -271,32 +272,103 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                     _buildCountItem(
                       title: "成员",
                       value: listInfo!.memberCount.toString(),
-                      onTap: () {},
+                      onTap: () {
+                        panelScreenState?.pushPage(
+                          ListMembersScreen(
+                            listId: widget.listId,
+                            initType: ListMembersFlowType.members,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 8),
                     _buildCountItem(
                       title: "关注者",
                       value: listInfo!.subscriberCount.toString(),
-                      onTap: () {},
+                      onTap: () {
+                        panelScreenState?.pushPage(
+                          ListMembersScreen(
+                            listId: widget.listId,
+                            initType: ListMembersFlowType.subscribers,
+                          ),
+                        );
+                      },
                     ),
                   ],
-                )
+                ),
+                if (!ResponsiveUtil.isLandscape()) const SizedBox(height: 8),
+                if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
               ],
             ),
           ),
-          if (ResponsiveUtil.isDesktop())
-            ItemBuilder.buildRoundButton(
-              context,
-              icon: const Icon(Icons.more_horiz_rounded),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              onTap: () {
-                BottomSheetBuilder.showContextMenu(
-                    context, _buildMoreContextMenuButtons());
-              },
-            ),
+          if (ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
         ],
       ),
     );
+  }
+
+  _buildOperationButtons() {
+    return [
+      if (isMyself)
+        ItemBuilder.buildRoundButton(
+          context,
+          text: "编辑列表",
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          onTap: () {},
+        ),
+      if (!isMyself)
+        ItemBuilder.buildRoundButton(
+          context,
+          text: listInfo!.following ? "取消订阅" : "订阅",
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          background: Theme.of(context).primaryColor,
+          onTap: () async {
+            if (listInfo!.following) {
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "取消订阅${listInfo!.name}",
+                message: "是否取消订阅${listInfo!.name}？",
+                onTapConfirm: () async {
+                  var res = await ListApi.unSubscribe(listId: widget.listId);
+                  if (res.success) {
+                    listInfo!.following = false;
+                    listInfo!.subscriberCount--;
+                    if (mounted) setState(() {});
+                    IToast.showTop("取消订阅成功");
+                    homeScreenState?.refreshPinnedLists();
+                    listScreenState?.refreshLists();
+                  } else {
+                    IToast.showTop("取消订阅失败：${res.message}");
+                  }
+                },
+              );
+            } else {
+              var res = await ListApi.subscribe(listId: widget.listId);
+              if (res.success) {
+                listInfo!.following = true;
+                listInfo!.subscriberCount++;
+                if (mounted) setState(() {});
+                IToast.showTop("订阅成功");
+                homeScreenState?.refreshPinnedLists();
+                listScreenState?.refreshLists();
+              } else {
+                IToast.showTop("订阅失败：${res.message}");
+              }
+            }
+          },
+        ),
+      if (ResponsiveUtil.isLandscape()) const SizedBox(width: 8),
+      if (ResponsiveUtil.isLandscape())
+        ItemBuilder.buildRoundButton(
+          context,
+          icon: const Icon(Icons.more_horiz_rounded),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          onTap: () {
+            BottomSheetBuilder.showContextMenu(
+                context, _buildMoreContextMenuButtons());
+          },
+        ),
+    ];
   }
 
   Widget _buildBlurBackground({
@@ -345,19 +417,20 @@ class _ListDetailScreenState extends State<ListDetailScreen>
 
   _buildMoreContextMenuButtons() {
     String id = listInfo!.idStr;
-    String url = "https://twitter.com//i/lists/$id";
+    String url = "https://twitter.com/i/lists/$id";
     return GenericContextMenu(
       buttonConfigs: [
+        if (isMyself)
+          ContextMenuButtonConfig(
+            "编辑列表",
+            icon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: const Icon(Icons.playlist_add_rounded, size: 20)),
+            onPressed: () async {},
+          ),
+        if (isMyself) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
-          "编辑列表",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.playlist_add_rounded, size: 20)),
-          onPressed: () async {},
-        ),
-        ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig(
-          "分享用户",
+          "分享列表",
           icon: Container(
               margin: const EdgeInsets.only(right: 10),
               child: const Icon(Icons.share_rounded, size: 18)),

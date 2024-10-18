@@ -26,6 +26,7 @@ class RouteUtil {
     BuildContext context,
     Widget page, {
     Function(dynamic)? onThen,
+    bool popAll = false,
   }) {
     return Navigator.push(
             context, MaterialPageRoute(builder: (context) => page))
@@ -36,14 +37,22 @@ class RouteUtil {
     BuildContext context,
     Widget page, {
     Function(dynamic)? onThen,
+    bool popAll = false,
   }) {
     appProvider.canPopByProvider = true;
     if (ResponsiveUtil.isLandscape()) {
       return pushFadeRoute(context, page, onThen: onThen);
     } else {
-      return Navigator.push(
-              context, CustomCupertinoPageRoute(builder: (context) => page))
-          .then(onThen ?? (_) => {});
+      if (popAll) {
+        return Navigator.pushAndRemoveUntil(
+            context,
+            CustomCupertinoPageRoute(builder: (context) => page),
+            (_) => false).then(onThen ?? (_) => {});
+      } else {
+        return Navigator.push(
+                context, CustomCupertinoPageRoute(builder: (context) => page))
+            .then(onThen ?? (_) => {});
+      }
     }
   }
 
@@ -103,6 +112,7 @@ class RouteUtil {
     Function(dynamic)? onThen,
     GlobalKey<DialogWrapperWidgetState>? overrideDialogNavigatorKey,
     bool useMaterial = false,
+    bool popAll = false,
   }) {
     if (ResponsiveUtil.isLandscape()) {
       if (overrideDialogNavigatorKey == null && dialogNavigatorState != null) {
@@ -122,9 +132,9 @@ class RouteUtil {
       }
     } else {
       if (useMaterial) {
-        pushMaterialRoute(context, page, onThen: onThen);
+        pushMaterialRoute(context, page, onThen: onThen, popAll: popAll);
       } else {
-        pushCupertinoRoute(context, page, onThen: onThen);
+        pushCupertinoRoute(context, page, onThen: onThen, popAll: popAll);
       }
     }
   }

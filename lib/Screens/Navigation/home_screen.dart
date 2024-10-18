@@ -135,6 +135,7 @@ class HomeScreenState extends State<HomeScreen>
           tabDataList.tabList,
           onTap: onTapTab,
           autoScrollable: false,
+          padding: const EdgeInsets.only(right: 10),
         ),
       ),
       body: Stack(

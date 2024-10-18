@@ -25,6 +25,7 @@ import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 import '../Resources/fonts.dart';
 import '../Screens/Navigation/home_screen.dart';
+import '../Screens/Navigation/list_screen.dart';
 import '../Screens/panel_screen.dart';
 import '../Widgets/Custom/keyboard_handler.dart';
 import '../generated/l10n.dart';
@@ -65,6 +66,8 @@ GlobalKey<MainScreenState> mainScreenKey = GlobalKey<MainScreenState>();
 
 GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
 
+GlobalKey<ListScreenState> listScreenKey = GlobalKey<ListScreenState>();
+
 GlobalKey<SearchScreenState> searchScreenKey = GlobalKey<SearchScreenState>();
 
 PanelScreenState? get panelScreenState => panelScreenKey.currentState;
@@ -72,6 +75,8 @@ PanelScreenState? get panelScreenState => panelScreenKey.currentState;
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
 
 HomeScreenState? get homeScreenState => homeScreenKey.currentState;
+
+ListScreenState? get listScreenState => listScreenKey.currentState;
 
 SearchScreenState? get searchScreenState => searchScreenKey.currentState;
 

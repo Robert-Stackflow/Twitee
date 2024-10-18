@@ -65,7 +65,7 @@ Future<void> runMyApp(List<String> args) async {
   await initApp(widgetsBinding);
   late Widget home;
   String? csrfToken = await RequestUtil.getCsrfToken();
-  if (Utils.isEmpty(csrfToken)) {
+  if ( Utils.isEmpty(csrfToken)) {
     home = const LoginByPasswordScreen(jumpToMain: true);
   } else {
     if (HiveUtil.canGuestureLock()) {

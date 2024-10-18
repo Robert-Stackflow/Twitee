@@ -44,10 +44,10 @@ class ListScreen extends StatefulWidget {
   static const String routeName = "/navigtion/list";
 
   @override
-  State<ListScreen> createState() => _ListScreenState();
+  State<ListScreen> createState() => ListScreenState();
 }
 
-class _ListScreenState extends State<ListScreen>
+class ListScreenState extends State<ListScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
@@ -64,7 +64,7 @@ class _ListScreenState extends State<ListScreen>
   List<TimelineTwitterList> validItems = [];
   InitPhase _initPhase = InitPhase.haveNotConnected;
 
-  fetchLists() async {
+  refreshLists() async {
     _initPhase = InitPhase.connecting;
     try {
       ResponseResult res;
@@ -120,11 +120,12 @@ class _ListScreenState extends State<ListScreen>
     _tabController = TabController(length: 0, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initTab();
-      fetchLists();
+      refreshLists();
     });
   }
 
   initTab() {
+    tabDataList.clear();
     for (var list in validItems) {
       tabDataList.add(
         TabItemData.build(
@@ -156,6 +157,7 @@ class _ListScreenState extends State<ListScreen>
           tabDataList.tabList,
           onTap: onTapTab,
           autoScrollable: false,
+          padding: const EdgeInsets.only(right: 10),
         ),
       ),
       body: _buildBody(),
@@ -170,7 +172,7 @@ class _ListScreenState extends State<ListScreen>
       case InitPhase.failed:
         return ItemBuilder.buildError(
           context: context,
-          onTap: fetchLists,
+          onTap: refreshLists,
         );
       case InitPhase.successful:
         return tabDataList.isNotEmpty
@@ -238,15 +240,16 @@ class _ListScreenState extends State<ListScreen>
             refresh();
           },
         ),
-        const SizedBox(height: 10),
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: const Icon(Icons.settings_rounded),
-          onTap: () async {
-            RouteUtil.pushDialogRoute(
-                context, ListManageScreen(userId: widget.userId));
-          },
-        ),
+        if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: const Icon(Icons.settings_rounded),
+            onTap: () async {
+              RouteUtil.pushDialogRoute(
+                  context, ListManageScreen(userId: widget.userId));
+            },
+          ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

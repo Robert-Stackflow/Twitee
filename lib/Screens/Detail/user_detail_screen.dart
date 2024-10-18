@@ -550,9 +550,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                           : "关注",
                   background: userLegacy!.isFriend
                       ? Colors.green
-                      : userLegacy!.following ?? false
-                          ? null
-                          : Theme.of(context).primaryColor,
+                      : Theme.of(context).primaryColor,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () async {

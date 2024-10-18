@@ -527,18 +527,18 @@ class MainScreenState extends State<MainScreen>
                     },
                     iconSize: 20,
                   ),
-                  const SizedBox(height: 8),
-                  ToolButton(
-                    context: context,
-                    selected:
-                        hideNavigator && sidebarChoice == SideBarChoice.Mention,
-                    icon: Icons.notifications_none_rounded,
-                    selectedIcon: Icons.notifications_rounded,
-                    onTap: () async {
-                      appProvider.sidebarChoice = SideBarChoice.Mention;
-                      panelScreenState?.popAll();
-                    },
-                  ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   selected:
+                  //       hideNavigator && sidebarChoice == SideBarChoice.Mention,
+                  //   icon: Icons.notifications_none_rounded,
+                  //   selectedIcon: Icons.notifications_rounded,
+                  //   onTap: () async {
+                  //     appProvider.sidebarChoice = SideBarChoice.Mention;
+                  //     panelScreenState?.popAll();
+                  //   },
+                  // ),
                   // const SizedBox(height: 8),
                   // ToolButton(
                   //   context: context,

@@ -14,7 +14,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/user_api.dart';
+import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
@@ -24,34 +24,45 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Openapi/models/user_legacy.dart';
+import '../../Openapi/models/cursor_type.dart';
+import '../../Openapi/models/timeline.dart';
+import '../../Openapi/models/timeline_add_entries.dart';
+import '../../Openapi/models/timeline_add_entry.dart';
+import '../../Openapi/models/timeline_timeline_cursor.dart';
+import '../../Openapi/models/timeline_timeline_item.dart';
+import '../../Openapi/models/timeline_user.dart';
+import '../../Openapi/models/user.dart';
 import '../../Utils/responsive_util.dart';
 
-class FriendsFlowScreen extends StatefulWidget {
-  const FriendsFlowScreen({
+enum ListMembersFlowType { members, subscribers }
+
+class ListMembersFlowScreen extends StatefulWidget {
+  const ListMembersFlowScreen({
     super.key,
-    required this.userId,
+    required this.type,
+    required this.listId,
     this.scrollController,
   });
 
-  final String userId;
+  final ListMembersFlowType type;
+
+  final String listId;
   final ScrollController? scrollController;
 
-  static const String routeName = "/navigtion/friendsFlow";
+  static const String routeName = "/navigtion/listMembersFlow";
 
   @override
-  State<FriendsFlowScreen> createState() => _FriendsFlowScreenState();
+  State<ListMembersFlowScreen> createState() => _ListMembersFlowScreenState();
 }
 
-class _FriendsFlowScreenState extends State<FriendsFlowScreen>
+class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
+  TimelineTimelineCursor? cursorTop;
+  TimelineTimelineCursor? cursorBottom;
 
-  String? cursorTop;
-  String? cursorBottom;
-
-  List<UserLegacy> users = [];
+  List<TimelineUser> validEntries = [];
 
   bool _loading = false;
 
@@ -60,6 +71,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
+
   bool _inited = false;
 
   @override
@@ -93,10 +105,24 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
-      ResponseResult res = await UserApi.getFriendList(userId: widget.userId);
+      ResponseResult res;
+      switch (widget.type) {
+        case ListMembersFlowType.members:
+          res = await ListApi.getMembers(listId: widget.listId);
+          break;
+        case ListMembersFlowType.subscribers:
+          res = await ListApi.getSubscribers(listId: widget.listId);
+          break;
+      }
       if (res.success) {
-        List<UserLegacy> newEntries = res.data;
-        users = newEntries;
+        Timeline timeline = res.data;
+        List<TimelineUser> newEntries = [];
+        for (var instruction in timeline.instructions) {
+          if (instruction is TimelineAddEntries) {
+            newEntries = validEntries = _processEntries(instruction.entries);
+            _refreshCursor(instruction.entries);
+          }
+        }
         if (newEntries.isEmpty) {
           _noMore = true;
         } else {
@@ -123,11 +149,27 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
-      ResponseResult res = await UserApi.getFriendList(
-          userId: widget.userId, cursorBottom: cursorBottom);
+      ResponseResult res;
+      switch (widget.type) {
+        case ListMembersFlowType.members:
+          res = await ListApi.getMembers(
+              listId: widget.listId, cursor: cursorBottom!.value);
+          break;
+        case ListMembersFlowType.subscribers:
+          res = await ListApi.getSubscribers(
+              listId: widget.listId, cursor: cursorBottom!.value);
+          break;
+      }
       if (res.success) {
-        List<UserLegacy> newEntries = res.data;
-        users.addAll(newEntries);
+        Timeline timeline = res.data;
+        List<TimelineUser> newEntries = [];
+        for (var instruction in timeline.instructions) {
+          if (instruction is TimelineAddEntries) {
+            validEntries.addAll(_processEntries(instruction.entries));
+            newEntries = _processEntries(instruction.entries);
+            _refreshCursor(instruction.entries);
+          }
+        }
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -149,6 +191,32 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
     }
   }
 
+  _refreshCursor(List<TimelineAddEntry> entries) {
+    for (var entry in entries) {
+      if (entry.content is TimelineTimelineCursor) {
+        if ((entry.content as TimelineTimelineCursor).cursorType ==
+            CursorType.top) {
+          cursorTop = entry.content as TimelineTimelineCursor;
+        } else if ((entry.content as TimelineTimelineCursor).cursorType ==
+            CursorType.bottom) {
+          cursorBottom = entry.content as TimelineTimelineCursor;
+        }
+      }
+    }
+  }
+
+  List<TimelineUser> _processEntries(List<TimelineAddEntry> entries) {
+    List<TimelineUser> result = [];
+    for (var entry in entries) {
+      if (entry.content is TimelineTimelineItem &&
+          (entry.content as TimelineTimelineItem).itemContent is TimelineUser) {
+        result.add((entry.content as TimelineTimelineItem).itemContent
+            as TimelineUser);
+      }
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -165,7 +233,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
       child: ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: users.isNotEmpty || !_inited
+        child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
                 padding: ResponsiveUtil.isLandscape()
@@ -176,18 +244,23 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
                 children: List.generate(
-                  users.length,
+                  validEntries.length,
                   (index) {
-                    return UserItem(userLegacy: users[index]);
+                    return _buildUserItem(validEntries[index]);
                   },
                 ),
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无好友",
+                text: "暂无用户",
                 scrollController: _scrollController,
               ),
       ),
     );
+  }
+
+  _buildUserItem(TimelineUser timelineUser) {
+    User user = timelineUser.userResults!.result as User;
+    return UserItem(userLegacy: user.legacy);
   }
 }

@@ -14,32 +14,33 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Flow/friends_flow_screen.dart';
-import 'package:twitee/Screens/Flow/user_flow_screen.dart';
+import 'package:twitee/Screens/Flow/list_members_flow_screen.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Models/tab_item_data.dart';
 import '../../Utils/app_provider.dart';
-import '../../Utils/hive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
-class FriendshipScreen extends StatefulWidget {
-  const FriendshipScreen({super.key, this.userId, this.initType});
+class ListMembersScreen extends StatefulWidget {
+  const ListMembersScreen({
+    super.key,
+    required this.listId,
+    this.initType,
+  });
 
-  final String? userId;
+  final String listId;
 
-  final UserFlowType? initType;
+  final ListMembersFlowType? initType;
 
-  static const String routeName = "/navigtion/friendship";
+  static const String routeName = "/navigtion/listMembers";
 
   @override
-  State<FriendshipScreen> createState() => FriendshipScreenState();
+  State<ListMembersScreen> createState() => ListMembersScreenState();
 }
 
-class FriendshipScreenState extends State<FriendshipScreen>
+class ListMembersScreenState extends State<ListMembersScreen>
     with TickerProviderStateMixin, ScrollToHideMixin {
   late TabController _tabController;
   late AnimationController _refreshRotationController;
@@ -49,48 +50,30 @@ class FriendshipScreenState extends State<FriendshipScreen>
 
   int get currentIndex => _tabController.index;
 
-  bool get isOther => widget.userId != null;
-
   initTab() {
-    UserInfo? info = HiveUtil.getUserInfo();
-    String userId = widget.userId ?? info!.idStr;
-    tabDataList.addAll([
-      TabItemData.build(
-        "正在关注",
-        (key, scrollController) => UserFlowScreen(
-          key: key,
-          type: UserFlowType.following,
-          userId: userId,
-          scrollController: scrollController,
+    String listId = widget.listId;
+    tabDataList.addAll(
+      [
+        TabItemData.build(
+          "成员",
+          (key, scrollController) => ListMembersFlowScreen(
+            key: key,
+            type: ListMembersFlowType.members,
+            listId: listId,
+            scrollController: scrollController,
+          ),
         ),
-      ),
-      TabItemData.build(
-        "关注者",
-        (key, scrollController) => UserFlowScreen(
-          key: key,
-          type: UserFlowType.follower,
-          userId: userId,
-          scrollController: scrollController,
+        TabItemData.build(
+          "关注者",
+          (key, scrollController) => ListMembersFlowScreen(
+            key: key,
+            type: ListMembersFlowType.subscribers,
+            listId: listId,
+            scrollController: scrollController,
+          ),
         ),
-      ),
-      TabItemData.build(
-        "认证关注者",
-        (key, scrollController) => UserFlowScreen(
-          key: key,
-          type: UserFlowType.blueVerifiedFollower,
-          userId: userId,
-          scrollController: scrollController,
-        ),
-      ),
-      TabItemData.build(
-        "好友",
-        (key, scrollController) => FriendsFlowScreen(
-          key: key,
-          userId: userId,
-          scrollController: scrollController,
-        ),
-      ),
-    ]);
+      ],
+    );
     _tabController = TabController(length: tabDataList.length, vsync: this);
     if (widget.initType != null) {
       _tabController.index = widget.initType!.index;
@@ -112,15 +95,14 @@ class FriendshipScreenState extends State<FriendshipScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        showBack: isOther,
-        spacing: isOther && ResponsiveUtil.isLandscape() ? 0 : 10,
+        showBack: true,
+        spacing: ResponsiveUtil.isLandscape() ? 0 : 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,
           tabDataList.tabList,
           onTap: onTapTab,
           autoScrollable: false,
-          padding: const EdgeInsets.only(right: 10),
         ),
       ),
       body: Stack(
