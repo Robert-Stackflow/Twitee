@@ -17,9 +17,11 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
+import 'package:twitee/Screens/Detail/list_membership_manage_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/constant.dart';
+import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
@@ -230,13 +232,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           _buildFeedbackItem(
             text: _currentFeedbackType!.getMessage(screenName),
             onRevoke: () async {
-              await _processFeedback(
-                feedbackType: _currentFeedbackType!,
-                undo: true,
-                destFeedbackType: _currentFeedbackType == FeedbackType.DontLike
-                    ? null
-                    : FeedbackType.DontLike,
-              );
+              await IToast.showLoadingSnackbar(
+                  "正在撤销反馈",
+                  () async => await _processFeedback(
+                        feedbackType: _currentFeedbackType!,
+                        undo: true,
+                        destFeedbackType:
+                            _currentFeedbackType == FeedbackType.DontLike
+                                ? null
+                                : FeedbackType.DontLike,
+                      ));
             },
           ),
           if (_currentFeedbackType == FeedbackType.DontLike)
@@ -248,22 +253,26 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   _buildMoreFeedbackItem(
                     text: "显示更少来自 $screenName 的帖子",
                     onTap: () async {
-                      await _processFeedback(
-                        feedbackType: FeedbackType.SeeFewer,
-                        undo: false,
-                        destFeedbackType: FeedbackType.SeeFewer,
-                      );
+                      await IToast.showLoadingSnackbar(
+                          "正在反馈",
+                          () async => await _processFeedback(
+                                feedbackType: FeedbackType.SeeFewer,
+                                undo: false,
+                                destFeedbackType: FeedbackType.SeeFewer,
+                              ));
                     },
                   ),
                   const SizedBox(height: 8),
                   _buildMoreFeedbackItem(
                     text: "这个帖子没有相关性",
                     onTap: () async {
-                      await _processFeedback(
-                        feedbackType: FeedbackType.NotRelevant,
-                        undo: false,
-                        destFeedbackType: FeedbackType.NotRelevant,
-                      );
+                      await IToast.showLoadingSnackbar(
+                          "正在反馈",
+                          () async => await _processFeedback(
+                                feedbackType: FeedbackType.NotRelevant,
+                                undo: false,
+                                destFeedbackType: FeedbackType.NotRelevant,
+                              ));
                     },
                   ),
                 ],
@@ -357,36 +366,33 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (showFeedback)
           ContextMenuButtonConfig(
             "对此帖子不感兴趣",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child:
-                    const Icon(Icons.sentiment_dissatisfied_rounded, size: 20)),
+            icon: const Icon(Icons.sentiment_dissatisfied_rounded),
             onPressed: () async {
-              await _processFeedback(
-                feedbackType: FeedbackType.DontLike,
-                undo: false,
-                destFeedbackType: FeedbackType.DontLike,
-              );
+              await IToast.showLoadingSnackbar(
+                  "正在反馈",
+                  () async => await _processFeedback(
+                        feedbackType: FeedbackType.DontLike,
+                        undo: false,
+                        destFeedbackType: FeedbackType.DontLike,
+                      ));
             },
           ),
         if (showFeedback) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "${user.legacy.following ?? false ? "取消关注" : "关注"} @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: Icon(
-                  user.legacy.following ?? false
-                      ? Icons.person_remove_outlined
-                      : Icons.person_add_outlined,
-                  size: 20)),
+          icon: Icon(
+            user.legacy.following ?? false
+                ? Icons.person_remove_outlined
+                : Icons.person_add_outlined,
+          ),
           onPressed: () async {
             if (user.legacy.following ?? false) {
               DialogBuilder.showConfirmDialog(context,
                   title: "取消关注 @$screenName？",
                   message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                   onTapConfirm: () async {
-                var res = await UserApi.unfollow(userId: user.restId!);
-                IToast.showSnackBar("正在", buttonText: "撤销");
+                var res = await IToast.showLoadingSnackbar("正在取消关注@$screenName",
+                    () async => await UserApi.unfollow(userId: user.restId!));
                 if (res.success) {
                   user.legacy.following = false;
                   setState(() {});
@@ -396,7 +402,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 }
               });
             } else {
-              var res = await UserApi.follow(userId: user.restId!);
+              var res = await IToast.showLoadingSnackbar("正在关注@$screenName",
+                  () async => await UserApi.follow(userId: user.restId!));
               if (res.success) {
                 user.legacy.following = true;
                 setState(() {});
@@ -409,16 +416,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "${user.legacy.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: Icon(
-                  user.legacy.blocking ?? false
-                      ? Icons.favorite_border_rounded
-                      : Icons.heart_broken_outlined,
-                  size: 20)),
+          icon: Icon(
+            user.legacy.blocking ?? false
+                ? Icons.favorite_border_rounded
+                : Icons.heart_broken_outlined,
+          ),
           onPressed: () async {
             if (user.legacy.blocking ?? false) {
-              var res = await UserApi.unblock(userId: user.restId!);
+              var res = await IToast.showLoadingSnackbar("正在取消屏蔽@$screenName",
+                  () async => await UserApi.unblock(userId: user.restId!));
               if (res.success) {
                 user.legacy.blocking = false;
                 setState(() {});
@@ -432,7 +438,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 title: "屏蔽 @$screenName？",
                 message: "他们将无法关注你或查看你的帖子，而你也将无法看到 @$screenName 的帖子或通知。",
                 onTapConfirm: () async {
-                  var res = await UserApi.block(userId: user.restId!);
+                  var res = await IToast.showLoadingSnackbar("正在屏蔽@$screenName",
+                      () async => await UserApi.block(userId: user.restId!));
                   if (res.success) {
                     user.legacy.blocking = true;
                     setState(() {});
@@ -447,16 +454,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "${user.legacy.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: Icon(
-                  user.legacy.muting ?? false
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 20)),
+          icon: Icon(
+            user.legacy.muting ?? false
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+          ),
           onPressed: () async {
             if (user.legacy.muting ?? false) {
-              var res = await UserApi.unmute(userId: user.restId!);
+              var res = await IToast.showLoadingSnackbar("正在取消隐藏@$screenName",
+                  () async => await UserApi.unmute(userId: user.restId!));
               if (res.success) {
                 user.legacy.muting = false;
                 setState(() {});
@@ -470,7 +476,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 title: "隐藏 @$screenName？",
                 message: "你将无法在为你推荐或已关注中看到 @$screenName 的帖子或通知。",
                 onTapConfirm: () async {
-                  var res = await UserApi.mute(userId: user.restId!);
+                  var res = await IToast.showLoadingSnackbar("正在隐藏@$screenName",
+                      () async => await UserApi.mute(userId: user.restId!));
                   if (res.success) {
                     user.legacy.muting = true;
                     setState(() {});
@@ -485,26 +492,33 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "从列表添加或移除 @$screenName",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.playlist_add_rounded, size: 20)),
-          onPressed: () async {},
+          icon: const Icon(Icons.playlist_add_rounded),
+          onPressed: () async {
+            if (ResponsiveUtil.isLandscape()) {
+              RouteUtil.pushDialogRoute(
+                context,
+                ListMembershipManageScreen(targetUserId: user.restId!),
+              );
+            } else {
+              BottomSheetBuilder.showBottomSheet(
+                context,
+                (context) =>
+                    ListMembershipManageScreen(targetUserId: user.restId!),
+              );
+            }
+          },
         ),
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享帖子",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: const Icon(Icons.share_rounded, size: 18)),
+          icon: const Icon(Icons.share_rounded),
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
         ContextMenuButtonConfig(
           "复制帖子链接",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.link_rounded, size: 20)),
+          icon: const Icon(Icons.link_rounded),
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制帖子链接");
           },
@@ -512,18 +526,14 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (ResponsiveUtil.isMobile())
           ContextMenuButtonConfig(
             "访问原帖子",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: const Icon(Icons.view_carousel_outlined, size: 20)),
+            icon: const Icon(Icons.view_carousel_outlined),
             onPressed: () async {
-              UriUtil.openInternal(context,url);
+              UriUtil.openInternal(context, url);
             },
           ),
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.open_in_browser_rounded, size: 20)),
+          icon: const Icon(Icons.open_in_browser_rounded),
           onPressed: () async {
             UriUtil.openExternal(url);
           },
@@ -701,27 +711,35 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildUserRow(tweet, isQuote: false, showAvatar: false),
-        const SizedBox(height: 8),
-        if (Utils.isNotEmpty(fullText))
-          ItemBuilder.buildHtmlWidget(
-            context,
-            fullText,
-            style: Theme.of(context).textTheme.bodyMedium,
+        Container(
+          padding: const EdgeInsets.only(right: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              if (Utils.isNotEmpty(fullText))
+                ItemBuilder.buildHtmlWidget(
+                  context,
+                  fullText,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
+              ..._buildTranslation(tweet),
+              if (TweetUtil.hasTranslation(tweet) &&
+                  (TweetUtil.hasMedia(tweet) || TweetUtil.hasQueto(tweet)))
+                const SizedBox(height: 8),
+              if (TweetUtil.hasMedia(tweet)) _buildMedia(tweet),
+              if (TweetUtil.hasMedia(tweet) && TweetUtil.hasQueto(tweet))
+                const SizedBox(height: 8),
+              if (TweetUtil.hasQueto(tweet))
+                _buildQuoteTweet(
+                    TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
+              SizedBox(height: TweetUtil.hasRichContent(tweet) ? 12 : 4),
+              if (!widget.isDetail) _buildOperations(tweet),
+              if (!widget.isDetail) SizedBox(height: bottom),
+            ],
           ),
-        if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
-        ..._buildTranslation(tweet),
-        if (TweetUtil.hasTranslation(tweet) &&
-            (TweetUtil.hasMedia(tweet) || TweetUtil.hasQueto(tweet)))
-          const SizedBox(height: 8),
-        if (TweetUtil.hasMedia(tweet)) _buildMedia(tweet),
-        if (TweetUtil.hasMedia(tweet) && TweetUtil.hasQueto(tweet))
-          const SizedBox(height: 8),
-        if (TweetUtil.hasQueto(tweet))
-          _buildQuoteTweet(
-              TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
-        SizedBox(height: TweetUtil.hasRichContent(tweet) ? 12 : 4),
-        if (!widget.isDetail) _buildOperations(tweet),
-        if (!widget.isDetail) SizedBox(height: bottom),
+        ),
       ],
     );
   }
@@ -909,6 +927,45 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  _buildImageMediaContextMenuButtons(Media media, List<Media> medias) {
+    return GenericContextMenu(
+      buttonConfigs: [
+        ContextMenuButtonConfig(
+          "查看${TweetUtil.getMediaDescription(media)}",
+          icon: const Icon(Icons.view_carousel_outlined, size: 24),
+          onPressed: () {
+            RouteUtil.pushDialogRoute(
+              context,
+              showClose: false,
+              fullScreen: true,
+              useMaterial: true,
+              HeroMediaViewScreen(
+                medias: medias,
+                useMainColor: true,
+                initIndex: medias.indexOf(media),
+              ),
+            );
+          },
+        ),
+        ContextMenuButtonConfig(
+          "保存${TweetUtil.getMediaDescription(media)}",
+          icon: const Icon(Icons.save_alt_rounded, size: 24),
+          onPressed: () {
+            ImageUtil.saveMedia(context, media);
+          },
+        ),
+        if (medias.length > 1)
+          ContextMenuButtonConfig(
+            "保存所有${TweetUtil.getMediasDescription(medias)}",
+            icon: const Icon(Icons.save_alt_rounded, size: 24),
+            onPressed: () {
+              ImageUtil.saveMedias(context, medias);
+            },
+          ),
+      ],
+    );
+  }
+
   _buildImageMedia(
     Media media,
     int index,
@@ -921,7 +978,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     String tag = Utils.generateUid();
     double ratio = isQueto ? 1 : media.sizes.large.w / media.sizes.large.h;
     ratio = ratio.clamp(0.8, 2);
-    return Stack(
+    var stack = Stack(
       children: [
         Container(
           decoration: BoxDecoration(
@@ -984,6 +1041,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             },
           ),
       ],
+    );
+    showContextMenu() => BottomSheetBuilder.showContextMenu(
+        context, _buildImageMediaContextMenuButtons(media, medias));
+    return GestureDetector(
+      onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+      onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
+      child: stack,
     );
   }
 
@@ -1091,7 +1155,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           child: container,
         );
       }
-      return VisibilityDetector(
+      var detector = VisibilityDetector(
         key: Key(videoUrl),
         onVisibilityChanged: (info) {
           if (!isGif) {
@@ -1125,6 +1189,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               ? AspectRatio(aspectRatio: ratio, child: container)
               : container,
         ),
+      );
+      showContextMenu() => BottomSheetBuilder.showContextMenu(
+          context, _buildImageMediaContextMenuButtons(media, medias));
+      return GestureDetector(
+        onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+        onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
+        child: detector,
       );
     }
   }
@@ -1205,6 +1276,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildOperations(Tweet tweet) {
+    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
     return Container(
       margin: EdgeInsets.only(left: widget.isDetail ? 8 : 0, right: 8),
       child: Row(
@@ -1214,12 +1286,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             context,
             tooltip:
                 "${Utils.formatCountWithDot(tweet.legacy!.replyCount ?? 0)} 回复",
-            icon: Icon(
-              Icons.mode_comment_outlined,
-              size: 18,
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-            color: Theme.of(context).textTheme.bodySmall?.color,
+            icon:
+                Icon(Icons.mode_comment_outlined, size: 18, color: labelColor),
+            color: labelColor,
             fontSizeDelta: -1,
             text: (tweet.legacy!.replyCount ?? 0).toString(),
           ),
@@ -1232,18 +1301,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   ? Icons.repeat_rounded
                   : Icons.repeat_outlined,
               size: 18,
-              color: tweet.legacy!.retweeted
-                  ? Colors.green
-                  : Theme.of(context).textTheme.bodySmall?.color,
+              color: tweet.legacy!.retweeted ? Colors.green : labelColor,
             ),
-            color: tweet.legacy!.retweeted
-                ? Colors.green
-                : Theme.of(context).textTheme.bodySmall?.color,
+            color: tweet.legacy!.retweeted ? Colors.green : labelColor,
             fontSizeDelta: -1,
             text: Utils.formatCount(tweet.legacy!.retweetCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.retweeted) {
-                var res = await PostApi.deleteRetweet(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar(
+                    "正在取消转推",
+                    () async =>
+                        await PostApi.deleteRetweet(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.retweeted = false;
                   tweet.legacy!.retweetCount =
@@ -1254,7 +1322,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   IToast.showTop("取消转推失败");
                 }
               } else {
-                var res = await PostApi.retweet(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar("正在转推",
+                    () async => await PostApi.retweet(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.retweeted = true;
                   tweet.legacy!.retweetCount =
@@ -1276,18 +1345,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   ? Icons.favorite_rounded
                   : Icons.favorite_border_rounded,
               size: 18,
-              color: tweet.legacy!.favorited
-                  ? Colors.redAccent
-                  : Theme.of(context).textTheme.bodySmall?.color,
+              color: tweet.legacy!.favorited ? Colors.redAccent : labelColor,
             ),
-            color: tweet.legacy!.favorited
-                ? Colors.redAccent
-                : Theme.of(context).textTheme.bodySmall?.color,
+            color: tweet.legacy!.favorited ? Colors.redAccent : labelColor,
             fontSizeDelta: -1,
             text: Utils.formatCount(tweet.legacy!.favoriteCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.favorited) {
-                var res = await PostApi.unlike(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar("正在取消喜欢",
+                    () async => await PostApi.unlike(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.favorited = false;
                   tweet.legacy!.favoriteCount =
@@ -1298,7 +1364,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   IToast.showTop("取消喜欢失败");
                 }
               } else {
-                var res = await PostApi.like(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar("正在喜欢",
+                    () async => await PostApi.like(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.favorited = true;
                   tweet.legacy!.favoriteCount =
@@ -1318,9 +1385,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           //   icon: Icon(
           //     Icons.remove_red_eye_outlined,
           //     size: 18,
-          //     color: Theme.of(context).textTheme.bodySmall?.color,
+          //     color: labelColor,
           //   ),
-          //   color: Theme.of(context).textTheme.bodySmall?.color,
+          //   color: labelColor,
           //   fontSizeDelta: -1,
           //   text:
           //       Utils.formatCount(int.tryParse(tweet.views?.count ?? "") ?? 0),
@@ -1334,18 +1401,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   ? Icons.bookmark_rounded
                   : Icons.bookmark_border_rounded,
               size: 18,
-              color: tweet.legacy!.bookmarked
-                  ? Colors.blueAccent
-                  : Theme.of(context).textTheme.bodySmall?.color,
+              color: tweet.legacy!.bookmarked ? Colors.blueAccent : labelColor,
             ),
-            color: tweet.legacy!.bookmarked
-                ? Colors.blueAccent
-                : Theme.of(context).textTheme.bodySmall?.color,
+            color: tweet.legacy!.bookmarked ? Colors.blueAccent : labelColor,
             fontSizeDelta: -1,
             text: Utils.formatCount(tweet.legacy!.bookmarkCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.bookmarked) {
-                var res = await PostApi.deleteBookmark(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar(
+                    "正在移除书签",
+                    () async =>
+                        await PostApi.deleteBookmark(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.bookmarked = false;
                   tweet.legacy!.bookmarkCount =
@@ -1356,7 +1422,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   IToast.showTop("移除书签失败");
                 }
               } else {
-                var res = await PostApi.createBookmark(tweetId: tweet.restId!);
+                var res = await IToast.showLoadingSnackbar(
+                    "正在添加书签",
+                    () async =>
+                        await PostApi.createBookmark(tweetId: tweet.restId!));
                 if (res.success) {
                   tweet.legacy!.bookmarked = true;
                   tweet.legacy!.bookmarkCount =
@@ -1376,17 +1445,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(
-                          Theme.of(context).textTheme.bodySmall?.color),
+                      valueColor: AlwaysStoppedAnimation(labelColor),
                       strokeWidth: 2,
-                      value: null,
+                      strokeCap: StrokeCap.round,
                     ),
                   )
-                : Icon(
-                    Icons.translate_rounded,
-                    size: 16,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+                : Icon(Icons.translate_rounded, size: 16, color: labelColor),
             color: Theme.of(context).textTheme.bodySmall?.color,
             fontSizeDelta: -1,
             onTap: () async {

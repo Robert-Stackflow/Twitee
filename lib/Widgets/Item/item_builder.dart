@@ -158,6 +158,7 @@ class ItemBuilder {
                       ResponsiveUtil.isLandscape()
                           ? finalTitle
                           : Expanded(child: finalTitle),
+                      if (ResponsiveUtil.isDesktop()) Container(width: 173),
                     ],
                   ),
                 ),
@@ -421,10 +422,9 @@ class ItemBuilder {
   }) {
     padding ??= ResponsiveUtil.isLandscape()
         ? const EdgeInsets.symmetric(horizontal: 10)
-        : null;
+        : const EdgeInsets.only(right: 10);
     bool scrollable = !(autoScrollable && !ResponsiveUtil.isLandscape());
     var titleMedium = Theme.of(context).textTheme.titleMedium;
-    var primaryColor = Theme.of(context).primaryColor;
     return PreferredSize(
       preferredSize: Size.fromHeight(height ?? 56),
       child: Container(
@@ -453,7 +453,7 @@ class ItemBuilder {
             padding: padding,
             isScrollable: scrollable,
             tabAlignment: scrollable ? TabAlignment.start : null,
-            physics: const ClampingScrollPhysics(),
+            // physics: const ClampingScrollPhysics(),
             labelStyle: titleMedium?.apply(
               fontWeightDelta: 2,
               // color: ColorUtil.getComplementaryColor(primaryColor),
@@ -893,6 +893,7 @@ class ItemBuilder {
     required IconData leading,
     Function()? onTap,
     EdgeInsets? padding,
+    double? leadingSize,
   }) {
     return Material(
       child: InkWell(
@@ -902,8 +903,8 @@ class ItemBuilder {
               const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           child: Row(
             children: [
-              Icon(leading, size: 26),
-              const SizedBox(width: 12),
+              Icon(leading, size: leadingSize ?? 24),
+              const SizedBox(width: 16),
               Text(
                 title,
                 style: Theme.of(context)
@@ -1256,7 +1257,12 @@ class ItemBuilder {
               child: Row(
                 children: [
                   if (isCheckbox) checkIcon,
-                  if (config.icon != null) config.icon!,
+                  if (config.icon != null)
+                    Transform.scale(
+                      scale: 0.83,
+                      child: config.icon!,
+                    ),
+                  if (config.icon != null) const SizedBox(width: 10),
                   Text(
                     config.label,
                     style: Theme.of(context).textTheme.bodyMedium?.apply(
@@ -1271,6 +1277,42 @@ class ItemBuilder {
         );
       },
       child: child,
+    );
+  }
+
+  static Widget buildCountItem(
+    BuildContext context, {
+    required String title,
+    required String value,
+    Function()? onTap,
+    double fontSizeDelta = 0,
+  }) {
+    return ItemBuilder.buildClickItem(
+      clickable: onTap != null,
+      GestureDetector(
+        onTap: onTap,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(fontWeightDelta: 2, fontSizeDelta: fontSizeDelta),
+              ),
+              const WidgetSpan(child: SizedBox(width: 4)),
+              TextSpan(
+                text: title,
+                style: Theme.of(context).textTheme.titleMedium?.apply(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontSizeDelta: fontSizeDelta,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1842,7 +1884,7 @@ class ItemBuilder {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-            color: Colors.grey.withOpacity(opacity),
+            color: Colors.black38.withOpacity(opacity),
             borderRadius: isCircle
                 ? null
                 : BorderRadius.all(Radius.circular(radius ?? 50)),
@@ -2382,18 +2424,20 @@ class ItemBuilder {
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon != null && showIcon)
                     RotatedBox(quarterTurns: quarterTurns, child: icon),
                   if (icon != null && showIcon) SizedBox(width: spacing),
-                  Text(
-                    text,
-                    style: Theme.of(context).textTheme.titleSmall?.apply(
-                          fontSizeDelta: fontSizeDelta,
-                          color: color,
-                          fontWeightDelta: fontWeightDelta,
-                        ),
-                  ),
+                  if (showText && text != "0")
+                    Text(
+                      text,
+                      style: Theme.of(context).textTheme.titleSmall?.apply(
+                            fontSizeDelta: fontSizeDelta,
+                            color: color,
+                            fontWeightDelta: fontWeightDelta,
+                          ),
+                    ),
                 ],
               )
             : Column(
@@ -2406,7 +2450,7 @@ class ItemBuilder {
                         child: ItemBuilder.buildIconButton(
                             context: context, icon: icon, onTap: onTap)),
                   if (icon != null && showIcon) SizedBox(height: spacing),
-                  if (showText)
+                  if (showText && text != "0")
                     Text(
                       text,
                       style: Theme.of(context).textTheme.titleSmall?.apply(
@@ -2748,10 +2792,18 @@ class ItemBuilder {
     bool forceClose = false,
   }) {
     return Container(
-      color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+      decoration: BoxDecoration(
+        color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        border: Border(
+          left: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
+      ),
       child: WindowTitleBar(
         useMoveHandle: ResponsiveUtil.isDesktop(),
-        titleBarHeightDelta: 30,
+        titleBarHeightDelta: 26,
         margin: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
@@ -2759,6 +2811,7 @@ class ItemBuilder {
             // const Spacer(),
             Row(
               children: [
+                const SizedBox(width: 10),
                 ...rightButtons,
                 StayOnTopWindowButton(
                   context: context,

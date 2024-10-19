@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, unused_import
 
+import 'package:twitee/Openapi/models/timeline_topic.dart';
 import 'package:twitee/Openapi/models/timline_trend.dart';
 
 import 'content_union.dart';
@@ -32,12 +33,27 @@ abstract class ItemContentUnion extends ContentUnion {
         return TimelineCommunity.fromJson(json);
       case "TimelineTwitterList":
         return TimelineTwitterList.fromJson(json);
+      case "TimelineTopic":
+        return TimelineTopic.fromJson(json);
       case "TimelineTrend":
         return TimelineTrend.fromJson(json);
+      case "TimelineEventSummary":
+        return TimelineEventSummary();
       default:
         throw ArgumentError('Unknown ItemContentUnion: $json');
     }
   }
 
+  Map<String, Object?> toJson() => {};
+}
+
+class TimelineEventSummary extends ItemContentUnion {
+  const TimelineEventSummary();
+
+  factory TimelineEventSummary.fromJson(Map<String, Object?> json) {
+    return TimelineEventSummary();
+  }
+
+  @override
   Map<String, Object?> toJson() => {};
 }

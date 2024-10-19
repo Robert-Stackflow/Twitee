@@ -33,12 +33,14 @@ class TimelineTwitterList extends ItemContentUnion {
     return TimelineTwitterList(
       itemType: json['itemType'] as String,
       privateTypename: json['__typename'] as String,
-      displayType: json['displayType'] as String,
+      displayType:
+          json['displayType'] != null ? json['displayType'] as String : "",
       list: TimelineTwitterListInfo.fromJson(
           json['list'] as Map<String, Object?>),
     );
   }
 
+  @override
   Map<String, Object?> toJson() {
     return {
       'itemType': itemType,
@@ -78,7 +80,7 @@ class TimelineTwitterListInfo {
   bool following;
   final String id;
   final String idStr;
-  final bool isMember;
+  bool isMember;
   final int memberCount;
   final String membersContext;
   String mode;
@@ -106,7 +108,9 @@ class TimelineTwitterListInfo {
       idStr: json['id_str'] as String,
       isMember: json['is_member'] as bool,
       memberCount: json['member_count'] as int,
-      membersContext: json['members_context'] as String,
+      membersContext: json['members_context'] != null
+          ? json['members_context'] as String
+          : "",
       mode: json['mode'] as String,
       muting: json['muting'] as bool,
       name: json['name'] as String,

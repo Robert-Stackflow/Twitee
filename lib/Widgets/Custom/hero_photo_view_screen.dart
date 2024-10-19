@@ -349,6 +349,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           child: const CircularProgressIndicator(
             color: Colors.white,
             strokeWidth: 2,
+            strokeCap: StrokeCap.round,
           ),
         );
         break;
@@ -383,6 +384,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           child: const CircularProgressIndicator(
             color: Colors.white,
             strokeWidth: 2,
+            strokeCap: StrokeCap.round,
           ),
         );
         break;

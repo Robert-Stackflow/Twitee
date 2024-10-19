@@ -336,6 +336,162 @@ class ListApi {
     }
   }
 
+  static Future<ResponseResult> getMemberships({
+    required String userId,
+    required String targetUserId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting list memberships");
+      final response = await RequestUtil.get(
+        "/3UIOLZ-k4GQ2JVJCFVXRzw/ListOwnerships",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "isListMemberTargetUserId": targetUserId,
+            "count": 20,
+            "cursor": cursor,
+          }),
+          "features": jsonEncode(
+            {
+              "rweb_tipjar_consumption_enabled": true,
+              "responsive_web_graphql_exclude_directive_enabled": true,
+              "verified_phone_label_enabled": false,
+              "creator_subscriptions_tweet_preview_api_enabled": true,
+              "responsive_web_graphql_timeline_navigation_enabled": true,
+              "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                  false,
+              "communities_web_enable_tweet_community_results_fetch": true,
+              "c9s_tweet_anatomy_moderator_badge_enabled": true,
+              "articles_preview_enabled": true,
+              "responsive_web_edit_tweet_api_enabled": true,
+              "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
+                  true,
+              "view_counts_everywhere_api_enabled": true,
+              "longform_notetweets_consumption_enabled": true,
+              "responsive_web_twitter_article_tweet_consumption_enabled": true,
+              "tweet_awards_web_tipping_enabled": false,
+              "creator_subscriptions_quote_tweet_preview_enabled": false,
+              "freedom_of_speech_not_reach_fetch_enabled": true,
+              "standardized_nudges_misinfo": true,
+              "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+                  true,
+              "rweb_video_timestamps_enabled": true,
+              "longform_notetweets_rich_text_read_enabled": true,
+              "longform_notetweets_inline_media_enabled": true,
+              "responsive_web_enhance_cards_enabled": false
+            },
+          )
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get list memberships",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: Timeline.fromJson(
+            data['data']['user']['result']['timeline']['timeline']),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get list memberships", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> addMember({
+    required String userId,
+    required String listId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Adding list member");
+      final response = await RequestUtil.post(
+        "/ERYAvwDKDYPfNDsloMpquw/ListAddMember",
+        domainType: DomainType.graphql,
+        data: {
+          "variables": {
+            "userId": userId,
+            "listId": listId,
+          },
+          "features": {
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                false,
+            "responsive_web_graphql_timeline_navigation_enabled": true
+          },
+          "queryId": "3UIOLZ-k4GQ2JVJCFVXRzw"
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to add list member",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to add list member", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> deleteMember({
+    required String userId,
+    required String listId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Deleting list member");
+      final response = await RequestUtil.post(
+        "/Kf_BbL5iUyQc3QD4IpTL5Q/ListRemoveMember",
+        domainType: DomainType.graphql,
+        data: {
+          "variables": {
+            "userId": userId,
+            "listId": listId,
+          },
+          "features": {
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                false,
+            "responsive_web_graphql_timeline_navigation_enabled": true
+          },
+          "queryId": "Kf_BbL5iUyQc3QD4IpTL5Q"
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to delete list member",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to delete list member", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
   static Future<ResponseResult> getSubscribers({
     required String listId,
     String? cursor,

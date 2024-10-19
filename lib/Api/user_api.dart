@@ -474,6 +474,70 @@ class UserApi {
     }
   }
 
+  static Future<ResponseResult> getSubscriptions({
+    required String userId,
+    int count = 20,
+    String? cursorBottom,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting subscriptions");
+      final response = await RequestUtil.get(
+        "/LE6RjmjkSMWorQcJu55wFg/UserCreatorSubscriptions",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": 20,
+            "cursor": cursorBottom,
+            "includePromotedContent": false,
+          }),
+          "features": jsonEncode({
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "creator_subscriptions_tweet_preview_api_enabled": true,
+            "responsive_web_graphql_timeline_navigation_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+            false,
+            "communities_web_enable_tweet_community_results_fetch": true,
+            "c9s_tweet_anatomy_moderator_badge_enabled": true,
+            "articles_preview_enabled": true,
+            "responsive_web_edit_tweet_api_enabled": true,
+            "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+            "view_counts_everywhere_api_enabled": true,
+            "longform_notetweets_consumption_enabled": true,
+            "responsive_web_twitter_article_tweet_consumption_enabled": true,
+            "tweet_awards_web_tipping_enabled": false,
+            "creator_subscriptions_quote_tweet_preview_enabled": false,
+            "freedom_of_speech_not_reach_fetch_enabled": true,
+            "standardized_nudges_misinfo": true,
+            "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+            true,
+            "rweb_video_timestamps_enabled": true,
+            "longform_notetweets_rich_text_read_enabled": true,
+            "longform_notetweets_inline_media_enabled": true,
+            "responsive_web_enhance_cards_enabled": false,
+          })
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get subscriptions",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: FollowResponse.fromJson(data),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get subscriptions", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
   static Future<ResponseResult> getBlueVerifiedFollowerList({
     required String userId,
     int count = 20,
@@ -535,6 +599,71 @@ class UserApi {
     } catch (e, t) {
       ILogger.error(
           "Twitee", "Failed to get blue verified follower list", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getFollowerYouKnowList({
+    required String userId,
+    int count = 20,
+    String? cursorBottom,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting follower you know list");
+      final response = await RequestUtil.get(
+        "/JDcfgeQj5nyNGGRk46JM5w/FollowersYouKnow",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": 20,
+            "cursor": cursorBottom,
+            "includePromotedContent": false,
+          }),
+          "features": jsonEncode({
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "creator_subscriptions_tweet_preview_api_enabled": true,
+            "responsive_web_graphql_timeline_navigation_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+            false,
+            "communities_web_enable_tweet_community_results_fetch": true,
+            "c9s_tweet_anatomy_moderator_badge_enabled": true,
+            "articles_preview_enabled": true,
+            "responsive_web_edit_tweet_api_enabled": true,
+            "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+            "view_counts_everywhere_api_enabled": true,
+            "longform_notetweets_consumption_enabled": true,
+            "responsive_web_twitter_article_tweet_consumption_enabled": true,
+            "tweet_awards_web_tipping_enabled": false,
+            "creator_subscriptions_quote_tweet_preview_enabled": false,
+            "freedom_of_speech_not_reach_fetch_enabled": true,
+            "standardized_nudges_misinfo": true,
+            "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+            true,
+            "rweb_video_timestamps_enabled": true,
+            "longform_notetweets_rich_text_read_enabled": true,
+            "longform_notetweets_inline_media_enabled": true,
+            "responsive_web_enhance_cards_enabled": false,
+          })
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get follower you know list",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: FollowResponse.fromJson(data),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error(
+          "Twitee", "Failed to get follower you know list", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }
@@ -601,7 +730,7 @@ class UserApi {
             "userId": userId,
             "count": count,
             "cursor": cursorBottom,
-            "includePromotedContent": true,
+            "includePromotedContent": false,
             "withQuickPromoteEligibilityTweetFields": true,
             "withVoice": true,
             "withV2Timeline": true,
@@ -666,7 +795,7 @@ class UserApi {
             "userId": userId,
             "count": count,
             "cursor": cursorBottom,
-            "includePromotedContent": true,
+            "includePromotedContent": false,
             "withCommunity": true,
             "withVoice": true,
             "withV2Timeline": true,
@@ -693,6 +822,72 @@ class UserApi {
             "standardized_nudges_misinfo": true,
             "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
                 true,
+            "rweb_video_timestamps_enabled": true,
+            "longform_notetweets_rich_text_read_enabled": true,
+            "longform_notetweets_inline_media_enabled": true,
+            "responsive_web_enhance_cards_enabled": false,
+          }),
+          "fieldToggles": jsonEncode({"withArticlePlainText": false}),
+        },
+        domainType: DomainType.graphql,
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: response?.data["errors"][0]["message"] ??
+              "Failed to get user tweets and replies",
+          code: response?.data["errors"][0]["code"] ?? 500,
+        );
+      }
+      return ResponseResult.success(
+          message: "Success", data: UserTweetsResponse.fromJson(response.data));
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get user tweets and replies", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+
+  static Future<ResponseResult> getUserHighlights({
+    required String userId,
+    int count = 20,
+    String? cursorBottom,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting user highlights");
+      final response = await RequestUtil.get(
+        "/Ei7DpEm7kboTr2zY_9kiqQ/UserHighlightsTweets",
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": count,
+            "cursor": cursorBottom,
+            "includePromotedContent": false,
+            "withCommunity": true,
+            "withVoice": true,
+            "withV2Timeline": true,
+          }),
+          "features": jsonEncode({
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "creator_subscriptions_tweet_preview_api_enabled": true,
+            "responsive_web_graphql_timeline_navigation_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+            false,
+            "communities_web_enable_tweet_community_results_fetch": true,
+            "c9s_tweet_anatomy_moderator_badge_enabled": true,
+            "articles_preview_enabled": true,
+            "responsive_web_edit_tweet_api_enabled": true,
+            "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+            "view_counts_everywhere_api_enabled": true,
+            "longform_notetweets_consumption_enabled": true,
+            "responsive_web_twitter_article_tweet_consumption_enabled": true,
+            "tweet_awards_web_tipping_enabled": false,
+            "creator_subscriptions_quote_tweet_preview_enabled": false,
+            "freedom_of_speech_not_reach_fetch_enabled": true,
+            "standardized_nudges_misinfo": true,
+            "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+            true,
             "rweb_video_timestamps_enabled": true,
             "longform_notetweets_rich_text_read_enabled": true,
             "longform_notetweets_inline_media_enabled": true,
@@ -779,6 +974,204 @@ class UserApi {
           message: "Success", data: UserTweetsResponse.fromJson(response.data));
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to get user media", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getLists({
+    required String userId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting lists");
+      final response = await RequestUtil.get(
+        "/TEdpD2Z_8iqgDcvSOYveew/CombinedLists",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": 100,
+            "cursor": cursor,
+          }),
+          "features": jsonEncode(
+            {
+              "rweb_tipjar_consumption_enabled": true,
+              "responsive_web_graphql_exclude_directive_enabled": true,
+              "verified_phone_label_enabled": false,
+              "creator_subscriptions_tweet_preview_api_enabled": true,
+              "responsive_web_graphql_timeline_navigation_enabled": true,
+              "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                  false,
+              "communities_web_enable_tweet_community_results_fetch": true,
+              "c9s_tweet_anatomy_moderator_badge_enabled": true,
+              "articles_preview_enabled": true,
+              "responsive_web_edit_tweet_api_enabled": true,
+              "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
+                  true,
+              "view_counts_everywhere_api_enabled": true,
+              "longform_notetweets_consumption_enabled": true,
+              "responsive_web_twitter_article_tweet_consumption_enabled": true,
+              "tweet_awards_web_tipping_enabled": false,
+              "creator_subscriptions_quote_tweet_preview_enabled": false,
+              "freedom_of_speech_not_reach_fetch_enabled": true,
+              "standardized_nudges_misinfo": true,
+              "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+                  true,
+              "rweb_video_timestamps_enabled": true,
+              "longform_notetweets_rich_text_read_enabled": true,
+              "longform_notetweets_inline_media_enabled": true,
+              "responsive_web_enhance_cards_enabled": false
+            },
+          )
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get lists",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: Timeline.fromJson(
+            data['data']['user']['result']['timeline']['timeline']),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get lists", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getInnerLists({
+    required String userId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting in lists");
+      final response = await RequestUtil.get(
+        "/LrcrWDL5xwdaU4GDqK9i_g/ListMemberships",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": 100,
+            "cursor": cursor,
+          }),
+          "features": jsonEncode(
+            {
+              "rweb_tipjar_consumption_enabled": true,
+              "responsive_web_graphql_exclude_directive_enabled": true,
+              "verified_phone_label_enabled": false,
+              "creator_subscriptions_tweet_preview_api_enabled": true,
+              "responsive_web_graphql_timeline_navigation_enabled": true,
+              "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+              false,
+              "communities_web_enable_tweet_community_results_fetch": true,
+              "c9s_tweet_anatomy_moderator_badge_enabled": true,
+              "articles_preview_enabled": true,
+              "responsive_web_edit_tweet_api_enabled": true,
+              "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
+              true,
+              "view_counts_everywhere_api_enabled": true,
+              "longform_notetweets_consumption_enabled": true,
+              "responsive_web_twitter_article_tweet_consumption_enabled": true,
+              "tweet_awards_web_tipping_enabled": false,
+              "creator_subscriptions_quote_tweet_preview_enabled": false,
+              "freedom_of_speech_not_reach_fetch_enabled": true,
+              "standardized_nudges_misinfo": true,
+              "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+              true,
+              "rweb_video_timestamps_enabled": true,
+              "longform_notetweets_rich_text_read_enabled": true,
+              "longform_notetweets_inline_media_enabled": true,
+              "responsive_web_enhance_cards_enabled": false
+            },
+          )
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get in lists",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: Timeline.fromJson(
+            data['data']['user']['result']['timeline']['timeline']),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get in lists", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getTopics({
+    required String userId,
+    String? cursor,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting topics");
+      final response = await RequestUtil.get(
+        "/sGzdMcOv6TVGgc0DkSpSBw/ViewingOtherUsersTopicsPage",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "userId": userId,
+            "count": 100,
+            "cursor": cursor,
+          }),
+          "features": jsonEncode(
+            {
+              "rweb_tipjar_consumption_enabled": true,
+              "responsive_web_graphql_exclude_directive_enabled": true,
+              "verified_phone_label_enabled": false,
+              "creator_subscriptions_tweet_preview_api_enabled": true,
+              "responsive_web_graphql_timeline_navigation_enabled": true,
+              "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+              false,
+              "communities_web_enable_tweet_community_results_fetch": true,
+              "c9s_tweet_anatomy_moderator_badge_enabled": true,
+              "articles_preview_enabled": true,
+              "responsive_web_edit_tweet_api_enabled": true,
+              "graphql_is_translatable_rweb_tweet_is_translatable_enabled":
+              true,
+              "view_counts_everywhere_api_enabled": true,
+              "longform_notetweets_consumption_enabled": true,
+              "responsive_web_twitter_article_tweet_consumption_enabled": true,
+              "tweet_awards_web_tipping_enabled": false,
+              "creator_subscriptions_quote_tweet_preview_enabled": false,
+              "freedom_of_speech_not_reach_fetch_enabled": true,
+              "standardized_nudges_misinfo": true,
+              "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+              true,
+              "rweb_video_timestamps_enabled": true,
+              "longform_notetweets_rich_text_read_enabled": true,
+              "longform_notetweets_inline_media_enabled": true,
+              "responsive_web_enhance_cards_enabled": false
+            },
+          )
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get topics",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: Timeline.fromJson(
+            data['data']['user']['result']['viewing_other_users_topics_page']['body']['timeline']),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get topics", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }

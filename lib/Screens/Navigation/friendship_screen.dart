@@ -15,7 +15,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Flow/friends_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
@@ -27,11 +26,18 @@ import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
 class FriendshipScreen extends StatefulWidget {
-  const FriendshipScreen({super.key, this.userId, this.initType});
+  const FriendshipScreen({
+    super.key,
+    this.userId,
+    this.initType,
+    this.isFriend = false,
+  });
 
   final String? userId;
 
   final UserFlowType? initType;
+
+  final bool isFriend;
 
   static const String routeName = "/navigtion/friendship";
 
@@ -83,9 +89,19 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ),
       TabItemData.build(
-        "好友",
-        (key, scrollController) => FriendsFlowScreen(
+        "订阅服务",
+        (key, scrollController) => UserFlowScreen(
           key: key,
+          type: UserFlowType.subscriptions,
+          userId: userId,
+          scrollController: scrollController,
+        ),
+      ),
+      TabItemData.build(
+        "你认识的关注者",
+        (key, scrollController) => UserFlowScreen(
+          key: key,
+          type: UserFlowType.followerYouKnow,
           userId: userId,
           scrollController: scrollController,
         ),
@@ -93,7 +109,11 @@ class FriendshipScreenState extends State<FriendshipScreen>
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
     if (widget.initType != null) {
-      _tabController.index = widget.initType!.index;
+      _tabController.index =
+          widget.initType!.index.clamp(0, tabDataList.length);
+    }
+    if (widget.isFriend) {
+      _tabController.index = tabDataList.length - 1;
     }
   }
 
@@ -120,7 +140,6 @@ class FriendshipScreenState extends State<FriendshipScreen>
           tabDataList.tabList,
           onTap: onTapTab,
           autoScrollable: false,
-          padding: const EdgeInsets.only(right: 10),
         ),
       ),
       body: Stack(

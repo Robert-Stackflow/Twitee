@@ -167,22 +167,34 @@ class ImageUtil {
     BuildContext context,
     Media media, {
     bool showToast = true,
+    bool showSnackBar = true,
   }) async {
-    switch (media.type) {
-      case MediaType.photo:
-        String url =
-            ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media));
-        return saveImage(
-          context,
-          ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media)),
-          fileName: FileUtil.getFileNameWithExtension(url),
-          showToast: showToast,
-        );
-      case MediaType.video:
-      case MediaType.animatedGif:
-        return saveVideoByMedia(context, media, showToast: showToast);
-      default:
-        return false;
+    Future<bool> download() async {
+      switch (media.type) {
+        case MediaType.photo:
+          String url =
+              ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media));
+          return saveImage(
+            context,
+            ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media)),
+            fileName: FileUtil.getFileNameWithExtension(url),
+            showToast: showToast,
+          );
+        case MediaType.video:
+        case MediaType.animatedGif:
+          return saveVideoByMedia(context, media, showToast: showToast);
+        default:
+          return false;
+      }
+    }
+
+    if (showSnackBar) {
+      return await IToast.showLoadingSnackbar(
+        "正在下载${TweetUtil.getMediaDescription(media)}",
+        download,
+      );
+    } else {
+      return download();
     }
   }
 
@@ -191,28 +203,35 @@ class ImageUtil {
     List<Media> medias, {
     bool showToast = true,
   }) async {
-    try {
-      List<bool> statusList = await Future.wait(medias.map((e) async {
-        return await saveMedia(context, e, showToast: false);
-      }).toList());
-      bool result = statusList.every((element) => element);
-      if (showToast) {
-        if (result) {
-          if (ResponsiveUtil.isMobile()) {
-            IToast.showTop("所有图片或视频已保存至相册");
-          } else {
-            String? saveDirectory = await checkSaveDirectory(context);
-            IToast.showTop("所有图片或视频已保存至$saveDirectory");
+    var description = TweetUtil.getMediasDescription(medias);
+    return await IToast.showLoadingSnackbar(
+      "正在下载${medias.length > 1 ? "所有" : ""}$description",
+      () async {
+        try {
+          List<bool> statusList = await Future.wait(medias.map((e) async {
+            return await saveMedia(context, e,
+                showToast: false, showSnackBar: false);
+          }).toList());
+          bool result = statusList.every((element) => element);
+          if (showToast) {
+            if (result) {
+              if (ResponsiveUtil.isMobile()) {
+                IToast.showTop("所有$description已保存至相册");
+              } else {
+                String? saveDirectory = await checkSaveDirectory(context);
+                IToast.showTop("所有$description已保存至$saveDirectory");
+              }
+            } else {
+              IToast.showTop("保存失败，请重试");
+            }
           }
-        } else {
+          return result;
+        } catch (e) {
           IToast.showTop("保存失败，请重试");
+          return false;
         }
-      }
-      return result;
-    } catch (e) {
-      IToast.showTop("保存失败，请重试");
-      return false;
-    }
+      },
+    );
   }
 
   static Future<String?> checkSaveDirectory(BuildContext context) async {

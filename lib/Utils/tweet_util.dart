@@ -20,6 +20,43 @@ import '../Models/translation_result.dart';
 import 'ilogger.dart';
 
 class TweetUtil {
+  static String getMediaDescription(Media media) {
+    switch (media.type) {
+      case MediaType.photo:
+        return "图片";
+      case MediaType.video:
+        return "视频";
+      case MediaType.animatedGif:
+        return "GIF";
+      default:
+        return "";
+    }
+  }
+
+  static String getMediasDescription(List<Media> media) {
+    if (media.isEmpty) return "";
+    bool hasPhoto = media.any((element) => element.type == MediaType.photo);
+    bool hasVideo = media.any((element) => element.type == MediaType.video);
+    bool hasGif = media.any((element) => element.type == MediaType.animatedGif);
+    if (hasPhoto && hasVideo && hasGif) {
+      return "图片、视频和GIF";
+    } else if (hasPhoto && hasVideo) {
+      return "图片和视频";
+    } else if (hasPhoto && hasGif) {
+      return "图片和GIF";
+    } else if (hasVideo && hasGif) {
+      return "视频和GIF";
+    } else if (hasPhoto) {
+      return "图片";
+    } else if (hasVideo) {
+      return "视频";
+    } else if (hasGif) {
+      return "GIF";
+    } else {
+      return "";
+    }
+  }
+
   static Tweet? getTrueTweet(TimelineTweet timelineTweet) {
     Tweet? tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults);
     if (tweet == null) {
@@ -164,30 +201,30 @@ class TweetUtil {
     return fullText;
   }
 
-  static  bool hasVideo(Tweet tweet) {
+  static bool hasVideo(Tweet tweet) {
     return hasMedia(tweet) &&
         tweet.legacy!.entities.media!.length == 1 &&
         tweet.legacy!.entities.media![0]!.type == MediaType.video;
   }
 
-  static  bool hasMedia(Tweet tweet) {
+  static bool hasMedia(Tweet tweet) {
     return tweet.legacy!.entities.media != null;
   }
 
-  static  bool hasQueto(Tweet tweet) {
+  static bool hasQueto(Tweet tweet) {
     return tweet.quotedStatusResult != null;
   }
 
-  static  bool hasTranslation(Tweet tweet) {
+  static bool hasTranslation(Tweet tweet) {
     String translation = getTranslation(tweet);
     return Utils.isNotEmpty(translation);
   }
 
-  static  bool hasRichContent(Tweet tweet) {
+  static bool hasRichContent(Tweet tweet) {
     return hasMedia(tweet) || hasQueto(tweet) || hasTranslation(tweet);
   }
 
-  static  List<Media> getMedia(Tweet tweet) {
+  static List<Media> getMedia(Tweet tweet) {
     if (!hasMedia(tweet)) return [];
     return tweet.legacy!.entities.media!
         .where((element) => element != null)
@@ -195,19 +232,19 @@ class TweetUtil {
         .toList();
   }
 
-  static  List<Media> getVideoMedia(Tweet tweet) {
+  static List<Media> getVideoMedia(Tweet tweet) {
     List<Media> media = getMedia(tweet);
     return media.where((element) => element.type == MediaType.video).toList();
   }
 
-  static  List<Media> getGiftMedia(Tweet tweet) {
+  static List<Media> getGiftMedia(Tweet tweet) {
     List<Media> media = getMedia(tweet);
     return media
         .where((element) => element.type == MediaType.animatedGif)
         .toList();
   }
 
-  static  String getMp4Url(Media media) {
+  static String getMp4Url(Media media) {
     List<MediaVideoInfoVariant> videoList = media.videoInfo!.variants
         .where((element) => element.contentType == "video/mp4")
         .toList();

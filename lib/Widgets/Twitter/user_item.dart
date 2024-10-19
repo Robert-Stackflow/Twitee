@@ -11,9 +11,15 @@ import '../Dialog/dialog_builder.dart';
 import '../Item/item_builder.dart';
 
 class UserItem extends StatefulWidget {
-  const UserItem({super.key, required this.userLegacy});
+  const UserItem({
+    super.key,
+    required this.userLegacy,
+    required this.userId,
+  });
 
   final UserLegacy userLegacy;
+
+  final String userId;
 
   @override
   State<UserItem> createState() => _UserItemState();
@@ -119,8 +125,10 @@ class _UserItemState extends State<UserItem> {
                                     title: "取消关注 @$screenName？",
                                     message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                                     onTapConfirm: () async {
-                                  var res = await UserApi.unfollow(
-                                      userId: screenName);
+                                  var res = await IToast.showLoadingSnackbar(
+                                      "正在取消关注@$screenName",
+                                      () async => await UserApi.unfollow(
+                                          userId: widget.userId));
                                   if (res.success) {
                                     user.following = false;
                                     setState(() {});
@@ -130,8 +138,10 @@ class _UserItemState extends State<UserItem> {
                                   }
                                 });
                               } else {
-                                var res =
-                                    await UserApi.follow(userId: screenName);
+                                var res = await IToast.showLoadingSnackbar(
+                                    "正在关注@$screenName",
+                                    () async => await UserApi.follow(
+                                        userId: widget.userId));
                                 if (res.success) {
                                   user.following = true;
                                   setState(() {});

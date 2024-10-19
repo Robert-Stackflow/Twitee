@@ -109,10 +109,8 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           if (instruction is TimelineAddEntries) {
             newEntries = _processEntries(instruction);
             items = newEntries;
-            if (mounted) setState(() {});
           }
         }
-        if (mounted) setState(() {});
         if (newEntries.isEmpty) {
           _noMore = true;
         } else {
@@ -130,6 +128,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
     } finally {
       _inited = true;
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -149,10 +148,8 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           if (instruction is TimelineAddEntries) {
             newItems = _processEntries(instruction);
             items.addAll(newItems);
-            return IndicatorResult.success;
           }
         }
-        if (mounted) setState(() {});
         if (newItems.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -170,6 +167,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
       return IndicatorResult.fail;
     } finally {
       _loading = false;
+      if (mounted) setState(() {});
     }
   }
 

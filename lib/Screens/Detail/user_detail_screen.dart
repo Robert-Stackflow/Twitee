@@ -18,9 +18,13 @@ import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Detail/user_list_screen.dart';
+import 'package:twitee/Screens/Detail/user_topic_screen.dart';
+import 'package:twitee/Screens/Flow/user_list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/friendship_screen.dart';
+import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
@@ -34,12 +38,14 @@ import '../../Api/user_api.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Models/user_info.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Utils/route_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../Flow/user_flow_screen.dart';
+import 'list_membership_manage_screen.dart';
 
 class UserDetailScreen extends StatefulWidget {
   const UserDetailScreen({super.key, required this.screenName});
@@ -58,7 +64,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   bool get wantKeepAlive => true;
   UserResponse? response;
 
-  User? get user => response?.data.user.result as User;
+  User? get user => response?.data.user.result as User?;
 
   UserLegacy? get userLegacy => user?.legacy;
   InitPhase _initPhase = InitPhase.haveNotConnected;
@@ -110,6 +116,29 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           scrollController: primaryController,
         ),
       ),
+      if (user!.highlightsInfo != null &&
+          (user!.highlightsInfo!.canHighlightTweets ?? false))
+        TabItemData.build(
+          "亮点",
+          (key2, scrollController2) => UserTweetFlowScreen(
+            key: key2,
+            userId: user!.restId!,
+            nested: true,
+            type: UserTweetFlowType.Highlights,
+            scrollController: primaryController,
+          ),
+        ),
+      if (user!.hasHiddenLikesOnProfile ?? false)
+        TabItemData.build(
+          "喜欢",
+          (key2, scrollController2) => LikeScreen(
+            key: key2,
+            userId: user!.restId!,
+            // nested: true,
+            // type: UserTweetFlowType.Highlights,
+            // scrollController: primaryController,
+          ),
+        ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
   }
@@ -162,7 +191,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     return Scaffold(
       appBar: ResponsiveUtil.isLandscape()
           ? ItemBuilder.buildDesktopAppBar(
-              context: context, title: "个人主页", showBack: true)
+              context: context,
+              title:
+                  "个人主页${user != null && userLegacy != null ? " - ${userLegacy!.name}" : ""}",
+              showBack: true)
           : null,
       body: _buildBody(),
     );
@@ -223,7 +255,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             expandedHeight: 140.0,
             collapsedHeight: kToolbarHeight,
             flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
               background: _buildBackgroundBanner(),
             ),
           ),
@@ -306,6 +337,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 fit: BoxFit.cover,
                 showLoading: false,
                 isOrigin: false,
+                tagPrefix: "blurBackground",
               ),
             )
           : AssetUtil.load(
@@ -328,9 +360,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               fit: BoxFit.cover,
               showLoading: false,
               isOrigin: false,
+              tagPrefix: "background",
             ),
           )
-        : AssetUtil.load(AssetUtil.banner, fit: BoxFit.cover);
+        : AssetUtil.load(
+            AssetUtil.banner,
+            fit: BoxFit.cover,
+            height: 180,
+            width: double.infinity,
+          );
   }
 
   _buildMoreContextMenuButtons() {
@@ -341,16 +379,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         if (!isMyself)
           ContextMenuButtonConfig(
             "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: Icon(
-                    userLegacy?.blocking ?? false
-                        ? Icons.favorite_border_rounded
-                        : Icons.heart_broken_outlined,
-                    size: 20)),
+            icon: Icon(
+              userLegacy?.blocking ?? false
+                  ? Icons.favorite_border_rounded
+                  : Icons.heart_broken_outlined,
+            ),
             onPressed: () async {
               if (userLegacy?.blocking ?? false) {
-                var res = await UserApi.unblock(userId: user!.restId!);
+                var res = await IToast.showLoadingSnackbar("正在取消屏蔽@$screenName",
+                    () async => await UserApi.unblock(userId: user!.restId!));
                 if (res.success) {
                   userLegacy?.blocking = false;
                   if (mounted) setState(() {});
@@ -364,7 +401,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   title: "屏蔽 @$screenName？",
                   message: "他们将无法关注你或查看你的帖子，而你也将无法看到 @$screenName 的帖子或通知。",
                   onTapConfirm: () async {
-                    var res = await UserApi.block(userId: user!.restId!);
+                    var res = await IToast.showLoadingSnackbar(
+                        "正在屏蔽@$screenName",
+                        () async => await UserApi.block(userId: user!.restId!));
                     if (res.success) {
                       userLegacy?.blocking = true;
                       if (mounted) setState(() {});
@@ -380,16 +419,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         if (!isMyself)
           ContextMenuButtonConfig(
             "${userLegacy?.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: Icon(
-                    userLegacy?.muting ?? false
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 20)),
+            icon: Icon(
+              userLegacy?.muting ?? false
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
             onPressed: () async {
               if (userLegacy?.muting ?? false) {
-                var res = await UserApi.unmute(userId: user!.restId!);
+                var res = await IToast.showLoadingSnackbar("正在取消隐藏@$screenName",
+                    () async => await UserApi.unmute(userId: user!.restId!));
                 if (res.success) {
                   userLegacy?.muting = false;
                   if (mounted) setState(() {});
@@ -403,7 +441,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   title: "隐藏 @$screenName？",
                   message: "你将无法在为你推荐或已关注中看到 @$screenName 的帖子或通知。",
                   onTapConfirm: () async {
-                    var res = await UserApi.mute(userId: user!.restId!);
+                    var res = await IToast.showLoadingSnackbar(
+                        "正在隐藏@$screenName",
+                        () async => await UserApi.mute(userId: user!.restId!));
                     if (res.success) {
                       userLegacy?.muting = true;
                       if (mounted) setState(() {});
@@ -419,35 +459,60 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         if (!isMyself)
           ContextMenuButtonConfig(
             "从列表添加或移除 @$screenName",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: const Icon(Icons.playlist_add_rounded, size: 20)),
-            onPressed: () async {},
+            icon: const Icon(Icons.playlist_add_rounded),
+            onPressed: () async {
+              if (ResponsiveUtil.isLandscape()) {
+                RouteUtil.pushDialogRoute(
+                  context,
+                  ListMembershipManageScreen(targetUserId: user!.restId!),
+                );
+              } else {
+                BottomSheetBuilder.showBottomSheet(
+                  context,
+                  (context) =>
+                      ListMembershipManageScreen(targetUserId: user!.restId!),
+                );
+              }
+            },
           ),
         if (!isMyself) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
+          "查看列表",
+          icon: const Icon(Icons.featured_play_list_outlined),
+          onPressed: () async {
+            panelScreenState?.pushPage(UserListScreen(
+              userId: user!.restId ?? "",
+              initType: UserListFlowType.create,
+            ));
+          },
+        ),
+        ContextMenuButtonConfig(
+          "查看话题",
+          icon: const Icon(Icons.topic_outlined),
+          onPressed: () async {
+            panelScreenState?.pushPage(UserTopicScreen(
+              userId: user!.restId ?? "",
+            ));
+          },
+        ),
+        ContextMenuButtonConfig.divider(),
+        ContextMenuButtonConfig(
           "分享用户",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: const Icon(Icons.share_rounded, size: 18)),
+          icon: const Icon(Icons.share_rounded),
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
         ContextMenuButtonConfig(
           "复制用户链接",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.link_rounded, size: 20)),
+          icon: const Icon(Icons.link_rounded),
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制用户链接");
           },
         ),
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.open_in_browser_rounded, size: 20)),
+          icon: const Icon(Icons.open_in_browser_rounded),
           onPressed: () async {
             UriUtil.openExternal(url);
           },
@@ -458,12 +523,32 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   _buildUserInfo() {
     String screenName = userLegacy?.screenName ?? userLegacy?.name ?? "";
+    Url? url = getUrl();
     var metaRow = Wrap(
       spacing: 10,
       runSpacing: 5,
       alignment: WrapAlignment.start,
       runAlignment: WrapAlignment.start,
       children: [
+        if (url != null)
+          ItemBuilder.buildIconTextButton(
+            context,
+            icon: Transform.rotate(
+              angle: 3 * 45 * (3.14159 / 180),
+              child: Icon(
+                Icons.link_rounded,
+                size: 15,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            spacing: 3,
+            text: url.displayUrl ?? url.expandedUrl ?? url.url,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+            fontSizeDelta: 1,
+            onTap: () {
+              UriUtil.launchUrlUri(context, url.expandedUrl ?? url.url);
+            },
+          ),
         if (Utils.isNotEmpty(userLegacy!.location))
           ItemBuilder.buildIconTextButton(
             context,
@@ -481,7 +566,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         ItemBuilder.buildIconTextButton(
           context,
           icon: Icon(
-            Icons.calendar_month_rounded,
+            Icons.date_range_rounded,
             size: 15,
             color: Theme.of(context).textTheme.bodySmall?.color,
           ),
@@ -559,7 +644,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                           title: "取消关注 @$screenName？",
                           message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                           onTapConfirm: () async {
-                        var res = await UserApi.unfollow(userId: user!.restId!);
+                        var res = await IToast.showLoadingSnackbar(
+                            "正在取消关注@$screenName",
+                            () async =>
+                                await UserApi.unfollow(userId: user!.restId!));
                         if (res.success) {
                           userLegacy!.following = false;
                           if (mounted) setState(() {});
@@ -569,7 +657,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                         }
                       });
                     } else {
-                      var res = await UserApi.follow(userId: user!.restId!);
+                      var res = await IToast.showLoadingSnackbar(
+                          "正在关注@$screenName",
+                          () async =>
+                              await UserApi.follow(userId: user!.restId!));
                       if (res.success) {
                         userLegacy!.following = true;
                         if (mounted) setState(() {});
@@ -601,21 +692,24 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             spacing: 20,
             runSpacing: 5,
             children: [
-              _buildCountItem(
+              ItemBuilder.buildCountItem(
+                context,
                 title: "帖子",
                 value: "${userLegacy!.statusesCount ?? 0}",
                 onTap: () {
                   _tabController.animateTo(0);
                 },
               ),
-              _buildCountItem(
+              ItemBuilder.buildCountItem(
+                context,
                 title: "照片和视频",
                 value: "${userLegacy!.mediaCount ?? 0}",
                 onTap: () {
                   _tabController.animateTo(2);
                 },
               ),
-              _buildCountItem(
+              ItemBuilder.buildCountItem(
+                context,
                 title: "正在关注",
                 value: "${userLegacy!.friendsCount}",
                 onTap: () {
@@ -623,7 +717,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       userId: user!.restId, initType: UserFlowType.following));
                 },
               ),
-              _buildCountItem(
+              ItemBuilder.buildCountItem(
+                context,
                 title: "关注者",
                 value: "${userLegacy!.followersCount}",
                 onTap: () {
@@ -631,14 +726,32 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       userId: user!.restId, initType: UserFlowType.follower));
                 },
               ),
+              if (!(user!.hasHiddenSubscriptionsOnProfile ?? false))
+                ItemBuilder.buildCountItem(
+                  context,
+                  title: "订阅服务",
+                  value: "${user!.creatorSubscriptionsCount}",
+                  onTap: () {
+                    panelScreenState?.pushPage(FriendshipScreen(
+                        userId: user!.restId,
+                        initType: UserFlowType.subscriptions));
+                  },
+                ),
             ],
           ),
           if (friendList.isNotEmpty) const SizedBox(height: 10),
           if (friendList.isNotEmpty)
-            _buildCountItem(
+            ItemBuilder.buildCountItem(
+              context,
               title: "关注了此账号",
               value: friendList.map((e) => e.name).join("、"),
               fontSizeDelta: -2,
+              onTap: () {
+                panelScreenState?.pushPage(FriendshipScreen(
+                  userId: user!.restId!,
+                  isFriend: true,
+                ));
+              },
             ),
           const SizedBox(height: 10),
           ItemBuilder.buildHtmlWidget(
@@ -652,41 +765,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
-  _buildCountItem({
-    required String title,
-    required String value,
-    Function()? onTap,
-    double fontSizeDelta = 0,
-  }) {
-    return ItemBuilder.buildClickItem(
-      clickable: onTap != null,
-      GestureDetector(
-        onTap: onTap,
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: value,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(fontWeightDelta: 2, fontSizeDelta: fontSizeDelta),
-              ),
-              const WidgetSpan(child: SizedBox(width: 4)),
-              TextSpan(
-                text: title,
-                style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                      fontSizeDelta: fontSizeDelta,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   String _processDescription() {
     String fullText = userLegacy!.description;
     Map map = userLegacy!.entities;
@@ -696,6 +774,16 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           replaceNewline: false);
     }
     return fullText;
+  }
+
+  Url? getUrl() {
+    if (userLegacy!.entities.containsKey("url")) {
+      Entities entities = Entities.fromJson(userLegacy!.entities["url"]);
+      if (entities.urls.isNotEmpty) {
+        return entities.urls[0];
+      }
+    }
+    return null;
   }
 
   _buildFloatingButtons() {

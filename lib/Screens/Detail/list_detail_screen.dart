@@ -113,7 +113,9 @@ class _ListDetailScreenState extends State<ListDetailScreen>
     return Scaffold(
       appBar: ResponsiveUtil.isLandscape()
           ? ItemBuilder.buildDesktopAppBar(
-              context: context, title: "列表详情", showBack: true)
+              context: context,
+              title: "列表详情${listInfo != null ? " - ${listInfo!.name}" : ""}",
+              showBack: true)
           : null,
       body: _buildBody(),
     );
@@ -269,7 +271,8 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                   spacing: 10,
                   runSpacing: 5,
                   children: [
-                    _buildCountItem(
+                    ItemBuilder.buildCountItem(
+                      context,
                       title: "成员",
                       value: listInfo!.memberCount.toString(),
                       onTap: () {
@@ -282,7 +285,8 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                       },
                     ),
                     const SizedBox(height: 8),
-                    _buildCountItem(
+                    ItemBuilder.buildCountItem(
+                      context,
                       title: "关注者",
                       value: listInfo!.subscriberCount.toString(),
                       onTap: () {
@@ -388,6 +392,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                 fit: BoxFit.cover,
                 showLoading: false,
                 isOrigin: false,
+                tagPrefix: "blurBackground",
               ),
             )
           : AssetUtil.load(
@@ -410,6 +415,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
               fit: BoxFit.cover,
               showLoading: false,
               isOrigin: false,
+              tagPrefix: "background",
             ),
           )
         : AssetUtil.load(AssetUtil.banner, fit: BoxFit.cover);
@@ -423,75 +429,32 @@ class _ListDetailScreenState extends State<ListDetailScreen>
         if (isMyself)
           ContextMenuButtonConfig(
             "编辑列表",
-            icon: Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: const Icon(Icons.playlist_add_rounded, size: 20)),
+            icon: const Icon(Icons.edit_note_rounded),
             onPressed: () async {},
           ),
         if (isMyself) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享列表",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: const Icon(Icons.share_rounded, size: 18)),
+          icon: const Icon(Icons.share_rounded),
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
         ContextMenuButtonConfig(
           "复制列表链接",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.link_rounded, size: 20)),
+          icon: const Icon(Icons.link_rounded),
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制列表链接");
           },
         ),
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: const Icon(Icons.open_in_browser_rounded, size: 20)),
+          icon: const Icon(Icons.open_in_browser_rounded),
           onPressed: () async {
             UriUtil.openExternal(url);
           },
         ),
       ],
-    );
-  }
-
-  _buildCountItem({
-    required String title,
-    required String value,
-    Function()? onTap,
-    double fontSizeDelta = 0,
-  }) {
-    return ItemBuilder.buildClickItem(
-      clickable: onTap != null,
-      GestureDetector(
-        onTap: onTap,
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: value,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(fontWeightDelta: 2, fontSizeDelta: fontSizeDelta),
-              ),
-              const WidgetSpan(child: SizedBox(width: 4)),
-              TextSpan(
-                text: title,
-                style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                      fontSizeDelta: fontSizeDelta,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

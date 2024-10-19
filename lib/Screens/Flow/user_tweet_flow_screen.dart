@@ -29,7 +29,7 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
 
-enum UserTweetFlowType { Tweets, TweetsAndReplies }
+enum UserTweetFlowType { Tweets, TweetsAndReplies, Highlights }
 
 class UserTweetFlowScreen extends StatefulWidget {
   const UserTweetFlowScreen({
@@ -130,11 +130,17 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             userId: widget.userId,
           );
           break;
+        case UserTweetFlowType.Highlights:
+          res = await UserApi.getUserHighlights(
+            userId: widget.userId,
+          );
+          break;
       }
       if (res.success) {
         _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
-        Timeline? timeline = response.data.user.result.timelineV2?.timeline;
+        Timeline? timeline = response.data.user.result.timelineV2?.timeline ??
+            response.data.user.result.timeline?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }
@@ -197,11 +203,18 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             cursorBottom: cursorBottom?.value,
           );
           break;
+        case UserTweetFlowType.Highlights:
+          res = await UserApi.getUserHighlights(
+            userId: widget.userId,
+            cursorBottom: cursorBottom?.value,
+          );
+          break;
       }
       if (res.success) {
         _initPhase = InitPhase.successful;
         UserTweetsResponse response = res.data;
-        Timeline? timeline = response.data.user.result.timelineV2?.timeline;
+        Timeline? timeline = response.data.user.result.timelineV2?.timeline ??
+            response.data.user.result.timeline?.timeline;
         if (timeline == null) {
           return IndicatorResult.fail;
         }

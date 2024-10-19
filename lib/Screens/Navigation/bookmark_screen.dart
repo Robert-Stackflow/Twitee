@@ -30,6 +30,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Utils/app_provider.dart';
+import '../../Utils/constant.dart';
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -307,7 +308,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
           margin: const EdgeInsets.all(10),
           constraints: ResponsiveUtil.isLandscape()
               ? const BoxConstraints(
-                  maxWidth: 360, minWidth: 360, maxHeight: 56)
+                  maxWidth: searchBarWidth, minWidth: searchBarWidth, maxHeight: 56)
               : BoxConstraints(
                   maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
           child: ItemBuilder.buildDesktopSearchBar(

@@ -157,7 +157,6 @@ class ListScreenState extends State<ListScreen>
           tabDataList.tabList,
           onTap: onTapTab,
           autoScrollable: false,
-          padding: const EdgeInsets.only(right: 10),
         ),
       ),
       body: _buildBody(),

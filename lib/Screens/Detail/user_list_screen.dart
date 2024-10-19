@@ -14,96 +14,69 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/list_api.dart';
-import 'package:twitee/Models/tab_item_data.dart';
-import 'package:twitee/Models/user_info.dart';
-import 'package:twitee/Screens/Flow/list_flow_screen.dart';
-import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
-import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Screens/Flow/user_list_flow_screen.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
-import '../../Openapi/models/timeline_twitter_list.dart';
-import '../../Utils/hive_util.dart';
-import '../../Utils/responsive_util.dart';
+import '../../Models/tab_item_data.dart';
+import '../../Utils/app_provider.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
-import '../../Widgets/Twitter/refresh_interface.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class UserListScreen extends StatefulWidget {
+  const UserListScreen({
+    super.key,
+    required this.userId,
+    this.initType,
+  });
 
-  static const String routeName = "/navigtion/home";
+  final String userId;
+
+  final UserListFlowType? initType;
+
+  static const String routeName = "/navigtion/userList";
 
   @override
-  State<HomeScreen> createState() => HomeScreenState();
+  State<UserListScreen> createState() => UserListScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen>
-    with
-        TickerProviderStateMixin,
-        ScrollToHideMixin,
-        AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class UserListScreenState extends State<UserListScreen>
+    with TickerProviderStateMixin, ScrollToHideMixin {
   late TabController _tabController;
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
       ScrollToHideController();
-  List<TimelineTwitterListInfo> pinnedLists = [];
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
 
   initTab() {
-    tabDataList.addAll([
-      TabItemData.build(
-        "为你推荐",
-        (key, scrollController) => TimelineFlowScreen(
-          key: key,
-          isLatest: false,
-          scrollController: scrollController,
-        ),
-      ),
-      TabItemData.build(
-        "正在关注",
-        (key, scrollController) => TimelineFlowScreen(
-          key: key,
-          scrollController: scrollController,
-        ),
-      ),
-    ]);
-    _tabController = TabController(length: tabDataList.length, vsync: this);
-    if (mounted) setState(() {});
-    panelScreenState?.refreshScrollControllers();
-  }
-
-  addTabs() {
-    UserInfo? info = HiveUtil.getUserInfo();
-    tabDataList = tabDataList.sublist(0, 2);
-    for (var list in pinnedLists) {
-      tabDataList.add(
+    String userId = widget.userId;
+    tabDataList.addAll(
+      [
         TabItemData.build(
-          list.name,
-          (key, scrollController) => ListFlowScreen(
+          "创建的列表",
+          (key, scrollController) => UserListFlowScreen(
             key: key,
-            listId: list.idStr,
-            userId: info!.idStr,
+            type: UserListFlowType.create,
+            userId: userId,
             scrollController: scrollController,
           ),
         ),
-      );
-    }
-    _tabController.animateTo(currentIndex.clamp(0, tabDataList.length - 1));
+        TabItemData.build(
+          "TA所在的列表",
+          (key, scrollController) => UserListFlowScreen(
+            key: key,
+            type: UserListFlowType.inner,
+            userId: userId,
+            scrollController: scrollController,
+          ),
+        ),
+      ],
+    );
     _tabController = TabController(length: tabDataList.length, vsync: this);
-    if (mounted) setState(() {});
-    panelScreenState?.refreshScrollControllers();
-  }
-
-  refreshPinnedLists() async {
-    var res = await ListApi.getPinnedLists();
-    if (res.success) {
-      pinnedLists = res.data;
-      addTabs();
+    if (widget.initType != null) {
+      _tabController.index = widget.initType!.index;
     }
   }
 
@@ -114,21 +87,16 @@ class HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _tabController = TabController(length: 0, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      initTab();
-      refreshPinnedLists();
-    });
+    initTab();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        showMenu: true,
+        showBack: true,
+        spacing: ResponsiveUtil.isLandscape() ? 0 : 10,
         titleWidget: ItemBuilder.buildTabBar(
           context,
           _tabController,
@@ -144,8 +112,8 @@ class HomeScreenState extends State<HomeScreen>
             children: tabDataList.pageList,
           ),
           Positioned(
-            right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
+            right: 16,
+            bottom: 16,
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: tabDataList.scrollControllerList,
@@ -159,7 +127,6 @@ class HomeScreenState extends State<HomeScreen>
   }
 
   onTapTab(int index) {
-    panelScreenState?.showBottomNavigationBar();
     if (!_tabController.indexIsChanging && index == currentIndex) {
       if (tabDataList.getScrollController(index) != null &&
           tabDataList.getScrollController(index)!.offset > 30) {
@@ -171,7 +138,7 @@ class HomeScreenState extends State<HomeScreen>
   }
 
   scrollToTop() async {
-    tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
+    await tabDataList.getRefreshMixin(currentIndex)?.scrollToTop();
     _scrollToHideController.show();
     panelScreenState?.showBottomNavigationBar();
   }
@@ -181,7 +148,6 @@ class HomeScreenState extends State<HomeScreen>
     await scrollToTop();
     _refreshRotationController.stop();
     _refreshRotationController.forward();
-    refreshPinnedLists();
     tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 

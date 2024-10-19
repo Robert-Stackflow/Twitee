@@ -20,7 +20,6 @@ import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
-import 'package:twitee/Widgets/Hidable/scroll_to_hide.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
@@ -58,25 +57,11 @@ class _ListManageScreenState extends State<ListManageScreen>
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
-  late AnimationController _refreshRotationController;
-
   bool _noMore = false;
 
   @override
   void initState() {
     super.initState();
-    _refreshRotationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-  }
-
-  _scrollToTop() async {
-    await _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
   }
 
   Future<IndicatorResult> _onRefresh() async {
@@ -216,73 +201,36 @@ class _ListManageScreenState extends State<ListManageScreen>
           ],
         ),
       ),
-      body: Stack(
-        children: [
-          EasyRefresh(
-            onRefresh: () async {
-              return await _onRefresh();
-            },
-            onLoad: () async {
-              return await _onLoad();
-            },
-            refreshOnStart: true,
-            triggerAxis: Axis.vertical,
-            controller: _easyRefreshController,
-            child: ItemBuilder.buildLoadMoreNotification(
-              onLoad: _onLoad,
-              noMore: _noMore,
-              child: WaterfallFlow.extent(
-                controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
-                children: List.generate(
-                  validItems.length,
-                  (index) {
-                    return TwitterListItem(list: validItems[index]);
-                  },
-                ),
-              ),
+      body: EasyRefresh(
+        onRefresh: () async {
+          return await _onRefresh();
+        },
+        onLoad: () async {
+          return await _onLoad();
+        },
+        refreshOnStart: true,
+        triggerAxis: Axis.vertical,
+        controller: _easyRefreshController,
+        child: ItemBuilder.buildLoadMoreNotification(
+          onLoad: _onLoad,
+          noMore: _noMore,
+          child: WaterfallFlow.extent(
+            controller: _scrollController,
+            padding: ResponsiveUtil.isLandscape()
+                ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
+                : const EdgeInsets.only(bottom: 16),
+            mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+            maxCrossAxisExtent: 600,
+            crossAxisSpacing: 6,
+            children: List.generate(
+              validItems.length,
+              (index) {
+                return TwitterListItem(list: validItems[index]);
+              },
             ),
           ),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ScrollToHide(
-              scrollControllers: [_scrollController],
-              hideDirection: Axis.vertical,
-              child: _buildFloatingButtons(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  _buildFloatingButtons() {
-    return Column(
-      children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
-          ),
-          onTap: () async {
-            _refreshRotationController.repeat();
-            await _scrollToTop();
-            _refreshRotationController.stop();
-            _refreshRotationController.forward();
-            _easyRefreshController.resetHeader();
-            _easyRefreshController.callRefresh();
-          },
         ),
-      ],
+      ),
     );
   }
 }

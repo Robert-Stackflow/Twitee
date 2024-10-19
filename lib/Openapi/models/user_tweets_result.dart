@@ -14,6 +14,7 @@ class UserTweetsResult {
   const UserTweetsResult({
     required this.privateTypename,
     required this.timelineV2,
+    required this.timeline,
   });
 
   factory UserTweetsResult.fromJson(Map<String, Object?> json) =>
@@ -23,6 +24,8 @@ class UserTweetsResult {
   final TypeName? privateTypename;
   @JsonKey(name: 'timeline_v2')
   final TimelineV? timelineV2;
+  @JsonKey(name: 'timeline')
+  final TimelineV? timeline;
 
   Map<String, Object?> toJson() => _$UserTweetsResultToJson(this);
 }

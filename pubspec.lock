@@ -1481,6 +1481,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smart_snackbars:
+    dependency: "direct main"
+    description:
+      path: "third-party/widget/smart_snackbars"
+      relative: true
+    source: path
+    version: "1.0.0"
   source_gen:
     dependency: transitive
     description:

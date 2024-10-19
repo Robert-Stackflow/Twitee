@@ -14,6 +14,9 @@ UserTweetsResult _$UserTweetsResultFromJson(Map<String, dynamic> json) =>
       timelineV2: json['timeline_v2'] == null
           ? null
           : TimelineV.fromJson(json['timeline_v2'] as Map<String, dynamic>),
+      timeline: json['timeline'] == null
+          ? null
+          : TimelineV.fromJson(json['timeline'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$UserTweetsResultToJson(UserTweetsResult instance) =>

@@ -509,6 +509,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           child: const CircularProgressIndicator(
             color: Colors.white,
             strokeWidth: 2,
+            strokeCap: StrokeCap.round,
           ),
         );
         break;
@@ -543,6 +544,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           child: const CircularProgressIndicator(
             color: Colors.white,
             strokeWidth: 2,
+            strokeCap: StrokeCap.round,
           ),
         );
         break;

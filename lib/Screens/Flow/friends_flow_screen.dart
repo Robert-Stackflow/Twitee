@@ -178,7 +178,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
                 children: List.generate(
                   users.length,
                   (index) {
-                    return UserItem(userLegacy: users[index]);
+                    return UserItem(userLegacy: users[index], userId: "");
                   },
                 ),
               )

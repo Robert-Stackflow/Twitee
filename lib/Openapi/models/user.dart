@@ -25,6 +25,7 @@ class User extends UserUnion {
     required this.creatorSubscriptionsCount,
     required this.hasGraduatedAccess,
     required this.hasHiddenLikesOnProfile,
+    required this.hasHiddenSubscriptionsOnProfile,
     required this.hasNftAvatar,
     required this.highlightsInfo,
     required this.id,
@@ -58,6 +59,8 @@ class User extends UserUnion {
   final bool? hasGraduatedAccess;
   @JsonKey(name: 'has_hidden_likes_on_profile')
   final bool? hasHiddenLikesOnProfile;
+  @JsonKey(name: 'has_hidden_subscriptions_on_profile')
+  final bool? hasHiddenSubscriptionsOnProfile;
   @JsonKey(name: 'has_nft_avatar')
   final bool? hasNftAvatar;
   @JsonKey(name: 'highlights_info')

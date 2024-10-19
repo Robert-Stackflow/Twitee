@@ -35,7 +35,13 @@ import '../../Openapi/models/timeline_user.dart';
 import '../../Openapi/models/user.dart';
 import '../../Utils/responsive_util.dart';
 
-enum UserFlowType { following, follower, blueVerifiedFollower }
+enum UserFlowType {
+  following,
+  follower,
+  blueVerifiedFollower,
+  subscriptions,
+  followerYouKnow
+}
 
 class UserFlowScreen extends StatefulWidget {
   const UserFlowScreen({
@@ -118,6 +124,12 @@ class _UserFlowScreenState extends State<UserFlowScreen>
           res =
               await UserApi.getBlueVerifiedFollowerList(userId: widget.userId);
           break;
+        case UserFlowType.subscriptions:
+          res = await UserApi.getSubscriptions(userId: widget.userId);
+          break;
+        case UserFlowType.followerYouKnow:
+          res = await UserApi.getFollowerYouKnowList(userId: widget.userId);
+          break;
       }
       if (res.success) {
         FollowResponse response = res.data;
@@ -167,6 +179,14 @@ class _UserFlowScreenState extends State<UserFlowScreen>
           break;
         case UserFlowType.blueVerifiedFollower:
           res = await UserApi.getBlueVerifiedFollowerList(
+              userId: widget.userId, cursorBottom: cursorBottom!.value);
+          break;
+        case UserFlowType.subscriptions:
+          res = await UserApi.getSubscriptions(
+              userId: widget.userId, cursorBottom: cursorBottom!.value);
+          break;
+        case UserFlowType.followerYouKnow:
+          res = await UserApi.getFollowerYouKnowList(
               userId: widget.userId, cursorBottom: cursorBottom!.value);
           break;
       }
@@ -272,6 +292,6 @@ class _UserFlowScreenState extends State<UserFlowScreen>
 
   _buildUserItem(TimelineUser timelineUser) {
     User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy);
+    return UserItem(userLegacy: user.legacy, userId: user.restId ?? "");
   }
 }

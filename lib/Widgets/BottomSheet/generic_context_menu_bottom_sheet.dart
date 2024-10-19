@@ -100,7 +100,7 @@ class GenericContextMenuBottomSheetState
             child: Row(
               children: [
                 if (config.icon != null) config.icon!,
-                if (config.icon != null) const SizedBox(width: 3),
+                if (config.icon != null) const SizedBox(width: 10),
                 Text(
                   config.label,
                   style: Theme.of(context).textTheme.bodyMedium?.apply(

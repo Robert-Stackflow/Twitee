@@ -14,14 +14,14 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/list_api.dart';
+import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-import 'package:twitee/Widgets/Twitter/user_item.dart';
+import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
@@ -30,39 +30,38 @@ import '../../Openapi/models/timeline_add_entries.dart';
 import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_user.dart';
-import '../../Openapi/models/user.dart';
+import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/responsive_util.dart';
 
-enum ListMembersFlowType { members, subscribers }
+enum UserListFlowType { create, inner }
 
-class ListMembersFlowScreen extends StatefulWidget {
-  const ListMembersFlowScreen({
+class UserListFlowScreen extends StatefulWidget {
+  const UserListFlowScreen({
     super.key,
     required this.type,
-    required this.listId,
+    required this.userId,
     this.scrollController,
   });
 
-  final ListMembersFlowType type;
+  final UserListFlowType type;
 
-  final String listId;
+  final String userId;
   final ScrollController? scrollController;
 
-  static const String routeName = "/navigtion/listMembersFlow";
+  static const String routeName = "/navigtion/userListFlow";
 
   @override
-  State<ListMembersFlowScreen> createState() => _ListMembersFlowScreenState();
+  State<UserListFlowScreen> createState() => _UserListFlowScreenState();
 }
 
-class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
+class _UserListFlowScreenState extends State<UserListFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
 
-  List<TimelineUser> validEntries = [];
+  List<TimelineTwitterList> validEntries = [];
 
   bool _loading = false;
 
@@ -107,16 +106,16 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     try {
       ResponseResult res;
       switch (widget.type) {
-        case ListMembersFlowType.members:
-          res = await ListApi.getMembers(listId: widget.listId);
+        case UserListFlowType.create:
+          res = await UserApi.getLists(userId: widget.userId);
           break;
-        case ListMembersFlowType.subscribers:
-          res = await ListApi.getSubscribers(listId: widget.listId);
+        case UserListFlowType.inner:
+          res = await UserApi.getInnerLists(userId: widget.userId);
           break;
       }
       if (res.success) {
         Timeline timeline = res.data;
-        List<TimelineUser> newEntries = [];
+        List<TimelineTwitterList> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
@@ -151,18 +150,18 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     try {
       ResponseResult res;
       switch (widget.type) {
-        case ListMembersFlowType.members:
-          res = await ListApi.getMembers(
-              listId: widget.listId, cursor: cursorBottom!.value);
+        case UserListFlowType.create:
+          res = await UserApi.getLists(
+              userId: widget.userId, cursor: cursorBottom!.value);
           break;
-        case ListMembersFlowType.subscribers:
-          res = await ListApi.getSubscribers(
-              listId: widget.listId, cursor: cursorBottom!.value);
+        case UserListFlowType.inner:
+          res = await UserApi.getInnerLists(
+              userId: widget.userId, cursor: cursorBottom!.value);
           break;
       }
       if (res.success) {
         Timeline timeline = res.data;
-        List<TimelineUser> newEntries = [];
+        List<TimelineTwitterList> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
@@ -205,13 +204,14 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     }
   }
 
-  List<TimelineUser> _processEntries(List<TimelineAddEntry> entries) {
-    List<TimelineUser> result = [];
+  List<TimelineTwitterList> _processEntries(List<TimelineAddEntry> entries) {
+    List<TimelineTwitterList> result = [];
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent is TimelineUser) {
+          (entry.content as TimelineTimelineItem).itemContent
+              is TimelineTwitterList) {
         result.add((entry.content as TimelineTimelineItem).itemContent
-            as TimelineUser);
+            as TimelineTwitterList);
       }
     }
     return result;
@@ -246,21 +246,16 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
                 children: List.generate(
                   validEntries.length,
                   (index) {
-                    return _buildUserItem(validEntries[index]);
+                    return TwitterListItem(list: validEntries[index]);
                   },
                 ),
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无用户",
+                text: "暂无列表",
                 scrollController: _scrollController,
               ),
       ),
     );
-  }
-
-  _buildUserItem(TimelineUser timelineUser) {
-    User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy, userId: user.restId ?? "");
   }
 }

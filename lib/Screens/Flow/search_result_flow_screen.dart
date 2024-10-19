@@ -381,7 +381,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       if (item.itemContent is TimelineUser) {
         User user =
             (item.itemContent as TimelineUser).userResults!.result as User;
-        return UserItem(userLegacy: user.legacy);
+        return UserItem(userLegacy: user.legacy, userId: user.restId ?? "");
       } else if (item.itemContent is TimelineTweet) {
         return PostItem(entry: entry);
       }

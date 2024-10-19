@@ -14,14 +14,14 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/list_api.dart';
+import 'package:twitee/Api/topic_api.dart';
+import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/cursor_type.dart';
@@ -30,39 +30,35 @@ import '../../Openapi/models/timeline_add_entries.dart';
 import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
-import '../../Openapi/models/timeline_user.dart';
-import '../../Openapi/models/user.dart';
+import '../../Openapi/models/timeline_topic.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Utils/utils.dart';
+import '../../Widgets/Dialog/dialog_builder.dart';
 
-enum ListMembersFlowType { members, subscribers }
-
-class ListMembersFlowScreen extends StatefulWidget {
-  const ListMembersFlowScreen({
+class UserTopicFlowScreen extends StatefulWidget {
+  const UserTopicFlowScreen({
     super.key,
-    required this.type,
-    required this.listId,
+    required this.userId,
     this.scrollController,
   });
 
-  final ListMembersFlowType type;
-
-  final String listId;
+  final String userId;
   final ScrollController? scrollController;
 
-  static const String routeName = "/navigtion/listMembersFlow";
+  static const String routeName = "/navigtion/userTopicFlow";
 
   @override
-  State<ListMembersFlowScreen> createState() => _ListMembersFlowScreenState();
+  State<UserTopicFlowScreen> createState() => _UserTopicFlowScreenState();
 }
 
-class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
+class _UserTopicFlowScreenState extends State<UserTopicFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
 
-  List<TimelineUser> validEntries = [];
+  List<TimelineTopic> validEntries = [];
 
   bool _loading = false;
 
@@ -105,18 +101,10 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     _loading = true;
     cursorBottom = null;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case ListMembersFlowType.members:
-          res = await ListApi.getMembers(listId: widget.listId);
-          break;
-        case ListMembersFlowType.subscribers:
-          res = await ListApi.getSubscribers(listId: widget.listId);
-          break;
-      }
+      ResponseResult res = await UserApi.getTopics(userId: widget.userId);
       if (res.success) {
         Timeline timeline = res.data;
-        List<TimelineUser> newEntries = [];
+        List<TimelineTopic> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
@@ -149,20 +137,10 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     if (_loading) return;
     _loading = true;
     try {
-      ResponseResult res;
-      switch (widget.type) {
-        case ListMembersFlowType.members:
-          res = await ListApi.getMembers(
-              listId: widget.listId, cursor: cursorBottom!.value);
-          break;
-        case ListMembersFlowType.subscribers:
-          res = await ListApi.getSubscribers(
-              listId: widget.listId, cursor: cursorBottom!.value);
-          break;
-      }
+      ResponseResult res = await UserApi.getTopics(userId: widget.userId);
       if (res.success) {
         Timeline timeline = res.data;
-        List<TimelineUser> newEntries = [];
+        List<TimelineTopic> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
@@ -205,13 +183,14 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
     }
   }
 
-  List<TimelineUser> _processEntries(List<TimelineAddEntry> entries) {
-    List<TimelineUser> result = [];
+  List<TimelineTopic> _processEntries(List<TimelineAddEntry> entries) {
+    List<TimelineTopic> result = [];
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent is TimelineUser) {
+          (entry.content as TimelineTimelineItem).itemContent
+              is TimelineTopic) {
         result.add((entry.content as TimelineTimelineItem).itemContent
-            as TimelineUser);
+            as TimelineTopic);
       }
     }
     return result;
@@ -246,21 +225,117 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
                 children: List.generate(
                   validEntries.length,
                   (index) {
-                    return _buildUserItem(validEntries[index]);
+                    return _buildItem(validEntries[index]);
                   },
                 ),
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无用户",
+                text: "暂无话题",
                 scrollController: _scrollController,
               ),
       ),
     );
   }
 
-  _buildUserItem(TimelineUser timelineUser) {
-    User user = timelineUser.userResults!.result as User;
-    return UserItem(userLegacy: user.legacy, userId: user.restId ?? "");
+  _buildItem(TimelineTopic item) {
+    var radius = ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
+    return ItemBuilder.buildClickItem(
+      Material(
+        color: Theme.of(context).canvasColor,
+        borderRadius: radius,
+        child: InkWell(
+          onTap: () {},
+          borderRadius: radius,
+          child: Container(
+            decoration: BoxDecoration(borderRadius: radius),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: ItemBuilder.buildHeroCachedImage(
+                    imageUrl: item.topic.iconUrl,
+                    context: context,
+                    height: 36,
+                    width: 36,
+                    showLoading: false,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 42,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        item.topic.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.apply(fontSizeDelta: -1),
+                      ),
+                      if (Utils.isNotEmpty(item.topic.description))
+                        const SizedBox(height: 3),
+                      if (Utils.isNotEmpty(item.topic.description))
+                        Text(
+                          item.topic.description ?? "",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.apply(fontSizeDelta: 2),
+                        ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                ItemBuilder.buildRoundButton(
+                  context,
+                  text: item.topic.following ? "正在关注" : "关注",
+                  background: item.topic.following
+                      ? null
+                      : Theme.of(context).primaryColor,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  onTap: () async {
+                    String topicName = item.topic.name;
+                    if (item.topic.following) {
+                      DialogBuilder.showConfirmDialog(context,
+                          title: "取消关注$topicName",
+                          message:
+                              "是否取消关注$topicName？即使取消关注该话题，你仍会看到有关该话题的帖子，具体取决于你关注的账号。",
+                          onTapConfirm: () async {
+                        var res = await TopicApi.unFollowTopic(
+                            topicId: item.topic.topicId);
+                        if (res.success) {
+                          item.topic.following = false;
+                          setState(() {});
+                          IToast.showTop("已取消关注$topicName");
+                        } else {
+                          IToast.showTop("取消关注$topicName失败");
+                        }
+                      });
+                    } else {
+                      var res = await TopicApi.followTopic(
+                          topicId: item.topic.topicId);
+                      if (res.success) {
+                        item.topic.following = true;
+                        setState(() {});
+                        IToast.showTop("已关注$topicName");
+                      } else {
+                        IToast.showTop("关注$topicName失败");
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

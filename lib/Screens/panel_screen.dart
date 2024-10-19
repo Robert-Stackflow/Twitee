@@ -378,7 +378,8 @@ class PanelScreenState extends State<PanelScreen>
                               // spacing: 20,
                               // runSpacing: 5,
                               children: [
-                                _buildCountItem(
+                                ItemBuilder.buildCountItem(
+                                  context,
                                   title: "正在关注",
                                   value: user != null
                                       ? user!.legacy.friendsCount.toString()
@@ -392,7 +393,8 @@ class PanelScreenState extends State<PanelScreen>
                                   },
                                 ),
                                 const SizedBox(width: 20),
-                                _buildCountItem(
+                                ItemBuilder.buildCountItem(
+                                  context,
                                   title: "关注者",
                                   value: user != null
                                       ? user!.legacy.followersCount.toString()
@@ -415,7 +417,7 @@ class PanelScreenState extends State<PanelScreen>
                 ItemBuilder.buildListTile(
                   context: context,
                   title: "个人主页",
-                  leading: Icons.person_outline_rounded,
+                  leading: Icons.photo_filter_rounded,
                   onTap: () {
                     panelScreenState?.pushPage(
                       UserDetailScreen(
@@ -426,7 +428,7 @@ class PanelScreenState extends State<PanelScreen>
                 ),
                 ItemBuilder.buildListTile(
                   context: context,
-                  title: "列表",
+                  title: "我的列表",
                   leading: Icons.featured_play_list_outlined,
                   onTap: () {
                     panelScreenState?.pushPage(
@@ -501,37 +503,6 @@ class PanelScreenState extends State<PanelScreen>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  _buildCountItem({
-    required String title,
-    required String value,
-    Function()? onTap,
-  }) {
-    return ItemBuilder.buildClickItem(
-      clickable: onTap != null,
-      GestureDetector(
-        onTap: onTap,
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: value,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(fontWeightDelta: 2),
-              ),
-              const WidgetSpan(child: SizedBox(width: 4)),
-              TextSpan(
-                text: title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
-          ),
         ),
       ),
     );
