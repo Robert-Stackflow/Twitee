@@ -43,6 +43,7 @@ import '../../Utils/route_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Custom/hero_media_view_screen.dart';
+import '../Item/custom_html_widget.dart';
 
 class PostItem extends StatefulWidget {
   const PostItem({
@@ -315,7 +316,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -589,7 +590,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             children: [
               ItemBuilder.buildAvatar(
                 context: context,
-                imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
+                imageUrl: TweetUtil.getBigAvatarUrl(
+                        user.legacy.profileImageUrlHttps) ??
+                    AssetUtil.avatar,
                 size: avatarSize,
                 isOval: user.profileImageShape == UserProfileImageShape.circle,
                 onTap: () {
@@ -634,13 +637,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       ),
     );
     var extendedBody = Material(
-      color: Theme.of(context).canvasColor,
       borderRadius: borderRadius,
       child: InkWell(
         borderRadius: borderRadius,
-        onTap: () {
-          panelScreenState?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
-        },
+        onTap: () => panelScreenState
+            ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
         child: body,
       ),
     );
@@ -670,7 +671,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             children: [
               ItemBuilder.buildAvatar(
                 context: context,
-                imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
+                imageUrl: TweetUtil.getBigAvatarUrl(
+                        user.legacy.profileImageUrlHttps) ??
+                    AssetUtil.avatar,
                 size: 40,
                 isOval: user.profileImageShape == UserProfileImageShape.circle,
                 onTap: () {
@@ -689,14 +692,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     return widget.isDetail
         ? body
         : Material(
-            color: Theme.of(context).canvasColor,
             borderRadius: radius,
             child: InkWell(
               borderRadius: radius,
-              onTap: () {
-                panelScreenState
-                    ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
-              },
+              onTap: () => panelScreenState
+                  ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
               child: body,
             ),
           );
@@ -718,9 +718,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             children: [
               const SizedBox(height: 8),
               if (Utils.isNotEmpty(fullText))
-                ItemBuilder.buildHtmlWidget(
-                  context,
-                  fullText,
+                CustomHtmlWidget(
+                  content: fullText,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
@@ -749,6 +748,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     User? retweetedUser,
   }) {
     String fullText = tweet.legacy!.fullText!;
+    // String birdwatchText =
+    //     (tweet.hasBirdwatchNotes ?? false) && tweet.birdwatchPivot != null
+    //         ? TweetUtil.processWithBirdwatchEntities(
+    //             tweet.birdwatchPivot!.subtitle.text,
+    //             tweet.birdwatchPivot!.subtitle.entities)
+    //         : "";
     var body = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -763,6 +768,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           _buildUserRow(tweet, isQuote: true),
           const SizedBox(height: 8),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (tweet.legacy!.entities.media != null) _buildQuetoMedia(tweet),
               const SizedBox(width: 10),
@@ -779,14 +785,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       ),
     );
     return Material(
-      color: Theme.of(context).canvasColor,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
-          panelScreenState?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
-        },
-        child: body,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => panelScreenState
+              ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
+          child: body,
+        ),
       ),
     );
   }
@@ -804,9 +812,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ItemBuilder.buildHtmlWidget(
-                context,
-                translation,
+              CustomHtmlWidget(
+                content: translation,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -819,25 +826,33 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildRetweetRow(User retweetedUser) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(width: 4),
-        Icon(
-          Icons.repeat_rounded,
-          size: 16,
-          color: Theme.of(context).textTheme.bodySmall?.color,
+    return ItemBuilder.buildClickItem(
+      GestureDetector(
+        onTap: () {
+          panelScreenState?.pushPage(
+              UserDetailScreen(screenName: retweetedUser.legacy.screenName!));
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(width: 4),
+            Icon(
+              Icons.repeat_rounded,
+              size: 16,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                "${retweetedUser.legacy.name} 已转推",
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            "${retweetedUser.legacy.name} 已转推",
-            style: Theme.of(context).textTheme.bodySmall,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -853,7 +868,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (showAvatar)
           ItemBuilder.buildAvatar(
             context: context,
-            imageUrl: user.legacy.profileImageUrlHttps ?? AssetUtil.avatar,
+            imageUrl:
+                TweetUtil.getBigAvatarUrl(user.legacy.profileImageUrlHttps) ??
+                    AssetUtil.avatar,
             size: isQuote ? 30 : 40,
             isOval: user.profileImageShape == UserProfileImageShape.circle,
             onTap: () => panelScreenState?.pushPage(
@@ -985,7 +1002,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(
               color: Theme.of(context).dividerColor,
-              width: 0.5,
+              width: 1,
             ),
           ),
           child: ClipRRect(
@@ -1044,10 +1061,14 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
     showContextMenu() => BottomSheetBuilder.showContextMenu(
         context, _buildImageMediaContextMenuButtons(media, medias));
-    return GestureDetector(
-      onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
-      onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
-      child: stack,
+    return Material(
+      borderRadius: BorderRadius.circular(radius),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(radius),
+        onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+        onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
+        child: stack,
+      ),
     );
   }
 
@@ -1168,18 +1189,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               if (!hasPlayedOnce && !videoController.value.isPlaying) {
                 _playbackManager.play(videoController);
               }
-              setState(() {
-                isVisible = true;
-                _isVisibleMap[videoUrl] = true;
-              });
+              isVisible = true;
+              _isVisibleMap[videoUrl] = true;
+              if (mounted) setState(() {});
             } else if (isVisible && info.visibleFraction < 0.5) {
               if (videoController.value.isPlaying) {
                 _playbackManager.pause(videoController);
               }
-              setState(() {
-                isVisible = false;
-                _isVisibleMap[videoUrl] = false;
-              });
+              isVisible = false;
+              _isVisibleMap[videoUrl] = false;
+              if (mounted) setState(() {});
             }
           }
         },
@@ -1192,10 +1211,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       );
       showContextMenu() => BottomSheetBuilder.showContextMenu(
           context, _buildImageMediaContextMenuButtons(media, medias));
-      return GestureDetector(
-        onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
-        onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
-        child: detector,
+      return Material(
+        child: InkWell(
+          onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+          onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
+          child: detector,
+        ),
       );
     }
   }
@@ -1305,7 +1326,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             ),
             color: tweet.legacy!.retweeted ? Colors.green : labelColor,
             fontSizeDelta: -1,
-            text: Utils.formatCount(tweet.legacy!.retweetCount ?? 0),
+            text: Utils.formatCountWithText(tweet.legacy!.retweetCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.retweeted) {
                 var res = await IToast.showLoadingSnackbar(
@@ -1349,7 +1370,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             ),
             color: tweet.legacy!.favorited ? Colors.redAccent : labelColor,
             fontSizeDelta: -1,
-            text: Utils.formatCount(tweet.legacy!.favoriteCount ?? 0),
+            text: Utils.formatCountWithText(tweet.legacy!.favoriteCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.favorited) {
                 var res = await IToast.showLoadingSnackbar("正在取消喜欢",
@@ -1405,7 +1426,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             ),
             color: tweet.legacy!.bookmarked ? Colors.blueAccent : labelColor,
             fontSizeDelta: -1,
-            text: Utils.formatCount(tweet.legacy!.bookmarkCount ?? 0),
+            text: Utils.formatCountWithText(tweet.legacy!.bookmarkCount ?? 0),
             onTap: () async {
               if (tweet.legacy!.bookmarked) {
                 var res = await IToast.showLoadingSnackbar(
@@ -1471,7 +1492,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 }
                 setState(() {});
               } else {
-                IToast.showTop("翻译失败：${res.message}");
+                IToast.showTop("翻译失败");
               }
             },
           ),

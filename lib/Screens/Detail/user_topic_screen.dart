@@ -74,7 +74,7 @@ class UserTopicScreenState extends State<UserTopicScreen>
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: [_scrollController],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -100,17 +100,18 @@ class UserTopicScreenState extends State<UserTopicScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

@@ -22,6 +22,7 @@ import 'package:smart_snackbars/widgets/snackbars/base_snackbar.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/utils.dart';
 
+import '../Resources/theme.dart';
 import '../Widgets/Item/item_builder.dart';
 import 'app_provider.dart';
 
@@ -36,22 +37,7 @@ class IToast {
     toast.showToast(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Theme.of(rootContext).canvasColor,
-          border: Border.all(
-            color: Theme.of(rootContext).dividerColor,
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(rootContext).shadowColor,
-              offset: const Offset(0, 4),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ).scale(2)
-          ],
-        ),
+        decoration: MyTheme.defaultDecoration,
         child: Text(
           text,
           textAlign: TextAlign.center,
@@ -113,72 +99,98 @@ class IToast {
     return notification;
   }
 
+  static CustomSnackBarController showCustomSnackbar({
+    required Widget child,
+    Widget? icon,
+    bool persist = false,
+    Duration? duration,
+    EdgeInsets? padding,
+    EdgeInsets? outerPadding,
+    double? maxWidth,
+    CustomSnackBarController? controller,
+    Function()? onDismiss,
+  }) {
+    controller ??= CustomSnackBarController();
+    SmartSnackBars.showCustomSnackBar(
+      context: rootContext,
+      controller: controller,
+      duration: duration,
+      animateFrom: AnimateFrom.fromBottom,
+      animationCurve: Curves.easeInOut,
+      distanceToTravel: 0.0,
+      persist: persist,
+      maxWidth: maxWidth,
+      outerPadding: outerPadding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Container(
+        padding: padding ?? const EdgeInsets.all(10),
+        decoration: MyTheme.defaultDecoration,
+        child: child,
+      ),
+    );
+    return controller;
+  }
+
+  static CustomSnackBarController showSnackbar(
+    String message, {
+    String? buttonText,
+    Function()? onTap,
+    Function()? onDismiss,
+    Widget? icon,
+    bool persist = false,
+  }) {
+    return showCustomSnackbar(
+      icon: icon,
+      persist: persist,
+      duration: const Duration(milliseconds: 600),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      maxWidth: ResponsiveUtil.isLandscape() ? 400 : null,
+      onDismiss: onDismiss,
+      child: Row(
+        children: [
+          if (icon != null) icon,
+          const SizedBox(width: 12),
+          Text(
+            message,
+            style: Theme.of(rootContext).textTheme.titleMedium,
+          ),
+          const Spacer(),
+          if (Utils.isNotEmpty(buttonText))
+            ItemBuilder.buildRoundButton(
+              rootContext,
+              text: buttonText!,
+              onTap: onTap ?? () {},
+              background: Theme.of(rootContext).primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+        ],
+      ),
+    );
+  }
+
   static CustomSnackBarController _showLoadingSnackbar(
     String message, {
     String? buttonText,
     Function()? onTap,
+    Function()? onDismiss,
   }) {
-    CustomSnackBarController controller = CustomSnackBarController();
-    SmartSnackBars.showCustomSnackBar(
-      context: rootContext,
-      controller: controller,
-      duration: const Duration(milliseconds: 600),
-      animateFrom: AnimateFrom.fromBottom,
-      animationCurve: Curves.easeInOut,
-      distanceToTravel: 0.0,
+    return showSnackbar(
+      message,
+      buttonText: buttonText,
+      onTap: onTap,
       persist: true,
-      maxWidth: ResponsiveUtil.isLandscape() ? 400 : null,
-      outerPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-        decoration: BoxDecoration(
-          color: Theme.of(rootContext).canvasColor,
-          border: Border.all(
-            color: Theme.of(rootContext).dividerColor,
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(rootContext).shadowColor,
-              offset: const Offset(0, 4),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ).scale(2)
-          ],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(
-                    Theme.of(rootContext).textTheme.titleLarge?.color),
-                strokeWidth: 3,
-                strokeCap: StrokeCap.round,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              message,
-              style: Theme.of(rootContext).textTheme.titleMedium,
-            ),
-            const Spacer(),
-            if (Utils.isNotEmpty(buttonText))
-              ItemBuilder.buildRoundButton(
-                rootContext,
-                text: buttonText!,
-                onTap: onTap ?? () {},
-                background: Theme.of(rootContext).primaryColor,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-          ],
+      onDismiss: onDismiss,
+      icon: SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(
+              Theme.of(rootContext).textTheme.titleLarge?.color),
+          strokeWidth: 3,
+          strokeCap: StrokeCap.round,
         ),
       ),
     );
-    return controller;
   }
 
   static Future<dynamic> showLoadingSnackbar(
@@ -186,11 +198,16 @@ class IToast {
     Function() future, {
     String? buttonText,
     Function()? onTap,
+    Function()? onDismiss,
   }) async {
-    var snackBar =
-        _showLoadingSnackbar(message, buttonText: buttonText, onTap: onTap);
+    var controller = _showLoadingSnackbar(
+      message,
+      buttonText: buttonText,
+      onTap: onTap,
+      onDismiss: onDismiss,
+    );
     var res = await future();
-    snackBar.close?.call();
+    controller.close?.call();
     return res;
   }
 }

@@ -10,14 +10,15 @@ import 'type_name.dart';
 part 'item_result.g.dart';
 
 @JsonSerializable()
-class ItemResult  {
+class ItemResult {
   const ItemResult({
     required this.privateTypename,
     required this.result,
   });
-  
-  factory ItemResult.fromJson(Map<String, Object?> json) => _$ItemResultFromJson(json);
-  
+
+  factory ItemResult.fromJson(Map<String, Object?> json) =>
+      _$ItemResultFromJson(json);
+
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
   final TweetUnion? result;

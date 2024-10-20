@@ -47,14 +47,14 @@ abstract class $className {
   const $className();
   factory $className.fromJson(Map<String, Object?> json){
       switch(json['${dataClass.unionKey}']){
-    ${caseString(dataClass,true)}
+    ${caseString(dataClass, true)}
         default:
            throw ArgumentError('Unknown ${className}: \$json');
       }
   }
   Map<String, Object?> toJson(){
       switch(json['${dataClass.unionKey}']){
-    ${caseString(dataClass,false)}
+    ${caseString(dataClass, false)}
         default:
            throw ArgumentError('Unknown ${className}');
       }
@@ -63,12 +63,12 @@ abstract class $className {
   ''';
 }
 
-String caseString(UniversalComponentClass dataClass,bool isFrom) {
+String caseString(UniversalComponentClass dataClass, bool isFrom) {
   String res = "";
   for (var i = 0; i < dataClass.ofRefs!.refs.length; i++) {
     res += '''
     case "${dataClass.ofRefs!.refs[i]}": 
-            return ${dataClass.ofRefs!.refs[i]}.${isFrom?"from":"to"}Json(json);
+            return ${dataClass.ofRefs!.refs[i]}.${isFrom ? "from" : "to"}Json(json);
     ''';
   }
   return res;

@@ -98,7 +98,7 @@ class DialogWrapperWidgetState extends State<DialogWrapperWidget> {
             borderRadius: BorderRadius.circular(16),
             border: widget.fullScreen
                 ? null
-                : Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+                : Border.all(color: Theme.of(context).dividerColor, width: 1),
             boxShadow: widget.fullScreen
                 ? null
                 : [

@@ -117,6 +117,10 @@ class UriUtil {
     return "#${regExp.firstMatch(url)!.group(1)!}";
   }
 
+  static bool isTwitterUrl(String url) {
+    return isUserUrl(url) || isHashTagUrl(url);
+  }
+
   static Future<bool> processUrl(
     BuildContext context,
     String url, {

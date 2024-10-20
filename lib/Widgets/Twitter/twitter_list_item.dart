@@ -223,7 +223,7 @@ class TwitterListItemState extends State<TwitterListItem> {
                               listScreenState?.refreshLists();
                               IToast.showTop("取消订阅成功");
                             } else {
-                              IToast.showTop("取消订阅失败：${res.message}");
+                              IToast.showTop("取消订阅失败");
                             }
                           },
                         );
@@ -238,7 +238,7 @@ class TwitterListItemState extends State<TwitterListItem> {
                           listScreenState?.refreshLists();
                           IToast.showTop("订阅成功");
                         } else {
-                          IToast.showTop("订阅失败：${res.message}");
+                          IToast.showTop("订阅失败");
                         }
                       }
                     }

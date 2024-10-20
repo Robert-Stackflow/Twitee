@@ -7,7 +7,6 @@ import 'package:video_player/video_player.dart';
 
 import 'video_player_control_panel.dart';
 
-
 class VideoPlaylistPlayerWithPanel extends StatefulWidget {
   final List<String> playlist;
   final bool isLooping;
@@ -26,8 +25,8 @@ class VideoPlaylistPlayerWithPanel extends StatefulWidget {
   State<StatefulWidget> createState() => _VideoPlaylistPlayerWithPanelState();
 }
 
-class _VideoPlaylistPlayerWithPanelState extends State<VideoPlaylistPlayerWithPanel> {
-
+class _VideoPlaylistPlayerWithPanelState
+    extends State<VideoPlaylistPlayerWithPanel> {
   VideoPlayerController? controller;
   int nowPlayIndex = 0;
   bool isFirstPlay = true;
@@ -59,7 +58,9 @@ class _VideoPlaylistPlayerWithPanelState extends State<VideoPlaylistPlayerWithPa
         return;
       }
 
-      if (!kIsWeb) controller!.play(); // NOTE: web not allowed auto play without user interaction
+      if (!kIsWeb)
+        controller!
+            .play(); // NOTE: web not allowed auto play without user interaction
     }).catchError((e) {
       log("controller.initialize() error occurs: $e");
     });
@@ -96,12 +97,16 @@ class _VideoPlaylistPlayerWithPanelState extends State<VideoPlaylistPlayerWithPa
       showFullscreenButton: true,
       showVolumeButton: true,
       bgColor: widget.bgColor,
-      onPrevClicked: (nowPlayIndex <= 0) ? null :  () {
-        playPrevVideo();
-      },
-      onNextClicked: (nowPlayIndex + 1 >= widget.playlist.length) ? null : () {
-        playNextVideo();
-      },
+      onPrevClicked: (nowPlayIndex <= 0)
+          ? null
+          : () {
+              playPrevVideo();
+            },
+      onNextClicked: (nowPlayIndex + 1 >= widget.playlist.length)
+          ? null
+          : () {
+              playNextVideo();
+            },
       onPlayEnded: () {
         if (nowPlayIndex + 1 >= widget.playlist.length) {
           // end of playlist

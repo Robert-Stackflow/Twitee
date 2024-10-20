@@ -13,6 +13,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -25,6 +26,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:group_button/group_button.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
+import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Resources/fonts.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/image_util.dart';
@@ -36,6 +38,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../../Openapi/models/media.dart';
 import '../../Resources/colors.dart';
+import '../../Resources/theme.dart';
 import '../../Screens/Detail/search_result_screen.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/asset_util.dart';
@@ -45,7 +48,6 @@ import '../../Utils/enums.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
-import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../generated/l10n.dart';
 import '../Custom/hero_media_view_screen.dart';
@@ -92,7 +94,23 @@ class ItemBuilder {
     bool centerInMobile = false,
     Function()? onBackTap,
     List<Widget> actions = const [],
+    double rightPadding = 0,
+    bool showBorder = true,
   }) {
+    UserInfo? info = HiveUtil.getUserInfo();
+    Widget? avatar = info != null
+        ? Container(
+            margin: const EdgeInsets.symmetric(vertical: 6.5)
+                .add(const EdgeInsets.only(right: 3)),
+            child: ItemBuilder.buildAvatar(
+              context: context,
+              imageUrl: TweetUtil.getBigAvatarUrl(info.profileImageUrlHttps) ??
+                  AssetUtil.avatar,
+              size: 40,
+              onTap: () => panelScreenState?.openDrawer(),
+            ),
+          )
+        : null;
     if (ResponsiveUtil.isLandscape()) {
       bool hasLeftButton =
           showBack || (showMenu && !ResponsiveUtil.isLandscape());
@@ -101,14 +119,17 @@ class ItemBuilder {
       return PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: Container(
+          height: 56,
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1,
-              ),
-            ),
+            border: showBorder
+                ? Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context).dividerColor,
+                      width: 1,
+                    ),
+                  )
+                : null,
           ),
           child: SafeArea(
             child: Stack(
@@ -126,7 +147,9 @@ class ItemBuilder {
                           margin: const EdgeInsets.only(left: 10),
                           child: ItemBuilder.buildIconButton(
                             context: context,
-                            icon: const Icon(Icons.menu_rounded),
+                            icon: info != null
+                                ? avatar
+                                : const Icon(Icons.menu_rounded),
                             onTap: () => panelScreenState?.openDrawer(),
                           ),
                         ),
@@ -173,21 +196,24 @@ class ItemBuilder {
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1,
-              ),
-            ),
+            // border: showBorder
+            //     ? Border(
+            //         bottom: BorderSide(
+            //           color: Theme.of(context).dividerColor,
+            //           width: 1,
+            //         ),
+            //       )
+            //     : null,
           ),
           child: ItemBuilder.buildAppBar(
             context: context,
             leading: showMenu ? Icons.menu_rounded : Icons.arrow_back_rounded,
+            leadingWidget: showMenu && info != null ? avatar : null,
             onLeadingTap: showMenu
                 ? () => panelScreenState?.openDrawer()
                 : onBackTap ?? () => panelScreenState?.popPage(),
             backgroundColor: Theme.of(context).canvasColor,
-            leftSpacing: 10,
+            leftSpacing: 8,
             leadingTitleSpacing: spacing,
             actions: actions,
             title: titleWidget != null
@@ -275,6 +301,7 @@ class ItemBuilder {
     Key? key,
     bool center = false,
     IconData? leading,
+    Widget? leadingWidget,
     Color? leadingColor,
     Function()? onLeadingTap,
     Color? backgroundColor,
@@ -311,13 +338,14 @@ class ItemBuilder {
           leading: showLeading
               ? Container(
                   margin: EdgeInsets.only(left: leftSpacing),
-                  child: buildIconButton(
-                    context: context,
-                    icon: Icon(leading,
-                        color:
-                            leadingColor ?? Theme.of(context).iconTheme.color),
-                    onTap: onLeadingTap,
-                  ),
+                  child: leadingWidget ??
+                      ItemBuilder.buildIconButton(
+                        context: context,
+                        icon: Icon(leading,
+                            color: leadingColor ??
+                                Theme.of(context).iconTheme.color),
+                        onTap: onLeadingTap,
+                      ),
                 )
               : null,
           title: center
@@ -418,12 +446,22 @@ class ItemBuilder {
     bool showBorder = false,
     Color? background,
     double? width,
-    bool autoScrollable = true,
+    bool forceUnscrollable = false,
   }) {
     padding ??= ResponsiveUtil.isLandscape()
         ? const EdgeInsets.symmetric(horizontal: 10)
-        : const EdgeInsets.only(right: 10);
-    bool scrollable = !(autoScrollable && !ResponsiveUtil.isLandscape());
+        : const EdgeInsets.symmetric(horizontal: 10);
+    bool scrollable = false;
+    if (ResponsiveUtil.isLandscape()) {
+      scrollable = true;
+    } else {
+      if (tabs.length > 3) {
+        scrollable = true;
+      } else {
+        scrollable = false;
+      }
+    }
+    scrollable = forceUnscrollable ? false : scrollable;
     var titleMedium = Theme.of(context).textTheme.titleMedium;
     return PreferredSize(
       preferredSize: Size.fromHeight(height ?? 56),
@@ -670,14 +708,7 @@ class ItemBuilder {
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).dividerColor, width: 0.8),
         borderRadius: BorderRadius.circular(radius + 1),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(rootContext).shadowColor,
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-            spreadRadius: 1,
-          ).scale(2)
-        ],
+        boxShadow: MyTheme.defaultBoxShadow,
       ),
       child: Material(
         color: Theme.of(context).canvasColor,
@@ -784,19 +815,19 @@ class ItemBuilder {
                   Border.symmetric(
                     vertical: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 0.5,
+                      width: 1,
                     ),
                   ),
                   Border(
                     top: topRadius
                         ? BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 0.5,
+                            width: 1,
                           )
                         : BorderSide.none,
                     bottom: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 0.5,
+                      width: 1,
                     ),
                   ),
                 )
@@ -872,7 +903,7 @@ class ItemBuilder {
                         border: Border(
                           bottom: BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 0.5,
+                            width: 1,
                             style: bottomRadius
                                 ? BorderStyle.none
                                 : BorderStyle.solid,
@@ -970,19 +1001,19 @@ class ItemBuilder {
                   Border.symmetric(
                     vertical: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 0.5,
+                      width: 1,
                     ),
                   ),
                   Border(
                     top: topRadius
                         ? BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 0.5,
+                            width: 1,
                           )
                         : BorderSide.none,
                     bottom: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 0.5,
+                      width: 1,
                     ),
                   ),
                 )
@@ -1092,7 +1123,7 @@ class ItemBuilder {
                         border: Border(
                           bottom: BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 0.5,
+                            width: 1,
                             style: bottomRadius
                                 ? BorderStyle.none
                                 : BorderStyle.solid,
@@ -1208,22 +1239,8 @@ class ItemBuilder {
       cardBuilder: (context, widgets) => Container(
         constraints: const BoxConstraints(minWidth: 160),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
-          color: Theme.of(context).canvasColor,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor,
-              offset: const Offset(0, 4),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ).scale(2)
-          ],
-        ),
-        child: Column(
-          children: widgets,
-        ),
+        decoration: MyTheme.defaultDecoration,
+        child: Column(children: widgets),
       ),
       dividerBuilder: (context) => ItemBuilder.buildDivider(
         context,
@@ -1283,11 +1300,12 @@ class ItemBuilder {
   static Widget buildCountItem(
     BuildContext context, {
     required String title,
-    required String value,
+    int value = 0,
+    String? subTitle,
     Function()? onTap,
     double fontSizeDelta = 0,
   }) {
-    return ItemBuilder.buildClickItem(
+    var body = ItemBuilder.buildClickItem(
       clickable: onTap != null,
       GestureDetector(
         onTap: onTap,
@@ -1295,7 +1313,7 @@ class ItemBuilder {
           TextSpan(
             children: [
               TextSpan(
-                text: value,
+                text: subTitle ?? Utils.formatCountWithTextAndDot(value),
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -1313,6 +1331,28 @@ class ItemBuilder {
           ),
         ),
       ),
+    );
+    if (subTitle == null) {
+      return ItemBuilder.buildToolTip(
+        child: body,
+        message: "${Utils.formatCountWithDot(value)} $title",
+      );
+    } else {
+      return body;
+    }
+  }
+
+  static Widget buildToolTip({
+    required Widget child,
+    required String message,
+  }) {
+    return Tooltip(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: MyTheme.geDefaultDecoration(8),
+      textStyle:
+          Theme.of(rootContext).textTheme.titleLarge?.apply(fontSizeDelta: -2),
+      message: message,
+      child: child,
     );
   }
 
@@ -1372,13 +1412,13 @@ class ItemBuilder {
                 Border.symmetric(
                   vertical: BorderSide(
                     color: Theme.of(context).dividerColor,
-                    width: 0.5,
+                    width: 1,
                   ),
                 ),
                 Border(
                   bottom: BorderSide(
                     color: Theme.of(context).dividerColor,
-                    width: 0.5,
+                    width: 1,
                   ),
                 ),
               )
@@ -2416,7 +2456,7 @@ class ItemBuilder {
     String? tooltip,
     bool clickable = true,
   }) {
-    var main = ItemBuilder.buildClickItem(
+    var body = ItemBuilder.buildClickItem(
       clickable: clickable,
       GestureDetector(
         onTap: onTap,
@@ -2464,12 +2504,12 @@ class ItemBuilder {
       ),
     );
     if (Utils.isNotEmpty(tooltip)) {
-      return Tooltip(
+      return ItemBuilder.buildToolTip(
+        child: body,
         message: tooltip!,
-        child: main,
       );
     } else {
-      return main;
+      return body;
     }
   }
 
@@ -2510,7 +2550,7 @@ class ItemBuilder {
             borderRadius: BorderRadius.circular(50),
             border: Border.all(
               color: Theme.of(context).dividerColor,
-              width: 0.5,
+              width: 1,
             ),
           ),
           child: Text(
@@ -2710,67 +2750,6 @@ class ItemBuilder {
     }
   }
 
-  static buildHtmlWidget(
-    BuildContext context,
-    String content, {
-    TextStyle? style,
-    bool enableImageDetail = true,
-    bool parseImage = true,
-    bool showLoading = true,
-    Function()? onDownloadSuccess,
-  }) {
-    return ItemBuilder.buildSelectableArea(
-      context: context,
-      child: HtmlWidget(
-        content,
-        enableCaching: true,
-        renderMode: RenderMode.column,
-        textStyle: style ??
-            Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.apply(fontSizeDelta: 3, heightDelta: 0.3),
-        factoryBuilder: () {
-          return CustomImageFactory();
-        },
-        customStylesBuilder: (e) {
-          if (e.attributes.containsKey('href')) {
-            return {
-              'color':
-                  '#${MyColors.getLinkColor(context).value.toRadixString(16).substring(2, 8)}',
-              'font-weight': '700',
-              'text-decoration-line': 'none',
-            };
-          } else if (e.id == "title") {
-            return {
-              'font-weight': '700',
-              'font-size': 'larger',
-            };
-          }
-          return null;
-        },
-        onTapUrl: (url) async {
-          UriUtil.processUrl(context, url);
-          return true;
-        },
-        onLoadingBuilder: showLoading
-            ? (context, _, __) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: ItemBuilder.buildLoadingDialog(
-                    context,
-                    text: S.current.loading,
-                    size: 40,
-                    bottomPadding: 30,
-                    topPadding: 30,
-                  ),
-                );
-              }
-            : null,
-      ),
-    );
-  }
-
   static buildClickItem(
     Widget child, {
     bool clickable = true,
@@ -2794,12 +2773,12 @@ class ItemBuilder {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-        border: Border(
-          left: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
+        // border: Border(
+        //   left: BorderSide(
+        //     color: Theme.of(context).dividerColor,
+        //     width: 1,
+        //   ),
+        // ),
       ),
       child: WindowTitleBar(
         useMoveHandle: ResponsiveUtil.isDesktop(),
@@ -2913,7 +2892,7 @@ class ItemBuilder {
           border: showBorder
               ? Border.all(
                   color: Theme.of(context).dividerColor,
-                  width: 0.5,
+                  width: 1,
                 )
               : const Border.fromBorderSide(BorderSide.none),
           shape: BoxShape.circle,
@@ -3161,16 +3140,33 @@ class ItemBuilder {
       ),
     );
   }
+
+  static buildNestedScrollView({
+    required Widget body,
+    ScrollController? controller,
+    double? height,
+  }) {
+    if (height != null && height > 0) {
+      return NestedScrollView(
+        controller: controller,
+        headerSliverBuilder: (_, __) =>
+            [SliverToBoxAdapter(child: Container(height: height))],
+        body: body,
+      );
+    } else {
+      return body;
+    }
+  }
 }
 
 class CustomImageFactory extends WidgetFactory {
   @override
-  Widget? buildImageWidget(BuildTree meta, ImageSource src) {
+  Widget? buildImageWidget(BuildTree tree, ImageSource src) {
     final url = src.url;
     if (url.startsWith('asset:') ||
         url.startsWith('data:image/') ||
         url.startsWith('file:')) {
-      return super.buildImageWidget(meta, src);
+      return super.buildImageWidget(tree, src);
     }
 
     return CachedNetworkImage(

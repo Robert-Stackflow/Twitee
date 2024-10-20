@@ -8,7 +8,8 @@ abstract class VideoPlayerControlPanelPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static VideoPlayerControlPanelPlatform _instance = MethodChannelVideoPlayerControlPanel();
+  static VideoPlayerControlPanelPlatform _instance =
+      MethodChannelVideoPlayerControlPanel();
 
   /// The default instance of [VideoPlayerControlPanelPlatform] to use.
   ///

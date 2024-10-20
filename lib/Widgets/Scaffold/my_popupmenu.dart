@@ -18,6 +18,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../Resources/theme.dart';
+
 const Duration _kMenuDuration = Duration(milliseconds: 300);
 const double _kMenuCloseIntervalEnd = 2.0 / 3.0;
 const double _kMenuDividerHeight = 16.0;
@@ -636,21 +638,7 @@ class _PopupMenu<T> extends StatelessWidget {
             color: Colors.transparent,
             child: Container(
               padding: route.padding,
-              decoration: route.decoration ??
-                  BoxDecoration(
-                    color: Theme.of(context).canvasColor,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: Theme.of(context).dividerColor, width: 0.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor,
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ).scale(2)
-                    ],
-                  ),
+              decoration: route.decoration ?? MyTheme.defaultDecoration,
               child: Align(
                 alignment: AlignmentDirectional.topEnd,
                 widthFactor: width.evaluate(route.animation!),

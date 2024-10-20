@@ -35,15 +35,16 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
 
-class UserTopicFlowScreen extends StatefulWidget {
+class UserTopicFlowScreen extends StatefulWidgetForFlow {
   const UserTopicFlowScreen({
     super.key,
     required this.userId,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String userId;
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/userTopicFlow";
 
@@ -118,7 +119,7 @@ class _UserTopicFlowScreenState extends State<UserTopicFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -156,7 +157,7 @@ class _UserTopicFlowScreenState extends State<UserTopicFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

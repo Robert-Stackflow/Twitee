@@ -97,19 +97,29 @@ class UserListScreenState extends State<UserListScreen>
         context: context,
         showBack: true,
         spacing: ResponsiveUtil.isLandscape() ? 0 : 10,
-        titleWidget: ItemBuilder.buildTabBar(
-          context,
-          _tabController,
-          tabDataList.tabList,
-          onTap: onTapTab,
-          autoScrollable: false,
-        ),
+        title: "用户列表",
       ),
       body: Stack(
         children: [
-          TabBarView(
-            controller: _tabController,
-            children: tabDataList.pageList,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemBuilder.buildTabBar(
+                context,
+                _tabController,
+                tabDataList.tabList,
+                onTap: onTapTab,
+                background: Theme.of(context).canvasColor,
+                showBorder: true,
+                width: MediaQuery.of(context).size.width,
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: tabDataList.pageList,
+                ),
+              ),
+            ],
           ),
           Positioned(
             right: 16,
@@ -117,7 +127,7 @@ class UserListScreenState extends State<UserListScreen>
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: tabDataList.scrollControllerList,
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -154,17 +164,18 @@ class UserListScreenState extends State<UserListScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

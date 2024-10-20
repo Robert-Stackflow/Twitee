@@ -35,18 +35,19 @@ import '../../Utils/responsive_util.dart';
 
 enum UserListFlowType { create, inner }
 
-class UserListFlowScreen extends StatefulWidget {
+class UserListFlowScreen extends StatefulWidgetForFlow {
   const UserListFlowScreen({
     super.key,
     required this.type,
     required this.userId,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final UserListFlowType type;
 
   final String userId;
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/userListFlow";
 
@@ -129,7 +130,7 @@ class _UserListFlowScreenState extends State<UserListFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -177,7 +178,7 @@ class _UserListFlowScreenState extends State<UserListFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

@@ -16,8 +16,8 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
           (json['creator_subscriptions_count'] as num?)?.toInt(),
       hasGraduatedAccess: json['has_graduated_access'] as bool?,
       hasHiddenLikesOnProfile: json['has_hidden_likes_on_profile'] as bool?,
-      hasHiddenSubscriptionsOnProfile: json['has_hidden_subscriptions_on_profile']
-          as bool?,
+      hasHiddenSubscriptionsOnProfile:
+          json['has_hidden_subscriptions_on_profile'] as bool?,
       hasNftAvatar: json['has_nft_avatar'] as bool?,
       highlightsInfo: json['highlights_info'] == null
           ? null

@@ -1510,7 +1510,7 @@ class MyDesktopTextSelectionToolbar extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                      color: Theme.of(context).dividerColor, width: 0.5),
+                      color: Theme.of(context).dividerColor, width: 1),
                   color: Theme.of(context).canvasColor,
                   boxShadow: [
                     BoxShadow(

@@ -44,8 +44,9 @@ class CustomSnackBar extends StatefulWidget {
 }
 
 class CustomSnackBarState extends State<CustomSnackBar> {
-  double? top = -150;
-  double? bottom = -150;
+  static double OFFSET = 500;
+  double? top = -OFFSET;
+  double? bottom = -OFFSET;
   int startTimestamp = 0;
 
   @override
@@ -74,8 +75,9 @@ class CustomSnackBarState extends State<CustomSnackBar> {
   close() async {
     var endTimestamp = DateTime.now().millisecondsSinceEpoch;
     var diff = endTimestamp - startTimestamp;
-    if (diff < widget.duration.inMilliseconds) {
-      var wait = widget.duration.inMilliseconds - diff;
+    var minDiff = widget.duration.inMilliseconds + 1000;
+    if (diff < minDiff) {
+      var wait = minDiff - diff;
       await Future.delayed(Duration(milliseconds: wait), () => () {});
       _close();
     } else {
@@ -84,15 +86,17 @@ class CustomSnackBarState extends State<CustomSnackBar> {
   }
 
   _close() {
-    setState(
-      () {
-        if (widget.animateFrom == AnimateFrom.fromBottom) {
-          bottom = -150;
-        } else if (widget.animateFrom == AnimateFrom.fromTop) {
-          top = -150.0;
-        }
-      },
-    );
+    if (mounted) {
+      setState(
+        () {
+          if (widget.animateFrom == AnimateFrom.fromBottom) {
+            bottom = -OFFSET;
+          } else if (widget.animateFrom == AnimateFrom.fromTop) {
+            top = -OFFSET;
+          }
+        },
+      );
+    }
   }
 
   @override

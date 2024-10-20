@@ -263,7 +263,9 @@ class _WebviewScreenState extends State<WebviewScreen>
                     color: Theme.of(context).primaryColor,
                     backgroundColor: Colors.transparent,
                     minHeight: 2,
-                    borderRadius:  const BorderRadius.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10)),
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomRight: Radius.circular(10)),
                   )
                 : emptyWidget,
             _buildErrorPage(),

@@ -22,6 +22,7 @@ enum InstructionType {
   timelineTerminateTimeline('TimelineTerminateTimeline'),
   @JsonValue('TimelineShowCover')
   timelineShowCover('TimelineShowCover'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

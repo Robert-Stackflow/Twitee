@@ -27,15 +27,16 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Openapi/models/user_legacy.dart';
 import '../../Utils/responsive_util.dart';
 
-class FriendsFlowScreen extends StatefulWidget {
+class FriendsFlowScreen extends StatefulWidgetForFlow {
   const FriendsFlowScreen({
     super.key,
     required this.userId,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String userId;
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/friendsFlow";
 
@@ -104,7 +105,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -136,7 +137,7 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

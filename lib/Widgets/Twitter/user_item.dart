@@ -7,7 +7,9 @@ import '../../Screens/Detail/user_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Utils/tweet_util.dart';
 import '../Dialog/dialog_builder.dart';
+import '../Item/custom_html_widget.dart';
 import '../Item/item_builder.dart';
 
 class UserItem extends StatefulWidget {
@@ -54,7 +56,9 @@ class _UserItemState extends State<UserItem> {
               children: [
                 ItemBuilder.buildAvatar(
                   context: context,
-                  imageUrl: user.profileImageUrlHttps ?? AssetUtil.avatar,
+                  imageUrl:
+                      TweetUtil.getBigAvatarUrl(user.profileImageUrlHttps) ??
+                          AssetUtil.avatar,
                   size: 40,
                 ),
                 const SizedBox(width: 10),
@@ -154,13 +158,14 @@ class _UserItemState extends State<UserItem> {
                           ),
                         ],
                       ),
-                      ItemBuilder.buildHtmlWidget(
-                        context,
-                        user.description,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                      const SizedBox(height: 5),
+                      CustomHtmlWidget(
+                        content: user.description,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.apply(fontSizeDelta: 2),
+                        heightDelta: 0,
                       ),
                     ],
                   ),

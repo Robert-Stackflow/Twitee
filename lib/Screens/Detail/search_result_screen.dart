@@ -24,6 +24,7 @@ import 'package:twitee/Utils/tweet_util.dart';
 
 import '../../Models/search_suggestion.dart';
 import '../../Models/tab_item_data.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/responsive_util.dart';
@@ -140,7 +141,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
         _showSuggestions();
       }
     } else {
-      IToast.showTop("搜索建议失败：${res.message}");
+      IToast.showTop("搜索建议失败");
     }
   }
 
@@ -185,22 +186,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
               : const Offset(-45.0, 42.0),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).shadowColor,
-                  offset: const Offset(0, 4),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ).scale(2),
-              ],
-              border: Border.all(
-                color: Theme.of(context).dividerColor,
-                width: 0.5,
-              ),
-            ),
+            decoration: MyTheme.defaultDecoration,
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -352,7 +338,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
           child: ScrollToHide(
             controller: _scrollToHideController,
             scrollControllers: resultTabDataList.scrollControllerList,
-            hideDirection: Axis.vertical,
+            hideDirection: AxisDirection.down,
             child: _buildFloatingButtons(),
           ),
         ),
@@ -374,6 +360,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
               _resultTabController,
               resultTabDataList.tabList,
               showBorder: true,
+              forceUnscrollable: true,
               width: MediaQuery.of(context).size.width,
               background: Theme.of(context).canvasColor,
               onTap: (index) {
@@ -421,17 +408,18 @@ class SearchResultScreenState extends State<SearchResultScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

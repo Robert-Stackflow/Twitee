@@ -53,14 +53,12 @@ class ScrollToHide extends StatefulWidget {
     this.enabled = true,
     this.height,
     this.controller,
-    this.useOpacityAnimation = true,
+    this.triggerOffset = 0,
   });
 
   final ScrollToHideController? controller;
 
   final bool enabled;
-
-  final bool useOpacityAnimation;
 
   /// The widget that you want to hide/show based on the scroll direction.
   final Widget child;
@@ -75,8 +73,10 @@ class ScrollToHide extends StatefulWidget {
   /// The initial height of the child widget. When the widget is hidden, its height will be animated to 0.
   final double? height;
 
+  final double triggerOffset;
+
   /// The initial width of the child widget, its width will be animated to 0 .by providing width you want the hide direction to be horizontal.
-  final Axis hideDirection;
+  final AxisDirection hideDirection;
 
   /// The initial width of the child widget, its width will be animated to 0 .by providing width you want the hide direction to be horizontal.
   final double? width;
@@ -91,6 +91,7 @@ class ScrollToHideState extends State<ScrollToHide>
 
   late AnimationController _animationController;
   late Animation<Offset> _offsetAnimation;
+  late Animation<double> _heightAnimation;
 
   @override
   void initState() {
@@ -103,13 +104,34 @@ class ScrollToHideState extends State<ScrollToHide>
       vsync: this,
       duration: widget.duration,
     );
-    _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(0, 1.0),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    switch (widget.hideDirection) {
+      case AxisDirection.up:
+        _offsetAnimation = Tween<Offset>(
+          begin: const Offset(0, 0),
+          end: const Offset(0, -1.0),
+        ).animate(CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.easeInOut,
+        ));
+        _heightAnimation = Tween<double>(
+          begin: 0.0,
+          end: widget.height ?? 0.0,
+        ).animate(CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.easeInOut,
+        ));
+        break;
+      case AxisDirection.down:
+      default:
+        _offsetAnimation = Tween<Offset>(
+          begin: const Offset(0, 0),
+          end: const Offset(0, 1.0),
+        ).animate(CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.easeInOut,
+        ));
+        break;
+    }
     super.initState();
   }
 
@@ -137,19 +159,15 @@ class ScrollToHideState extends State<ScrollToHide>
     return AnimatedOpacity(
       duration: widget.duration,
       opacity: isShown ? 1.0 : 0.0,
-      child: widget.useOpacityAnimation == false
-          ? Wrap(
-              children: [
-                widget.child,
-              ],
+      child: widget.height != null
+          ? AnimatedContainer(
+              duration: widget.duration,
+              height: _heightAnimation.value,
+              child: Wrap(children: [widget.child]),
             )
           : SlideTransition(
               position: _offsetAnimation,
-              child: Wrap(
-                children: [
-                  widget.child,
-                ],
-              ),
+              child: Wrap(children: [widget.child]),
             ),
     );
   }
@@ -178,7 +196,8 @@ class ScrollToHideState extends State<ScrollToHide>
         show();
       } else if (widget.scrollControllers.any((element) =>
           element.hasClients &&
-          element.position.userScrollDirection == ScrollDirection.reverse)) {
+          element.position.userScrollDirection == ScrollDirection.reverse &&
+          element.position.pixels >= widget.triggerOffset)) {
         hide();
       }
     }

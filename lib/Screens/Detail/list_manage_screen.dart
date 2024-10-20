@@ -83,13 +83,12 @@ class _ListManageScreenState extends State<ListManageScreen>
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -130,7 +129,7 @@ class _ListManageScreenState extends State<ListManageScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

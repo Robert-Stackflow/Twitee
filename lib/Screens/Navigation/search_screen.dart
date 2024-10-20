@@ -16,6 +16,7 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Screens/Detail/search_result_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
@@ -138,7 +139,7 @@ class SearchScreenState extends State<SearchScreen>
         _showSuggestions();
       }
     } else {
-      IToast.showTop("搜索建议失败：${res.message}");
+      IToast.showTop("搜索建议失败");
     }
   }
 
@@ -198,22 +199,7 @@ class SearchScreenState extends State<SearchScreen>
               : const Offset(-45.0, 42.0),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).shadowColor,
-                  offset: const Offset(0, 4),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ).scale(2),
-              ],
-              border: Border.all(
-                color: Theme.of(context).dividerColor,
-                width: 0.5,
-              ),
-            ),
+            decoration: MyTheme.defaultDecoration,
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -338,7 +324,7 @@ class SearchScreenState extends State<SearchScreen>
                 focusNode: searchFocusNode,
                 controller: _searchController,
                 background: Colors.grey.withAlpha(40),
-                hintText: "搜索",
+                hintText: "搜索推文、用户或列表",
                 onSubmitted: (text) async {
                   perfromSearch(text);
                 },
@@ -371,7 +357,7 @@ class SearchScreenState extends State<SearchScreen>
               child: ScrollToHide(
                 controller: _scrollToHideController,
                 scrollControllers: trendTabDataList.scrollControllerList,
-                hideDirection: Axis.vertical,
+                hideDirection: AxisDirection.down,
                 child: _buildFloatingButtons(),
               ),
             ),
@@ -391,7 +377,6 @@ class SearchScreenState extends State<SearchScreen>
             context,
             _trendTabController,
             trendTabDataList.tabList,
-            autoScrollable: false,
             showBorder: true,
             width: MediaQuery.of(context).size.width,
             background: Theme.of(context).canvasColor,
@@ -436,17 +421,18 @@ class SearchScreenState extends State<SearchScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

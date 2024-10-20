@@ -227,6 +227,7 @@ class ToolButton extends WindowButton {
     IconData? selectedIcon,
     double iconSize = 22,
     Size? buttonSize,
+    double? rotateAngle,
   }) : super(
           animate: animate ?? true,
           buttonSize: buttonSize ?? const Size(38, 38),
@@ -234,10 +235,13 @@ class ToolButton extends WindowButton {
           colors: colors ?? MyColors.getNormalButtonColors(context),
           borderRadius: BorderRadius.circular(8),
           iconBuilder: iconBuilder ??
-              (buttonContext) => Icon(
-                    selected ? selectedIcon ?? icon : icon,
-                    color: buttonContext.iconColor,
-                    size: iconSize,
+              (buttonContext) => Transform.rotate(
+                    angle: rotateAngle ?? 0,
+                    child: Icon(
+                      selected ? selectedIcon ?? icon : icon,
+                      color: buttonContext.iconColor,
+                      size: iconSize,
+                    ),
                   ),
           onPressed: onTap,
         );

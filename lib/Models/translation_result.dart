@@ -40,11 +40,11 @@ class TranslationResult {
 
   factory TranslationResult.fromJson(Map<String, dynamic> json) =>
       TranslationResult(
-        id: json['id'],
-        idStr: json['id_str'],
+        id: json['id'] ?? "",
+        idStr: json['id_str'] ?? "",
         translation: json['translation'],
         entities: Entities.fromJsonWithoutMedia(json['entities']),
-        translationState: json['translationState'],
+        translationState: json['translationState'] ?? "",
         sourceLanguage: json['sourceLanguage'] ?? "",
         localizedSourceLanguage: json['localizedSourceLanguage'] ?? "",
         destinationLanguage: json['destinationLanguage'] ?? "",

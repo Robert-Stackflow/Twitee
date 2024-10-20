@@ -115,10 +115,29 @@ class TweetUtil {
     }
   }
 
+  static TweetInterstitial? getTweetInterstitialByResult(ItemResult? result) {
+    TweetUnion? union = result?.result;
+    if (union == null) {
+      return null;
+    }
+    switch (union.runtimeType) {
+      case const (Tweet):
+        return null;
+      case const (TweetWithVisibilityResults):
+        return (union as TweetWithVisibilityResults).tweetInterstitial;
+      default:
+        return null;
+    }
+  }
+
   static String? getBigAvatarUrl(String? url) {
-    return url
+    url = url
         ?.replaceAll("_normal.png", "_bigger.png")
         .replaceAll("_normal.jpg", "_bigger.jpg");
+    url = url
+        ?.replaceAll("_bigger.png", ".png")
+        .replaceAll("_bigger.jpg", ".jpg");
+    return url;
   }
 
   static bool hasMediaByTimelineTweet(TimelineTweet tweet) {
@@ -201,6 +220,15 @@ class TweetUtil {
     return fullText;
   }
 
+  static String processWithBirdwatchEntities(
+    String fullText,
+    List<BirdwatchEntity> entities, {
+    bool replaceNewline = true,
+  }) {
+    fullText = fullText.replaceAll("\n", replaceNewline ? "<br>" : "");
+    return fullText;
+  }
+
   static bool hasVideo(Tweet tweet) {
     return hasMedia(tweet) &&
         tweet.legacy!.entities.media!.length == 1 &&
@@ -265,14 +293,14 @@ class TweetUtil {
   static getTranslation(Tweet tweet) {
     String translation = tweet.translation?.translation ?? "";
     try {
-      translation = _processTweetTranslation(tweet.translation);
+      translation = processTweetTranslation(tweet.translation);
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to process tweet", e, t);
     }
     return translation;
   }
 
-  static String _processTweetTranslation(TranslationResult? result) {
+  static String processTweetTranslation(TranslationResult? result) {
     if (result == null) return "";
     String fullText = result.translation;
     Entities entities = result.entities;

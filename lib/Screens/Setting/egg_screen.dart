@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import '../../Utils/lottie_util.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/General/EasyRefresh/easy_refresh.dart';
+import '../../Widgets/Item/custom_html_widget.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../generated/l10n.dart';
 
@@ -122,9 +123,8 @@ class _EggScreenState extends State<EggScreen> with TickerProviderStateMixin {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    child: ItemBuilder.buildHtmlWidget(
-                      context,
-                      S.current.eggEssay,
+                    child: CustomHtmlWidget(
+                      content: S.current.eggEssay,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),

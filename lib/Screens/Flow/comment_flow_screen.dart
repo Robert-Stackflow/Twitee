@@ -27,13 +27,14 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Utils/enums.dart';
 import '../../Widgets/WaterfallFlow/extended_list_library.dart';
 
-class CommentFlowScreen extends StatefulWidget {
+class CommentFlowScreen extends StatefulWidgetForFlow {
   const CommentFlowScreen({
     super.key,
     required this.tweetId,
     this.rankType = RankType.Relevance,
-    this.nested = false,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String tweetId;
@@ -41,10 +42,6 @@ class CommentFlowScreen extends StatefulWidget {
   final RankType rankType;
 
   static const String routeName = "/navigtion/commentFlow";
-
-  final bool nested;
-
-  final ScrollController? scrollController;
 
   @override
   State<CommentFlowScreen> createState() => _CommentFlowScreenState();
@@ -140,7 +137,7 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
         return IndicatorResult.success;
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -191,7 +188,7 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         _initPhase = InitPhase.failed;
         return IndicatorResult.fail;
       }
@@ -286,7 +283,7 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
                 controller: widget.nested ? null : _scrollController,
                 padding: const EdgeInsets.all(8)
                     .add(const EdgeInsets.only(bottom: 16)),
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: 800,
                 crossAxisSpacing: 6,
                 mainAxisSpacing: 6,
                 lastChildLayoutTypeBuilder: (index) =>

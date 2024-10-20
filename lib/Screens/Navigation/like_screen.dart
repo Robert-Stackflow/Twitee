@@ -286,7 +286,7 @@ class _LikeScreenState extends State<LikeScreen>
                               .add(const EdgeInsets.only(bottom: 16))
                           : const EdgeInsets.only(bottom: 16),
                       mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                      maxCrossAxisExtent: 600,
+                      maxCrossAxisExtent: 800,
                       crossAxisSpacing: 6,
                       children: List.generate(
                         validEntries.length,
@@ -311,7 +311,7 @@ class _LikeScreenState extends State<LikeScreen>
             bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -323,22 +323,23 @@ class _LikeScreenState extends State<LikeScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              _refreshRotationController.repeat();
+              await _scrollToTop();
+              _refreshRotationController.stop();
+              _refreshRotationController.forward();
+              _easyRefreshController.resetHeader();
+              _easyRefreshController.callRefresh();
+            },
           ),
-          onTap: () async {
-            _refreshRotationController.repeat();
-            await _scrollToTop();
-            _refreshRotationController.stop();
-            _refreshRotationController.forward();
-            _easyRefreshController.resetHeader();
-            _easyRefreshController.callRefresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

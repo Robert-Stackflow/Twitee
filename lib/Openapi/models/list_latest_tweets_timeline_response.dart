@@ -9,14 +9,17 @@ import 'list_tweets_timeline_data.dart';
 part 'list_latest_tweets_timeline_response.g.dart';
 
 @JsonSerializable()
-class ListLatestTweetsTimelineResponse  {
+class ListLatestTweetsTimelineResponse {
   const ListLatestTweetsTimelineResponse({
     required this.data,
   });
-  
-  factory ListLatestTweetsTimelineResponse.fromJson(Map<String, Object?> json) => _$ListLatestTweetsTimelineResponseFromJson(json);
-  
+
+  factory ListLatestTweetsTimelineResponse.fromJson(
+          Map<String, Object?> json) =>
+      _$ListLatestTweetsTimelineResponseFromJson(json);
+
   final ListTweetsTimelineData data;
 
-  Map<String, Object?> toJson() => _$ListLatestTweetsTimelineResponseToJson(this);
+  Map<String, Object?> toJson() =>
+      _$ListLatestTweetsTimelineResponseToJson(this);
 }

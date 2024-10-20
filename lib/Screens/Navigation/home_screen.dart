@@ -22,8 +22,10 @@ import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Utils/constant.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Utils/utils.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Twitter/refresh_interface.dart';
@@ -62,6 +64,7 @@ class HomeScreenState extends State<HomeScreen>
           key: key,
           isLatest: false,
           scrollController: scrollController,
+          triggerOffset: appBarWithTabBarHeight,
         ),
       ),
       TabItemData.build(
@@ -69,6 +72,7 @@ class HomeScreenState extends State<HomeScreen>
         (key, scrollController) => TimelineFlowScreen(
           key: key,
           scrollController: scrollController,
+          triggerOffset: appBarWithTabBarHeight,
         ),
       ),
     ]);
@@ -121,27 +125,69 @@ class HomeScreenState extends State<HomeScreen>
     });
   }
 
+  _buildLogo({
+    double size = 50,
+  }) {
+    return IgnorePointer(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(Utils.isDark(context)
+                  ? 'assets/logo-light-transparent.png'
+                  : 'assets/logo-transparent.png'),
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
+      extendBody: true,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        titleWidget: ItemBuilder.buildTabBar(
-          context,
-          _tabController,
-          tabDataList.tabList,
-          onTap: onTapTab,
-          autoScrollable: false,
-        ),
+        spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
+        title: "首页",
+        titleWidget: ResponsiveUtil.isLandscape()
+            ? null
+            : Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(right: 60),
+                child: _buildLogo(),
+              ),
       ),
       body: Stack(
         children: [
-          TabBarView(
-            controller: _tabController,
-            children: tabDataList.pageList,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemBuilder.buildTabBar(
+                context,
+                _tabController,
+                tabDataList.tabList,
+                onTap: onTapTab,
+                background: Theme.of(context).canvasColor,
+                showBorder: true,
+                width: MediaQuery.of(context).size.width,
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: tabDataList.pageList,
+                ),
+              ),
+            ],
           ),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,
@@ -149,7 +195,7 @@ class HomeScreenState extends State<HomeScreen>
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: tabDataList.scrollControllerList,
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -188,17 +234,18 @@ class HomeScreenState extends State<HomeScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

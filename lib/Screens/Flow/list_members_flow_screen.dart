@@ -36,18 +36,19 @@ import '../../Utils/responsive_util.dart';
 
 enum ListMembersFlowType { members, subscribers }
 
-class ListMembersFlowScreen extends StatefulWidget {
+class ListMembersFlowScreen extends StatefulWidgetForFlow {
   const ListMembersFlowScreen({
     super.key,
     required this.type,
     required this.listId,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final ListMembersFlowType type;
 
   final String listId;
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/listMembersFlow";
 
@@ -130,7 +131,7 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -178,7 +179,7 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

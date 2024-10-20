@@ -7,15 +7,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'client_event_info.g.dart';
 
 @JsonSerializable()
-class ClientEventInfo  {
+class ClientEventInfo {
   const ClientEventInfo({
     required this.component,
     required this.details,
     required this.element,
   });
-  
-  factory ClientEventInfo.fromJson(Map<String, Object?> json) => _$ClientEventInfoFromJson(json);
-  
+
+  factory ClientEventInfo.fromJson(Map<String, Object?> json) =>
+      _$ClientEventInfoFromJson(json);
+
   final String? component;
   final dynamic details;
   final String? element;

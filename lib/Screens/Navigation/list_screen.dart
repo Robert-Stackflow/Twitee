@@ -151,13 +151,8 @@ class ListScreenState extends State<ListScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showMenu: true,
-        titleWidget: ItemBuilder.buildTabBar(
-          context,
-          _tabController,
-          tabDataList.tabList,
-          onTap: onTapTab,
-          autoScrollable: false,
-        ),
+        spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
+        title: "列表",
       ),
       body: _buildBody(),
     );
@@ -177,9 +172,25 @@ class ListScreenState extends State<ListScreen>
         return tabDataList.isNotEmpty
             ? Stack(
                 children: [
-                  TabBarView(
-                    controller: _tabController,
-                    children: tabDataList.pageList,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ItemBuilder.buildTabBar(
+                        context,
+                        _tabController,
+                        tabDataList.tabList,
+                        onTap: onTapTab,
+                        background: Theme.of(context).canvasColor,
+                        showBorder: true,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: tabDataList.pageList,
+                        ),
+                      ),
+                    ],
                   ),
                   Positioned(
                     right: ResponsiveUtil.isLandscape() ? 16 : 12,
@@ -187,7 +198,7 @@ class ListScreenState extends State<ListScreen>
                     child: ScrollToHide(
                       controller: _scrollToHideController,
                       scrollControllers: tabDataList.scrollControllerList,
-                      hideDirection: Axis.vertical,
+                      hideDirection: AxisDirection.down,
                       child: _buildFloatingButtons(),
                     ),
                   ),
@@ -228,17 +239,18 @@ class ListScreenState extends State<ListScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
         if (ResponsiveUtil.isLandscape())
           ItemBuilder.buildShadowIconButton(

@@ -19,6 +19,7 @@ import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../../Utils/utils.dart';
+import '../../Item/custom_html_widget.dart';
 import '../colors.dart';
 import '../custom_dialog.dart';
 
@@ -106,9 +107,8 @@ class CustomInfoDialogWidget extends StatelessWidget {
               if (Utils.isNotEmpty(title)) const SizedBox(height: 20),
               if (Utils.isNotEmpty(message))
                 renderHtml
-                    ? ItemBuilder.buildHtmlWidget(
-                        context,
-                        message!,
+                    ? CustomHtmlWidget(
+                        content: message!,
                         style: TextStyle(
                           color: textColor ??
                               Theme.of(context).textTheme.bodySmall?.color,

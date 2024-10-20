@@ -1,0 +1,34 @@
+name: flutter_widget_from_html_core
+version: 0.15.2
+description: Flutter package to render html as widgets that focuses on correctness and extensibility.
+homepage: https://github.com/daohoangson/flutter_widget_from_html/tree/master/packages/core
+environment:
+  flutter: ">=3.10.0"
+  sdk: ">=2.19.0 <4.0.0"
+dependencies:
+  csslib: ">=0.17.0 <2.0.0"
+  flutter:
+    sdk: flutter
+  html: ^0.15.0
+  logging: ^1.0.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  golden_toolkit: ^0.15.0
+  lint: any
+  mocktail: any
+  mocktail_image_network: ^1.0.0
+  test: any
+funding:
+  - https://patreon.com/daohoangson
+  - https://buymeacoffee.com/daohoangson
+screenshots:
+  - description: Demo rendering of HTML tags
+    path: example/HelloWorldCoreScreen1.gif
+  - description: Demo rendering of HTML tags
+    path: example/HelloWorldCoreScreen2.jpg
+topics:
+  - widget
+  - html
+  - css
+  - fwfh

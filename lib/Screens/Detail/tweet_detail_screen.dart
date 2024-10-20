@@ -22,6 +22,7 @@ import 'package:twitee/Widgets/Twitter/post_item.dart';
 
 import '../../Models/tab_item_data.dart';
 import '../../Utils/enums.dart';
+import '../../Utils/responsive_util.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
@@ -221,7 +222,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
                 primaryController ?? ScrollController(),
                 ...tabDataList.scrollControllerList
               ],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -251,17 +252,18 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

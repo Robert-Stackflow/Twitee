@@ -43,18 +43,19 @@ enum UserFlowType {
   followerYouKnow
 }
 
-class UserFlowScreen extends StatefulWidget {
+class UserFlowScreen extends StatefulWidgetForFlow {
   const UserFlowScreen({
     super.key,
     required this.type,
     required this.userId,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final UserFlowType type;
 
   final String userId;
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/userFlow";
 
@@ -148,7 +149,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -209,7 +210,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

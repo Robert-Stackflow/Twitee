@@ -24,7 +24,7 @@ enum OfType {
 
 final class UniversalComponentClass extends UniversalDataClass {
   /// Constructor for [UniversalComponentClass]
-   UniversalComponentClass({
+  UniversalComponentClass({
     required super.name,
     required this.imports,
     required this.parameters,

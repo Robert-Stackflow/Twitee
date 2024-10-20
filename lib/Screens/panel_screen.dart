@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Models/user_info.dart';
@@ -77,7 +79,7 @@ class PanelScreenState extends State<PanelScreen>
   Widget? darkModeWidget;
   User? user;
   final ScrollToHideController _scrollToHideController =
-      ScrollToHideController();
+  ScrollToHideController();
 
   @override
   void initState() {
@@ -212,10 +214,20 @@ class PanelScreenState extends State<PanelScreen>
       body: Stack(
         children: [
           if (!unlogin)
-            PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _pageController,
-              children: _pageList,
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                if (!ResponsiveUtil.isLandscape()) {
+                  if (details.primaryVelocity != null &&
+                      details.primaryVelocity! > 500) {
+                    openDrawer();
+                  }
+                }
+              },
+              child: PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                children: _pageList,
+              ),
             ),
           if (unlogin && ResponsiveUtil.isDesktop()) const WindowMoveHandle(),
           if (unlogin)
@@ -223,7 +235,9 @@ class PanelScreenState extends State<PanelScreen>
               child: ItemBuilder.buildRoundButton(
                 context,
                 text: "前往登录",
-                background: Theme.of(context).primaryColor,
+                background: Theme
+                    .of(context)
+                    .primaryColor,
                 onTap: () {
                   RouteUtil.pushDialogRoute(
                     rootContext,
@@ -235,16 +249,18 @@ class PanelScreenState extends State<PanelScreen>
             ),
           Selector<AppProvider, bool>(
             selector: (context, provider) => provider.showNavigator,
-            builder: (context, value, child) => SizedBox(
-              width: value ? double.infinity : 0,
-              height: value ? double.infinity : 0,
-              child: Navigator(
-                key: panelNavigatorKey,
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(builder: (context) => emptyWidget);
-                },
-              ),
-            ),
+            builder: (context, value, child) =>
+                SizedBox(
+                  width: value ? double.infinity : 0,
+                  height: value ? double.infinity : 0,
+                  child: Navigator(
+                    key: panelNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                          builder: (context) => emptyWidget);
+                    },
+                  ),
+                ),
           ),
         ],
       ),
@@ -260,20 +276,23 @@ class PanelScreenState extends State<PanelScreen>
     return ScrollToHide(
       controller: _scrollToHideController,
       scrollControllers: getScrollControllers(),
-      hideDirection: Axis.vertical,
-      useOpacityAnimation: true,
+      hideDirection: AxisDirection.down,
       child: Container(
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: Theme.of(context).dividerColor,
+              color: Theme
+                  .of(context)
+                  .dividerColor,
               width: 1,
             ),
           ),
         ),
         child: MyBottomNavigationBar(
           currentIndex: _currentIndex,
-          selectedItemColor: Theme.of(context).primaryColor,
+          selectedItemColor: Theme
+              .of(context)
+              .primaryColor,
           showSelectedLabels: false,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: false,
@@ -281,8 +300,8 @@ class PanelScreenState extends State<PanelScreen>
           elevation: 0,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined, size: 28),
-              activeIcon: Icon(Icons.home_rounded, size: 28),
+              icon: Icon(Icons.explore_outlined, size: 28),
+              activeIcon: Icon(Icons.explore_rounded, size: 28),
               label: "首页",
             ),
             BottomNavigationBarItem(
@@ -320,13 +339,17 @@ class PanelScreenState extends State<PanelScreen>
   _buildDrawer() {
     UserInfo? info = HiveUtil.getUserInfo();
     String avatarUrl = (Utils.isEmpty(info?.profileImageUrlHttps)
-            ? info?.profileImageUrlHttps
-            : info?.profileImageUrl) ??
+        ? info?.profileImageUrlHttps
+        : info?.profileImageUrl) ??
         AssetUtil.avatar;
     avatarUrl = TweetUtil.getBigAvatarUrl(avatarUrl) ?? avatarUrl;
     return Drawer(
-      backgroundColor: Theme.of(context).canvasColor,
-      width: MediaQuery.sizeOf(context).width * 0.85,
+      backgroundColor: Theme
+          .of(context)
+          .canvasColor,
+      width: MediaQuery
+          .sizeOf(context)
+          .width * 0.85,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
       child: SafeArea(
         child: Stack(
@@ -337,81 +360,85 @@ class PanelScreenState extends State<PanelScreen>
                 info == null
                     ? Container()
                     : Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          ItemBuilder.buildAvatar(
+                            context: context,
+                            imageUrl: avatarUrl,
+                            size: 64,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
                               children: [
-                                ItemBuilder.buildAvatar(
-                                  context: context,
-                                  imageUrl: avatarUrl,
-                                  size: 64,
+                                Text(
+                                  info.name,
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .titleLarge,
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        info.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge,
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        "@${info.screenName}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.apply(fontSizeDelta: 3),
-                                      ),
-                                    ],
-                                  ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  "@${info.screenName}",
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.apply(fontSizeDelta: 3),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            Row(
-                              // spacing: 20,
-                              // runSpacing: 5,
-                              children: [
-                                ItemBuilder.buildCountItem(
-                                  context,
-                                  title: "正在关注",
-                                  value: user != null
-                                      ? user!.legacy.friendsCount.toString()
-                                      : "-",
-                                  onTap: () {
-                                    panelScreenState?.pushPage(
-                                      FriendshipScreen(
-                                          userId: info.idStr,
-                                          initType: UserFlowType.following),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(width: 20),
-                                ItemBuilder.buildCountItem(
-                                  context,
-                                  title: "关注者",
-                                  value: user != null
-                                      ? user!.legacy.followersCount.toString()
-                                      : "-",
-                                  onTap: () {
-                                    panelScreenState?.pushPage(
-                                      FriendshipScreen(
-                                          userId: info.idStr,
-                                          initType: UserFlowType.follower),
-                                    );
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
+                      Row(
+                        // spacing: 20,
+                        // runSpacing: 5,
+                        children: [
+                          ItemBuilder.buildCountItem(
+                            context,
+                            title: "正在关注",
+                            value: user != null
+                                ? user!.legacy.friendsCount ?? 0
+                                : 0,
+                            subTitle: user != null ? null : "-",
+                            onTap: () {
+                              panelScreenState?.pushPage(
+                                FriendshipScreen(
+                                    userId: info.idStr,
+                                    initType: UserFlowType.following),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 20),
+                          ItemBuilder.buildCountItem(
+                            context,
+                            title: "关注者",
+                            value: user != null
+                                ? user!.legacy.followersCount ?? 0
+                                : 0,
+                            subTitle: user != null ? null : "-",
+                            onTap: () {
+                              panelScreenState?.pushPage(
+                                FriendshipScreen(
+                                    userId: info.idStr,
+                                    initType: UserFlowType.follower),
+                              );
+                            },
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 12),
                 ItemBuilder.buildDivider(context, horizontal: 24, vertical: 10),
                 ItemBuilder.buildListTile(

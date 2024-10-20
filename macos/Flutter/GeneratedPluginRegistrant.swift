@@ -19,7 +19,7 @@ import path_provider_foundation
 import protocol_handler_macos
 import screen_retriever
 import share_plus
-import sqflite
+import sqflite_darwin
 import tray_manager
 import url_launcher_macos
 import video_player_avfoundation

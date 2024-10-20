@@ -21,6 +21,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/General/EasyRefresh/easy_refresh.dart';
+import '../../Widgets/Item/custom_html_widget.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Scaffold/my_scaffold.dart';
 import '../../generated/l10n.dart';
@@ -179,9 +180,8 @@ class _ChangelogScreenState extends State<ChangelogScreen>
               ),
               ItemBuilder.buildDivider(context, horizontal: 0, vertical: 5),
               const SizedBox(height: 9),
-              ItemBuilder.buildHtmlWidget(
-                context,
-                Utils.replaceLineBreak(item.body ?? ""),
+              CustomHtmlWidget(
+                content: Utils.replaceLineBreak(item.body ?? ""),
                 style: Theme.of(context).textTheme.titleMedium?.apply(
                       fontSizeDelta: 1,
                       color: Theme.of(context).textTheme.bodySmall?.color,

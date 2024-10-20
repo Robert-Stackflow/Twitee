@@ -86,7 +86,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
       listInfo = res.data;
       _initPhase = InitPhase.successful;
     } else {
-      IToast.showTop("获取列表信息失败：${res.message}");
+      IToast.showTop("获取列表信息失败");
       _initPhase = InitPhase.failed;
     }
     if (listInfo == null || user == null) _initPhase = InitPhase.failed;
@@ -204,7 +204,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
             child: ScrollToHide(
               controller: _scrollToHideController,
               scrollControllers: [primaryController ?? ScrollController()],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -274,7 +274,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                     ItemBuilder.buildCountItem(
                       context,
                       title: "成员",
-                      value: listInfo!.memberCount.toString(),
+                      value: listInfo!.memberCount,
                       onTap: () {
                         panelScreenState?.pushPage(
                           ListMembersScreen(
@@ -288,7 +288,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                     ItemBuilder.buildCountItem(
                       context,
                       title: "关注者",
-                      value: listInfo!.subscriberCount.toString(),
+                      value: listInfo!.subscriberCount,
                       onTap: () {
                         panelScreenState?.pushPage(
                           ListMembersScreen(
@@ -342,7 +342,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                     homeScreenState?.refreshPinnedLists();
                     listScreenState?.refreshLists();
                   } else {
-                    IToast.showTop("取消订阅失败：${res.message}");
+                    IToast.showTop("取消订阅失败");
                   }
                 },
               );
@@ -356,7 +356,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                 homeScreenState?.refreshPinnedLists();
                 listScreenState?.refreshLists();
               } else {
-                IToast.showTop("订阅失败：${res.message}");
+                IToast.showTop("订阅失败");
               }
             }
           },
@@ -461,17 +461,18 @@ class _ListDetailScreenState extends State<ListDetailScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

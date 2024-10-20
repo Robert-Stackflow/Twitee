@@ -13,22 +13,22 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/app_provider.dart';
-import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:process_run/process_run.dart';
+import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 import '../../Models/github_response.dart';
-import '../../Utils/constant.dart';
 import '../../Utils/file_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../Utils/website_util.dart';
+import '../../Widgets/Item/custom_html_widget.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../generated/l10n.dart';
 
@@ -118,9 +118,8 @@ class _UpdateScreenState extends State<UpdateScreen>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ItemBuilder.buildHtmlWidget(
-              context,
-              S.current.changelogAsFollow(
+            CustomHtmlWidget(
+              content: S.current.changelogAsFollow(
                   "<br/>${Utils.replaceLineBreak(item.body ?? "")}"),
               style: Theme.of(context).textTheme.titleMedium?.apply(
                     fontSizeDelta: 1,

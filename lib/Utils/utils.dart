@@ -218,7 +218,7 @@ class Utils {
     }
   }
 
-  static String formatCount(int count) {
+  static String formatCountWithText(int count) {
     if (count < 10000) {
       return count.toString();
     } else {
@@ -229,6 +229,14 @@ class Utils {
   static String formatCountWithDot(int count) {
     return count.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+$)'), (Match match) => '${match[1]},');
+  }
+
+  static String formatCountWithTextAndDot(int count) {
+    if (count < 10000) {
+      return formatCountWithDot(count);
+    } else {
+      return "${(count / 10000).toStringAsFixed(1)}万";
+    }
   }
 
   static String formatDuration(int duration) {

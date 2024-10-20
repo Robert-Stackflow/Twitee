@@ -151,13 +151,12 @@ class _BookmarkScreenState extends State<BookmarkScreen>
         }
         if (newEntries.isEmpty) {
           _noMore = true;
-          return IndicatorResult.noMore;
         } else {
           _noMore = false;
-          return IndicatorResult.success;
         }
+        return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -222,7 +221,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -308,7 +307,9 @@ class _BookmarkScreenState extends State<BookmarkScreen>
           margin: const EdgeInsets.all(10),
           constraints: ResponsiveUtil.isLandscape()
               ? const BoxConstraints(
-                  maxWidth: searchBarWidth, minWidth: searchBarWidth, maxHeight: 56)
+                  maxWidth: searchBarWidth,
+                  minWidth: searchBarWidth,
+                  maxHeight: 56)
               : BoxConstraints(
                   maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
           child: ItemBuilder.buildDesktopSearchBar(
@@ -350,7 +351,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
                               .add(const EdgeInsets.only(bottom: 16))
                           : const EdgeInsets.only(bottom: 16),
                       mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                      maxCrossAxisExtent: 600,
+                      maxCrossAxisExtent: 800,
                       crossAxisSpacing: 6,
                       children: List.generate(
                         validEntries.length,
@@ -375,7 +376,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -387,22 +388,23 @@ class _BookmarkScreenState extends State<BookmarkScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              _refreshRotationController.repeat();
+              await _scrollToTop();
+              _refreshRotationController.stop();
+              _refreshRotationController.forward();
+              _easyRefreshController.resetHeader();
+              _easyRefreshController.callRefresh();
+            },
           ),
-          onTap: () async {
-            _refreshRotationController.repeat();
-            await _scrollToTop();
-            _refreshRotationController.stop();
-            _refreshRotationController.forward();
-            _easyRefreshController.resetHeader();
-            _easyRefreshController.callRefresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

@@ -27,21 +27,18 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
 
-class TimelineFlowScreen extends StatefulWidget {
+class TimelineFlowScreen extends StatefulWidgetForFlow {
   const TimelineFlowScreen({
     super.key,
     this.isLatest = true,
-    this.nested = false,
-    this.scrollController,
+    super.scrollController,
+    super.nested,
+    super.triggerOffset,
   });
 
   final bool isLatest;
 
   static const String routeName = "/navigtion/timelineFlow";
-
-  final bool nested;
-
-  final ScrollController? scrollController;
 
   @override
   State<TimelineFlowScreen> createState() => _TimelineFlowScreenState();
@@ -137,7 +134,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -185,7 +182,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -287,7 +284,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
                         .add(const EdgeInsets.only(bottom: 16))
                     : const EdgeInsets.only(bottom: 16),
                 mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: 800,
                 crossAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,

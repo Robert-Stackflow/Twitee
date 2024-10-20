@@ -28,21 +28,18 @@ import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
 import '../../Widgets/Twitter/grid_item.dart';
 
-class UserMediaFlowScreen extends StatefulWidget {
+class UserMediaFlowScreen extends StatefulWidgetForFlow {
   const UserMediaFlowScreen({
     super.key,
     required this.userId,
-    this.nested = false,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String userId;
 
   static const String routeName = "/navigtion/userMediaFlow";
-
-  final bool nested;
-
-  final ScrollController? scrollController;
 
   @override
   State<UserMediaFlowScreen> createState() => _UserMediaFlowScreenState();
@@ -138,7 +135,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         return IndicatorResult.success;
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -192,7 +189,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
         }
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

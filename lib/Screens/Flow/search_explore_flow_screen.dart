@@ -31,16 +31,16 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 
-class SearchExploreFlowScreen extends StatefulWidget {
+class SearchExploreFlowScreen extends StatefulWidgetForFlow {
   const SearchExploreFlowScreen({
     super.key,
     required this.tabItem,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final SearchTimelineTabItem tabItem;
-
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/searchExploreFlow";
 
@@ -118,7 +118,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -158,7 +158,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {

@@ -13,10 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:math';
+
 import 'package:blur/blur.dart';
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Models/translation_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Detail/user_list_screen.dart';
 import 'package:twitee/Screens/Detail/user_topic_screen.dart';
@@ -37,6 +40,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import '../../Api/user_api.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Models/user_info.dart';
+import '../../Resources/colors.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/route_util.dart';
 import '../../Utils/uri_util.dart';
@@ -44,6 +48,7 @@ import '../../Utils/utils.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
+import '../../Widgets/Item/custom_html_widget.dart';
 import '../Flow/user_flow_screen.dart';
 import 'list_membership_manage_screen.dart';
 
@@ -68,6 +73,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   UserLegacy? get userLegacy => user?.legacy;
   InitPhase _initPhase = InitPhase.haveNotConnected;
+
+  bool isTranslating = false;
+  TranslationResult? translationResult;
 
   late TabController _tabController;
   late AnimationController _refreshRotationController;
@@ -154,7 +162,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       initTab();
       _initPhase = InitPhase.successful;
     } else {
-      IToast.showTop("获取用户信息失败：${res.message}");
+      IToast.showTop("获取用户信息失败");
       _initPhase = InitPhase.failed;
     }
     if (response == null || userLegacy == null) _initPhase = InitPhase.failed;
@@ -166,7 +174,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     if (res.success) {
       friendList = res.data;
     } else {
-      IToast.showTop("获取好友列表失败：${res.message}");
+      IToast.showTop("获取好友列表失败");
     }
     if (mounted) setState(() {});
   }
@@ -293,7 +301,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 primaryController ?? ScrollController(),
                 ...tabDataList.scrollControllerList
               ],
-              hideDirection: Axis.vertical,
+              hideDirection: AxisDirection.down,
               child: _buildFloatingButtons(),
             ),
           ),
@@ -477,6 +485,33 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           ),
         if (!isMyself) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
+          "翻译简介",
+          icon: const Icon(Icons.translate_rounded),
+          onPressed: () async {
+            if (isTranslating) return;
+            Locale locale = Localizations.localeOf(context);
+            isTranslating = true;
+            setState(() {});
+            var res = await IToast.showLoadingSnackbar(
+                "正在翻译@$screenName的简介",
+                () async => await UserApi.translateProfile(
+                      userId: user!.restId!,
+                      destinationLanguage: locale.toString(),
+                    ));
+            isTranslating = false;
+            setState(() {});
+            if (res.success) {
+              translationResult = res.data;
+              if (Utils.isEmpty(translationResult?.translation)) {
+                IToast.showTop("翻译结果为空");
+              }
+              setState(() {});
+            } else {
+              IToast.showTop("翻译失败");
+            }
+          },
+        ),
+        ContextMenuButtonConfig(
           "查看列表",
           icon: const Icon(Icons.featured_play_list_outlined),
           onPressed: () async {
@@ -521,61 +556,71 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
+  _buildButton({
+    required String text,
+    required Widget icon,
+    Function()? onTap,
+    Color? color,
+  }) {
+    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    return ItemBuilder.buildIconTextButton(
+      context,
+      icon: icon,
+      spacing: 3,
+      text: text,
+      color: color ?? labelColor,
+      fontSizeDelta: 1,
+      onTap: onTap,
+      clickable: onTap != null,
+    );
+  }
+
   _buildUserInfo() {
     String screenName = userLegacy?.screenName ?? userLegacy?.name ?? "";
     Url? url = getUrl();
+    UserLegacyExtendedProfile? profile = user?.legacyExtendedProfile;
+    String birthDate = "";
+    if (profile != null && profile.birthdate != null) {
+      birthDate = "${profile.birthdate?.month}月${profile.birthdate?.day}日";
+      if (profile.birthdate?.year != null && profile.birthdate?.year != 0) {
+        birthDate = "${profile.birthdate?.year}年$birthDate";
+      }
+    }
+    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
     var metaRow = Wrap(
-      spacing: 10,
+      spacing: 20,
       runSpacing: 5,
       alignment: WrapAlignment.start,
       runAlignment: WrapAlignment.start,
       children: [
         if (url != null)
-          ItemBuilder.buildIconTextButton(
-            context,
+          _buildButton(
             icon: Transform.rotate(
-              angle: 3 * 45 * (3.14159 / 180),
-              child: Icon(
-                Icons.link_rounded,
-                size: 15,
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
+              angle: (3 / 4) * pi,
+              child: Icon(Icons.link_rounded, size: 15, color: labelColor),
             ),
-            spacing: 3,
+            color: MyColors.getLinkColor(context),
             text: url.displayUrl ?? url.expandedUrl ?? url.url,
-            color: Theme.of(context).textTheme.bodySmall?.color,
-            fontSizeDelta: 1,
             onTap: () {
               UriUtil.launchUrlUri(context, url.expandedUrl ?? url.url);
             },
           ),
         if (Utils.isNotEmpty(userLegacy!.location))
-          ItemBuilder.buildIconTextButton(
-            context,
-            icon: Icon(
-              Icons.location_city_outlined,
-              size: 15,
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-            spacing: 3,
+          _buildButton(
+            icon:
+                Icon(Icons.location_city_outlined, size: 15, color: labelColor),
             text: userLegacy!.location,
-            color: Theme.of(context).textTheme.bodySmall?.color,
-            fontSizeDelta: 1,
-            clickable: false,
           ),
-        ItemBuilder.buildIconTextButton(
-          context,
-          icon: Icon(
-            Icons.date_range_rounded,
-            size: 15,
-            color: Theme.of(context).textTheme.bodySmall?.color,
-          ),
-          spacing: 3,
+        _buildButton(
+          icon: Icon(Icons.date_range_rounded, size: 15, color: labelColor),
           text: "${Utils.formatDateString(userLegacy!.createdAt ?? "")} 加入",
-          color: Theme.of(context).textTheme.bodySmall?.color,
-          fontSizeDelta: 1,
-          clickable: false,
         ),
+        if (Utils.isNotEmpty(birthDate))
+          _buildButton(
+            icon: Icon(Icons.sports_football_outlined,
+                size: 15, color: labelColor),
+            text: "出生于 $birthDate",
+          ),
       ],
     );
     return Container(
@@ -695,7 +740,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildCountItem(
                 context,
                 title: "帖子",
-                value: "${userLegacy!.statusesCount ?? 0}",
+                value: userLegacy!.statusesCount ?? 0,
                 onTap: () {
                   _tabController.animateTo(0);
                 },
@@ -703,7 +748,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildCountItem(
                 context,
                 title: "照片和视频",
-                value: "${userLegacy!.mediaCount ?? 0}",
+                value: userLegacy!.mediaCount ?? 0,
                 onTap: () {
                   _tabController.animateTo(2);
                 },
@@ -711,7 +756,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildCountItem(
                 context,
                 title: "正在关注",
-                value: "${userLegacy!.friendsCount}",
+                value: userLegacy!.friendsCount ?? 0,
                 onTap: () {
                   panelScreenState?.pushPage(FriendshipScreen(
                       userId: user!.restId, initType: UserFlowType.following));
@@ -720,7 +765,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildCountItem(
                 context,
                 title: "关注者",
-                value: "${userLegacy!.followersCount}",
+                value: userLegacy!.followersCount ?? 0,
                 onTap: () {
                   panelScreenState?.pushPage(FriendshipScreen(
                       userId: user!.restId, initType: UserFlowType.follower));
@@ -730,7 +775,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 ItemBuilder.buildCountItem(
                   context,
                   title: "订阅服务",
-                  value: "${user!.creatorSubscriptionsCount}",
+                  value: user!.creatorSubscriptionsCount ?? 0,
                   onTap: () {
                     panelScreenState?.pushPage(FriendshipScreen(
                         userId: user!.restId,
@@ -739,12 +784,20 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 ),
             ],
           ),
-          if (friendList.isNotEmpty) const SizedBox(height: 10),
+          const SizedBox(height: 10),
+          CustomHtmlWidget(
+            content: _processDescription(),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          if (translationResult != null) const SizedBox(height: 10),
+          if (translationResult != null)
+            ..._buildTranslation(translationResult!),
+          const SizedBox(height: 10),
           if (friendList.isNotEmpty)
             ItemBuilder.buildCountItem(
               context,
               title: "关注了此账号",
-              value: friendList.map((e) => e.name).join("、"),
+              subTitle: friendList.map((e) => e.name).join("、"),
               fontSizeDelta: -2,
               onTap: () {
                 panelScreenState?.pushPage(FriendshipScreen(
@@ -753,16 +806,44 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 ));
               },
             ),
-          const SizedBox(height: 10),
-          ItemBuilder.buildHtmlWidget(
-            context,
-            _processDescription(),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          if (friendList.isEmpty)
+            Text(
+              "暂无好友关注了此账号",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.apply(fontSizeDelta: 2),
+            ),
           const SizedBox(height: 15),
         ],
       ),
     );
+  }
+
+  _buildTranslation(TranslationResult result) {
+    String translation = TweetUtil.processTweetTranslation(result);
+    if (Utils.isNotEmpty(translation)) {
+      return [
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomHtmlWidget(
+                content: translation,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      ];
+    } else {
+      return [];
+    }
   }
 
   String _processDescription() {
@@ -789,17 +870,18 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   _buildFloatingButtons() {
     return Column(
       children: [
-        ItemBuilder.buildShadowIconButton(
-          context: context,
-          icon: RotationTransition(
-            turns:
-                Tween(begin: 0.0, end: 1.0).animate(_refreshRotationController),
-            child: const Icon(Icons.refresh_rounded),
+        if (ResponsiveUtil.isLandscape())
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0)
+                  .animate(_refreshRotationController),
+              child: const Icon(Icons.refresh_rounded),
+            ),
+            onTap: () async {
+              refresh();
+            },
           ),
-          onTap: () async {
-            refresh();
-          },
-        ),
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

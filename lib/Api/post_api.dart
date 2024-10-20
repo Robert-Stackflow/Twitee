@@ -333,6 +333,9 @@ class PostApi {
         message: 'Success',
       );
     } catch (e, t) {
+      if (e is DioException && e.response?.statusCode == 404) {
+        return ResponseResult.error(code: 404, message: 'Success');
+      }
       ILogger.error("Twitee", "Failed to translate", e, t);
       return ResponseResult.error(message: e.toString());
     }

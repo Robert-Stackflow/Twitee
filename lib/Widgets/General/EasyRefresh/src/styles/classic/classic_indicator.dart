@@ -341,7 +341,9 @@ class _ClassicIndicatorState extends State<_ClassicIndicator>
         child: Transform.rotate(
           angle: -math.pi * _iconAnimationController.value,
           child: Icon(widget.reverse
-              ? (_axis == Axis.vertical ? Icons.arrow_upward_rounded : Icons.arrow_back_rounded)
+              ? (_axis == Axis.vertical
+                  ? Icons.arrow_upward_rounded
+                  : Icons.arrow_back_rounded)
               : (_axis == Axis.vertical
                   ? Icons.arrow_downward_rounded
                   : Icons.arrow_forward_rounded)),

@@ -278,17 +278,17 @@ class InputItemState extends State<InputItem> {
                       border: widget.showBorder
                           ? UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: theme.primaryColor, width: 0.5))
+                                  color: theme.primaryColor, width: 1))
                           : InputBorder.none,
                       focusedBorder: UnderlineInputBorder(
                           borderSide:
                               BorderSide(color: theme.primaryColor, width: 1)),
                       enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: theme.primaryColor, width: 0.5)),
+                          borderSide:
+                              BorderSide(color: theme.primaryColor, width: 1)),
                       disabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
-                              color: textTheme.bodySmall!.color!, width: 0.5)),
+                              color: textTheme.bodySmall!.color!, width: 1)),
                       prefixIcon: null,
                       errorStyle:
                           textTheme.bodySmall?.apply(color: Colors.redAccent),

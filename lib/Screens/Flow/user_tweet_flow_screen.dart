@@ -31,24 +31,21 @@ import '../../Utils/responsive_util.dart';
 
 enum UserTweetFlowType { Tweets, TweetsAndReplies, Highlights }
 
-class UserTweetFlowScreen extends StatefulWidget {
+class UserTweetFlowScreen extends StatefulWidgetForFlow {
   const UserTweetFlowScreen({
     super.key,
     required this.userId,
-    this.nested = false,
     this.type = UserTweetFlowType.Tweets,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String userId;
 
-  static const String routeName = "/navigtion/userTweetFlow";
-
-  final bool nested;
-
-  final ScrollController? scrollController;
-
   final UserTweetFlowType type;
+
+  static const String routeName = "/navigtion/userTweetFlow";
 
   @override
   State<UserTweetFlowScreen> createState() => _UserTweetFlowScreenState();
@@ -166,7 +163,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         return IndicatorResult.success;
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -240,7 +237,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         _initPhase = InitPhase.failed;
         return IndicatorResult.fail;
       }
@@ -365,7 +362,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
                         .add(const EdgeInsets.only(bottom: 16))
                     : const EdgeInsets.only(bottom: 16),
                 mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: 800,
                 crossAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,

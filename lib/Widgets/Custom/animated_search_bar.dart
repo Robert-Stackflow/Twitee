@@ -178,7 +178,7 @@ class AnimatedSearchBarState extends State<AnimatedSearchBar> {
                                     border: const UnderlineInputBorder(
                                       borderSide: BorderSide(
                                         color: Colors.grey,
-                                        width: 0.5,
+                                        width: 1,
                                       ),
                                     ),
                                   ),

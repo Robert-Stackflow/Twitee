@@ -32,19 +32,19 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Twitter/grid_item.dart';
 
-class SearchResultFlowScreen extends StatefulWidget {
+class SearchResultFlowScreen extends StatefulWidgetForFlow {
   const SearchResultFlowScreen({
     super.key,
     required this.type,
     required this.query,
-    this.scrollController,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final SearchTimelineType type;
 
   final String query;
-
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/searchResultFlow";
 
@@ -141,7 +141,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -193,7 +193,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -322,7 +322,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       );
     } else if (_isList) {
       return _buildWaterfallFlow(
-        maxCrossAxisExtent: 600,
+        maxCrossAxisExtent: 800,
         children: List.generate(
           timelineTwitterLists.length,
           (index) {
@@ -332,7 +332,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       );
     } else {
       return _buildWaterfallFlow(
-        maxCrossAxisExtent: 600,
+        maxCrossAxisExtent: 800,
         children: List.generate(
           validEntries.length,
           (index) {
@@ -344,7 +344,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
   }
 
   _buildWaterfallFlow({
-    double maxCrossAxisExtent = 600,
+    double maxCrossAxisExtent = 800,
     List<Widget> children = const [],
     bool useGrid = false,
   }) {

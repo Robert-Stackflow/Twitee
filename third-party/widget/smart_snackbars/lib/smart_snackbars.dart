@@ -24,6 +24,7 @@ class SmartSnackBars {
     CustomSnackBarController? controller,
     double? maxWidth,
     Alignment? alignment,
+    Function()? onDismiss,
   }) {
     duration ??= const Duration(milliseconds: 1000);
 
@@ -45,11 +46,14 @@ class SmartSnackBars {
         distanceToTravelFromStartToEnd: distanceToTravel ??= 20,
         onDismissed: persist!
             ? () {
+                onDismiss?.call();
                 if (snackBar != null) {
                   _removeOverlayEntry(snackBar);
                 }
               }
-            : () {},
+            : () {
+                onDismiss?.call();
+              },
         child: child ??= Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.all(10),

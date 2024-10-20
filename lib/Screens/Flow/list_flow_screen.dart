@@ -28,20 +28,18 @@ import '../../Api/timeline_api.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
 
-class ListFlowScreen extends StatefulWidget {
+class ListFlowScreen extends StatefulWidgetForFlow {
   const ListFlowScreen({
     super.key,
     required this.listId,
     required this.userId,
-    this.scrollController,
-    this.nested = false,
+    super.nested,
+    super.scrollController,
+    super.triggerOffset,
   });
 
   final String listId;
   final String userId;
-  final bool nested;
-
-  final ScrollController? scrollController;
 
   static const String routeName = "/navigtion/listFlow";
 
@@ -140,7 +138,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
         return IndicatorResult.success;
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
@@ -196,7 +194,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
         }
       } else {
         _initPhase = InitPhase.failed;
-        IToast.showTop("加载失败：${res.message}");
+        IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
