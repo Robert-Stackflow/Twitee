@@ -179,6 +179,7 @@ class _MaterialIndicatorState extends State<_MaterialIndicator> {
               valueColor: widget.valueColor,
               semanticsLabel: widget.semanticsLabel,
               semanticsValue: widget.semanticsValue,
+              strokeCap: StrokeCap.round,
             ),
           ),
           if (_mode == IndicatorMode.inactive &&

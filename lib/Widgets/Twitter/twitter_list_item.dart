@@ -15,6 +15,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Openapi/models/timeline_twitter_list.dart';
 import 'package:twitee/Screens/Detail/list_detail_screen.dart';
@@ -68,7 +69,7 @@ class TwitterListItemState extends State<TwitterListItem> {
           onTap: () {
             panelScreenState?.pushPage(ListDetailScreen(
               listId: list.list.idStr,
-              userId: user.restId ?? "",
+              screenName: user.legacy.screenName ?? "",
             ));
           },
           borderRadius: radius,
@@ -123,6 +124,7 @@ class TwitterListItemState extends State<TwitterListItem> {
                         ? Icons.lock_rounded
                         : Icons.lock_open_rounded),
                     onTap: () async {
+                      HapticFeedback.mediumImpact();
                       if (list.list.isPrivate) {
                         DialogBuilder.showConfirmDialog(
                           context,
@@ -173,6 +175,7 @@ class TwitterListItemState extends State<TwitterListItem> {
                   ),
                   padding: const EdgeInsets.all(9),
                   onTap: () async {
+                    HapticFeedback.mediumImpact();
                     if (isMyself) {
                       if (list.list.pinning) {
                         DialogBuilder.showConfirmDialog(

@@ -303,6 +303,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
         context: context,
         showMenu: true,
         spacing: 0,
+        showBorder: true,
         titleWidget: Container(
           margin: const EdgeInsets.all(10),
           constraints: ResponsiveUtil.isLandscape()

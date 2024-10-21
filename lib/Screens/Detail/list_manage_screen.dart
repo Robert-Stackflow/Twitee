@@ -192,11 +192,13 @@ class _ListManageScreenState extends State<ListManageScreen>
                 size: Theme.of(context).iconTheme.size,
                 color: Theme.of(context).iconTheme.color,
               ),
-              onTap: () {},
+              onTap: () {
+                IToast.showTop("暂不支持编辑列表");
+              },
             ),
             if (ResponsiveUtil.isLandscape())
               ItemBuilder.buildBlankIconButton(context),
-            const SizedBox(width: 5),
+            const SizedBox(width: 10),
           ],
         ),
       ),

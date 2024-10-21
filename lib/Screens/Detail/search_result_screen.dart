@@ -322,6 +322,33 @@ class SearchResultScreenState extends State<SearchResultScreen>
               ),
             ),
           ),
+          bottom: resultTabDataList.tabList.isEmpty
+              ? null
+              : ItemBuilder.buildTabBar(
+                  context,
+                  _resultTabController,
+                  resultTabDataList.tabList,
+                  showBorder: true,
+                  forceUnscrollable: true,
+                  width: MediaQuery.of(context).size.width,
+                  background: Theme.of(context).canvasColor,
+                  onTap: (index) {
+                    if (mounted) setState(() {});
+                    if (!_resultTabController.indexIsChanging &&
+                        index == currentResultIndex) {
+                      if (resultTabDataList.getScrollController(index) !=
+                              null &&
+                          resultTabDataList.getScrollController(index)!.offset >
+                              30) {
+                        scrollToTop();
+                      } else {
+                        refresh();
+                      }
+                    }
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+          bottomHeight: 56,
         ),
         body: _buildBody(),
       ),
@@ -347,45 +374,9 @@ class SearchResultScreenState extends State<SearchResultScreen>
   }
 
   _buildResult() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (resultTabDataList.tabList.isNotEmpty)
-            ItemBuilder.buildTabBar(
-              context,
-              _resultTabController,
-              resultTabDataList.tabList,
-              showBorder: true,
-              forceUnscrollable: true,
-              width: MediaQuery.of(context).size.width,
-              background: Theme.of(context).canvasColor,
-              onTap: (index) {
-                if (mounted) setState(() {});
-                if (!_resultTabController.indexIsChanging &&
-                    index == currentResultIndex) {
-                  if (resultTabDataList.getScrollController(index) != null &&
-                      resultTabDataList.getScrollController(index)!.offset >
-                          30) {
-                    scrollToTop();
-                  } else {
-                    refresh();
-                  }
-                }
-              },
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-            ),
-          Expanded(
-            child: TabBarView(
-              controller: _resultTabController,
-              children: resultTabDataList.pageList,
-            ),
-          ),
-        ],
-      ),
+    return TabBarView(
+      controller: _resultTabController,
+      children: resultTabDataList.pageList,
     );
   }
 

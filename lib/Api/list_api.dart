@@ -152,6 +152,72 @@ class ListApi {
     }
   }
 
+  static Future<ResponseResult> muteList({
+    required String listId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Muting list");
+      final response = await RequestUtil.post(
+        "/ZYyanJsskNUcltu9bliMLA/MuteList",
+        domainType: DomainType.graphql,
+        data: {
+          "variables": {
+            "listId": listId,
+          },
+          "queryId": "ZYyanJsskNUcltu9bliMLA"
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to mute list",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to mute list", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> unMuteList({
+    required String listId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Unmuting list");
+      final response = await RequestUtil.post(
+        "/pMZrHRNsmEkXgbn3tOyr7Q/UnmuteList",
+        domainType: DomainType.graphql,
+        data: {
+          "variables": {
+            "listId": listId,
+          },
+          "queryId": "pMZrHRNsmEkXgbn3tOyr7Q"
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to unmute list",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to unmute list", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
   static Future<ResponseResult> getListInfo({
     required String listId,
   }) async {

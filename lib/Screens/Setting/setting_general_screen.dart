@@ -105,7 +105,7 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
                 ),
                 actions: [
                   ItemBuilder.buildBlankIconButton(context),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 10),
                 ],
               ),
         body: EasyRefresh(

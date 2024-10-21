@@ -15,6 +15,7 @@
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Screens/Detail/list_membership_manage_screen.dart';
@@ -233,16 +234,18 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           _buildFeedbackItem(
             text: _currentFeedbackType!.getMessage(screenName),
             onRevoke: () async {
+              HapticFeedback.mediumImpact();
               await IToast.showLoadingSnackbar(
-                  "正在撤销反馈",
-                  () async => await _processFeedback(
-                        feedbackType: _currentFeedbackType!,
-                        undo: true,
-                        destFeedbackType:
-                            _currentFeedbackType == FeedbackType.DontLike
-                                ? null
-                                : FeedbackType.DontLike,
-                      ));
+                "正在撤销反馈",
+                () async => await _processFeedback(
+                  feedbackType: _currentFeedbackType!,
+                  undo: true,
+                  destFeedbackType:
+                      _currentFeedbackType == FeedbackType.DontLike
+                          ? null
+                          : FeedbackType.DontLike,
+                ),
+              );
             },
           ),
           if (_currentFeedbackType == FeedbackType.DontLike)
@@ -254,6 +257,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   _buildMoreFeedbackItem(
                     text: "显示更少来自 $screenName 的帖子",
                     onTap: () async {
+                      HapticFeedback.mediumImpact();
                       await IToast.showLoadingSnackbar(
                           "正在反馈",
                           () async => await _processFeedback(
@@ -267,6 +271,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   _buildMoreFeedbackItem(
                     text: "这个帖子没有相关性",
                     onTap: () async {
+                      HapticFeedback.mediumImpact();
                       await IToast.showLoadingSnackbar(
                           "正在反馈",
                           () async => await _processFeedback(
@@ -369,13 +374,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             "对此帖子不感兴趣",
             icon: const Icon(Icons.sentiment_dissatisfied_rounded),
             onPressed: () async {
+              HapticFeedback.mediumImpact();
               await IToast.showLoadingSnackbar(
-                  "正在反馈",
-                  () async => await _processFeedback(
-                        feedbackType: FeedbackType.DontLike,
-                        undo: false,
-                        destFeedbackType: FeedbackType.DontLike,
-                      ));
+                "正在反馈",
+                () async => await _processFeedback(
+                  feedbackType: FeedbackType.DontLike,
+                  undo: false,
+                  destFeedbackType: FeedbackType.DontLike,
+                ),
+              );
             },
           ),
         if (showFeedback) ContextMenuButtonConfig.divider(),
@@ -1328,6 +1335,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             fontSizeDelta: -1,
             text: Utils.formatCountWithText(tweet.legacy!.retweetCount ?? 0),
             onTap: () async {
+              HapticFeedback.mediumImpact();
               if (tweet.legacy!.retweeted) {
                 var res = await IToast.showLoadingSnackbar(
                     "正在取消转推",
@@ -1372,6 +1380,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             fontSizeDelta: -1,
             text: Utils.formatCountWithText(tweet.legacy!.favoriteCount ?? 0),
             onTap: () async {
+              HapticFeedback.mediumImpact();
               if (tweet.legacy!.favorited) {
                 var res = await IToast.showLoadingSnackbar("正在取消喜欢",
                     () async => await PostApi.unlike(tweetId: tweet.restId!));
@@ -1428,6 +1437,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             fontSizeDelta: -1,
             text: Utils.formatCountWithText(tweet.legacy!.bookmarkCount ?? 0),
             onTap: () async {
+              HapticFeedback.mediumImpact();
               if (tweet.legacy!.bookmarked) {
                 var res = await IToast.showLoadingSnackbar(
                     "正在移除书签",
@@ -1476,6 +1486,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             fontSizeDelta: -1,
             onTap: () async {
               if (tweet.isTranslating) return;
+              HapticFeedback.mediumImpact();
               Locale locale = Localizations.localeOf(context);
               tweet.isTranslating = true;
               setState(() {});

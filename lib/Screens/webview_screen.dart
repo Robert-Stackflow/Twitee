@@ -166,10 +166,8 @@ class _WebviewScreenState extends State<WebviewScreen>
                       }),
                   const SizedBox(width: 5),
                   if (ResponsiveUtil.isLandscape())
-                    Container(
-                      margin: const EdgeInsets.only(right: 5),
-                      child: ItemBuilder.buildBlankIconButton(context),
-                    ),
+                    ItemBuilder.buildBlankIconButton(context),
+                  if (ResponsiveUtil.isLandscape()) const SizedBox(width: 10),
                 ],
               )
             : null,

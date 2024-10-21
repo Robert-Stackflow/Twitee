@@ -18,15 +18,18 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:twitee/Api/login_api.dart';
 import 'package:twitee/Models/login_phase.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Utils/tweet_util.dart';
 import 'package:twitee/Utils/uri_util.dart';
 import 'package:twitee/Widgets/Dialog/custom_dialog.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
+import 'package:twitee/Widgets/Window/window_button.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Resources/theme.dart';
@@ -220,15 +223,15 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       setState(() {
         _connected = InitPhase.successful;
       });
-      if (ResponsiveUtil.isLandscape()) {
-        dialogNavigatorState?.popPage();
-        mainScreenState?.fetchUserInfo();
+      if (widget.jumpToMain) {
+        globalNavigatorState?.pushAndRemoveUntil(
+          CustomCupertinoPageRoute(builder: (context) => const MainScreen()),
+          (route) => false,
+        );
       } else {
-        if (widget.jumpToMain) {
-          globalNavigatorState?.pushAndRemoveUntil(
-            CustomCupertinoPageRoute(builder: (context) => const MainScreen()),
-            (route) => false,
-          );
+        if (ResponsiveUtil.isLandscape()) {
+          dialogNavigatorState?.popPage();
+          mainScreenState?.fetchUserInfo();
         } else {
           Navigator.pop(context);
         }
@@ -389,7 +392,18 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                     windowManager.setAlwaysOnTop(_isStayOnTop);
                   });
                 },
-                rightButtons: [],
+                rightButtons: [
+                  ToolButton(
+                    context: context,
+                    icon: Icons.token_outlined,
+                    onTap: () async {
+                      RouteUtil.pushDialogRoute(
+                          context, const SettingNavigationScreen());
+                    },
+                    iconSize: 22,
+                  ),
+                  const SizedBox(width: 3),
+                ],
                 leftWidgets: [
                   const SizedBox(width: 15),
                   Text(

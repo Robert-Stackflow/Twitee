@@ -84,7 +84,7 @@ class TimelineTwitterListInfo {
   final int memberCount;
   final String membersContext;
   String mode;
-  final bool muting;
+  bool muting;
   final String name;
   bool pinning;
   int subscriberCount;

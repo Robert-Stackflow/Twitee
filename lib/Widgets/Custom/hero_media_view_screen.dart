@@ -227,65 +227,45 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
           if (medias.length > 1 && ResponsiveUtil.isDesktop())
             Positioned(
               left: 16,
-              child: Container(
-                width: 40,
-                height: 40,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: currentIndex == 0
-                      ? Colors.black.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(20),
+              child: ItemBuilder.buildIconButton(
+                context: context,
+                icon: const Icon(
+                  Icons.keyboard_arrow_left_rounded,
+                  size: 30,
+                  color: Colors.white,
                 ),
-                child: GestureDetector(
-                  onTap: () {
-                    _pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  },
-                  child: MouseRegion(
-                    cursor: currentIndex == 0
-                        ? SystemMouseCursors.basic
-                        : SystemMouseCursors.click,
-                    child: const Icon(
-                      Icons.keyboard_arrow_left_rounded,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                background: currentIndex == 0
+                    ? Colors.black.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.4),
+                onTap: currentIndex == 0
+                    ? null
+                    : () {
+                        _pageController.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut);
+                      },
               ),
             ),
           if (medias.length > 1 && ResponsiveUtil.isDesktop())
             Positioned(
               right: 16,
-              child: Container(
-                width: 40,
-                height: 40,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: currentIndex == medias.length - 1
-                      ? Colors.black.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(20),
+              child: ItemBuilder.buildIconButton(
+                context: context,
+                icon: const Icon(
+                  Icons.keyboard_arrow_right_rounded,
+                  size: 30,
+                  color: Colors.white,
                 ),
-                child: GestureDetector(
-                  onTap: () {
-                    _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  },
-                  child: MouseRegion(
-                    cursor: currentIndex == medias.length - 1
-                        ? SystemMouseCursors.basic
-                        : SystemMouseCursors.click,
-                    child: const Icon(
-                      Icons.keyboard_arrow_right_rounded,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                background: currentIndex == medias.length - 1
+                    ? Colors.black.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.4),
+                onTap: currentIndex == medias.length - 1
+                    ? null
+                    : () {
+                        _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut);
+                      },
               ),
             ),
         ],
@@ -368,6 +348,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
                   onTap: () {
                     setState(() {});
                   },
+                  white: true,
                 );
               },
             );

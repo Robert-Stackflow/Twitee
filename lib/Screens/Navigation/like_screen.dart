@@ -262,6 +262,7 @@ class _LikeScreenState extends State<LikeScreen>
         showMenu: true,
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "喜欢",
+        showBorder: true,
       ),
       body: Stack(
         children: [

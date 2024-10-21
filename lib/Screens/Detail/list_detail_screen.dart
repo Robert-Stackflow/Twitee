@@ -30,6 +30,7 @@ import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
+import '../../Models/response_result.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
@@ -41,11 +42,11 @@ class ListDetailScreen extends StatefulWidget {
   const ListDetailScreen({
     super.key,
     required this.listId,
-    required this.userId,
+    required this.screenName,
   });
 
   final String listId;
-  final String userId;
+  final String screenName;
 
   static const String routeName = "/listDetail";
 
@@ -76,7 +77,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
       ? (listInfo!.userResults.result! as User).legacy
       : null;
 
-  bool get isMyself => widget.userId == user?.idStr;
+  bool get isMyself => widget.screenName == user?.screenName;
 
   fetchListInfo() async {
     _initPhase = InitPhase.connecting;
@@ -194,7 +195,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           ListFlowScreen(
             key: key,
             listId: widget.listId,
-            userId: widget.userId,
+            userId: widget.screenName,
             scrollController: primaryController,
             nested: true,
           ),
@@ -317,8 +318,11 @@ class _ListDetailScreenState extends State<ListDetailScreen>
         ItemBuilder.buildRoundButton(
           context,
           text: "编辑列表",
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          onTap: () {},
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          background: Theme.of(context).primaryColor,
+          onTap: () {
+            IToast.showTop("暂不支持编辑列表");
+          },
         ),
       if (!isMyself)
         ItemBuilder.buildRoundButton(
@@ -426,13 +430,43 @@ class _ListDetailScreenState extends State<ListDetailScreen>
     String url = "https://twitter.com/i/lists/$id";
     return GenericContextMenu(
       buttonConfigs: [
-        if (isMyself)
-          ContextMenuButtonConfig(
-            "编辑列表",
-            icon: const Icon(Icons.edit_note_rounded),
-            onPressed: () async {},
-          ),
-        if (isMyself) ContextMenuButtonConfig.divider(),
+        ContextMenuButtonConfig(
+          listInfo!.muting ? "在“为你推荐”中显示这些帖子" : "在“为你推荐”中隐藏这些帖子",
+          icon: listInfo!.muting
+              ? const Icon(Icons.check_circle_outline_rounded)
+              : const Icon(Icons.remove_circle_outline_rounded),
+          onPressed: () async {
+            if (listInfo!.muting) {
+              ResponseResult res = await IToast.showLoadingSnackbar(
+                  "正在取消隐藏", () async => await ListApi.unMuteList(listId: id));
+              if (res.success) {
+                listInfo!.muting = false;
+                setState(() {});
+                IToast.showTop("取消隐藏成功");
+              } else {
+                IToast.showTop("取消隐藏失败");
+              }
+            } else {
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "在“为你推荐”中隐藏这些帖子",
+                message: "此列表中的热门帖子会不显示在“为你推荐”时间线中。",
+                onTapConfirm: () async {
+                  ResponseResult res = await IToast.showLoadingSnackbar(
+                      "正在隐藏", () async => await ListApi.muteList(listId: id));
+                  if (res.success) {
+                    listInfo!.muting = true;
+                    setState(() {});
+                    IToast.showTop("隐藏成功");
+                  } else {
+                    IToast.showTop("隐藏失败");
+                  }
+                },
+              );
+            }
+          },
+        ),
+        ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享列表",
           icon: const Icon(Icons.share_rounded),

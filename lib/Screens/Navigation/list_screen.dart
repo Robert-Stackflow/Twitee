@@ -153,6 +153,18 @@ class ListScreenState extends State<ListScreen>
         showMenu: true,
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "列表",
+        bottomHeight: 56,
+        bottom: tabDataList.isNotEmpty
+            ? ItemBuilder.buildTabBar(
+                context,
+                _tabController,
+                tabDataList.tabList,
+                onTap: onTapTab,
+                background: Theme.of(context).canvasColor,
+                showBorder: true,
+                width: MediaQuery.of(context).size.width,
+              )
+            : null,
       ),
       body: _buildBody(),
     );
@@ -172,25 +184,9 @@ class ListScreenState extends State<ListScreen>
         return tabDataList.isNotEmpty
             ? Stack(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ItemBuilder.buildTabBar(
-                        context,
-                        _tabController,
-                        tabDataList.tabList,
-                        onTap: onTapTab,
-                        background: Theme.of(context).canvasColor,
-                        showBorder: true,
-                        width: MediaQuery.of(context).size.width,
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: tabDataList.pageList,
-                        ),
-                      ),
-                    ],
+                  TabBarView(
+                    controller: _tabController,
+                    children: tabDataList.pageList,
                   ),
                   Positioned(
                     right: ResponsiveUtil.isLandscape() ? 16 : 12,

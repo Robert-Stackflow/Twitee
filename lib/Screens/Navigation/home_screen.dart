@@ -166,28 +166,22 @@ class HomeScreenState extends State<HomeScreen>
                 padding: const EdgeInsets.only(right: 60),
                 child: _buildLogo(),
               ),
+        bottom: ItemBuilder.buildTabBar(
+          context,
+          _tabController,
+          tabDataList.tabList,
+          onTap: onTapTab,
+          background: Theme.of(context).canvasColor,
+          showBorder: true,
+          width: MediaQuery.of(context).size.width,
+        ),
+        bottomHeight: 56,
       ),
       body: Stack(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ItemBuilder.buildTabBar(
-                context,
-                _tabController,
-                tabDataList.tabList,
-                onTap: onTapTab,
-                background: Theme.of(context).canvasColor,
-                showBorder: true,
-                width: MediaQuery.of(context).size.width,
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: tabDataList.pageList,
-                ),
-              ),
-            ],
+          TabBarView(
+            controller: _tabController,
+            children: tabDataList.pageList,
           ),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,

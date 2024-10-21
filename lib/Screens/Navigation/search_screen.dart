@@ -331,6 +331,31 @@ class SearchScreenState extends State<SearchScreen>
               ),
             ),
           ),
+          bottom: trendTabDataList.tabList.isEmpty
+              ? null
+              : ItemBuilder.buildTabBar(
+                  context,
+                  _trendTabController,
+                  trendTabDataList.tabList,
+                  showBorder: true,
+                  width: MediaQuery.of(context).size.width,
+                  background: Theme.of(context).canvasColor,
+                  onTap: (index) {
+                    if (mounted) setState(() {});
+                    if (!_trendTabController.indexIsChanging &&
+                        index == currentTrendIndex) {
+                      if (trendTabDataList.getScrollController(index) != null &&
+                          trendTabDataList.getScrollController(index)!.offset >
+                              30) {
+                        scrollToTop();
+                      } else {
+                        refresh();
+                      }
+                    }
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+          bottomHeight: 56,
         ),
         body: _buildBody(),
       ),
@@ -369,38 +394,9 @@ class SearchScreenState extends State<SearchScreen>
   }
 
   _buildTrend() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (trendTabDataList.tabList.isNotEmpty)
-          ItemBuilder.buildTabBar(
-            context,
-            _trendTabController,
-            trendTabDataList.tabList,
-            showBorder: true,
-            width: MediaQuery.of(context).size.width,
-            background: Theme.of(context).canvasColor,
-            onTap: (index) {
-              if (mounted) setState(() {});
-              if (!_trendTabController.indexIsChanging &&
-                  index == currentTrendIndex) {
-                if (trendTabDataList.getScrollController(index) != null &&
-                    trendTabDataList.getScrollController(index)!.offset > 30) {
-                  scrollToTop();
-                } else {
-                  refresh();
-                }
-              }
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-          ),
-        Expanded(
-          child: TabBarView(
-            controller: _trendTabController,
-            children: trendTabDataList.pageList,
-          ),
-        ),
-      ],
+    return TabBarView(
+      controller: _trendTabController,
+      children: trendTabDataList.pageList,
     );
   }
 

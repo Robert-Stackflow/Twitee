@@ -687,11 +687,11 @@ class _VideoControlPanelState extends State<VideoControlPanel>
               if (widget.placeholder != null) widget.placeholder!,
               Center(
                 child: SizedBox(
-                  width: iconSize * 2,
-                  height: iconSize * 2,
+                  width: iconSize,
+                  height: iconSize,
                   child: const CircularProgressIndicator(
                     color: Colors.white,
-                    strokeWidth: 5,
+                    strokeWidth: 3,
                     strokeCap: StrokeCap.round,
                   ),
                 ),

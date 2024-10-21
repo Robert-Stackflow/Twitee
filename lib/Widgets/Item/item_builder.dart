@@ -95,7 +95,9 @@ class ItemBuilder {
     Function()? onBackTap,
     List<Widget> actions = const [],
     double rightPadding = 0,
-    bool showBorder = true,
+    bool? showBorder,
+    Widget? bottom,
+    double? bottomHeight,
   }) {
     UserInfo? info = HiveUtil.getUserInfo();
     Widget? avatar = info != null
@@ -111,18 +113,19 @@ class ItemBuilder {
             ),
           )
         : null;
+    late PreferredSize topWidget;
     if (ResponsiveUtil.isLandscape()) {
       bool hasLeftButton =
           showBack || (showMenu && !ResponsiveUtil.isLandscape());
       var finalTitle = titleWidget ??
           Text(title, style: Theme.of(context).textTheme.titleLarge);
-      return PreferredSize(
+      topWidget = PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: Container(
           height: 56,
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
-            border: showBorder
+            border: showBorder ?? true
                 ? Border(
                     bottom: BorderSide(
                       color: Theme.of(context).dividerColor,
@@ -191,19 +194,19 @@ class ItemBuilder {
         ),
       );
     } else {
-      return PreferredSize(
+      topWidget = PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
-            // border: showBorder
-            //     ? Border(
-            //         bottom: BorderSide(
-            //           color: Theme.of(context).dividerColor,
-            //           width: 1,
-            //         ),
-            //       )
-            //     : null,
+            border: showBorder ?? false
+                ? Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context).dividerColor,
+                      width: 1,
+                    ),
+                  )
+                : null,
           ),
           child: ItemBuilder.buildAppBar(
             context: context,
@@ -231,6 +234,17 @@ class ItemBuilder {
         ),
       );
     }
+    return bottom != null && bottomHeight != null
+        ? PreferredSize(
+            preferredSize: Size.fromHeight(56 + bottomHeight),
+            child: Column(
+              children: [
+                topWidget,
+                bottom,
+              ],
+            ),
+          )
+        : topWidget;
   }
 
   static buildSimpleAppBar({
@@ -473,9 +487,8 @@ class ItemBuilder {
           border: showBorder
               ? Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
+                      color: Theme.of(context).dividerColor,
+                      width: ResponsiveUtil.isLandscape() ? 1 : 1),
                 )
               : null,
         ),
@@ -814,21 +827,15 @@ class ItemBuilder {
               ? Border.merge(
                   Border.symmetric(
                     vertical: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
-                    ),
+                        color: Theme.of(context).dividerColor, width: 0.5),
                   ),
                   Border(
                     top: topRadius
                         ? BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 1,
-                          )
+                            color: Theme.of(context).dividerColor, width: 0.5)
                         : BorderSide.none,
                     bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
-                    ),
+                        color: Theme.of(context).dividerColor, width: 0.5),
                   ),
                 )
               : const Border(),
@@ -903,7 +910,7 @@ class ItemBuilder {
                         border: Border(
                           bottom: BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 1,
+                            width: 0.5,
                             style: bottomRadius
                                 ? BorderStyle.none
                                 : BorderStyle.solid,
@@ -1001,19 +1008,19 @@ class ItemBuilder {
                   Border.symmetric(
                     vertical: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 1,
+                      width: 0.5,
                     ),
                   ),
                   Border(
                     top: topRadius
                         ? BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 1,
+                            width: 0.5,
                           )
                         : BorderSide.none,
                     bottom: BorderSide(
                       color: Theme.of(context).dividerColor,
-                      width: 1,
+                      width: 0.5,
                     ),
                   ),
                 )
@@ -1123,7 +1130,7 @@ class ItemBuilder {
                         border: Border(
                           bottom: BorderSide(
                             color: Theme.of(context).dividerColor,
-                            width: 1,
+                            width: 0.5,
                             style: bottomRadius
                                 ? BorderStyle.none
                                 : BorderStyle.solid,
@@ -1411,15 +1418,11 @@ class ItemBuilder {
             ? Border.merge(
                 Border.symmetric(
                   vertical: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
+                      color: Theme.of(context).dividerColor, width: 0.5),
                 ),
                 Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
+                      color: Theme.of(context).dividerColor, width: 0.5),
                 ),
               )
             : border,
@@ -2007,6 +2010,7 @@ class ItemBuilder {
     String? text,
     String? buttonText,
     Function()? onTap,
+    bool white = false,
   }) {
     return Container(
       alignment: Alignment.center,
@@ -2018,11 +2022,18 @@ class ItemBuilder {
         children: [
           Text(
             text ?? "加载失败",
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.apply(color: white ? Colors.white : null),
           ),
           const SizedBox(height: 10),
-          ItemBuilder.buildRoundButton(context,
-              text: buttonText ?? "重试", onTap: onTap),
+          ItemBuilder.buildRoundButton(
+            context,
+            text: buttonText ?? "重试",
+            onTap: onTap,
+            color: white ? Colors.white : null,
+          ),
         ],
       ),
     );
@@ -2548,10 +2559,8 @@ class ItemBuilder {
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(50),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
+            border:
+                Border.all(color: Theme.of(context).dividerColor, width: 0.5),
           ),
           child: Text(
             str,
@@ -2776,7 +2785,7 @@ class ItemBuilder {
         // border: Border(
         //   left: BorderSide(
         //     color: Theme.of(context).dividerColor,
-        //     width: 1,
+        //     width: 0.5
         //   ),
         // ),
       ),
@@ -2892,7 +2901,7 @@ class ItemBuilder {
           border: showBorder
               ? Border.all(
                   color: Theme.of(context).dividerColor,
-                  width: 1,
+                  width: 0.5,
                 )
               : const Border.fromBorderSide(BorderSide.none),
           shape: BoxShape.circle,
