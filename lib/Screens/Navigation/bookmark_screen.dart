@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
@@ -45,7 +47,8 @@ class _BookmarkScreenState extends State<BookmarkScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
-        ScrollToHideMixin {
+        ScrollToHideMixin,
+        BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -72,6 +75,16 @@ class _BookmarkScreenState extends State<BookmarkScreen>
   String currentQuery = "";
 
   bool _inited = false;
+
+  @override
+  FutureOr onTapBottomNavigation() {
+    panelScreenState?.showBottomNavigationBar();
+    if (_scrollController.offset > 30) {
+      _scrollToTop();
+    } else {
+      _refresh();
+    }
+  }
 
   @override
   void initState() {
@@ -107,6 +120,15 @@ class _BookmarkScreenState extends State<BookmarkScreen>
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
+  }
+
+  _refresh() async {
+    _refreshRotationController.repeat();
+    await _scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    _easyRefreshController.resetHeader();
+    _easyRefreshController.callRefresh();
   }
 
   Future<IndicatorResult> _onRefresh() async {
@@ -398,12 +420,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
               child: const Icon(Icons.refresh_rounded),
             ),
             onTap: () async {
-              _refreshRotationController.repeat();
-              await _scrollToTop();
-              _refreshRotationController.stop();
-              _refreshRotationController.forward();
-              _easyRefreshController.resetHeader();
-              _easyRefreshController.callRefresh();
+              _refresh();
             },
           ),
         const SizedBox(height: 10),

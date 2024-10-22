@@ -43,10 +43,10 @@ class MyTheme {
     );
   }
 
-  static BoxDecoration geDefaultDecoration([double radius = 10]) {
+  static BoxDecoration getDefaultDecoration([double radius = 10,double borderWidth=1]) {
     return BoxDecoration(
       color: Theme.of(rootContext).canvasColor,
-      border: Border.all(color: Theme.of(rootContext).dividerColor, width: 1),
+      border: Border.all(color: Theme.of(rootContext).dividerColor, width: borderWidth),
       boxShadow: defaultBoxShadow,
       borderRadius: BorderRadius.circular(radius),
     );

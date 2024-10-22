@@ -277,6 +277,104 @@ class UserApi {
     }
   }
 
+  static Future<ResponseResult> muteRetweet({
+    required String userId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Muting user retweet");
+      final response = await RequestUtil.post(
+        "/friendships/update.json",
+        domainType: DomainType.v1,
+        data: {
+          "include_profile_interstitial_type": 1,
+          "include_blocking": 1,
+          "include_blocked_by": 1,
+          "include_followed_by": 1,
+          "include_want_retweets": 1,
+          "include_mute_edge": 1,
+          "include_can_dm": 1,
+          "include_can_media_tag": 1,
+          "include_ext_is_blue_verified": 1,
+          "include_ext_verified_type": 1,
+          'include_ext_profile_image_shape': 1,
+          "skip_status": 1,
+          "cursor": -1,
+          "id": userId,
+          "retweets": false,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": Headers.formUrlEncodedContentType,
+          },
+        ),
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to mute user retweet",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to mute user retweet", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> unmuteRetweet({
+    required String userId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Unmuting user retweet");
+      final response = await RequestUtil.post(
+        "/friendships/update.json",
+        domainType: DomainType.v1,
+        data: {
+          "include_profile_interstitial_type": 1,
+          "include_blocking": 1,
+          "include_blocked_by": 1,
+          "include_followed_by": 1,
+          "include_want_retweets": 1,
+          "include_mute_edge": 1,
+          "include_can_dm": 1,
+          "include_can_media_tag": 1,
+          "include_ext_is_blue_verified": 1,
+          "include_ext_verified_type": 1,
+          'include_ext_profile_image_shape': 1,
+          "skip_status": 1,
+          "cursor": -1,
+          "id": userId,
+          "retweets": true,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": Headers.formUrlEncodedContentType,
+          },
+        ),
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to unmute user retweet",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to unmute user retweet", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
   static Future<ResponseResult> block({
     required String userId,
   }) async {

@@ -23,6 +23,8 @@ const double appBarWithTabBarHeight = 152;
 
 const double searchBarWidth = 320;
 
+const double maxMediaOrQuoteWidth = 480;
+
 const defaultPhone = "";
 const defaultPassword = "";
 const defaultLofterID = "";

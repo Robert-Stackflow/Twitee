@@ -110,7 +110,8 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
     Function()? onDownloadSuccess,
   }) {
     if (style != null) {
-      style = style.apply(heightDelta: widget.heightDelta ?? -0.3);
+      style = style.apply(
+          heightDelta: widget.heightDelta ?? -0.3, letterSpacingDelta: -0.5);
     }
     style ??= Theme.of(context)
         .textTheme
@@ -123,38 +124,39 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
         enableCaching: true,
         renderMode: RenderMode.column,
         textStyle: style,
-        factoryBuilder: () {
-          return CustomImageFactory();
-        },
+        factoryBuilder: () => CustomImageFactory(),
         customWidgetBuilder: (e) {
           if (e.localName == 'a' && e.attributes.containsKey('href')) {
             String url = e.attributes['href']!;
             return InlineCustomWidget(
-              child: MouseRegion(
-                onHover: (_) {
-                  if (ResponsiveUtil.isLandscape()) {
-                    _url = url;
-                    _startHoverTimer();
-                  }
-                },
-                onExit: (_) async {
-                  _url = null;
-                  _cancelHoverTimer();
-                  await UrlPreviewHelper.remove();
-                },
-                child: GestureDetector(
-                  onTap: () {
-                    UriUtil.processUrl(context, url);
-                  },
-                  onSecondaryTap: () {
-                    if (!UriUtil.isTwitterUrl(url)) {
-                      BottomSheetBuilder.showContextMenu(
-                          context, _buildLinkContextMenuButtons(url));
+              child: ItemBuilder.buildClickItem(
+                MouseRegion(
+                  onHover: (_) {
+                    if (ResponsiveUtil.isLandscape()) {
+                      _url = url;
+                      _startHoverTimer();
                     }
                   },
-                  child: Text(
-                    e.text,
-                    style: style?.apply(color: MyColors.getLinkColor(context)),
+                  onExit: (_) async {
+                    _url = null;
+                    _cancelHoverTimer();
+                    await UrlPreviewHelper.remove();
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      UriUtil.processUrl(context, url);
+                    },
+                    onSecondaryTap: () {
+                      if (!UriUtil.isTwitterUrl(url)) {
+                        BottomSheetBuilder.showContextMenu(
+                            context, _buildLinkContextMenuButtons(url));
+                      }
+                    },
+                    child: Text(
+                      e.text,
+                      style:
+                          style?.apply(color: MyColors.getLinkColor(context)),
+                    ),
                   ),
                 ),
               ),
@@ -163,14 +165,7 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
           return null;
         },
         customStylesBuilder: (e) {
-          if (e.attributes.containsKey('href')) {
-            return {
-              'color':
-                  '#${MyColors.getLinkColor(context).value.toRadixString(16).substring(2, 8)}',
-              'font-weight': '500',
-              'text-decoration-line': 'none',
-            };
-          } else if (e.id == "title") {
+          if (e.id == "title") {
             return {
               'font-weight': '700',
               'font-size': 'larger',

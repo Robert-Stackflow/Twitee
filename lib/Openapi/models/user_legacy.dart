@@ -131,7 +131,7 @@ class UserLegacy {
   @JsonKey(name: 'verified_type')
   final UserLegacyVerifiedType? verifiedType;
   @JsonKey(name: 'want_retweets')
-  final bool? wantRetweets;
+  bool? wantRetweets;
   @JsonKey(name: 'withheld_in_countries')
   final List<String?>? withheldInCountries;
 

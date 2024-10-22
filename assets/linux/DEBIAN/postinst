@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-ln -sf /opt/Twitee/Twitee /usr/bin/Twitee
-chmod +x /usr/bin/Twitee
-update-mime-database /usr/share/mime || true
-update-desktop-database /usr/share/applications || true
-exit 0

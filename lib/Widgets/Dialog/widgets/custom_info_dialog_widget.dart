@@ -116,15 +116,18 @@ class CustomInfoDialogWidget extends StatelessWidget {
                           fontSize: 15,
                         ),
                       )
-                    : Text(
-                        message!,
-                        style: TextStyle(
-                          color: textColor ??
-                              Theme.of(context).textTheme.bodySmall?.color,
-                          height: 1.5,
-                          fontSize: 15,
+                    : ItemBuilder.buildSelectableArea(
+                        context: context,
+                        child: Text(
+                          message!,
+                          style: TextStyle(
+                            color: textColor ??
+                                Theme.of(context).textTheme.bodySmall?.color,
+                            height: 1.5,
+                            fontSize: 15,
+                          ),
+                          textAlign: messageTextAlign,
                         ),
-                        textAlign: messageTextAlign,
                       ),
               if (messageChild != null) messageChild!,
               const SizedBox(height: 15),

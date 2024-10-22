@@ -218,6 +218,39 @@ class ListApi {
     }
   }
 
+  static Future<ResponseResult> deleteList({
+    required String listId,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Deleting list");
+      final response = await RequestUtil.post(
+        "/UnN9Th1BDbeLjpgjGSpL3Q/DeleteList",
+        domainType: DomainType.graphql,
+        data: {
+          "variables": {
+            "listId": listId,
+          },
+          "queryId": "UnN9Th1BDbeLjpgjGSpL3Q"
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to delete list",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: data,
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to delete list", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
   static Future<ResponseResult> getListInfo({
     required String listId,
   }) async {

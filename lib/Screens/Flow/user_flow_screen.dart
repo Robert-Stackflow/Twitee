@@ -252,7 +252,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return EasyRefresh(
+    return EasyRefresh.builder(
       onRefresh: () async {
         return await _onRefresh();
       },
@@ -262,11 +262,12 @@ class _UserFlowScreenState extends State<UserFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
+      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
+                physics: pyhsics,
                 controller: _scrollController,
                 padding: ResponsiveUtil.isLandscape()
                     ? const EdgeInsets.all(8)
@@ -286,6 +287,7 @@ class _UserFlowScreenState extends State<UserFlowScreen>
                 context: context,
                 text: "暂无用户",
                 scrollController: _scrollController,
+                physics: pyhsics,
               ),
       ),
     );

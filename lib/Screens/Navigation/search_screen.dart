@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/search_api.dart';
@@ -48,7 +50,8 @@ class SearchScreenState extends State<SearchScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
-        ScrollToHideMixin {
+        ScrollToHideMixin,
+        BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -73,6 +76,14 @@ class SearchScreenState extends State<SearchScreen>
 
   bool _showSuggestion = false;
   InitPhase _initPhase = InitPhase.haveNotConnected;
+
+  @override
+  FutureOr onTapBottomNavigation() {
+    if (searchFocusNode.hasFocus) {
+      FocusScope.of(context).unfocus();
+    }
+    FocusScope.of(context).requestFocus(searchFocusNode);
+  }
 
   initTrendTab() {
     trendTabDataList.clear();

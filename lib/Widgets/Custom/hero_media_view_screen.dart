@@ -39,6 +39,7 @@ import '../../Utils/ilogger.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 import '../../Utils/video_player_manager.dart';
+import '../Dialog/dialog_builder.dart';
 import '../General/PhotoView/photo_view.dart';
 import '../General/PhotoView/photo_view_gallery.dart';
 import '../Item/item_builder.dart';
@@ -213,14 +214,24 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
             Positioned(
               bottom: 60,
               child: Center(
-                child: ItemBuilder.buildTransparentTag(
-                  context,
-                  text: getCaption(currentIndex),
-                  radius: 8,
-                  opacity: 0.4,
-                  fontSizeDelta: 3,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Container(
+                  alignment: Alignment.center,
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width - 100),
+                  child: ItemBuilder.buildTransparentTag(
+                    context,
+                    text: getCaption(currentIndex),
+                    radius: 8,
+                    opacity: 0.4,
+                    fontSizeDelta: 3,
+                    expanded: true,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    onTap: () {
+                      DialogBuilder.showInfoDialog(context,
+                          title: "ALT", message: getCaption(currentIndex));
+                    },
+                  ),
                 ),
               ),
             ),
@@ -414,7 +425,9 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
         borderRadius: BorderRadius.circular(radius),
       ),
       constraints: BoxConstraints(
-          maxHeight: 450, maxWidth: MediaQuery.sizeOf(context).width),
+        maxWidth: MediaQuery.sizeOf(context).width,
+        maxHeight: MediaQuery.sizeOf(context).height - 180,
+      ),
       child: VideoControlPanel(
         controller,
         bgColor: mainColors[medias.indexOf(media)],

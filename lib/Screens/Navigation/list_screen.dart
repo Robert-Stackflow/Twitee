@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Utils/route_util.dart';
@@ -51,7 +53,8 @@ class ListScreenState extends State<ListScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
-        ScrollToHideMixin {
+        ScrollToHideMixin,
+        BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
   late TabController _tabController;
@@ -64,9 +67,18 @@ class ListScreenState extends State<ListScreen>
   List<TimelineTwitterList> validItems = [];
   InitPhase _initPhase = InitPhase.haveNotConnected;
 
+  Map<String, TabItemData> idToListFlowMap = {};
+
+  @override
+  FutureOr onTapBottomNavigation() {
+    onTapTab(_tabController.index);
+  }
+
   refreshLists() async {
-    _initPhase = InitPhase.connecting;
     try {
+      if (_initPhase != InitPhase.successful) {
+        _initPhase = InitPhase.connecting;
+      }
       ResponseResult res;
       res = await DataApi.getLists(userId: widget.userId);
       if (res.success) {
@@ -127,8 +139,8 @@ class ListScreenState extends State<ListScreen>
   initTab() {
     tabDataList.clear();
     for (var list in validItems) {
-      tabDataList.add(
-        TabItemData.build(
+      if (idToListFlowMap[list.list.idStr] == null) {
+        idToListFlowMap[list.list.idStr] = TabItemData.build(
           list.list.name,
           (key, scrollController) => ListFlowScreen(
             key: key,
@@ -136,10 +148,15 @@ class ListScreenState extends State<ListScreen>
             userId: widget.userId,
             scrollController: scrollController,
           ),
-        ),
-      );
+        );
+        tabDataList.add(idToListFlowMap[list.list.idStr]!);
+      } else {
+        tabDataList.add(idToListFlowMap[list.list.idStr]!);
+      }
     }
-    _tabController = TabController(length: tabDataList.length, vsync: this);
+    int index = currentIndex;
+    _tabController = TabController(
+        length: tabDataList.length, vsync: this, initialIndex: index);
     panelScreenState?.refreshScrollControllers();
     if (mounted) setState(() {});
   }
@@ -230,6 +247,7 @@ class ListScreenState extends State<ListScreen>
     _refreshRotationController.stop();
     _refreshRotationController.forward();
     tabDataList.getRefreshMixin(currentIndex)?.refresh();
+    refreshLists();
   }
 
   _buildFloatingButtons() {

@@ -95,6 +95,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
 
   fetchDetail() async {
     _initPhase = InitPhase.connecting;
+    setState(() {});
     ResponseResult response =
         await PostApi.getTweetDetail(tweetId: widget.tweetId);
     if (response.success) {
@@ -152,6 +153,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
         context: context,
         title: "帖子详情",
         showBack: true,
+        showBorder: true,
       ),
       body: _buildBody(),
     );

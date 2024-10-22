@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Models/translation_result.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Detail/search_result_screen.dart';
 import 'package:twitee/Screens/Detail/user_list_screen.dart';
 import 'package:twitee/Screens/Detail/user_topic_screen.dart';
 import 'package:twitee/Screens/Flow/user_list_flow_screen.dart';
@@ -226,6 +227,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   }
 
   _buildMainBody() {
+    String screenName = userLegacy?.screenName ?? "";
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         if (ResponsiveUtil.isMobile())
@@ -233,7 +235,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             context: context,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             title: Text(
-              "个人主页",
+              user != null && userLegacy != null ? "@${userLegacy!.screenName}" : "",
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -245,6 +247,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               onTap: () {
                 Navigator.of(context).pop();
               },
+              padding: const EdgeInsets.all(6),
+              background: Colors.black38,
             ),
             backgroundWidget: _buildBlurBackground(
                 height: kToolbarHeight + MediaQuery.paddingOf(context).top),
@@ -252,13 +256,26 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             actions: [
               ItemBuilder.buildIconButton(
                 context: context,
+                icon: const Icon(Icons.search_rounded, color: Colors.white),
+                onTap: () {
+                  panelScreenState?.pushPage(
+                      SearchResultScreen(searchKey: 'from:$screenName '));
+                },
+                padding: const EdgeInsets.all(6),
+                background: Colors.black38,
+              ),
+              const SizedBox(width: 5),
+              ItemBuilder.buildIconButton(
+                context: context,
                 icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
                 onTap: () {
                   BottomSheetBuilder.showContextMenu(
                       context, _buildMoreContextMenuButtons());
                 },
+                padding: const EdgeInsets.all(6),
+                background: Colors.black38,
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: 8),
             ],
             expandedHeight: 140.0,
             collapsedHeight: kToolbarHeight,
@@ -384,6 +401,49 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     String url = userLegacy?.url ?? "https://twitter.com/$screenName";
     return GenericContextMenu(
       buttonConfigs: [
+        if (!isMyself)
+          ContextMenuButtonConfig(
+            userLegacy?.wantRetweets ?? false ? "关闭转推" : "开启转推",
+            icon: Icon(
+              userLegacy?.wantRetweets ?? false
+                  ? Icons.repeat_rounded
+                  : Icons.repeat_rounded,
+            ),
+            onPressed: () async {
+              if (userLegacy?.wantRetweets ?? false) {
+                DialogBuilder.showConfirmDialog(
+                  context,
+                  title: "关闭来自 @$screenName 的转推？",
+                  message: "你将不会在时间线中看到来自 @$screenName 的转推。",
+                  onTapConfirm: () async {
+                    var res = await IToast.showLoadingSnackbar(
+                        "正在关闭转推",
+                        () async =>
+                            await UserApi.muteRetweet(userId: user!.restId!));
+                    if (res.success) {
+                      userLegacy?.wantRetweets = false;
+                      if (mounted) setState(() {});
+                      IToast.showTop("已关闭转推");
+                    } else {
+                      IToast.showTop("关闭转推失败");
+                    }
+                  },
+                );
+              } else {
+                var res = await IToast.showLoadingSnackbar(
+                    "正在开启转推",
+                    () async =>
+                        await UserApi.unmuteRetweet(userId: user!.restId!));
+                if (res.success) {
+                  userLegacy?.wantRetweets = true;
+                  if (mounted) setState(() {});
+                  IToast.showTop("已开启转推");
+                } else {
+                  IToast.showTop("开启转推失败");
+                }
+              }
+            },
+          ),
         if (!isMyself)
           ContextMenuButtonConfig(
             "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
@@ -587,9 +647,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       }
     }
     Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    String description = _processDescription();
     var metaRow = Wrap(
       spacing: 20,
-      runSpacing: 5,
+      runSpacing: 3,
       alignment: WrapAlignment.start,
       runAlignment: WrapAlignment.start,
       children: [
@@ -604,12 +665,6 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             onTap: () {
               UriUtil.launchUrlUri(context, url.expandedUrl ?? url.url);
             },
-          ),
-        if (Utils.isNotEmpty(userLegacy!.location))
-          _buildButton(
-            icon:
-                Icon(Icons.location_city_outlined, size: 15, color: labelColor),
-            text: userLegacy!.location,
           ),
         _buildButton(
           icon: Icon(Icons.date_range_rounded, size: 15, color: labelColor),
@@ -627,12 +682,12 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
+        // border: Border(
+        //   bottom: BorderSide(
+        //     color: Theme.of(context).dividerColor,
+        //     width: 1,
+        //   ),
+        // ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -717,7 +772,18 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   },
                 ),
               const SizedBox(width: 10),
-              if (ResponsiveUtil.isLandscape())
+              if (ResponsiveUtil.isLandscape()) ...[
+                ItemBuilder.buildRoundButton(
+                  context,
+                  icon: const Icon(Icons.search_rounded),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  onTap: () {
+                    panelScreenState?.pushPage(
+                        SearchResultScreen(searchKey: 'from:$screenName '));
+                  },
+                ),
+                const SizedBox(width: 10),
                 ItemBuilder.buildRoundButton(
                   context,
                   icon: const Icon(Icons.more_horiz_rounded),
@@ -728,31 +794,32 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                         context, _buildMoreContextMenuButtons());
                   },
                 ),
+              ]
             ],
           ),
-          const SizedBox(height: 10),
+          if (Utils.isNotEmpty(description)) const SizedBox(height: 10),
+          CustomHtmlWidget(
+            content: description,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          if (translationResult != null) const SizedBox(height: 10),
+          if (translationResult != null)
+            ..._buildTranslation(translationResult!),
+          const SizedBox(height: 16),
+          if (Utils.isNotEmpty(userLegacy!.location)) ...[
+            _buildButton(
+              icon: Icon(Icons.location_city_outlined,
+                  size: 15, color: labelColor),
+              text: userLegacy!.location,
+            ),
+            const SizedBox(height: 3),
+          ],
           metaRow,
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 20,
-            runSpacing: 5,
+            runSpacing: 3,
             children: [
-              ItemBuilder.buildCountItem(
-                context,
-                title: "帖子",
-                value: userLegacy!.statusesCount ?? 0,
-                onTap: () {
-                  _tabController.animateTo(0);
-                },
-              ),
-              ItemBuilder.buildCountItem(
-                context,
-                title: "照片和视频",
-                value: userLegacy!.mediaCount ?? 0,
-                onTap: () {
-                  _tabController.animateTo(2);
-                },
-              ),
               ItemBuilder.buildCountItem(
                 context,
                 title: "正在关注",
@@ -771,7 +838,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                       userId: user!.restId, initType: UserFlowType.follower));
                 },
               ),
-              if (!(user!.hasHiddenSubscriptionsOnProfile ?? false))
+              if (!(user!.hasHiddenSubscriptionsOnProfile ?? false) &&
+                  (user!.creatorSubscriptionsCount ?? 0) > 0)
                 ItemBuilder.buildCountItem(
                   context,
                   title: "订阅服务",
@@ -782,21 +850,31 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                         initType: UserFlowType.subscriptions));
                   },
                 ),
+              if ((userLegacy!.statusesCount ?? 0) > 0)
+                ItemBuilder.buildCountItem(
+                  context,
+                  title: "推文",
+                  value: userLegacy!.statusesCount ?? 0,
+                  onTap: () {
+                    _tabController.animateTo(0);
+                  },
+                ),
+              if ((userLegacy!.mediaCount ?? 0) > 0)
+                ItemBuilder.buildCountItem(
+                  context,
+                  title: "照片和视频",
+                  value: userLegacy!.mediaCount ?? 0,
+                  onTap: () {
+                    _tabController.animateTo(2);
+                  },
+                ),
             ],
           ),
-          const SizedBox(height: 10),
-          CustomHtmlWidget(
-            content: _processDescription(),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (translationResult != null) const SizedBox(height: 10),
-          if (translationResult != null)
-            ..._buildTranslation(translationResult!),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           if (friendList.isNotEmpty)
             ItemBuilder.buildCountItem(
               context,
-              title: "关注了此账号",
+              title: "${friendList.length > 1 ? "都" : ""}关注了此账号",
               subTitle: friendList.map((e) => e.name).join("、"),
               fontSizeDelta: -2,
               onTap: () {
@@ -814,7 +892,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   .bodySmall
                   ?.apply(fontSizeDelta: 2),
             ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
         ],
       ),
     );

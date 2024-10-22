@@ -126,6 +126,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
 
   bool isDraggingVolumeBar = false;
   bool isMouseInVolumeBar = false;
+  bool isMouseInVolumeSlider = false;
 
   bool isPlayEnded = false;
   bool isFullscreenVisible = false;
@@ -338,7 +339,9 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     _hidePanelTimer?.cancel();
     _hidePanelTimer = Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      if (isMouseInVolumeBar || isDraggingVolumeBar) return;
+      if (isMouseInVolumeBar || isDraggingVolumeBar || isMouseInVolumeSlider) {
+        return;
+      }
       if (!playing.value) return; //don't auto hide when paused
       panelVisibility.value = false;
       panelAnimController.reverse();
@@ -412,6 +415,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         return IconButton(
           iconSize: size,
           color: Colors.white,
+          padding: EdgeInsets.zero,
           icon: Icon(
               isCircle
                   ? (value
@@ -481,6 +485,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     return IconButton(
       color: Colors.white,
       iconSize: iconSize,
+      padding: EdgeInsets.zero,
       icon: Icon(widget._isFullscreen
           ? Icons.fullscreen_exit_rounded
           : Icons.fullscreen_rounded),
@@ -499,6 +504,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
             return IconButton(
               color: Colors.white,
               iconSize: iconSize,
+              padding: EdgeInsets.zero,
               icon: Icon(value
                   ? Icons.subtitles_rounded
                   : Icons.subtitles_off_outlined),
@@ -518,80 +524,110 @@ class _VideoControlPanelState extends State<VideoControlPanel>
       onEnter: (_) {
         volumeAnimController.forward();
         isMouseInVolumeBar = true;
+        setState(() {});
       },
       onExit: (_) {
-        if (!isDraggingVolumeBar) volumeAnimController.reverse();
+        if (!isDraggingVolumeBar && !isMouseInVolumeSlider) {
+          volumeAnimController.reverse();
+        }
         isMouseInVolumeBar = false;
+        setState(() {});
         showPanel();
       },
-      child: Stack(children: [
-        Positioned.fill(
-          child: FadeTransition(
-            opacity: volumeAnimation,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                border: Border.all(color: Colors.transparent),
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(100),
+      child: ValueListenableBuilder<double>(
+        valueListenable: volumeValue,
+        builder: (context, value, child) {
+          bool isMute = value <= 0;
+          return IconButton(
+            color: Colors.white,
+            iconSize: iconSize,
+            padding: EdgeInsets.zero,
+            icon: Icon(
+                isMute ? Icons.volume_off_rounded : Icons.volume_up_rounded),
+            onPressed: () => toggleVolumeMute(),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildVolumeSlider() {
+    return SizedBox(
+      width: 40,
+      child: MouseRegion(
+        onEnter: (_) {
+          volumeAnimController.forward();
+          isMouseInVolumeSlider = true;
+          setState(() {});
+        },
+        onExit: (_) {
+          if (!isDraggingVolumeBar) volumeAnimController.reverse();
+          isMouseInVolumeSlider = false;
+          setState(() {});
+          showPanel();
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: FadeTransition(
+                opacity: volumeAnimation,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    border: Border.all(color: Colors.transparent),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(100),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-        Row(children: [
-          RotatedBox(
-            quarterTurns: 2,
-            child: SizeTransition(
-              axis: Axis.horizontal,
-              sizeFactor: volumeAnimation,
-              child: ValueListenableBuilder<double>(
-                valueListenable: volumeValue,
-                builder: (context, value, child) {
-                  return MouseStateBuilder(builder: (context, mouseState) {
-                    return SliderTheme(
-                      data: mouseState.isMouseOver
-                          ? hoverSeekBarTheme
-                          : normalSeekBarTheme,
-                      child: Slider(
-                        min: 0,
-                        max: 100,
-                        value: value * 100,
-                        divisions: 100,
-                        onChangeStart: (_) => isDraggingVolumeBar = true,
-                        onChangeEnd: (_) {
-                          isDraggingVolumeBar = false;
-                          if (!isMouseInVolumeBar) {
-                            volumeAnimController.reverse();
-                          }
-                        },
-                        onChanged: (value) {
-                          widget.controller.setVolume(value / 100);
-                          showPanel(); // keep panel visible during dragging volume bar
-                        },
-                      ),
-                    );
-                  });
-                },
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 28),
+              child: RotatedBox(
+                quarterTurns: 3,
+                child: SizeTransition(
+                  axis: Axis.horizontal,
+                  sizeFactor: volumeAnimation,
+                  child: ValueListenableBuilder<double>(
+                    valueListenable: volumeValue,
+                    builder: (context, value, child) {
+                      return MouseStateBuilder(builder: (context, mouseState) {
+                        return SliderTheme(
+                          data: mouseState.isMouseOver
+                              ? hoverSeekBarTheme
+                              : normalSeekBarTheme,
+                          child: Slider(
+                            min: 0,
+                            max: 100,
+                            value: value * 100,
+                            divisions: 100,
+                            onChangeStart: (_) {
+                              isDraggingVolumeBar = true;
+                              setState(() {});
+                            },
+                            onChangeEnd: (_) {
+                              isDraggingVolumeBar = false;
+                              setState(() {});
+                              if (!isMouseInVolumeBar) {
+                                volumeAnimController.reverse();
+                              }
+                            },
+                            onChanged: (value) {
+                              widget.controller.setVolume(value / 100);
+                              showPanel(); // keep panel visible during dragging volume bar
+                            },
+                          ),
+                        );
+                      });
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
-          ValueListenableBuilder<double>(
-            valueListenable: volumeValue,
-            builder: (context, value, child) {
-              bool isMute = value <= 0;
-              return IconButton(
-                color: Colors.white,
-                iconSize: iconSize,
-                icon: Icon(isMute
-                    ? Icons.volume_off_rounded
-                    : Icons.volume_up_rounded),
-                onPressed: () => toggleVolumeMute(),
-              );
-            },
-          ),
-        ]),
-      ]),
+          ],
+        ),
+      ),
     );
   }
 
@@ -599,6 +635,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     return (isDesktop && widget.onPrevClicked != null)
         ? IconButton(
             iconSize: iconSize,
+            padding: EdgeInsets.zero,
             color: Colors.white,
             icon: const Icon(Icons.skip_previous_rounded),
             onPressed: widget.onPrevClicked,
@@ -610,6 +647,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     return (isDesktop && widget.onNextClicked != null)
         ? IconButton(
             iconSize: iconSize,
+            padding: EdgeInsets.zero,
             color: Colors.white,
             icon: const Icon(Icons.skip_next_rounded),
             onPressed: widget.onNextClicked,
@@ -621,47 +659,60 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     Widget bottomPanel = Column(
       children: [
         if (widget.showSeekBar)
-          MouseStateBuilder(
-            builder: (context, mouseState) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                child: SliderTheme(
-                  data: mouseState.isMouseOver
-                      ? hoverSeekBarTheme
-                      : normalSeekBarTheme,
-                  child:
-                      SizedBox(height: iconSize * 0.7, child: _buildSeekBar()),
-                ),
-              );
-            },
+          FadeTransition(
+            opacity: volumeAnimation.drive(Tween<double>(begin: 1.0, end: 0.0)),
+            child: Visibility(
+              visible: !(isMouseInVolumeBar ||
+                  isDraggingVolumeBar ||
+                  isMouseInVolumeSlider),
+              child: MouseStateBuilder(
+                builder: (context, mouseState) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    child: SliderTheme(
+                      data: mouseState.isMouseOver
+                          ? hoverSeekBarTheme
+                          : normalSeekBarTheme,
+                      child: SizedBox(
+                        height: iconSize * 0.7,
+                        child: _buildSeekBar(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-        Row(
-          children: [
-            if (isDesktop && widget.showPlayPauseButton)
-              _buildPlayPauseButton(false, iconSize),
-            if (isDesktop && widget.onPrevClicked != null)
-              _buildBottomPrevButton()!,
-            if (isDesktop && widget.onNextClicked != null)
-              _buildBottomNextButton()!,
-            if (widget.showDurationAndPositionText)
-              Container(
-                  margin: const EdgeInsets.only(left: 5),
-                  child: _buildPositionText()),
-            if (widget.showDurationAndPositionText)
-              Text(" / ",
-                  style: TextStyle(fontSize: textSize, color: Colors.white)),
-            if (widget.showDurationAndPositionText) _buildDurationText(),
-            const Spacer(),
-            if (isDesktop && widget.showVolumeButton) _buildVolumnPanel(),
-            if (widget.showClosedCaptionButton) _buildClosedCaptionButton(),
-            if (widget.showFullscreenButton && !kIsWeb)
-              _buildFullScreenButton(),
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              if (isDesktop && widget.showPlayPauseButton)
+                _buildPlayPauseButton(false, iconSize),
+              if (isDesktop && widget.onPrevClicked != null)
+                _buildBottomPrevButton()!,
+              if (isDesktop && widget.onNextClicked != null)
+                _buildBottomNextButton()!,
+              if (widget.showDurationAndPositionText)
+                Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    child: _buildPositionText()),
+              if (widget.showDurationAndPositionText)
+                Text(" / ",
+                    style: TextStyle(fontSize: textSize, color: Colors.white)),
+              if (widget.showDurationAndPositionText) _buildDurationText(),
+              const Spacer(),
+              if (widget.showVolumeButton) _buildVolumnPanel(),
+              if (widget.showClosedCaptionButton) _buildClosedCaptionButton(),
+              if (widget.showFullscreenButton && !kIsWeb)
+                _buildFullScreenButton(),
+            ],
+          ),
         ),
       ],
     );
     bottomPanel = Container(
-      padding: EdgeInsets.all(iconSize / 2),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -687,8 +738,8 @@ class _VideoControlPanelState extends State<VideoControlPanel>
               if (widget.placeholder != null) widget.placeholder!,
               Center(
                 child: SizedBox(
-                  width: iconSize,
-                  height: iconSize,
+                  width: iconSize * 2,
+                  height: iconSize * 2,
                   child: const CircularProgressIndicator(
                     color: Colors.white,
                     strokeWidth: 3,
@@ -790,9 +841,11 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         // if (!isDesktop) Container(color: Colors.black38),
         if (!widget.isGif) _buildGestureWidget(),
         if (widget.showDetailPanel)
+          Positioned(right: 50, bottom: 5, child: _buildVolumeSlider()),
+        if (widget.showDetailPanel)
           Positioned(left: 0, bottom: 0, right: 0, child: _buildBottomPanel()),
         if (isMobile && !widget.isGif)
-          Center(child: _buildPlayPauseButton(true, iconSize * 2.5)),
+          Center(child: _buildPlayPauseButton(true, iconSize * 2)),
         if (!isDesktop && widget.onPrevClicked != null)
           Align(
             alignment: const FractionalOffset(0.15, 0.5),
@@ -801,6 +854,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
               icon: const Icon(Icons.skip_previous_rounded),
               iconSize: iconSize * 1.5,
               color: Colors.white,
+              padding: EdgeInsets.zero,
             ),
           ),
         if (!isDesktop && widget.onNextClicked != null)
@@ -811,6 +865,7 @@ class _VideoControlPanelState extends State<VideoControlPanel>
               icon: const Icon(Icons.skip_next_rounded),
               iconSize: iconSize * 1.5,
               color: Colors.white,
+              padding: EdgeInsets.zero,
             ),
           ),
       ],

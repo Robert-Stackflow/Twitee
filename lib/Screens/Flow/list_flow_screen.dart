@@ -292,7 +292,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
   }
 
   _buildMainBody() {
-    return EasyRefresh(
+    return EasyRefresh.builder(
       onRefresh: () async {
         return await _onRefresh();
       },
@@ -302,11 +302,12 @@ class _ListFlowScreenState extends State<ListFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
+      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
         child: validEntries.isNotEmpty
             ? WaterfallFlow.extent(
+                physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
                 padding: ResponsiveUtil.isLandscape()
                     ? const EdgeInsets.all(8)
@@ -329,6 +330,7 @@ class _ListFlowScreenState extends State<ListFlowScreen>
                 context: context,
                 text: "暂无内容",
                 scrollController: _scrollController,
+                physics: pyhsics,
               ),
       ),
     );

@@ -141,8 +141,9 @@ class TweetUtil {
   }
 
   static bool hasMediaByTimelineTweet(TimelineTweet tweet) {
-    Tweet t = TweetUtil.getTrueTweetByResult(tweet.tweetResults)!;
-    return t.legacy!.entities.media != null &&
+    Tweet? t = TweetUtil.getTrueTweetByResult(tweet.tweetResults);
+    return t != null &&
+        t.legacy!.entities.media != null &&
         t.legacy!.entities.media!.isNotEmpty;
   }
 
@@ -178,39 +179,41 @@ class TweetUtil {
     String fullText,
     Entities entities, {
     bool replaceNewline = true,
+    bool renderLink = true,
   }) {
     fullText = fullText.replaceAll("\n", replaceNewline ? "<br>" : "");
     entities.hashtags.sort((a, b) {
       return (b['text'] as String).length - (a['text'] as String).length;
     });
-    String tmpTag = "@**@/~?><?%^@!()~==/&&/|\\";
-    for (var i = 0; i < entities.hashtags.length; i++) {
-      Map hashtag = entities.hashtags[i];
-      fullText = fullText.replaceAll("#${hashtag['text']}",
-          '<a href="https://x.com/hashtag/${Uri.encodeComponent(hashtag['text'])}">$tmpTag${hashtag['text']}</a>');
-    }
-    for (var i = 0; i < entities.hashtags.length; i++) {
-      Map hashtag = entities.hashtags[i];
-      fullText = fullText.replaceAll(
-          "$tmpTag${hashtag['text']}", '#${hashtag['text']}');
-    }
-    if (entities.userMentions != null) {
-      for (var i = 0; i < entities.userMentions!.length; i++) {
-        Map mention = entities.userMentions![i];
-        fullText = fullText.replaceAll("@${mention['screen_name']}",
-            '<a href="https://x.com/${Uri.encodeComponent(mention['screen_name'])}">$tmpTag${mention['screen_name']}</a>');
+    if (renderLink) {
+      String tmpTag = "@**@/~?><?%^@!()~==/&&/|\\";
+      for (var i = 0; i < entities.hashtags.length; i++) {
+        Map hashtag = entities.hashtags[i];
+        fullText = fullText.replaceAll("#${hashtag['text']}",
+            '<a href="https://x.com/hashtag/${Uri.encodeComponent(hashtag['text'])}">$tmpTag${hashtag['text']}</a>');
       }
-      for (var i = 0; i < entities.userMentions!.length; i++) {
-        Map mention = entities.userMentions![i];
+      for (var i = 0; i < entities.hashtags.length; i++) {
+        Map hashtag = entities.hashtags[i];
         fullText = fullText.replaceAll(
-            "$tmpTag${mention['screen_name']}", '@${mention['screen_name']}');
+            "$tmpTag${hashtag['text']}", '#${hashtag['text']}');
       }
-    }
-
-    for (var i = entities.urls.length - 1; i >= 0; i--) {
-      Url url = entities.urls[i];
-      fullText = fullText.replaceAll(url.url,
-          '<a href="${Uri.encodeComponent(url.expandedUrl ?? "")}">${url.displayUrl}</a>');
+      if (entities.userMentions != null) {
+        for (var i = 0; i < entities.userMentions!.length; i++) {
+          Map mention = entities.userMentions![i];
+          fullText = fullText.replaceAll("@${mention['screen_name']}",
+              '<a href="https://x.com/${Uri.encodeComponent(mention['screen_name'])}">$tmpTag${mention['screen_name']}</a>');
+        }
+        for (var i = 0; i < entities.userMentions!.length; i++) {
+          Map mention = entities.userMentions![i];
+          fullText = fullText.replaceAll(
+              "$tmpTag${mention['screen_name']}", '@${mention['screen_name']}');
+        }
+      }
+      for (var i = entities.urls.length - 1; i >= 0; i--) {
+        Url url = entities.urls[i];
+        fullText = fullText.replaceAll(url.url,
+            '<a href="${Uri.encodeComponent(url.expandedUrl ?? "")}">${url.displayUrl}</a>');
+      }
     }
     if (entities.media != null) {
       for (var media in entities.media!) {
@@ -239,7 +242,7 @@ class TweetUtil {
     return tweet.legacy!.entities.media != null;
   }
 
-  static bool hasQueto(Tweet tweet) {
+  static bool hasQuote(Tweet tweet) {
     return tweet.quotedStatusResult != null;
   }
 
@@ -249,7 +252,7 @@ class TweetUtil {
   }
 
   static bool hasRichContent(Tweet tweet) {
-    return hasMedia(tweet) || hasQueto(tweet) || hasTranslation(tweet);
+    return hasMedia(tweet) || hasQuote(tweet) || hasTranslation(tweet);
   }
 
   static List<Media> getMedia(Tweet tweet) {

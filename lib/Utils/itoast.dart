@@ -115,7 +115,9 @@ class IToast {
       context: rootContext,
       controller: controller,
       duration: duration,
-      animateFrom: AnimateFrom.fromBottom,
+      animateFrom: ResponsiveUtil.isLandscape()
+          ? AnimateFrom.fromTop
+          : AnimateFrom.fromBottom,
       animationCurve: Curves.easeInOut,
       distanceToTravel: 0.0,
       persist: persist,

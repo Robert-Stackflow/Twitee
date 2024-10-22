@@ -469,7 +469,7 @@ class ItemBuilder {
     if (ResponsiveUtil.isLandscape()) {
       scrollable = true;
     } else {
-      if (tabs.length > 3) {
+      if (tabs.length <= 1 || tabs.length > 3) {
         scrollable = true;
       } else {
         scrollable = false;
@@ -1355,7 +1355,7 @@ class ItemBuilder {
   }) {
     return Tooltip(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: MyTheme.geDefaultDecoration(8),
+      decoration: MyTheme.getDefaultDecoration(8),
       textStyle:
           Theme.of(rootContext).textTheme.titleLarge?.apply(fontSizeDelta: -2),
       message: message,
@@ -1859,8 +1859,10 @@ class ItemBuilder {
     String? buttonText,
     ScrollController? scrollController,
     Function()? onTap,
+    ScrollPhysics? physics,
   }) {
     return ListView(
+      physics: physics,
       controller: scrollController,
       children: [
         const SizedBox(height: 50),
@@ -1914,7 +1916,22 @@ class ItemBuilder {
     double? fontSizeDelta,
     dynamic icon,
     Function()? onTap,
+    bool expanded = false,
+    bool selectable = false,
   }) {
+    Widget textWidget = Text(
+      text,
+      style: Theme.of(context).textTheme.bodySmall?.apply(
+            color: Colors.white,
+            fontSizeDelta: fontSizeDelta ?? -1,
+          ),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 5,
+    );
+    if (selectable) {
+      textWidget =
+          ItemBuilder.buildSelectableArea(context: context, child: textWidget);
+    }
     return ItemBuilder.buildClickItem(
       clickable: onTap != null,
       GestureDetector(
@@ -1937,13 +1954,7 @@ class ItemBuilder {
               if (icon != null) icon,
               if (icon != null && Utils.isNotEmpty(text))
                 const SizedBox(width: 3),
-              Text(
-                text,
-                style: Theme.of(context).textTheme.bodySmall?.apply(
-                      color: Colors.white,
-                      fontSizeDelta: fontSizeDelta ?? -1,
-                    ),
-              ),
+              expanded ? Expanded(child: textWidget) : textWidget,
             ],
           ),
         ),
@@ -3061,7 +3072,7 @@ class ItemBuilder {
               medias: medias,
               useMainColor: true,
               title: title,
-              captions: [caption ?? ""],
+              captions: caption != null ? [caption] : null,
               initIndex: index,
             ),
           );

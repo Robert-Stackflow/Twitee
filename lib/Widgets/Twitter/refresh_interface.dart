@@ -25,6 +25,10 @@ mixin RefreshMixin {
   ScrollController? getScrollController();
 }
 
+mixin BottomNavgationMixin{
+  FutureOr onTapBottomNavigation();
+}
+
 mixin ScrollToHideMixin {
   List<ScrollController> getScrollControllers();
 }

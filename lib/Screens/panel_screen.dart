@@ -26,6 +26,7 @@ import 'package:twitee/Screens/Navigation/list_screen.dart';
 import 'package:twitee/Screens/Navigation/search_screen.dart';
 import 'package:twitee/Screens/Setting/about_setting_screen.dart';
 import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
+import 'package:twitee/Screens/main_screen.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/hive_util.dart';
@@ -82,10 +83,9 @@ class PanelScreenState extends State<PanelScreen>
   @override
   void initState() {
     super.initState();
-    initPage();
     darkModeController = AnimationController(vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      jumpToPage(appProvider.sidebarChoice.index);
+      initPage();
       darkModeWidget = LottieUtil.load(
         LottieUtil.sunLight,
         size: 25,
@@ -184,10 +184,19 @@ class PanelScreenState extends State<PanelScreen>
   }
 
   void jumpToPage(int index) {
-    _currentIndex = index;
-    setState(() {});
-    if (_pageController.hasClients) {
-      _pageController.jumpToPage(index);
+    print("jump from $_currentIndex to $index ");
+    if (_currentIndex == index) {
+      BottomNavgationMixin? mixin =
+          _keyList[_currentIndex].currentState is BottomNavgationMixin?
+              ? _keyList[_currentIndex].currentState as BottomNavgationMixin?
+              : null;
+      mixin?.onTapBottomNavigation();
+    } else {
+      _currentIndex = index;
+      if (mounted) setState(() {});
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(index);
+      }
     }
   }
 
@@ -317,10 +326,10 @@ class PanelScreenState extends State<PanelScreen>
             ),
           ],
           onTap: (index) {
-            jumpToPage(index);
+            appProvider.sidebarChoice = SideBarChoice.fromInt(index);
           },
           onDoubleTap: (index) {
-            jumpToPage(index);
+            appProvider.sidebarChoice = SideBarChoice.fromInt(index);
           },
         ),
       ),

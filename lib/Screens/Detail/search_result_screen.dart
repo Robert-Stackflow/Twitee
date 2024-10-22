@@ -286,7 +286,6 @@ class SearchResultScreenState extends State<SearchResultScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         appBar: ItemBuilder.buildDesktopAppBar(
           context: context,
           showMenu: false,

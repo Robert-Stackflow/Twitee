@@ -302,6 +302,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
                 context: context,
                 text: "暂无内容",
                 scrollController: _scrollController,
+                physics: pyhsics,
               ),
       ),
     );

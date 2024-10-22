@@ -111,15 +111,18 @@ class CustomConfirmDialogWidget extends StatelessWidget {
                         fontSize: 15,
                       ),
                     )
-                  : Text(
-                      message,
-                      style: TextStyle(
-                        color: textColor ??
-                            Theme.of(context).textTheme.bodySmall?.color,
-                        height: 1.5,
-                        fontSize: 15,
+                  : ItemBuilder.buildSelectableArea(
+                      context: context,
+                      child: Text(
+                        message,
+                        style: TextStyle(
+                          color: textColor ??
+                              Theme.of(context).textTheme.bodySmall?.color,
+                          height: 1.5,
+                          fontSize: 15,
+                        ),
+                        textAlign: messageTextAlign,
                       ),
-                      textAlign: messageTextAlign,
                     ),
               const SizedBox(height: 20),
               Row(

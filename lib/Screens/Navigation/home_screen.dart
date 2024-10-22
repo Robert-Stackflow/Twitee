@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/tab_item_data.dart';
@@ -43,7 +45,8 @@ class HomeScreenState extends State<HomeScreen>
     with
         TickerProviderStateMixin,
         ScrollToHideMixin,
-        AutomaticKeepAliveClientMixin {
+        AutomaticKeepAliveClientMixin,
+        BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -55,6 +58,8 @@ class HomeScreenState extends State<HomeScreen>
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
+
+  Map<String, TabItemData> idToListFlowMap = {};
 
   initTab() {
     tabDataList.addAll([
@@ -85,8 +90,8 @@ class HomeScreenState extends State<HomeScreen>
     UserInfo? info = HiveUtil.getUserInfo();
     tabDataList = tabDataList.sublist(0, 2);
     for (var list in pinnedLists) {
-      tabDataList.add(
-        TabItemData.build(
+      if (idToListFlowMap[list.idStr] == null) {
+        idToListFlowMap[list.idStr] = TabItemData.build(
           list.name,
           (key, scrollController) => ListFlowScreen(
             key: key,
@@ -94,11 +99,15 @@ class HomeScreenState extends State<HomeScreen>
             userId: info!.idStr,
             scrollController: scrollController,
           ),
-        ),
-      );
+        );
+        tabDataList.add(idToListFlowMap[list.idStr]!);
+      } else {
+        tabDataList.add(idToListFlowMap[list.idStr]!);
+      }
     }
-    _tabController.animateTo(currentIndex.clamp(0, tabDataList.length - 1));
-    _tabController = TabController(length: tabDataList.length, vsync: this);
+    int index = currentIndex;
+    _tabController = TabController(
+        length: tabDataList.length, vsync: this, initialIndex: index);
     if (mounted) setState(() {});
     panelScreenState?.refreshScrollControllers();
   }
@@ -255,5 +264,10 @@ class HomeScreenState extends State<HomeScreen>
   @override
   List<ScrollController> getScrollControllers() {
     return tabDataList.scrollControllerList;
+  }
+
+  @override
+  FutureOr onTapBottomNavigation() {
+    onTapTab(_tabController.index);
   }
 }

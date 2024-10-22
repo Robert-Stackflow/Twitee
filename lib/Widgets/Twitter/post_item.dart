@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:math';
+
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -623,21 +625,27 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           if (!isLast)
             Positioned(
               left: avatarSize / 2,
-              top: avatarSize,
+              top: avatarSize + 2,
               bottom: isLast ? avatarSize : 0,
               child: Container(
-                width: 1,
-                color: Theme.of(context).dividerColor,
+                width: 2,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           if (!isFirst)
             Positioned(
               left: avatarSize / 2,
-              top: -10,
+              top: -12,
               child: Container(
-                width: 1,
+                width: 2,
                 height: 10,
-                color: Theme.of(context).dividerColor,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
         ],
@@ -666,8 +674,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         : BorderRadius.zero;
     var body = Container(
       decoration: BoxDecoration(borderRadius: radius),
-      padding:
-          widget.isDetail ? const EdgeInsets.all(12) : const EdgeInsets.all(8),
+      padding: widget.isDetail
+          ? const EdgeInsets.symmetric(vertical: 12, horizontal: 10)
+          : const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -676,18 +685,20 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ItemBuilder.buildAvatar(
-                context: context,
-                imageUrl: TweetUtil.getBigAvatarUrl(
-                        user.legacy.profileImageUrlHttps) ??
-                    AssetUtil.avatar,
-                size: 40,
-                isOval: user.profileImageShape == UserProfileImageShape.circle,
-                onTap: () {
-                  panelScreenState?.pushPage(UserDetailScreen(
-                      screenName: user.legacy.screenName ?? ""));
-                },
-              ),
+              if (!widget.isDetail)
+                ItemBuilder.buildAvatar(
+                  context: context,
+                  imageUrl: TweetUtil.getBigAvatarUrl(
+                          user.legacy.profileImageUrlHttps) ??
+                      AssetUtil.avatar,
+                  size: 40,
+                  isOval:
+                      user.profileImageShape == UserProfileImageShape.circle,
+                  onTap: () {
+                    panelScreenState?.pushPage(UserDetailScreen(
+                        screenName: user.legacy.screenName ?? ""));
+                  },
+                ),
               const SizedBox(width: 8),
               Expanded(child: _buildTweetContent(tweet)),
             ],
@@ -717,7 +728,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildUserRow(tweet, isQuote: false, showAvatar: false),
+        _buildUserRow(tweet, isQuote: false, showAvatar: widget.isDetail),
         Container(
           padding: const EdgeInsets.only(right: 8),
           child: Column(
@@ -732,14 +743,14 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
               ..._buildTranslation(tweet),
               if (TweetUtil.hasTranslation(tweet) &&
-                  (TweetUtil.hasMedia(tweet) || TweetUtil.hasQueto(tweet)))
+                  (TweetUtil.hasMedia(tweet) || TweetUtil.hasQuote(tweet)))
                 const SizedBox(height: 8),
               if (TweetUtil.hasMedia(tweet)) _buildMedia(tweet),
-              if (TweetUtil.hasMedia(tweet) && TweetUtil.hasQueto(tweet))
+              if (TweetUtil.hasMedia(tweet) && TweetUtil.hasQuote(tweet))
                 const SizedBox(height: 8),
-              if (TweetUtil.hasQueto(tweet))
+              if (TweetUtil.hasQuote(tweet))
                 _buildQuoteTweet(
-                    TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)!),
+                    TweetUtil.getTrueTweetByResult(tweet.quotedStatusResult)),
               SizedBox(height: TweetUtil.hasRichContent(tweet) ? 12 : 4),
               if (!widget.isDetail) _buildOperations(tweet),
               if (!widget.isDetail) SizedBox(height: bottom),
@@ -751,55 +762,103 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildQuoteTweet(
-    Tweet tweet, {
+    Tweet? tweet, {
     User? retweetedUser,
   }) {
-    String fullText = tweet.legacy!.fullText!;
-    // String birdwatchText =
-    //     (tweet.hasBirdwatchNotes ?? false) && tweet.birdwatchPivot != null
-    //         ? TweetUtil.processWithBirdwatchEntities(
-    //             tweet.birdwatchPivot!.subtitle.text,
-    //             tweet.birdwatchPivot!.subtitle.entities)
-    //         : "";
-    var body = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (retweetedUser != null) _buildRetweetRow(retweetedUser),
-          if (retweetedUser != null) const SizedBox(height: 8),
-          _buildUserRow(tweet, isQuote: true),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (tweet.legacy!.entities.media != null) _buildQuetoMedia(tweet),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  fullText,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 4,
-                ),
+    Widget body;
+    if (tweet == null) {
+      body = Container(
+        width: MediaQuery.sizeOf(context).width,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Text("这个引用的帖子不可用",
+            style:
+                Theme.of(context).textTheme.bodySmall?.apply(fontSizeDelta: 3)),
+      );
+    } else {
+      String fullText = tweet.legacy!.fullText!;
+      fullText = TweetUtil.processWithEntities(
+        fullText,
+        tweet.legacy!.entities,
+        renderLink: false,
+        replaceNewline: false,
+      );
+      // String birdwatchText =
+      //     (tweet.hasBirdwatchNotes ?? false) && tweet.birdwatchPivot != null
+      //         ? TweetUtil.processWithBirdwatchEntities(
+      //             tweet.birdwatchPivot!.subtitle.text,
+      //             tweet.birdwatchPivot!.subtitle.entities)
+      //         : "";
+      bool showQuoteMdia = !widget.isDetail && TweetUtil.hasMedia(tweet);
+      bool hasText = Utils.isNotEmpty(fullText);
+      body = Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(
+                  top: 12, left: 12, right: 12, bottom: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (retweetedUser != null) _buildRetweetRow(retweetedUser),
+                  if (retweetedUser != null) const SizedBox(height: 8),
+                  _buildUserRow(tweet, isQuote: true),
+                  if (showQuoteMdia || hasText) const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showQuoteMdia) ...[
+                        _buildQuoteMedia(tweet),
+                        const SizedBox(width: 10),
+                      ],
+                      if (hasText)
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                WidgetSpan(
+                                  child: Text(
+                                    fullText,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
-    );
+            ),
+            if (widget.isDetail)
+              _buildMedia(tweet, blockTopRadius: true, slice: 2),
+          ],
+        ),
+      );
+    }
     return Material(
-      color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(8),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => panelScreenState
-              ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
+      color: widget.isDetail ? null : Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: tweet != null
+            ? () => panelScreenState
+                ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!))
+            : null,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: maxMediaOrQuoteWidth),
           child: body,
         ),
       ),
@@ -994,41 +1053,44 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Media media,
     int index,
     List<Media> medias, {
-    bool isQueto = false,
-    double size = 80,
-    double radius = 0,
+    bool isQuote = false,
     bool isSingle = false,
+    double? size,
+    required BorderRadius radius,
   }) {
     String tag = Utils.generateUid();
-    double ratio = isQueto ? 1 : media.sizes.large.w / media.sizes.large.h;
-    ratio = ratio.clamp(0.8, 2);
+    double ratio = isQuote ? 1 : media.sizes.large.w / media.sizes.large.h;
+    ratio = ratio.clamp(0.8, 1.6);
+    var image = ItemBuilder.buildMediaHeroCachedImage(
+      context: context,
+      width: size ?? MediaQuery.sizeOf(context).width,
+      height: size ?? MediaQuery.sizeOf(context).height,
+      fit: BoxFit.cover,
+      showLoading: false,
+      medias: medias,
+      index: index,
+      simpleError: isQuote,
+      tagPrefix: tag,
+    );
     var stack = Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: radius,
             border: Border.all(
               color: Theme.of(context).dividerColor,
-              width: 1,
+              width: 0.5,
             ),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(radius),
-            child: ItemBuilder.buildMediaHeroCachedImage(
-              context: context,
-              width: isSingle ? size : size,
-              height: isSingle
-                  ? size / ratio
-                  : isQueto
-                      ? size
-                      : size * 2,
-              fit: BoxFit.cover,
-              showLoading: false,
-              medias: medias,
-              index: index,
-              simpleError: isQueto,
-              tagPrefix: tag,
-            ),
+            borderRadius: radius,
+            child: isSingle && !isQuote
+                ? Container(
+                    constraints:
+                        const BoxConstraints(maxWidth: maxMediaOrQuoteWidth),
+                    child: AspectRatio(aspectRatio: ratio, child: image),
+                  )
+                : image,
           ),
         ),
         if (media.type == MediaType.animatedGif)
@@ -1053,25 +1115,29 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             ),
           ),
-        if (!isQueto && Utils.isNotEmpty(media.extAltText))
-          ItemBuilder.buildTransparentTag(
-            context,
-            text: "ALT",
-            radius: 4,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            onTap: () {
-              DialogBuilder.showInfoDialog(context,
-                  title: "ALT", message: media.extAltText!);
-            },
+        if (!isQuote && Utils.isNotEmpty(media.extAltText))
+          Positioned(
+            left: 10,
+            bottom: 10,
+            child: ItemBuilder.buildTransparentTag(
+              context,
+              text: "ALT",
+              radius: 4,
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              onTap: () {
+                DialogBuilder.showInfoDialog(context,
+                    title: "ALT", message: media.extAltText!);
+              },
+            ),
           ),
       ],
     );
     showContextMenu() => BottomSheetBuilder.showContextMenu(
         context, _buildImageMediaContextMenuButtons(media, medias));
     return Material(
-      borderRadius: BorderRadius.circular(radius),
+      borderRadius: radius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: radius,
         onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
         onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
         child: stack,
@@ -1084,17 +1150,17 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     int index,
     List<Media> medias, {
     bool showDetailPanel = false,
-    bool isQueto = false,
+    bool isQuote = false,
     bool isSingle = false,
-    double size = 80,
-    double radius = 0,
+    required BorderRadius radius,
+    double? size,
   }) {
-    if (isQueto) {
+    if (isQuote && !widget.isDetail) {
       return _buildImageMedia(media, index, medias,
-          radius: radius, isQueto: true);
+          radius: radius, isQuote: true, size: size);
     } else {
       double ratio = media.sizes.large.w / media.sizes.large.h;
-      ratio = ratio.clamp(0.8, 2);
+      ratio = ratio.clamp(0, 2);
       bool isGif = (media.type == MediaType.animatedGif);
       String videoUrl =
           isGif ? TweetUtil.getGifVideoUrl(media) : TweetUtil.getMp4Url(media);
@@ -1104,66 +1170,64 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       }
       controller = _videoControllers[videoUrl];
       if (controller == null) return emptyWidget;
-      Widget container = Container(
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        constraints: BoxConstraints(
-            maxHeight: 450, maxWidth: MediaQuery.sizeOf(context).width),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: VideoControlPanel(
-            controller,
-            showClosedCaptionButton: false,
-            showFullscreenButton: true,
-            showDetailPanel: showDetailPanel && !isGif,
-            showPlayPauseButton: true,
-            showSeekBar: true,
-            isGif: isGif,
-            showDurationAndPositionText: true,
-            onAltClicked: () {
-              DialogBuilder.showInfoDialog(context,
-                  title: "ALT", message: media.extAltText!);
-            },
-            showAltButton: !isQueto && Utils.isNotEmpty(media.extAltText),
-            onPlayEnded: () {
-              _hasPlayedOnceMap[videoUrl] = true;
-            },
-            onPlayClicked: () {
-              if (!isGif) {
-                if (controller!.value.isPlaying) {
-                  _playbackManager.play(controller);
-                } else {
-                  _playbackManager.pause(controller);
-                }
-              }
-            },
-            onFullscreenClicked: () {
-              RouteUtil.pushDialogRoute(
-                context,
-                showClose: false,
-                fullScreen: true,
-                useMaterial: true,
-                HeroMediaViewScreen(
-                  medias: medias,
-                  useMainColor: true,
-                  initIndex: index,
-                ),
-              );
-            },
-            placeholder: ItemBuilder.buildMediaHeroCachedImage(
-              context: context,
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
-              showLoading: false,
+      var panel = VideoControlPanel(
+        controller,
+        showClosedCaptionButton: false,
+        showFullscreenButton: true,
+        showDetailPanel: showDetailPanel && !isGif,
+        showPlayPauseButton: true,
+        showSeekBar: true,
+        isGif: isGif,
+        showDurationAndPositionText: true,
+        onAltClicked: () {
+          DialogBuilder.showInfoDialog(context,
+              title: "ALT", message: media.extAltText!);
+        },
+        showAltButton: !isQuote && Utils.isNotEmpty(media.extAltText),
+        onPlayEnded: () {
+          _hasPlayedOnceMap[videoUrl] = true;
+        },
+        onPlayClicked: () {
+          if (!isGif) {
+            if (controller!.value.isPlaying) {
+              _playbackManager.play(controller);
+            } else {
+              _playbackManager.pause(controller);
+            }
+          }
+        },
+        onFullscreenClicked: () {
+          RouteUtil.pushDialogRoute(
+            context,
+            showClose: false,
+            fullScreen: true,
+            useMaterial: true,
+            HeroMediaViewScreen(
               medias: medias,
-              index: index,
-              simpleError: isQueto,
+              useMainColor: true,
+              initIndex: index,
             ),
-          ),
+          );
+        },
+        placeholder: ItemBuilder.buildMediaHeroCachedImage(
+          context: context,
+          width: MediaQuery.sizeOf(context).width,
+          height: MediaQuery.sizeOf(context).height,
+          fit: BoxFit.cover,
+          showLoading: false,
+          medias: medias,
+          index: index,
+          simpleError: isQuote,
         ),
+      );
+      Widget container = Container(
+        decoration: BoxDecoration(color: Colors.black, borderRadius: radius),
+        constraints: BoxConstraints(
+          minHeight: isGif ? 0 : 300,
+          maxWidth: MediaQuery.sizeOf(context).width,
+          minWidth: min(320, MediaQuery.sizeOf(context).width),
+        ),
+        child: isSingle ? AspectRatio(aspectRatio: ratio, child: panel) : panel,
       );
       if (!ResponsiveUtil.isLandscape()) {
         container = GestureDetector(
@@ -1209,19 +1273,31 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             }
           }
         },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: isSingle
-              ? AspectRatio(aspectRatio: ratio, child: container)
-              : container,
-        ),
+        child: ClipRRect(borderRadius: radius, child: container),
       );
       showContextMenu() => BottomSheetBuilder.showContextMenu(
           context, _buildImageMediaContextMenuButtons(media, medias));
       return Material(
+        borderRadius: radius,
         child: InkWell(
+          borderRadius: radius,
           onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
           onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
+          onTap: isGif
+              ? () {
+                  RouteUtil.pushDialogRoute(
+                    context,
+                    showClose: false,
+                    fullScreen: true,
+                    useMaterial: true,
+                    HeroMediaViewScreen(
+                      medias: medias,
+                      useMainColor: true,
+                      initIndex: index,
+                    ),
+                  );
+                }
+              : null,
           child: detector,
         ),
       );
@@ -1232,52 +1308,81 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Media media,
     int index,
     List<Media> medias, {
-    bool isQueto = false,
-    double radius = 0,
+    bool isQuote = false,
+    required BorderRadius radius,
+    bool isSingle = false,
+    double? size,
   }) {
-    if (isQueto) {
-      return _buildImageMedia(media, index, medias,
-          radius: radius, isQueto: true);
+    if (isQuote) {
+      return _buildImageMedia(
+        media,
+        index,
+        medias,
+        radius: radius,
+        isQuote: true,
+        size: size,
+      );
     } else {
-      return _buildVideoMedia(media, index, medias, radius: radius);
+      return _buildVideoMedia(
+        media,
+        index,
+        medias,
+        radius: radius,
+        isSingle: isSingle,
+        size: size,
+      );
     }
   }
 
-  _buildMedia(Tweet tweet) {
+  _buildMedia(
+    Tweet tweet, {
+    bool blockTopRadius = false,
+    int? slice,
+  }) {
     if (!TweetUtil.hasMedia(tweet)) return emptyWidget;
     List<Media> medias = TweetUtil.getMedia(tweet);
+    if (slice != null) {
+      slice = slice.clamp(1, medias.length);
+      medias = medias.sublist(0, slice);
+    }
     List<MediaSize> sizes = medias.map((e) => e.sizes.large).toList();
     bool isSingle = medias.length == 1;
     return TwitterImageGrid(
       sizes: sizes,
       itemCount: medias.length,
-      itemBuilder: (BuildContext context, int index) {
+      itemBuilder: (BuildContext context, int index, BorderRadius radius) {
+        radius = radius.copyWith(
+          topLeft: blockTopRadius ? Radius.zero : radius.topLeft,
+          topRight: blockTopRadius ? Radius.zero : radius.topRight,
+        );
         switch (medias[index].type) {
           case MediaType.photo:
             return _buildImageMedia(
               medias[index],
               index,
               medias,
-              size: 300,
-              radius: isSingle ? 12 : 0,
+              radius: radius,
               isSingle: isSingle,
+              isQuote: blockTopRadius,
             );
           case MediaType.video:
             return _buildVideoMedia(
               medias[index],
               index,
               medias,
-              size: double.infinity,
-              radius: isSingle ? 12 : 0,
+              radius: radius,
               showDetailPanel: isSingle,
+              isSingle: isSingle,
+              isQuote: blockTopRadius,
             );
           case MediaType.animatedGif:
             return _buildGifMedia(
               medias[index],
               index,
               medias,
-              isQueto: false,
-              radius: isSingle ? 12 : 0,
+              isQuote: false,
+              radius: radius,
+              isSingle: isSingle,
             );
           default:
             return emptyWidget;
@@ -1286,18 +1391,39 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  _buildQuetoMedia(Tweet tweet) {
+  _buildQuoteMedia(Tweet tweet) {
     if (!TweetUtil.hasMedia(tweet)) return emptyWidget;
     List<Media> media = TweetUtil.getMedia(tweet);
     switch (media[0].type) {
       case MediaType.photo:
-        return _buildImageMedia(media[0], 0, media,
-            radius: 8, isQueto: true, isSingle: true);
+        return _buildImageMedia(
+          media[0],
+          0,
+          media,
+          isQuote: true,
+          isSingle: true,
+          size: 80,
+          radius: BorderRadius.circular(8),
+        );
       case MediaType.video:
-        return _buildVideoMedia(media[0], 0, media,
-            isQueto: true, radius: 8, isSingle: true);
+        return _buildVideoMedia(
+          media[0],
+          0,
+          media,
+          isQuote: true,
+          isSingle: true,
+          size: 80,
+          radius: BorderRadius.circular(8),
+        );
       case MediaType.animatedGif:
-        return _buildGifMedia(media[0], 0, media, isQueto: true, radius: 8);
+        return _buildGifMedia(
+          media[0],
+          0,
+          media,
+          isQuote: true,
+          size: 80,
+          radius: BorderRadius.circular(8),
+        );
       default:
         return emptyWidget;
     }

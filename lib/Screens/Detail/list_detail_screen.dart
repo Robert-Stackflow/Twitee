@@ -146,19 +146,21 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           ItemBuilder.buildSliverAppBar(
             context: context,
             systemOverlayStyle: SystemUiOverlayStyle.light,
-            title: Text(
-              "列表详情",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.apply(color: Colors.white),
-            ),
             leading: ItemBuilder.buildIconButton(
               context: context,
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
               onTap: () {
                 Navigator.of(context).pop();
               },
+              padding: const EdgeInsets.all(6),
+              background: Colors.black38,
+            ),
+            title: Text(
+              listInfo != null ? listInfo!.name : "",
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.apply(color: Colors.white),
             ),
             backgroundWidget: _buildBlurBackground(
                 height: kToolbarHeight + MediaQuery.paddingOf(context).top),
@@ -171,8 +173,10 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                   BottomSheetBuilder.showContextMenu(
                       context, _buildMoreContextMenuButtons());
                 },
+                padding: const EdgeInsets.all(6),
+                background: Colors.black38,
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: 8),
             ],
             expandedHeight: 140.0,
             collapsedHeight: kToolbarHeight,
@@ -466,6 +470,29 @@ class _ListDetailScreenState extends State<ListDetailScreen>
             }
           },
         ),
+        if (isMyself)
+          ContextMenuButtonConfig.warning(
+            "删除列表",
+            icon: const Icon(Icons.delete_forever_outlined),
+            onPressed: () async {
+              DialogBuilder.showConfirmDialog(
+                context,
+                title: "删除列表",
+                message: "是否删除列表${listInfo!.name}？删除后将无法撤销",
+                onTapConfirm: () async {
+                  ResponseResult res = await IToast.showLoadingSnackbar(
+                      "正在删除列表",
+                      () async => await ListApi.deleteList(listId: id));
+                  if (res.success) {
+                    panelScreenState?.popPage();
+                    IToast.showTop("删除成功");
+                  } else {
+                    IToast.showTop("删除失败");
+                  }
+                },
+              );
+            },
+          ),
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享列表",

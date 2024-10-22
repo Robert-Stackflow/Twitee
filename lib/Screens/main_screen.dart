@@ -103,6 +103,29 @@ enum SideBarChoice {
         return SideBarChoice.Home;
     }
   }
+
+  static fromInt(int index) {
+    switch (index) {
+      case 0:
+        return SideBarChoice.Home;
+      case 1:
+        return SideBarChoice.Search;
+      case 2:
+        return SideBarChoice.Bookmark;
+      case 3:
+        return SideBarChoice.Like;
+      case 4:
+        return SideBarChoice.List;
+      case 5:
+        return SideBarChoice.Friendship;
+      case 6:
+        return SideBarChoice.Mention;
+      case 7:
+        return SideBarChoice.Download;
+      default:
+        return SideBarChoice.Home;
+    }
+  }
 }
 
 class MainScreenState extends State<MainScreen>

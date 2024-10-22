@@ -26,6 +26,7 @@ import 'package:flutter/physics.dart' as physics;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Resources/theme.dart';
 
 import './src/painter/paths_painter.dart';
 

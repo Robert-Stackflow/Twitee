@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
@@ -53,7 +55,7 @@ class _LikeScreenState extends State<LikeScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
-        ScrollToHideMixin {
+        ScrollToHideMixin,BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -76,6 +78,16 @@ class _LikeScreenState extends State<LikeScreen>
   bool _inited = false;
 
   @override
+  FutureOr onTapBottomNavigation() {
+    panelScreenState?.showBottomNavigationBar();
+    if (_scrollController.offset > 30) {
+      _scrollToTop();
+    } else {
+      _refresh();
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     _refreshRotationController = AnimationController(
@@ -93,6 +105,15 @@ class _LikeScreenState extends State<LikeScreen>
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
+  }
+
+  _refresh() async {
+    _refreshRotationController.repeat();
+    await _scrollToTop();
+    _refreshRotationController.stop();
+    _refreshRotationController.forward();
+    _easyRefreshController.resetHeader();
+    _easyRefreshController.callRefresh();
   }
 
   Future<IndicatorResult> _onRefresh() async {
@@ -333,12 +354,7 @@ class _LikeScreenState extends State<LikeScreen>
               child: const Icon(Icons.refresh_rounded),
             ),
             onTap: () async {
-              _refreshRotationController.repeat();
-              await _scrollToTop();
-              _refreshRotationController.stop();
-              _refreshRotationController.forward();
-              _easyRefreshController.resetHeader();
-              _easyRefreshController.callRefresh();
+              _refresh();
             },
           ),
         const SizedBox(height: 10),
