@@ -27,7 +27,7 @@ import 'package:twitee/Screens/Detail/user_topic_screen.dart';
 import 'package:twitee/Screens/Flow/user_list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
-import 'package:twitee/Screens/Navigation/friendship_screen.dart';
+import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
@@ -81,7 +81,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   late TabController _tabController;
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
-      ScrollToHideController();
+  ScrollToHideController();
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
@@ -99,54 +99,59 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     tabDataList.addAll([
       TabItemData.build(
         "帖子",
-        (key2, scrollController2) => UserTweetFlowScreen(
-          key: key2,
-          userId: user!.restId!,
-          nested: true,
-          scrollController: primaryController,
-        ),
+            (key2, scrollController2) =>
+            UserTweetFlowScreen(
+              key: key2,
+              userId: user!.restId!,
+              nested: true,
+              scrollController: primaryController,
+            ),
       ),
       TabItemData.build(
         "回复",
-        (key2, scrollController2) => UserTweetFlowScreen(
-          key: key2,
-          userId: user!.restId!,
-          nested: true,
-          type: UserTweetFlowType.TweetsAndReplies,
-          scrollController: primaryController,
-        ),
+            (key2, scrollController2) =>
+            UserTweetFlowScreen(
+              key: key2,
+              userId: user!.restId!,
+              nested: true,
+              type: UserTweetFlowType.TweetsAndReplies,
+              scrollController: primaryController,
+            ),
       ),
       TabItemData.build(
         "媒体",
-        (key2, scrollController2) => UserMediaFlowScreen(
-          key: key2,
-          userId: user!.restId!,
-          nested: true,
-          scrollController: primaryController,
-        ),
+            (key2, scrollController2) =>
+            UserMediaFlowScreen(
+              key: key2,
+              userId: user!.restId!,
+              nested: true,
+              scrollController: primaryController,
+            ),
       ),
       if (user!.highlightsInfo != null &&
           (user!.highlightsInfo!.canHighlightTweets ?? false))
         TabItemData.build(
           "亮点",
-          (key2, scrollController2) => UserTweetFlowScreen(
-            key: key2,
-            userId: user!.restId!,
-            nested: true,
-            type: UserTweetFlowType.Highlights,
-            scrollController: primaryController,
-          ),
+              (key2, scrollController2) =>
+              UserTweetFlowScreen(
+                key: key2,
+                userId: user!.restId!,
+                nested: true,
+                type: UserTweetFlowType.Highlights,
+                scrollController: primaryController,
+              ),
         ),
       if (user!.hasHiddenLikesOnProfile ?? false)
         TabItemData.build(
           "喜欢",
-          (key2, scrollController2) => LikeScreen(
-            key: key2,
-            userId: user!.restId!,
-            // nested: true,
-            // type: UserTweetFlowType.Highlights,
-            // scrollController: primaryController,
-          ),
+              (key2, scrollController2) =>
+              LikeScreen(
+                key: key2,
+                userId: user!.restId!,
+                // nested: true,
+                // type: UserTweetFlowType.Highlights,
+                // scrollController: primaryController,
+              ),
         ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
@@ -200,10 +205,11 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     return Scaffold(
       appBar: ResponsiveUtil.isLandscape()
           ? ItemBuilder.buildDesktopAppBar(
-              context: context,
-              title:
-                  "个人主页${user != null && userLegacy != null ? " - ${userLegacy!.name}" : ""}",
-              showBack: true)
+          context: context,
+          title:
+          "个人主页${user != null && userLegacy != null ? " - ${userLegacy!
+              .name}" : ""}",
+          showBack: true)
           : null,
       body: _buildBody(),
     );
@@ -229,14 +235,18 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   _buildMainBody() {
     String screenName = userLegacy?.screenName ?? "";
     return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+      headerSliverBuilder: (context, innerBoxIsScrolled) =>
+      [
         if (ResponsiveUtil.isMobile())
           ItemBuilder.buildSliverAppBar(
             context: context,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             title: Text(
-              user != null && userLegacy != null ? "@${userLegacy!.screenName}" : "",
-              style: Theme.of(context)
+              user != null && userLegacy != null
+                  ? "@${userLegacy!.screenName}"
+                  : "",
+              style: Theme
+                  .of(context)
                   .textTheme
                   .titleLarge
                   ?.apply(color: Colors.white),
@@ -251,7 +261,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               background: Colors.black38,
             ),
             backgroundWidget: _buildBlurBackground(
-                height: kToolbarHeight + MediaQuery.paddingOf(context).top),
+                height: kToolbarHeight + MediaQuery
+                    .paddingOf(context)
+                    .top),
             pinned: true,
             actions: [
               ItemBuilder.buildIconButton(
@@ -354,46 +366,46 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       blurColor: Colors.black12,
       child: Utils.isNotEmpty(userLegacy?.profileBannerUrl)
           ? SizedBox(
-              height: height,
-              width: double.infinity,
-              child: ItemBuilder.buildHeroCachedImage(
-                imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
-                context: context,
-                fit: BoxFit.cover,
-                showLoading: false,
-                isOrigin: false,
-                tagPrefix: "blurBackground",
-              ),
-            )
+        height: height,
+        width: double.infinity,
+        child: ItemBuilder.buildHeroCachedImage(
+          imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
+          context: context,
+          fit: BoxFit.cover,
+          showLoading: false,
+          isOrigin: false,
+          tagPrefix: "blurBackground",
+        ),
+      )
           : AssetUtil.load(
-              AssetUtil.banner,
-              fit: BoxFit.cover,
-              height: height,
-              width: double.infinity,
-            ),
+        AssetUtil.banner,
+        fit: BoxFit.cover,
+        height: height,
+        width: double.infinity,
+      ),
     );
   }
 
   _buildBackgroundBanner() {
     return Utils.isNotEmpty(userLegacy?.profileBannerUrl)
         ? SizedBox(
-            height: 180,
-            width: double.infinity,
-            child: ItemBuilder.buildHeroCachedImage(
-              imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
-              context: context,
-              fit: BoxFit.cover,
-              showLoading: false,
-              isOrigin: false,
-              tagPrefix: "background",
-            ),
-          )
+      height: 180,
+      width: double.infinity,
+      child: ItemBuilder.buildHeroCachedImage(
+        imageUrl: userLegacy?.profileBannerUrl ?? AssetUtil.banner,
+        context: context,
+        fit: BoxFit.cover,
+        showLoading: false,
+        isOrigin: false,
+        tagPrefix: "background",
+      ),
+    )
         : AssetUtil.load(
-            AssetUtil.banner,
-            fit: BoxFit.cover,
-            height: 180,
-            width: double.infinity,
-          );
+      AssetUtil.banner,
+      fit: BoxFit.cover,
+      height: 180,
+      width: double.infinity,
+    );
   }
 
   _buildMoreContextMenuButtons() {
@@ -418,8 +430,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   onTapConfirm: () async {
                     var res = await IToast.showLoadingSnackbar(
                         "正在关闭转推",
-                        () async =>
-                            await UserApi.muteRetweet(userId: user!.restId!));
+                            () async =>
+                        await UserApi.muteRetweet(userId: user!.restId!));
                     if (res.success) {
                       userLegacy?.wantRetweets = false;
                       if (mounted) setState(() {});
@@ -432,8 +444,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               } else {
                 var res = await IToast.showLoadingSnackbar(
                     "正在开启转推",
-                    () async =>
-                        await UserApi.unmuteRetweet(userId: user!.restId!));
+                        () async =>
+                    await UserApi.unmuteRetweet(userId: user!.restId!));
                 if (res.success) {
                   userLegacy?.wantRetweets = true;
                   if (mounted) setState(() {});
@@ -446,7 +458,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           ),
         if (!isMyself)
           ContextMenuButtonConfig(
-            "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
+            "${userLegacy?.blocking ?? false
+                ? "取消屏蔽"
+                : "屏蔽"} @$screenName",
             icon: Icon(
               userLegacy?.blocking ?? false
                   ? Icons.favorite_border_rounded
@@ -454,8 +468,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ),
             onPressed: () async {
               if (userLegacy?.blocking ?? false) {
-                var res = await IToast.showLoadingSnackbar("正在取消屏蔽@$screenName",
-                    () async => await UserApi.unblock(userId: user!.restId!));
+                var res = await IToast.showLoadingSnackbar(
+                    "正在取消屏蔽@$screenName",
+                        () async =>
+                    await UserApi.unblock(userId: user!.restId!));
                 if (res.success) {
                   userLegacy?.blocking = false;
                   if (mounted) setState(() {});
@@ -471,7 +487,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   onTapConfirm: () async {
                     var res = await IToast.showLoadingSnackbar(
                         "正在屏蔽@$screenName",
-                        () async => await UserApi.block(userId: user!.restId!));
+                            () async =>
+                        await UserApi.block(userId: user!.restId!));
                     if (res.success) {
                       userLegacy?.blocking = true;
                       if (mounted) setState(() {});
@@ -494,8 +511,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ),
             onPressed: () async {
               if (userLegacy?.muting ?? false) {
-                var res = await IToast.showLoadingSnackbar("正在取消隐藏@$screenName",
-                    () async => await UserApi.unmute(userId: user!.restId!));
+                var res = await IToast.showLoadingSnackbar(
+                    "正在取消隐藏@$screenName",
+                        () async =>
+                    await UserApi.unmute(userId: user!.restId!));
                 if (res.success) {
                   userLegacy?.muting = false;
                   if (mounted) setState(() {});
@@ -511,7 +530,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   onTapConfirm: () async {
                     var res = await IToast.showLoadingSnackbar(
                         "正在隐藏@$screenName",
-                        () async => await UserApi.mute(userId: user!.restId!));
+                            () async =>
+                        await UserApi.mute(userId: user!.restId!));
                     if (res.success) {
                       userLegacy?.muting = true;
                       if (mounted) setState(() {});
@@ -537,7 +557,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               } else {
                 BottomSheetBuilder.showBottomSheet(
                   context,
-                  (context) =>
+                      (context) =>
                       ListMembershipManageScreen(targetUserId: user!.restId!),
                 );
               }
@@ -554,10 +574,11 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             setState(() {});
             var res = await IToast.showLoadingSnackbar(
                 "正在翻译@$screenName的简介",
-                () async => await UserApi.translateProfile(
-                      userId: user!.restId!,
-                      destinationLanguage: locale.toString(),
-                    ));
+                    () async =>
+                await UserApi.translateProfile(
+                  userId: user!.restId!,
+                  destinationLanguage: locale.toString(),
+                ));
             isTranslating = false;
             setState(() {});
             if (res.success) {
@@ -622,7 +643,11 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     Function()? onTap,
     Color? color,
   }) {
-    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    Color? labelColor = Theme
+        .of(context)
+        .textTheme
+        .bodySmall
+        ?.color;
     return ItemBuilder.buildIconTextButton(
       context,
       icon: icon,
@@ -646,7 +671,11 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         birthDate = "${profile.birthdate?.year}年$birthDate";
       }
     }
-    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    Color? labelColor = Theme
+        .of(context)
+        .textTheme
+        .bodySmall
+        ?.color;
     String description = _processDescription();
     var metaRow = Wrap(
       spacing: 20,
@@ -681,7 +710,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
+        color: Theme
+            .of(context)
+            .canvasColor,
         // border: Border(
         //   bottom: BorderSide(
         //     color: Theme.of(context).dividerColor,
@@ -698,7 +729,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ItemBuilder.buildAvatar(
                 context: context,
                 imageUrl: TweetUtil.getBigAvatarUrl(
-                        userLegacy!.profileImageUrlHttps) ??
+                    userLegacy!.profileImageUrlHttps) ??
                     AssetUtil.avatar,
                 size: ResponsiveUtil.isMobile() ? 56 : 84,
                 showDetail: true,
@@ -710,13 +741,18 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   children: [
                     Text(
                       userLegacy!.name,
-                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.apply(
                           fontSizeDelta: ResponsiveUtil.isMobile() ? 0 : 4),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       "@${userLegacy!.screenName}",
-                      style: Theme.of(context)
+                      style: Theme
+                          .of(context)
                           .textTheme
                           .bodySmall
                           ?.apply(fontSizeDelta: 2),
@@ -731,36 +767,38 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   text: userLegacy!.isFriend
                       ? "互相关注"
                       : userLegacy!.following ?? false
-                          ? "正在关注"
-                          : "关注",
+                      ? "正在关注"
+                      : "关注",
                   background: userLegacy!.isFriend
                       ? Colors.green
-                      : Theme.of(context).primaryColor,
+                      : Theme
+                      .of(context)
+                      .primaryColor,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () async {
                     if (userLegacy!.following ?? false) {
                       DialogBuilder.showConfirmDialog(context,
                           title: "取消关注 @$screenName？",
                           message: "你将无法在已关注中看到 @$screenName 的帖子或通知。",
                           onTapConfirm: () async {
-                        var res = await IToast.showLoadingSnackbar(
-                            "正在取消关注@$screenName",
-                            () async =>
+                            var res = await IToast.showLoadingSnackbar(
+                                "正在取消关注@$screenName",
+                                    () async =>
                                 await UserApi.unfollow(userId: user!.restId!));
-                        if (res.success) {
-                          userLegacy!.following = false;
-                          if (mounted) setState(() {});
-                          IToast.showTop("已取消关注@$screenName");
-                        } else {
-                          IToast.showTop("取消关注@$screenName失败");
-                        }
-                      });
+                            if (res.success) {
+                              userLegacy!.following = false;
+                              if (mounted) setState(() {});
+                              IToast.showTop("已取消关注@$screenName");
+                            } else {
+                              IToast.showTop("取消关注@$screenName失败");
+                            }
+                          });
                     } else {
                       var res = await IToast.showLoadingSnackbar(
                           "正在关注@$screenName",
-                          () async =>
-                              await UserApi.follow(userId: user!.restId!));
+                              () async =>
+                          await UserApi.follow(userId: user!.restId!));
                       if (res.success) {
                         userLegacy!.following = true;
                         if (mounted) setState(() {});
@@ -777,7 +815,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   context,
                   icon: const Icon(Icons.search_rounded),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                   onTap: () {
                     panelScreenState?.pushPage(
                         SearchResultScreen(searchKey: 'from:$screenName '));
@@ -788,7 +826,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   context,
                   icon: const Icon(Icons.more_horiz_rounded),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                   onTap: () {
                     BottomSheetBuilder.showContextMenu(
                         context, _buildMoreContextMenuButtons());
@@ -800,7 +838,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           if (Utils.isNotEmpty(description)) const SizedBox(height: 10),
           CustomHtmlWidget(
             content: description,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleMedium,
           ),
           if (translationResult != null) const SizedBox(height: 10),
           if (translationResult != null)
@@ -880,14 +921,15 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               onTap: () {
                 panelScreenState?.pushPage(FriendshipScreen(
                   userId: user!.restId!,
-                  isFriend: true,
+                  initType: UserFlowType.followerYouKnow,
                 ));
               },
             ),
           if (friendList.isEmpty)
             Text(
               "暂无好友关注了此账号",
-              style: Theme.of(context)
+              style: Theme
+                  .of(context)
                   .textTheme
                   .bodySmall
                   ?.apply(fontSizeDelta: 2),
@@ -904,7 +946,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       return [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: Theme
+                .of(context)
+                .scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(8),
@@ -913,7 +957,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             children: [
               CustomHtmlWidget(
                 content: translation,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyMedium,
               ),
             ],
           ),

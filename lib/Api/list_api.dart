@@ -707,7 +707,7 @@ class ListApi {
       final data = response.data;
       return ResponseResult.success(
         data: (data['data']['pinned_timelines']['pinned_timelines'] as List)
-            .map((e) => TimelineTwitterListInfo.fromJson(e['list']))
+            .map((e) => PinnedTimelineUnion.fromJson(e))
             .toList(),
         message: 'Success',
       );

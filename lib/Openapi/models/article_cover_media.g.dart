@@ -8,7 +8,7 @@ part of 'article_cover_media.dart';
 
 ArticleCoverMedia _$ArticleCoverMediaFromJson(Map<String, dynamic> json) =>
     ArticleCoverMedia(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? "",
       mediaId: json['media_id'] as String?,
       mediaInfo: json['media_info'] == null
           ? null

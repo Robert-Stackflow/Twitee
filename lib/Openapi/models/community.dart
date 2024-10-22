@@ -3,13 +3,14 @@
 // ignore_for_file: type=lint, unused_import
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:twitee/Openapi/models/timeline_twitter_list.dart';
 
 import 'community_data.dart';
 
 part 'community.g.dart';
 
 @JsonSerializable()
-class Community {
+class Community extends PinnedTimelineUnion{
   const Community({
     required this.result,
   });

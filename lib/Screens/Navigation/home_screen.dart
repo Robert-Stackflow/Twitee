@@ -23,6 +23,7 @@ import 'package:twitee/Screens/Flow/list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 
+import '../../Openapi/models/community.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/hive_util.dart';
@@ -31,6 +32,7 @@ import '../../Utils/utils.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Twitter/refresh_interface.dart';
+import '../Flow/community_list_flow_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,7 +56,7 @@ class HomeScreenState extends State<HomeScreen>
   late AnimationController _refreshRotationController;
   final ScrollToHideController _scrollToHideController =
       ScrollToHideController();
-  List<TimelineTwitterListInfo> pinnedLists = [];
+  List<PinnedTimelineUnion> pinnedLists = [];
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
@@ -90,19 +92,37 @@ class HomeScreenState extends State<HomeScreen>
     UserInfo? info = HiveUtil.getUserInfo();
     tabDataList = tabDataList.sublist(0, 2);
     for (var list in pinnedLists) {
-      if (idToListFlowMap[list.idStr] == null) {
-        idToListFlowMap[list.idStr] = TabItemData.build(
-          list.name,
-          (key, scrollController) => ListFlowScreen(
-            key: key,
-            listId: list.idStr,
-            userId: info!.idStr,
-            scrollController: scrollController,
-          ),
-        );
-        tabDataList.add(idToListFlowMap[list.idStr]!);
+      String idStr = "";
+      if (list is TimelineTwitterListInfo) {
+        idStr = list.idStr;
+      } else if (list is Community) {
+        idStr = list.result.idStr ?? "";
+      }
+      if (idToListFlowMap[idStr] == null) {
+        if (list is TimelineTwitterListInfo) {
+          idToListFlowMap[idStr] = TabItemData.build(
+            list.name,
+            (key, scrollController) => ListFlowScreen(
+              key: key,
+              listId: list.idStr,
+              userId: info!.idStr,
+              scrollController: scrollController,
+            ),
+          );
+        } else if (list is Community) {
+          idToListFlowMap[idStr] = TabItemData.build(
+            list.result.name,
+            (key, scrollController) => CommunityListFlowScreen(
+              key: key,
+              listId: list.result.idStr ?? "",
+              userId: info!.idStr,
+              scrollController: scrollController,
+            ),
+          );
+        }
+        tabDataList.add(idToListFlowMap[idStr]!);
       } else {
-        tabDataList.add(idToListFlowMap[list.idStr]!);
+        tabDataList.add(idToListFlowMap[idStr]!);
       }
     }
     int index = currentIndex;

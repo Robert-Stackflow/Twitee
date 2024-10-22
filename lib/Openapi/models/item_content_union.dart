@@ -39,6 +39,8 @@ abstract class ItemContentUnion extends ContentUnion {
         return TimelineTrend.fromJson(json);
       case "TimelineEventSummary":
         return TimelineEventSummary();
+      case 'TimelineTile':
+        return TimelineEventSummary();
       default:
         throw ArgumentError('Unknown ItemContentUnion: $json');
     }

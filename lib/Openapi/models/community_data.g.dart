@@ -21,8 +21,12 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           ? null
           : UserResults.fromJson(
               json['creator_results'] as Map<String, dynamic>),
-      customBannerMedia: json['custom_banner_media'],
-      defaultBannerMedia: json['default_banner_media'],
+      customBannerMedia: json['custom_banner_media'] != null
+          ? ArticleCoverMedia.fromJson(json['custom_banner_media'])
+          : null,
+      defaultBannerMedia: json['default_banner_media'] != null
+          ? ArticleCoverMedia.fromJson(json['default_banner_media'])
+          : null,
       description: json['description'] as String,
       idStr: json['id_str'] as String?,
       invitesPolicy: json['invites_policy'] == null

@@ -30,14 +30,11 @@ class FriendshipScreen extends StatefulWidget {
     super.key,
     this.userId,
     this.initType,
-    this.isFriend = false,
   });
 
   final String? userId;
 
   final UserFlowType? initType;
-
-  final bool isFriend;
 
   static const String routeName = "/navigtion/friendship";
 
@@ -111,9 +108,6 @@ class FriendshipScreenState extends State<FriendshipScreen>
     if (widget.initType != null) {
       _tabController.index =
           widget.initType!.index.clamp(0, tabDataList.length);
-    }
-    if (widget.isFriend) {
-      _tabController.index = tabDataList.length - 1;
     }
   }
 

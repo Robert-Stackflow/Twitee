@@ -22,6 +22,7 @@ import 'package:protocol_handler/protocol_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Setting/about_setting_screen.dart';
 import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
 import 'package:twitee/Screens/panel_screen.dart';
@@ -52,7 +53,6 @@ import '../Widgets/Scaffold/my_scaffold.dart';
 import 'Detail/user_detail_screen.dart';
 import 'Lock/pin_verify_screen.dart';
 import 'Login/login_screen.dart';
-import 'dart:math';
 
 const borderColor = Color(0xFF805306);
 const backgroundStartColor = Color(0xFFFFD500);
@@ -73,7 +73,7 @@ enum SideBarChoice {
   Bookmark("bookmark"),
   Like("like"),
   List("list"),
-  Friendship("friendship"),
+  Community("community"),
   Mention("mention"),
   Download("donwload");
 
@@ -93,8 +93,8 @@ enum SideBarChoice {
         return SideBarChoice.Like;
       case "list":
         return SideBarChoice.List;
-      case "friendship":
-        return SideBarChoice.Friendship;
+      case "community":
+        return SideBarChoice.Community;
       case "mention":
         return SideBarChoice.Mention;
       case "download":
@@ -117,7 +117,7 @@ enum SideBarChoice {
       case 4:
         return SideBarChoice.List;
       case 5:
-        return SideBarChoice.Friendship;
+        return SideBarChoice.Community;
       case 6:
         return SideBarChoice.Mention;
       case 7:
@@ -143,7 +143,7 @@ class MainScreenState extends State<MainScreen>
   bool _isStayOnTop = false;
   Orientation _oldOrientation = Orientation.portrait;
   bool expandSidebar =
-  HiveUtil.getBool(HiveUtil.expandSidebarKey, defaultValue: false);
+      HiveUtil.getBool(HiveUtil.expandSidebarKey, defaultValue: false);
   UserInfo? _userInfo = HiveUtil.getUserInfo();
 
   @override
@@ -256,9 +256,7 @@ class MainScreenState extends State<MainScreen>
 
   @override
   void initState() {
-    _oldOrientation = MediaQuery
-        .of(rootContext)
-        .orientation;
+    _oldOrientation = MediaQuery.of(rootContext).orientation;
     super.initState();
     if (ResponsiveUtil.isDesktop() && !ResponsiveUtil.isLinux()) {
       protocolHandler.addListener(this);
@@ -301,19 +299,13 @@ class MainScreenState extends State<MainScreen>
     //       hapticFeedback: true,
     //       triggerOffset: 40,
     //     );
-    EasyRefresh.defaultHeaderBuilder = () =>
-        MaterialHeader(
-          backgroundColor: Theme
-              .of(context)
-              .canvasColor,
-          color: Theme
-              .of(context)
-              .primaryColor,
+    EasyRefresh.defaultHeaderBuilder = () => MaterialHeader(
+          backgroundColor: Theme.of(context).canvasColor,
+          color: Theme.of(context).primaryColor,
         );
-    EasyRefresh.defaultFooterBuilder = () =>
-        LottieCupertinoFooter(
+    EasyRefresh.defaultFooterBuilder = () => LottieCupertinoFooter(
           indicator:
-          LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 2.5),
+              LottieUtil.load(LottieUtil.getLoadingPath(context), scale: 2.5),
         );
     Utils.setSafeMode(HiveUtil.getBool(HiveUtil.enableSafeModeKey,
         defaultValue: defaultEnableSafeMode));
@@ -420,6 +412,13 @@ class MainScreenState extends State<MainScreen>
                 ?.pushPage(UserDetailScreen(screenName: _userInfo!.screenName));
           },
         ),
+        ContextMenuButtonConfig(
+          "查看社交网络",
+          onPressed: () async {
+            panelScreenState
+                ?.pushPage(FriendshipScreen(userId: _userInfo!.idStr));
+          },
+        ),
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig.warning(
           "退出登录",
@@ -446,14 +445,10 @@ class MainScreenState extends State<MainScreen>
       width: 42 + leftPadding + rightPadding,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Theme
-            .of(context)
-            .canvasColor,
+        color: Theme.of(context).canvasColor,
         border: Border(
           right: BorderSide(
-            color: Theme
-                .of(context)
-                .dividerColor,
+            color: Theme.of(context).dividerColor,
             width: 1,
           ),
         ),
@@ -466,197 +461,186 @@ class MainScreenState extends State<MainScreen>
             selector: (context, appProvider) => appProvider.sidebarChoice,
             builder: (context, sidebarChoice, child) =>
                 Selector<AppProvider, bool>(
-                  selector: (context, appProvider) =>
-                  !appProvider.showNavigator,
-                  builder: (context, hideNavigator, child) =>
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (ResponsiveUtil.isDesktop()) const SizedBox(
-                              height: 5),
-                          if (ResponsiveUtil.isDesktop()) _buildLogo(),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected:
-                            hideNavigator &&
-                                sidebarChoice == SideBarChoice.Home,
-                            icon: Icons.explore_outlined,
-                            selectedIcon: Icons.explore_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice = SideBarChoice.Home;
-                              panelScreenState?.popAll();
-                            },
-                            iconSize: 24,
-                          ),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected:
-                            hideNavigator &&
-                                sidebarChoice == SideBarChoice.Search,
-                            icon: Icons.search_rounded,
-                            selectedIcon: Icons.manage_search_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice = SideBarChoice.Search;
-                              panelScreenState?.popAll();
-                            },
-                          ),
-                          // const SizedBox(height: 8),
-                          // ToolButton(
-                          //   context: context,
-                          //   icon: Icons.timeline_outlined,
-                          //   onPressed: () async {},
-                          // ),
-                          // const SizedBox(height: 8),
-                          // ToolButton(
-                          //   context: context,
-                          //   icon: Icons.trending_up_rounded,
-                          //   onPressed: () async {},
-                          // ),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected: hideNavigator &&
-                                sidebarChoice == SideBarChoice.Bookmark,
-                            icon: Icons.bookmark_border_rounded,
-                            selectedIcon: Icons.bookmark_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice =
-                                  SideBarChoice.Bookmark;
-                              panelScreenState?.popAll();
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected:
-                            hideNavigator &&
-                                sidebarChoice == SideBarChoice.Like,
-                            icon: Icons.favorite_border_rounded,
-                            selectedIcon: Icons.favorite_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice = SideBarChoice.Like;
-                              panelScreenState?.popAll();
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected:
-                            hideNavigator &&
-                                sidebarChoice == SideBarChoice.List,
-                            icon: Icons.featured_play_list_outlined,
-                            selectedIcon: Icons.featured_play_list_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice = SideBarChoice.List;
-                              panelScreenState?.popAll();
-                            },
-                            iconSize: 20,
-                          ),
-                          const SizedBox(height: 8),
-                          ToolButton(
-                            context: context,
-                            selected: hideNavigator &&
-                                sidebarChoice == SideBarChoice.Friendship,
-                            icon: Icons.people_alt_outlined,
-                            selectedIcon: Icons.people_rounded,
-                            onTap: () async {
-                              appProvider.sidebarChoice =
-                                  SideBarChoice.Friendship;
-                              panelScreenState?.popAll();
-                            },
-                            iconSize: 20,
-                          ),
-                          // const SizedBox(height: 8),
-                          // ToolButton(
-                          //   context: context,
-                          //   selected:
-                          //       hideNavigator && sidebarChoice == SideBarChoice.Mention,
-                          //   icon: Icons.notifications_none_rounded,
-                          //   selectedIcon: Icons.notifications_rounded,
-                          //   onTap: () async {
-                          //     appProvider.sidebarChoice = SideBarChoice.Mention;
-                          //     panelScreenState?.popAll();
-                          //   },
-                          // ),
-                          // const SizedBox(height: 8),
-                          // ToolButton(
-                          //   context: context,
-                          //   selected: hideNavigator &&
-                          //       sidebarChoice == SideBarChoice.Download,
-                          //   icon: Icons.save_alt_rounded,
-                          //   onTap: () async {
-                          //     appProvider.sidebarChoice = SideBarChoice.Download;
-                          //     panelScreenState?.popAll();
-                          //   },
-                          // ),
-                          const Spacer(),
-                          const SizedBox(height: 8),
-                          GestureDetector(
-                            onTap: () async {
-                              String? csrfToken = await RequestUtil
-                                  .getCsrfToken();
-                              if (Utils.isEmpty(csrfToken)) {
-                                RouteUtil.pushDialogRoute(
-                                    context, const LoginByPasswordScreen());
-                              } else {
-                                BottomSheetBuilder.showContextMenu(
-                                    context, _buildAvatarContextMenuButtons());
-                              }
-                            },
-                            child: ItemBuilder.buildAvatar(
-                              context: context,
-                              imageUrl: TweetUtil.getBigAvatarUrl(
-                                  _userInfo?.profileImageUrlHttps) ??
-                                  AssetUtil.avatar,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          ItemBuilder.buildDynamicToolButton(
-                            context: context,
-                            iconBuilder: (colors) =>
-                            darkModeWidget ?? emptyWidget,
-                            onTap: changeMode,
-                            onChangemode: (context, themeMode, child) {
-                              if (darkModeController.duration != null) {
-                                if (themeMode == ActiveThemeMode.light) {
-                                  darkModeController.forward();
-                                } else if (themeMode == ActiveThemeMode.dark) {
-                                  darkModeController.reverse();
-                                } else {
-                                  if (Utils.isDark(context)) {
-                                    darkModeController.reverse();
-                                  } else {
-                                    darkModeController.forward();
-                                  }
-                                }
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 4),
-                          ToolButton(
-                            context: context,
-                            icon: Icons.token_outlined,
-                            onTap: () async {
-                              RouteUtil.pushDialogRoute(
-                                  context, const SettingNavigationScreen());
-                            },
-                          ),
-                          const SizedBox(height: 4),
-                          ToolButton(
-                            context: context,
-                            icon: Icons.help_outline_rounded,
-                            onTap: () async {
-                              RouteUtil.pushDialogRoute(
-                                  context, const AboutSettingScreen());
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                ),
+              selector: (context, appProvider) => !appProvider.showNavigator,
+              builder: (context, hideNavigator, child) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (ResponsiveUtil.isDesktop()) const SizedBox(height: 5),
+                  if (ResponsiveUtil.isDesktop()) _buildLogo(),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Home,
+                    icon: Icons.explore_outlined,
+                    selectedIcon: Icons.explore_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Home;
+                      panelScreenState?.popAll();
+                    },
+                    iconSize: 24,
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Search,
+                    icon: Icons.search_rounded,
+                    selectedIcon: Icons.manage_search_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Search;
+                      panelScreenState?.popAll();
+                    },
+                  ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   icon: Icons.timeline_outlined,
+                  //   onPressed: () async {},
+                  // ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   icon: Icons.trending_up_rounded,
+                  //   onPressed: () async {},
+                  // ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected: hideNavigator &&
+                        sidebarChoice == SideBarChoice.Bookmark,
+                    icon: Icons.bookmark_border_rounded,
+                    selectedIcon: Icons.bookmark_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Bookmark;
+                      panelScreenState?.popAll();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.Like,
+                    icon: Icons.favorite_border_rounded,
+                    selectedIcon: Icons.favorite_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Like;
+                      panelScreenState?.popAll();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected:
+                        hideNavigator && sidebarChoice == SideBarChoice.List,
+                    icon: Icons.featured_play_list_outlined,
+                    selectedIcon: Icons.featured_play_list_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.List;
+                      panelScreenState?.popAll();
+                    },
+                    iconSize: 20,
+                  ),
+                  const SizedBox(height: 8),
+                  ToolButton(
+                    context: context,
+                    selected: hideNavigator &&
+                        sidebarChoice == SideBarChoice.Community,
+                    icon: Icons.people_alt_outlined,
+                    selectedIcon: Icons.people_rounded,
+                    onTap: () async {
+                      appProvider.sidebarChoice = SideBarChoice.Community;
+                      panelScreenState?.popAll();
+                    },
+                    iconSize: 20,
+                  ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   selected:
+                  //       hideNavigator && sidebarChoice == SideBarChoice.Mention,
+                  //   icon: Icons.notifications_none_rounded,
+                  //   selectedIcon: Icons.notifications_rounded,
+                  //   onTap: () async {
+                  //     appProvider.sidebarChoice = SideBarChoice.Mention;
+                  //     panelScreenState?.popAll();
+                  //   },
+                  // ),
+                  // const SizedBox(height: 8),
+                  // ToolButton(
+                  //   context: context,
+                  //   selected: hideNavigator &&
+                  //       sidebarChoice == SideBarChoice.Download,
+                  //   icon: Icons.save_alt_rounded,
+                  //   onTap: () async {
+                  //     appProvider.sidebarChoice = SideBarChoice.Download;
+                  //     panelScreenState?.popAll();
+                  //   },
+                  // ),
+                  const Spacer(),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      String? csrfToken = await RequestUtil.getCsrfToken();
+                      if (Utils.isEmpty(csrfToken)) {
+                        RouteUtil.pushDialogRoute(
+                            context, const LoginByPasswordScreen());
+                      } else {
+                        BottomSheetBuilder.showContextMenu(
+                            context, _buildAvatarContextMenuButtons());
+                      }
+                    },
+                    child: ItemBuilder.buildAvatar(
+                      context: context,
+                      imageUrl: TweetUtil.getBigAvatarUrl(
+                              _userInfo?.profileImageUrlHttps) ??
+                          AssetUtil.avatar,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ItemBuilder.buildDynamicToolButton(
+                    context: context,
+                    iconBuilder: (colors) => darkModeWidget ?? emptyWidget,
+                    onTap: changeMode,
+                    onChangemode: (context, themeMode, child) {
+                      if (darkModeController.duration != null) {
+                        if (themeMode == ActiveThemeMode.light) {
+                          darkModeController.forward();
+                        } else if (themeMode == ActiveThemeMode.dark) {
+                          darkModeController.reverse();
+                        } else {
+                          if (Utils.isDark(context)) {
+                            darkModeController.reverse();
+                          } else {
+                            darkModeController.forward();
+                          }
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ToolButton(
+                    context: context,
+                    icon: Icons.token_outlined,
+                    onTap: () async {
+                      RouteUtil.pushDialogRoute(
+                          context, const SettingNavigationScreen());
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ToolButton(
+                    context: context,
+                    icon: Icons.help_outline_rounded,
+                    onTap: () async {
+                      RouteUtil.pushDialogRoute(
+                          context, const AboutSettingScreen());
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -689,18 +673,18 @@ class MainScreenState extends State<MainScreen>
   _titleBar() {
     return (ResponsiveUtil.isDesktop())
         ? ItemBuilder.buildWindowTitle(
-      context,
-      backgroundColor: Colors.transparent,
-      isStayOnTop: _isStayOnTop,
-      isMaximized: _isMaximized,
-      onStayOnTopTap: () {
-        setState(() {
-          _isStayOnTop = !_isStayOnTop;
-          windowManager.setAlwaysOnTop(_isStayOnTop);
-        });
-      },
-      rightButtons: [],
-    )
+            context,
+            backgroundColor: Colors.transparent,
+            isStayOnTop: _isStayOnTop,
+            isMaximized: _isMaximized,
+            onStayOnTopTap: () {
+              setState(() {
+                _isStayOnTop = !_isStayOnTop;
+                windowManager.setAlwaysOnTop(_isStayOnTop);
+              });
+            },
+            rightButtons: [],
+          )
         : emptyWidget;
   }
 
@@ -723,7 +707,7 @@ class MainScreenState extends State<MainScreen>
   void setTimer() {
     _timer = Timer(
       Duration(seconds: appProvider.autoLockTime.seconds),
-          () {
+      () {
         if (!appProvider.preventLock && HiveUtil.shouldAutoLock()) {
           jumpToLock();
         }

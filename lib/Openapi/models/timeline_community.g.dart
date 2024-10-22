@@ -11,6 +11,8 @@ TimelineCommunity _$TimelineCommunityFromJson(Map<String, dynamic> json) =>
       privateTypename: json['__typename'] == null
           ? null
           : TypeName.fromJson(json['__typename'] as String),
+      communityResults: Community.fromJson(
+          json['community_results'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$TimelineCommunityToJson(TimelineCommunity instance) =>

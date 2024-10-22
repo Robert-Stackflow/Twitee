@@ -20,7 +20,8 @@ import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
-import 'package:twitee/Screens/Navigation/friendship_screen.dart';
+import 'package:twitee/Screens/Detail/friendship_screen.dart';
+import 'package:twitee/Screens/Navigation/community_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Screens/Navigation/list_screen.dart';
 import 'package:twitee/Screens/Navigation/search_screen.dart';
@@ -177,7 +178,7 @@ class PanelScreenState extends State<PanelScreen>
         BookmarkScreen(key: _keyList[2]),
         LikeScreen(key: _keyList[3], userId: info.idStr),
         ListScreen(key: _keyList[4], userId: info.idStr),
-        FriendshipScreen(key: _keyList[5]),
+        CommunityScreen(key: _keyList[5]),
       ];
       jumpToPage(appProvider.sidebarChoice.index);
     }

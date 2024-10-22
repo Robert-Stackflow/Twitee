@@ -4,6 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'article_cover_media.dart';
+import 'article_cover_media_info.dart';
 import 'community_actions.dart';
 import 'community_data_invites_policy.dart';
 import 'community_data_join_policy.dart';
@@ -62,9 +64,9 @@ class CommunityData {
   @JsonKey(name: 'creator_results')
   final UserResults? creatorResults;
   @JsonKey(name: 'custom_banner_media')
-  final dynamic customBannerMedia;
+  final ArticleCoverMedia? customBannerMedia;
   @JsonKey(name: 'default_banner_media')
-  final dynamic defaultBannerMedia;
+  final ArticleCoverMedia? defaultBannerMedia;
   final String description;
   @JsonKey(name: 'id_str')
   final String? idStr;

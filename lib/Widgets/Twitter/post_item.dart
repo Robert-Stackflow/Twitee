@@ -171,9 +171,16 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         return Container();
       } else {
         if (retweetedUser != null) {
-          return _buildNormalTweet(tweet, retweetedUser: retweetedUser);
+          return _buildNormalTweet(
+            tweet,
+            retweetedUser: retweetedUser,
+            socialContext: timelineTweet.socialContext,
+          );
         } else {
-          return _buildNormalTweet(tweet);
+          return _buildNormalTweet(
+            tweet,
+            socialContext: timelineTweet.socialContext,
+          );
         }
       }
     }
@@ -195,6 +202,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               TweetUtil.getTrueTweet(tweets[index])!,
               isFirst: index == 0,
               isLast: index == tweets.length - 1,
+              socialContext: tweets[index].socialContext,
             );
           },
         ),
@@ -561,6 +569,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Tweet tweet, {
     bool isFirst = false,
     bool isLast = false,
+    SocialContextUnion? socialContext,
   }) {
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
@@ -666,12 +675,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   _buildNormalTweet(
     Tweet tweet, {
     User? retweetedUser,
+    SocialContextUnion? socialContext,
   }) {
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
     var radius = ResponsiveUtil.isLandscape()
         ? BorderRadius.circular(8)
         : BorderRadius.zero;
+    bool showCommunity =
+        socialContext != null && socialContext is TimelineGeneralContext;
     var body = Container(
       decoration: BoxDecoration(borderRadius: radius),
       padding: widget.isDetail
@@ -680,6 +692,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (showCommunity) _buildCommunityRow(socialContext),
+          if (showCommunity) const SizedBox(height: 8),
           if (retweetedUser != null) _buildRetweetRow(retweetedUser),
           if (retweetedUser != null) const SizedBox(height: 8),
           Row(
@@ -849,7 +863,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       );
     }
     return Material(
-      color: widget.isDetail ? null : Theme.of(context).cardColor,
+      color: widget.isDetail
+          ? Theme.of(context).cardColor
+          : Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -911,6 +927,36 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             Expanded(
               child: Text(
                 "${retweetedUser.legacy.name} 已转推",
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _buildCommunityRow(TimelineGeneralContext socialContext) {
+    return ItemBuilder.buildClickItem(
+      GestureDetector(
+        onTap: () {
+          IToast.showTop("查看社群${socialContext.text}");
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(width: 4),
+            Icon(
+              Icons.people_rounded,
+              size: 16,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                "${socialContext.text}",
                 style: Theme.of(context).textTheme.bodySmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

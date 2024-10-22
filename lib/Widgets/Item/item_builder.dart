@@ -2915,7 +2915,8 @@ class ItemBuilder {
                   width: 0.5,
                 )
               : const Border.fromBorderSide(BorderSide.none),
-          shape: BoxShape.circle,
+          shape: isOval ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: isOval ? null : BorderRadius.circular(8),
         ),
         child: useDefaultAvatar || tagUrl.isEmpty
             ? ClipOval(
@@ -2971,7 +2972,7 @@ class ItemBuilder {
                           ),
                         )
                       : ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(8),
                           child: ItemBuilder.buildCachedImage(
                             context: context,
                             imageUrl: tagUrl,
