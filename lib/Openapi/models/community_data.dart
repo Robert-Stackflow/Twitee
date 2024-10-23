@@ -56,7 +56,7 @@ class CommunityData {
 
   @JsonKey(name: '__typename')
   final TypeName? privateTypename;
-  final CommunityActions actions;
+  final CommunityActions? actions;
   @JsonKey(name: 'admin_results')
   final UserResults? adminResults;
   @JsonKey(name: 'created_at')
@@ -90,7 +90,7 @@ class CommunityData {
   @JsonKey(name: 'primary_community_topic')
   final PrimaryCommunityTopic? primaryCommunityTopic;
   final String? question;
-  final CommunityDataRole role;
+  final CommunityDataRole? role;
   final List<CommunityRule> rules;
   @JsonKey(name: 'search_tags')
   final List<String?>? searchTags;

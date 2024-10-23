@@ -79,6 +79,7 @@ class CommunityScreenState extends State<CommunityScreen>
       if (res.success) {
         topics = res.data;
         _initPhase = InitPhase.successful;
+        initTab();
       } else {
         _initPhase = InitPhase.failed;
         IToast.showTop("加载话题列表失败");
@@ -100,7 +101,6 @@ class CommunityScreenState extends State<CommunityScreen>
     );
     _tabController = TabController(length: 0, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      initTab();
       refreshTopics();
     });
   }
@@ -113,6 +113,7 @@ class CommunityScreenState extends State<CommunityScreen>
           key: key,
           scrollController: scrollController,
           triggerOffset: appBarWithTabBarHeight,
+          topics: topics,
         ),
       ),
       TabItemData.build(
@@ -121,6 +122,7 @@ class CommunityScreenState extends State<CommunityScreen>
           key: key,
           scrollController: scrollController,
           triggerOffset: appBarWithTabBarHeight,
+          topics: topics,
         ),
       ),
     ]);

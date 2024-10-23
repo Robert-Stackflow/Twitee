@@ -16,7 +16,7 @@ UserLegacy _$UserLegacyFromJson(Map<String, dynamic> json) => UserLegacy(
       createdAt: json['created_at'] as String?,
       defaultProfile: json['default_profile'] as bool?,
       defaultProfileImage: json['default_profile_image'] as bool?,
-      description: json['description'] as String,
+      description: json['description'] ?? "",
       entities: json['entities'],
       fastFollowersCount: (json['fast_followers_count'] as num?)?.toInt(),
       favouritesCount: (json['favourites_count'] as num?)?.toInt(),
@@ -28,10 +28,10 @@ UserLegacy _$UserLegacyFromJson(Map<String, dynamic> json) => UserLegacy(
       hasCustomTimelines: json['has_custom_timelines'] as bool?,
       isTranslator: json['is_translator'] as bool?,
       listedCount: (json['listed_count'] as num?)?.toInt(),
-      location: json['location'] as String,
+      location: json['location'] ?? "",
       mediaCount: (json['media_count'] as num?)?.toInt(),
       muting: json['muting'] as bool?,
-      name: json['name'] as String,
+      name: json['name'] ?? "",
       normalFollowersCount: (json['normal_followers_count'] as num?)?.toInt(),
       notifications: json['notifications'] as bool?,
       pinnedTweetIdsStr: (json['pinned_tweet_ids_str'] as List<dynamic>?)
@@ -50,7 +50,7 @@ UserLegacy _$UserLegacyFromJson(Map<String, dynamic> json) => UserLegacy(
       statusesCount: (json['statuses_count'] as num?)?.toInt(),
       translatorType: json['translator_type'] as String?,
       url: json['url'] as String?,
-      verified: json['verified'] as bool,
+      verified: json['verified'] ?? false,
       verifiedType: json['verified_type'] == null
           ? null
           : UserLegacyVerifiedType.fromJson(json['verified_type'] as String),

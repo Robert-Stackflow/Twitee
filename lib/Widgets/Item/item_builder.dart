@@ -2066,6 +2066,8 @@ class ItemBuilder {
     bool disabled = false,
     bool feedback = false,
     bool reversePosition = false,
+    bool showBorder = false,
+    Color? borderColor,
   }) {
     Color fBackground = background ?? Theme.of(context).cardColor;
     Color? textColor = color ??
@@ -2109,6 +2111,12 @@ class ItemBuilder {
                 const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.transparent,
+              border: showBorder
+                  ? Border.all(
+                      color: borderColor ??
+                          Theme.of(context).primaryColor.withAlpha(55),
+                      width: 1)
+                  : null,
               borderRadius: BorderRadius.circular(radius),
             ),
             child: Row(

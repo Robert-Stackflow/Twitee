@@ -185,7 +185,6 @@ class PanelScreenState extends State<PanelScreen>
   }
 
   void jumpToPage(int index) {
-    print("jump from $_currentIndex to $index ");
     if (_currentIndex == index) {
       BottomNavgationMixin? mixin =
           _keyList[_currentIndex].currentState is BottomNavgationMixin?
@@ -324,6 +323,11 @@ class PanelScreenState extends State<PanelScreen>
               icon: Icon(Icons.featured_play_list_outlined, size: 28),
               activeIcon: Icon(Icons.featured_play_list_rounded, size: 28),
               label: "列表",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people_alt_outlined, size: 28),
+              activeIcon: Icon(Icons.people_rounded, size: 28),
+              label: "社群",
             ),
           ],
           onTap: (index) {

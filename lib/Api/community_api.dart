@@ -587,7 +587,7 @@ class CommunityApi {
         domainType: DomainType.graphql,
         params: {
           "variables": jsonEncode({
-            "topicId": topicId,
+            "topicId": int.tryParse(topicId) ?? 0,
             "cursor": cursorBottom,
           }),
         },

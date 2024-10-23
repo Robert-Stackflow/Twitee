@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Flow/topic_row.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
@@ -33,7 +34,10 @@ class CommunityDiscoveryFlowScreen extends StatefulWidgetForFlow {
     super.nested,
     super.scrollController,
     super.triggerOffset,
+    this.topics = const [],
   });
+
+  final List<CommunityTopic> topics;
 
   static const String routeName = "/navigtion/communityDiscoveryFlow";
 
@@ -48,10 +52,8 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
   String? cursorBottom;
 
   List<Community> validEntries = [];
-  List<Community> discoveryEntries = [];
 
-  List<Community> get showEntries =>
-      currentTopicId == null ? discoveryEntries : validEntries;
+  String? currentTopicId;
 
   bool _loading = false;
 
@@ -61,8 +63,6 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
 
   bool _noMore = false;
   InitPhase _initPhase = InitPhase.haveNotConnected;
-
-  String? currentTopicId;
 
   @override
   void initState() {
@@ -112,7 +112,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
         Timeline timeline = res.data;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            discoveryEntries = _processEntries(instruction.entries);
+            validEntries = _processEntries(instruction.entries);
           }
         }
         return IndicatorResult.success;
@@ -146,8 +146,10 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
     return result;
   }
 
-  _onRefresh() async {
-    if (currentTopicId == null) return await _getDiscoveryTimeline();
+  _onRefresh([String? topicId]) async {
+    if (topicId == null) {
+      return await _getDiscoveryTimeline();
+    }
     if (_loading) return;
     _loading = true;
     cursorBottom = null;
@@ -156,7 +158,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
         _initPhase = InitPhase.connecting;
         setState(() {});
       }
-      var res = await CommunityApi.getTopicTimeline(topicId: "");
+      var res = await CommunityApi.getTopicTimeline(topicId: topicId);
       if (res.success) {
         _initPhase = InitPhase.successful;
         List<Community> newEntries = res.data;
@@ -184,7 +186,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
     }
   }
 
-  _onLoad() async {
+  _onLoad([String? topicId]) async {
     if (cursorBottom == null) return;
     if (_loading) return;
     _loading = true;
@@ -194,7 +196,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
         setState(() {});
       }
       var res = await CommunityApi.getTopicTimeline(
-        topicId: "",
+        topicId: topicId ?? "",
         cursorBottom: cursorBottom!,
       );
       if (res.success) {
@@ -228,7 +230,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return widget.nested ? _buildBody() : _buildMainBody();
+    return widget.nested ? _buildBody() : _buildBodyWithTopics();
   }
 
   _buildBody() {
@@ -242,16 +244,34 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
           onTap: refresh,
         );
       case InitPhase.successful:
-        return _buildMainBody();
+        return _buildBodyWithTopics();
       default:
         return Container();
     }
   }
 
+  _buildBodyWithTopics() {
+    return Column(
+      children: [
+        TopicRow(
+          topics: widget.topics,
+          onSelectTopic: (topicId) async {
+            currentTopicId = topicId;
+            setState(() {});
+            _easyRefreshController.callRefresh();
+          },
+        ),
+        Expanded(
+          child: _buildMainBody(),
+        ),
+      ],
+    );
+  }
+
   _buildMainBody() {
     return EasyRefresh.builder(
       onRefresh: () async {
-        return await _onRefresh();
+        return await _onRefresh(currentTopicId);
       },
       onLoad: () async {
         return await _onLoad();
@@ -262,7 +282,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: showEntries.isNotEmpty
+        child: validEntries.isNotEmpty
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
@@ -274,10 +294,10 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
                 maxCrossAxisExtent: 600,
                 crossAxisSpacing: 6,
                 children: List.generate(
-                  showEntries.length,
+                  validEntries.length,
                   (index) {
                     return _buildCommunityItem(
-                      showEntries[index],
+                      validEntries[index],
                     );
                   },
                 ),
@@ -337,7 +357,7 @@ class _ListFlowScreenState extends State<CommunityDiscoveryFlowScreen>
                       title: "成员",
                       value: communityData.memberCount ?? 0,
                     ),
-                    if(communityData.primaryCommunityTopic!=null)
+                    if (communityData.primaryCommunityTopic != null)
                       Text(
                         "话题：${communityData.primaryCommunityTopic!.topicName!}",
                         style: Theme.of(context)

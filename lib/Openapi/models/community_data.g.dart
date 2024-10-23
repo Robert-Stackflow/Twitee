@@ -11,8 +11,9 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
       privateTypename: json['__typename'] == null
           ? null
           : TypeName.fromJson(json['__typename'] as String),
-      actions:
-          CommunityActions.fromJson(json['actions'] as Map<String, dynamic>),
+      actions: json['actions'] != null
+          ? CommunityActions.fromJson(json['actions'] as Map<String, dynamic>)
+          : null,
       adminResults: json['admin_results'] == null
           ? null
           : UserResults.fromJson(json['admin_results'] as Map<String, dynamic>),
@@ -27,7 +28,7 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
       defaultBannerMedia: json['default_banner_media'] != null
           ? ArticleCoverMedia.fromJson(json['default_banner_media'])
           : null,
-      description: json['description'] as String,
+      description: json['description'] ?? "",
       idStr: json['id_str'] as String?,
       invitesPolicy: json['invites_policy'] == null
           ? null
@@ -59,10 +60,14 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           : PrimaryCommunityTopic.fromJson(
               json['primary_community_topic'] as Map<String, dynamic>),
       question: json['question'] != null ? json['question'] as String : null,
-      role: CommunityDataRole.fromJson(json['role'] as String),
-      rules: (json['rules'] as List<dynamic>)
-          .map((e) => CommunityRule.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      role: json['role'] != null
+          ? CommunityDataRole.fromJson(json['role'] as String)
+          : null,
+      rules: json['rules'] != null
+          ? (json['rules'] as List<dynamic>)
+              .map((e) => CommunityRule.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
       searchTags: (json['search_tags'] as List<dynamic>?)
           ?.map((e) => e as String?)
           .toList(),
