@@ -12,8 +12,9 @@ CommunityInvitesResult _$CommunityInvitesResultFromJson(
       privateTypename: json['__typename'] == null
           ? null
           : TypeName.fromJson(json['__typename'] as String),
-      message: json['message'] as String,
-      reason: CommunityInvitesResultReason.fromJson(json['reason'] as String),
+      message: json['message'] as String? ?? "",
+      reason: CommunityInvitesResultReason.fromJson(
+          json['reason'] as String? ?? "{}"),
     );
 
 Map<String, dynamic> _$CommunityInvitesResultToJson(

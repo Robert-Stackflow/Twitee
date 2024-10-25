@@ -24,6 +24,7 @@ import 'package:twitee/Screens/Flow/list_members_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
+import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
@@ -42,11 +43,9 @@ class ListDetailScreen extends StatefulWidget {
   const ListDetailScreen({
     super.key,
     required this.listId,
-    required this.screenName,
   });
 
   final String listId;
-  final String screenName;
 
   static const String routeName = "/listDetail";
 
@@ -77,7 +76,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
       ? (listInfo!.userResults.result! as User).legacy
       : null;
 
-  bool get isMyself => widget.screenName == user?.screenName;
+  bool get isMyself => HiveUtil.getUserInfo()?.screenName == user?.screenName;
 
   fetchListInfo() async {
     _initPhase = InitPhase.connecting;
@@ -199,7 +198,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           ListFlowScreen(
             key: key,
             listId: widget.listId,
-            userId: widget.screenName,
+            userId: user!.idStr ?? "",
             scrollController: primaryController,
             nested: true,
           ),
@@ -230,15 +229,18 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           ),
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: ResponsiveUtil.isLandscape()
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: ResponsiveUtil.isLandscape()
-                  ? CrossAxisAlignment.start
-                  : CrossAxisAlignment.center,
-              children: [
-                Column(
+          Row(
+            mainAxisAlignment: ResponsiveUtil.isLandscape()
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
                   crossAxisAlignment: ResponsiveUtil.isLandscape()
                       ? CrossAxisAlignment.start
                       : CrossAxisAlignment.center,
@@ -249,68 +251,70 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "${user!.name}@${user!.screenName}",
+                      "${user!.name}@${user!.screenName} 创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.apply(fontSizeDelta: 2),
-                    ),
-                    Text(
-                      "创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.apply(fontSizeDelta: 2),
-                    ),
-                    if (Utils.isNotEmpty(listInfo!.description))
-                      const SizedBox(height: 8),
-                    if (Utils.isNotEmpty(listInfo!.description))
-                      Text(
-                        listInfo!.description,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 5,
-                  children: [
-                    ItemBuilder.buildCountItem(
-                      context,
-                      title: "成员",
-                      value: listInfo!.memberCount,
-                      onTap: () {
-                        panelScreenState?.pushPage(
-                          ListMembersScreen(
-                            listId: widget.listId,
-                            initType: ListMembersFlowType.members,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    ItemBuilder.buildCountItem(
-                      context,
-                      title: "关注者",
-                      value: listInfo!.subscriberCount,
-                      onTap: () {
-                        panelScreenState?.pushPage(
-                          ListMembersScreen(
-                            listId: widget.listId,
-                            initType: ListMembersFlowType.subscribers,
-                          ),
-                        );
-                      },
+                          ?.apply(fontSizeDelta: 1),
+                      textAlign: ResponsiveUtil.isLandscape()
+                          ? TextAlign.start
+                          : TextAlign.center,
                     ),
                   ],
                 ),
-                if (!ResponsiveUtil.isLandscape()) const SizedBox(height: 8),
-                if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
-              ],
-            ),
+              ),
+              if (ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
+            ],
           ),
-          if (ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
+          if (Utils.isNotEmpty(listInfo!.description))
+            const SizedBox(height: 8),
+          if (Utils.isNotEmpty(listInfo!.description))
+            Text(
+              listInfo!.description,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.apply(fontSizeDelta: 1),
+              textAlign: ResponsiveUtil.isLandscape()
+                  ? TextAlign.start
+                  : TextAlign.center,
+            ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 10,
+            runSpacing: 5,
+            children: [
+              ItemBuilder.buildCountItem(
+                context,
+                title: "成员",
+                value: listInfo!.memberCount,
+                onTap: () {
+                  panelScreenState?.pushPage(
+                    ListMembersScreen(
+                      listId: widget.listId,
+                      initType: ListMembersFlowType.members,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              ItemBuilder.buildCountItem(
+                context,
+                title: "关注者",
+                value: listInfo!.subscriberCount,
+                onTap: () {
+                  panelScreenState?.pushPage(
+                    ListMembersScreen(
+                      listId: widget.listId,
+                      initType: ListMembersFlowType.subscribers,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          if (!ResponsiveUtil.isLandscape()) const SizedBox(height: 8),
+          if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
         ],
       ),
     );
@@ -436,9 +440,9 @@ class _ListDetailScreenState extends State<ListDetailScreen>
       buttonConfigs: [
         ContextMenuButtonConfig(
           listInfo!.muting ? "在“为你推荐”中显示这些帖子" : "在“为你推荐”中隐藏这些帖子",
-          icon: listInfo!.muting
-              ? const Icon(Icons.check_circle_outline_rounded)
-              : const Icon(Icons.remove_circle_outline_rounded),
+          iconData: listInfo!.muting
+              ? Icons.check_circle_outline_rounded
+              : Icons.remove_circle_outline_rounded,
           onPressed: () async {
             if (listInfo!.muting) {
               ResponseResult res = await IToast.showLoadingSnackbar(
@@ -473,7 +477,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
         if (isMyself)
           ContextMenuButtonConfig.warning(
             "删除列表",
-            icon: const Icon(Icons.delete_forever_outlined),
+            iconData: Icons.delete_forever_outlined,
             onPressed: () async {
               DialogBuilder.showConfirmDialog(
                 context,
@@ -496,21 +500,21 @@ class _ListDetailScreenState extends State<ListDetailScreen>
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享列表",
-          icon: const Icon(Icons.share_rounded),
+          iconData: Icons.share_rounded,
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
         ContextMenuButtonConfig(
           "复制列表链接",
-          icon: const Icon(Icons.link_rounded),
+          iconData: Icons.link_rounded,
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制列表链接");
           },
         ),
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: const Icon(Icons.open_in_browser_rounded),
+          iconData: Icons.open_in_browser_rounded,
           onPressed: () async {
             UriUtil.openExternal(url);
           },

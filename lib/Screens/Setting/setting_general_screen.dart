@@ -13,13 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Utils/Tuple/tuple.dart';
-import 'package:twitee/Utils/file_util.dart';
-import 'package:twitee/Utils/ilogger.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:twitee/Utils/Tuple/tuple.dart';
+import 'package:twitee/Utils/file_util.dart';
+import 'package:twitee/Utils/ilogger.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Models/github_response.dart';
@@ -84,10 +84,11 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.generalSetting,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -113,6 +114,7 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ..._generalSettings(),
               if (ResponsiveUtil.isDesktop()) ..._desktopSettings(),
               if (ResponsiveUtil.isMobile()) ..._mobileSettings(),

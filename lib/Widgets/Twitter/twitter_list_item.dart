@@ -67,10 +67,8 @@ class TwitterListItemState extends State<TwitterListItem> {
         borderRadius: radius,
         child: InkWell(
           onTap: () {
-            panelScreenState?.pushPage(ListDetailScreen(
-              listId: list.list.idStr,
-              screenName: user.legacy.screenName ?? "",
-            ));
+            panelScreenState
+                ?.pushPage(ListDetailScreen(listId: list.list.idStr));
           },
           borderRadius: radius,
           child: Container(
@@ -169,82 +167,30 @@ class TwitterListItemState extends State<TwitterListItem> {
                   context: context,
                   icon: Icon(
                     (isMyself ? list.list.pinning : list.list.following)
-                        ? Icons.pin_drop_rounded
-                        : Icons.pin_drop_outlined,
+                        ? Icons.push_pin_rounded
+                        : Icons.push_pin_outlined,
                     size: 22,
                   ),
                   padding: const EdgeInsets.all(9),
                   onTap: () async {
                     HapticFeedback.mediumImpact();
-                    if (isMyself) {
-                      if (list.list.pinning) {
-                        DialogBuilder.showConfirmDialog(
-                          context,
-                          title: "取消置顶${listInfo.name}",
-                          message: "是否取消置顶${listInfo.name}？",
-                          onTapConfirm: () async {
-                            ResponseResult res = await ListApi.unpinList(
-                                listId: list.list.idStr);
-                            if (res.success) {
-                              setState(() {
-                                list.list.pinning = false;
-                              });
-                              homeScreenState?.refreshPinnedLists();
-                              IToast.showTop("取消置顶成功");
-                            } else {
-                              IToast.showTop("取消置顶失败");
+                    processPinOrUnpin(
+                      context,
+                      list.list,
+                      onUpdate: (bool pin, [int? count]) {
+                        setState(() {
+                          if (isMyself) {
+                            list.list.pinning = pin;
+                          } else {
+                            list.list.following = pin;
+                            if (count != null) {
+                              list.list.subscriberCount = count;
                             }
-                          },
-                        );
-                      } else {
-                        ResponseResult res =
-                            await ListApi.pinList(listId: list.list.idStr);
-                        if (res.success) {
-                          setState(() {
-                            list.list.pinning = true;
-                          });
-                          homeScreenState?.refreshPinnedLists();
-                        } else {
-                          IToast.showTop("置顶失败");
-                        }
-                      }
-                    } else {
-                      var listInfo = list.list;
-                      if (listInfo.following) {
-                        DialogBuilder.showConfirmDialog(
-                          context,
-                          title: "取消订阅${listInfo.name}",
-                          message: "是否取消订阅${listInfo.name}？",
-                          onTapConfirm: () async {
-                            var res = await ListApi.unSubscribe(
-                                listId: listInfo.idStr);
-                            if (res.success) {
-                              listInfo.following = false;
-                              listInfo.subscriberCount--;
-                              if (mounted) setState(() {});
-                              homeScreenState?.refreshPinnedLists();
-                              listScreenState?.refreshLists();
-                              IToast.showTop("取消订阅成功");
-                            } else {
-                              IToast.showTop("取消订阅失败");
-                            }
-                          },
-                        );
-                      } else {
-                        var res =
-                            await ListApi.subscribe(listId: listInfo.idStr);
-                        if (res.success) {
-                          listInfo.following = true;
-                          listInfo.subscriberCount++;
-                          if (mounted) setState(() {});
-                          homeScreenState?.refreshPinnedLists();
-                          listScreenState?.refreshLists();
-                          IToast.showTop("订阅成功");
-                        } else {
-                          IToast.showTop("订阅失败");
-                        }
-                      }
-                    }
+                          }
+                          setState(() {});
+                        });
+                      },
+                    );
                   },
                 ),
               ],
@@ -253,5 +199,78 @@ class TwitterListItemState extends State<TwitterListItem> {
         ),
       ),
     );
+  }
+
+  static processPinOrUnpin(
+    BuildContext context,
+    TimelineTwitterListInfo list, {
+    Function(bool, [int?])? onUpdate,
+  }) async {
+    UserInfo? info = HiveUtil.getUserInfo();
+    UserLegacy? user = list.userResults.result != null
+        ? (list.userResults.result! as User?)?.legacy
+        : null;
+    bool isMyself = (info?.screenName == user?.screenName);
+    if (isMyself) {
+      if (list.pinning) {
+        DialogBuilder.showConfirmDialog(
+          context,
+          title: "取消置顶${list.name}",
+          message: "是否取消置顶${list.name}？",
+          onTapConfirm: () async {
+            ResponseResult res = await IToast.showLoadingSnackbar("取消置顶中",
+                () async => await ListApi.unpinList(listId: list.idStr));
+            if (res.success) {
+              onUpdate?.call(false);
+              homeScreenState?.refreshPinnedLists();
+              IToast.showTop("取消置顶成功");
+            } else {
+              IToast.showTop("取消置顶失败");
+            }
+          },
+        );
+      } else {
+        ResponseResult res = await IToast.showLoadingSnackbar(
+            "置顶中", () async => await ListApi.pinList(listId: list.idStr));
+        if (res.success) {
+          onUpdate?.call(true);
+          homeScreenState?.refreshPinnedLists();
+        } else {
+          IToast.showTop("置顶失败");
+        }
+      }
+    } else {
+      var listInfo = list;
+      if (listInfo.following) {
+        DialogBuilder.showConfirmDialog(
+          context,
+          title: "取消订阅${listInfo.name}",
+          message: "是否取消订阅${listInfo.name}？",
+          onTapConfirm: () async {
+            var res = await IToast.showLoadingSnackbar("取消订阅中",
+                () async => await ListApi.unSubscribe(listId: list.idStr));
+            if (res.success) {
+              onUpdate?.call(false, listInfo.subscriberCount--);
+              homeScreenState?.refreshPinnedLists();
+              listScreenState?.refreshLists();
+              IToast.showTop("取消订阅成功");
+            } else {
+              IToast.showTop("取消订阅失败");
+            }
+          },
+        );
+      } else {
+        var res = await IToast.showLoadingSnackbar(
+            "订阅中", () async => await ListApi.subscribe(listId: list.idStr));
+        if (res.success) {
+          onUpdate?.call(true, listInfo.subscriberCount++);
+          homeScreenState?.refreshPinnedLists();
+          listScreenState?.refreshLists();
+          IToast.showTop("订阅成功");
+        } else {
+          IToast.showTop("订阅失败");
+        }
+      }
+    }
   }
 }

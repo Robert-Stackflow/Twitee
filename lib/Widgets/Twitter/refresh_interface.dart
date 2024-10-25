@@ -17,6 +17,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 
+import '../../Openapi/models/topic_context.dart';
+
 mixin RefreshMixin {
   FutureOr refresh();
 
@@ -25,8 +27,12 @@ mixin RefreshMixin {
   ScrollController? getScrollController();
 }
 
-mixin BottomNavgationMixin{
+mixin BottomNavgationMixin {
   FutureOr onTapBottomNavigation();
+}
+
+mixin OnSelectTopicMixin {
+  FutureOr onSelectTopic(CommunityTopic topic);
 }
 
 mixin ScrollToHideMixin {

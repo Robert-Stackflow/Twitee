@@ -17,15 +17,17 @@ import 'community.dart';
 import 'item_content_union.dart';
 import 'user_results.dart';
 
-abstract class PinnedTimelineUnion{
+abstract class PinnedTimelineUnion {
   const PinnedTimelineUnion();
 
   factory PinnedTimelineUnion.fromJson(Map<String, Object?> json) {
     switch (json['__typename']) {
       case "ListPinnedTimeline":
-        return TimelineTwitterListInfo.fromJson(json['list'] as Map<String, Object?>);
+        return TimelineTwitterListInfo.fromJson(
+            json['list'] as Map<String, Object?>);
       case "CommunityPinnedTimeline":
-        return Community.fromJson(json['community_results'] as Map<String, Object?>);
+        return Community.fromJson(
+            json['community_results'] as Map<String, Object?>);
       default:
         throw ArgumentError('Unknown PinnedTimelineUnion: $json');
     }
@@ -69,7 +71,7 @@ class TimelineTwitterList extends ItemContentUnion {
   }
 }
 
-class TimelineTwitterListInfo extends PinnedTimelineUnion{
+class TimelineTwitterListInfo extends PinnedTimelineUnion {
   TimelineTwitterListInfo({
     required this.createdAt,
     required this.defaultBannerMedia,

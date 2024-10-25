@@ -55,7 +55,8 @@ class _LikeScreenState extends State<LikeScreen>
     with
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
-        ScrollToHideMixin,BottomNavgationMixin {
+        ScrollToHideMixin,
+        BottomNavgationMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -284,6 +285,7 @@ class _LikeScreenState extends State<LikeScreen>
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "喜欢",
         showBorder: true,
+        centerInMobile: true,
       ),
       body: Stack(
         children: [

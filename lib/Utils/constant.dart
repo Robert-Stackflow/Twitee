@@ -69,7 +69,7 @@ const String downloadsWebsite =
     "https://apps.cloudchewie.com/{locale}/twitee/downloads";
 const String sqlcipherLearnMore =
     "https://apps.cloudchewie.com/twitee/sqlcipher/";
-const String telegramLink = "https://t.me/Twitee";
+const String telegramLink = "https://t.me/Twitee_official";
 const String repoUrl = "https://github.com/Robert-Stackflow/Twitee";
 const String releaseUrl = "https://github.com/Robert-Stackflow/Twitee/releases";
 const String issueUrl = "https://github.com/Robert-Stackflow/Twitee/issues";

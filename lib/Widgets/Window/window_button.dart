@@ -18,7 +18,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:twitee/Utils/asset_util.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Resources/colors.dart';
@@ -201,15 +200,12 @@ class StayOnTopWindowButton extends WindowButton {
           animate: animate ?? true,
           padding: EdgeInsets.zero,
           rotateAngle: rotateAngle ?? 0,
-          iconBuilder: (buttonContext) => Container(
-            padding: const EdgeInsets.all(8),
-            child: AssetUtil.loadDouble(
-              context,
-              AssetUtil.pinLightIcon,
-              AssetUtil.pinDarkIcon,
-              fit: BoxFit.cover,
-            ),
-          ),
+          iconBuilder: (buttonContext) => Icon(
+              rotateAngle == 0
+                  ? Icons.push_pin_rounded
+                  : Icons.push_pin_outlined,
+              color: buttonContext.iconColor,
+              size: 22),
         );
 }
 

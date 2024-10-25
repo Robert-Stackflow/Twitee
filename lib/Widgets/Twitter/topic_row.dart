@@ -14,9 +14,11 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 
 import '../../Openapi/models/topic_context.dart';
-import '../../Widgets/Item/item_builder.dart';
+import '../Item/item_builder.dart';
 
 class TopicRow extends StatefulWidget {
   const TopicRow({
@@ -54,13 +56,22 @@ class TopicRowState extends State<TopicRow> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildTopicWrap();
+    return ResponsiveUtil.isLandscape() ? _buildTopicWrap() : _buildTopicList();
   }
 
   _buildTopicList() {
     return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: showSubTopics
@@ -74,7 +85,7 @@ class TopicRowState extends State<TopicRow> {
                 margin: const EdgeInsets.only(right: 8),
                 child: ItemBuilder.buildRoundButton(
                   context,
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 5.5),
                   showBorder: true,
                   icon: const Icon(Icons.arrow_upward_rounded, size: 16),
                   background: Colors.transparent,
@@ -106,6 +117,15 @@ class TopicRowState extends State<TopicRow> {
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
+      ),
       child: Wrap(
         spacing: 6,
         runSpacing: 4,
@@ -121,6 +141,7 @@ class TopicRowState extends State<TopicRow> {
               icon: const Icon(Icons.arrow_upward_rounded, size: 16),
               background: Colors.transparent,
               onTap: () {
+                HapticFeedback.mediumImpact();
                 currentTopic = null;
                 currentSubTopic = null;
                 setState(() {});
@@ -155,6 +176,7 @@ class TopicRowState extends State<TopicRow> {
             isCurrent ? Theme.of(context).primaryColor : Colors.transparent,
         color: isCurrent ? null : Theme.of(context).primaryColor,
         onTap: () {
+          HapticFeedback.mediumImpact();
           if (currentTopicId == topic.topicId) {
             currentTopic = null;
             currentSubTopic = null;

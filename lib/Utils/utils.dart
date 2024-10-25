@@ -823,22 +823,25 @@ class Utils {
           actions: [S.current.cancel, S.current.goToSetGestureLock],
           onClick: () {
             Utils.displayApp();
-            RouteUtil.pushDialogRoute(context, const SafeSettingScreen());
+            RouteUtil.pushPanelCupertinoRoute(
+                context, const SafeSettingScreen());
           },
           onClickAction: (index) {
             if (index == 1) {
               Utils.displayApp();
-              RouteUtil.pushDialogRoute(context, const SafeSettingScreen());
+              RouteUtil.pushPanelCupertinoRoute(
+                  context, const SafeSettingScreen());
             }
           },
         );
       }
     } else if (menuItem.key == TrayKey.setting.key) {
       Utils.displayApp();
-      RouteUtil.pushDialogRoute(context, const SettingNavigationScreen());
+      RouteUtil.pushPanelCupertinoRoute(
+          context, const SettingNavigationScreen());
     } else if (menuItem.key == TrayKey.about.key) {
       Utils.displayApp();
-      RouteUtil.pushDialogRoute(context, const AboutSettingScreen());
+      RouteUtil.pushPanelCupertinoRoute(context, const AboutSettingScreen());
     } else if (menuItem.key == TrayKey.officialWebsite.key) {
       UriUtil.launchUrlUri(context, officialWebsite);
     } else if (menuItem.key == TrayKey.githubRepository.key) {

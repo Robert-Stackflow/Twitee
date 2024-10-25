@@ -12,9 +12,9 @@ CommunityLeaveActionResult _$CommunityLeaveActionResultFromJson(
       privateTypename: json['__typename'] == null
           ? null
           : TypeName.fromJson(json['__typename'] as String),
-      message: json['message'] as String,
-      reason:
-          CommunityLeaveActionResultReason.fromJson(json['reason'] as String),
+      message: json['message'] as String? ?? "",
+      reason: CommunityLeaveActionResultReason.fromJson(
+          json['reason'] as String? ?? "{}"),
     );
 
 Map<String, dynamic> _$CommunityLeaveActionResultToJson(

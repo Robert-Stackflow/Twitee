@@ -53,10 +53,11 @@ class _NetworkSettingScreenState extends State<NetworkSettingScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: "网络",
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -82,6 +83,7 @@ class _NetworkSettingScreenState extends State<NetworkSettingScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ..._proxySettings(),
               const SizedBox(height: 30),
             ],

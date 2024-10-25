@@ -318,7 +318,7 @@ class _ListMembershipManageScreenState extends State<ListMembershipManageScreen>
   }
 
   _buildBody() {
-    return EasyRefresh(
+    return EasyRefresh.builder(
       onRefresh: () async {
         return await _onRefresh();
       },
@@ -328,24 +328,33 @@ class _ListMembershipManageScreenState extends State<ListMembershipManageScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      child: ItemBuilder.buildLoadMoreNotification(
+      childBuilder: (context, physics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: WaterfallFlow.extent(
-          controller: _scrollController,
-          padding: ResponsiveUtil.isLandscape()
-              ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
-              : const EdgeInsets.only(bottom: 16),
-          mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-          maxCrossAxisExtent: 600,
-          crossAxisSpacing: 6,
-          children: List.generate(
-            validItems.length,
-            (index) {
-              return _buildListItem(validItems[index]);
-            },
-          ),
-        ),
+        child: validItems.isNotEmpty
+            ? WaterfallFlow.extent(
+                physics: physics,
+                controller: _scrollController,
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                        .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+                maxCrossAxisExtent: 600,
+                crossAxisSpacing: 6,
+                children: List.generate(
+                  validItems.length,
+                  (index) {
+                    return _buildListItem(validItems[index]);
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                physics: physics,
+                text: "暂无列表",
+                scrollController: _scrollController,
+              ),
       ),
     );
   }

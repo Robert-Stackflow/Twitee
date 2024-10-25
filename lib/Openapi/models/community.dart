@@ -10,7 +10,7 @@ import 'community_data.dart';
 part 'community.g.dart';
 
 @JsonSerializable()
-class Community extends PinnedTimelineUnion{
+class Community extends PinnedTimelineUnion {
   const Community({
     required this.result,
   });

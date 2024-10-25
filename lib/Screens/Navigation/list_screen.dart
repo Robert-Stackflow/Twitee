@@ -15,27 +15,34 @@
 
 import 'dart:async';
 
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 
 import '../../Api/data_api.dart';
 import '../../Models/response_result.dart';
 import '../../Models/tab_item_data.dart';
+import '../../Models/user_info.dart';
 import '../../Openapi/models/module_item.dart';
 import '../../Openapi/models/timeline.dart';
 import '../../Openapi/models/timeline_add_entries.dart';
 import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Openapi/models/user.dart';
+import '../../Openapi/models/user_legacy.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/enums.dart';
+import '../../Utils/hive_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../Detail/list_detail_screen.dart';
 import '../Flow/list_flow_screen.dart';
 
 class ListScreen extends StatefulWidget {
@@ -122,6 +129,32 @@ class ListScreenState extends State<ListScreen>
     return lists;
   }
 
+  static buildListTabContextMenu(
+      BuildContext context, TimelineTwitterListInfo list) {
+    UserInfo? info = HiveUtil.getUserInfo();
+    UserLegacy? user = list.userResults.result != null
+        ? (list.userResults.result! as User?)?.legacy
+        : null;
+    bool isMyself = (info?.screenName == user?.screenName);
+    return GenericContextMenu(buttonConfigs: [
+      ContextMenuButtonConfig(
+        "查看列表",
+        iconData: Icons.featured_play_list_outlined,
+        onPressed: () {
+          RouteUtil.pushPanelCupertinoRoute(
+              context, ListDetailScreen(listId: list.idStr));
+        },
+      ),
+      ContextMenuButtonConfig.warning(
+        isMyself ? "取消置顶" : "取消订阅",
+        iconData: Icons.push_pin_outlined,
+        onPressed: () {
+          TwitterListItemState.processPinOrUnpin(context, list);
+        },
+      ),
+    ]);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -141,6 +174,7 @@ class ListScreenState extends State<ListScreen>
     for (var list in validItems) {
       if (idToListFlowMap[list.list.idStr] == null) {
         idToListFlowMap[list.list.idStr] = TabItemData.build(
+          context,
           list.list.name,
           (key, scrollController) => ListFlowScreen(
             key: key,
@@ -148,6 +182,7 @@ class ListScreenState extends State<ListScreen>
             userId: widget.userId,
             scrollController: scrollController,
           ),
+          contextMenu: buildListTabContextMenu(context, list.list),
         );
         tabDataList.add(idToListFlowMap[list.list.idStr]!);
       } else {
@@ -171,6 +206,7 @@ class ListScreenState extends State<ListScreen>
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "列表",
         bottomHeight: 56,
+        centerInMobile: true,
         bottom: tabDataList.isNotEmpty
             ? ItemBuilder.buildTabBar(
                 context,
@@ -271,7 +307,7 @@ class ListScreenState extends State<ListScreen>
             context: context,
             icon: const Icon(Icons.settings_rounded),
             onTap: () async {
-              RouteUtil.pushDialogRoute(
+              RouteUtil.pushPanelCupertinoRoute(
                   context, ListManageScreen(userId: widget.userId));
             },
           ),

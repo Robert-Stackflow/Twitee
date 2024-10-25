@@ -13,13 +13,13 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/file_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 
 import '../../Resources/fonts.dart';
 import '../../Utils/responsive_util.dart';
@@ -47,10 +47,11 @@ class _SelectFontScreenState extends State<SelectFontScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.chooseFontFamily,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -76,6 +77,7 @@ class _SelectFontScreenState extends State<SelectFontScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ItemBuilder.buildCaptionItem(
                   context: context, title: S.current.defaultFontFamily),
               ItemBuilder.buildContainerItem(

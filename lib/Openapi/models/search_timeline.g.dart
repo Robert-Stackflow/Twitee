@@ -8,7 +8,10 @@ part of 'search_timeline.dart';
 
 SearchTimeline _$SearchTimelineFromJson(Map<String, dynamic> json) =>
     SearchTimeline(
-      timeline: Timeline.fromJson(json['timeline'] as Map<String, dynamic>),
+      timeline: json['timeline'] != null
+          ? Timeline.fromJson(json['timeline'] as Map<String, dynamic>)
+          : const Timeline(
+              instructions: [], metadata: null, responseObjects: null),
     );
 
 Map<String, dynamic> _$SearchTimelineToJson(SearchTimeline instance) =>

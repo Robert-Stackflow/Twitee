@@ -16,13 +16,13 @@
 import 'dart:math';
 
 import 'package:biometric_storage/biometric_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/General/Unlock/gesture_notifier.dart';
 import 'package:twitee/Widgets/General/Unlock/gesture_unlock_indicator.dart';
 import 'package:twitee/Widgets/General/Unlock/gesture_unlock_view.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
-import 'package:flutter/material.dart';
 
 import '../../Utils/biometric_util.dart';
 import '../../Utils/hive_util.dart';
@@ -92,58 +92,60 @@ class PinChangeScreenState extends State<PinChangeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        right: false,
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 50),
-              Text(
-                _notifier.gestureText,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 30),
-              GestureUnlockIndicator(
-                key: _indicator,
-                size: 30,
-                roundSpace: 4,
+      appBar: ItemBuilder.buildDesktopAppBar(
+        transparent: true,
+        context: context,
+        showBack: true,
+      ),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 50),
+            Text(
+              _notifier.gestureText,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 30),
+            GestureUnlockIndicator(
+              key: _indicator,
+              size: 30,
+              roundSpace: 4,
+              defaultColor: Colors.grey.withOpacity(0.5),
+              selectedColor: Theme.of(context).primaryColor.withOpacity(0.6),
+            ),
+            Flexible(
+              child: GestureUnlockView(
+                key: _gestureUnlockView,
+                size: min(MediaQuery.sizeOf(context).width, 400),
+                padding: 60,
+                roundSpace: 40,
                 defaultColor: Colors.grey.withOpacity(0.5),
-                selectedColor: Theme.of(context).primaryColor.withOpacity(0.6),
+                selectedColor: Theme.of(context).primaryColor,
+                failedColor: Theme.of(context).colorScheme.error,
+                disableColor: Colors.grey,
+                solidRadiusRatio: 0.3,
+                lineWidth: 2,
+                touchRadiusRatio: 0.3,
+                onCompleted: _gestureComplete,
               ),
-              Flexible(
-                child: GestureUnlockView(
-                  key: _gestureUnlockView,
-                  size: min(MediaQuery.sizeOf(context).width, 400),
-                  padding: 60,
-                  roundSpace: 40,
-                  defaultColor: Colors.grey.withOpacity(0.5),
-                  selectedColor: Theme.of(context).primaryColor,
-                  failedColor: Theme.of(context).colorScheme.error,
-                  disableColor: Colors.grey,
-                  solidRadiusRatio: 0.3,
-                  lineWidth: 2,
-                  touchRadiusRatio: 0.3,
-                  onCompleted: _gestureComplete,
-                ),
+            ),
+            Visibility(
+              visible: _isEditMode && _biometricAvailable && _enableBiometric,
+              child: ItemBuilder.buildRoundButton(
+                context,
+                text: ResponsiveUtil.isWindows()
+                    ? S.current.biometricVerifyPin
+                    : S.current.biometric,
+                onTap: () {
+                  auth();
+                },
               ),
-              Visibility(
-                visible: _isEditMode && _biometricAvailable && _enableBiometric,
-                child: ItemBuilder.buildRoundButton(
-                  context,
-                  text: ResponsiveUtil.isWindows()
-                      ? S.current.biometricVerifyPin
-                      : S.current.biometric,
-                  onTap: () {
-                    auth();
-                  },
-                ),
-              ),
-              const SizedBox(height: 50),
-            ],
-          ),
+            ),
+            const SizedBox(height: 50),
+          ],
         ),
       ),
     );

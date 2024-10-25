@@ -90,6 +90,7 @@ class SearchScreenState extends State<SearchScreen>
     for (int i = 0; i < tabItems.length; i++) {
       trendTabDataList.add(
         TabItemData.build(
+          context,
           tabItems[i].labelText!,
           (key, scrollController) => SearchExploreFlowScreen(
             key: key,

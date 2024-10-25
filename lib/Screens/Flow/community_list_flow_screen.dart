@@ -13,41 +13,62 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
+import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Api/post_api.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
+
+enum CommunityListFlowType {
+  SpecificCommunity,
+  Explore,
+  Ranked,
+}
 
 class CommunityListFlowScreen extends StatefulWidgetForFlow {
   const CommunityListFlowScreen({
     super.key,
-    required this.listId,
-    required this.userId,
+    this.communityId,
+    this.topicId,
+    this.location = CommunityDisplayLocation.community,
+    this.type = CommunityListFlowType.SpecificCommunity,
+    this.rankType = RankType.Relevance,
     super.nested,
     super.scrollController,
     super.triggerOffset,
   });
 
-  final String listId;
-  final String userId;
+  final CommunityListFlowType type;
+
+  final RankType rankType;
+
+  final String? communityId;
+
+  final String? topicId;
+
+  final CommunityDisplayLocation location;
 
   static const String routeName = "/navigtion/communityListFlow";
 
   @override
-  State<CommunityListFlowScreen> createState() => _ListFlowScreenState();
+  State<CommunityListFlowScreen> createState() =>
+      CommunityListFlowScreenState();
 }
 
-class _ListFlowScreenState extends State<CommunityListFlowScreen>
+class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
@@ -67,6 +88,8 @@ class _ListFlowScreenState extends State<CommunityListFlowScreen>
   bool _noMore = false;
   InitPhase _initPhase = InitPhase.haveNotConnected;
 
+  late RankType currentRankType = widget.rankType;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +97,41 @@ class _ListFlowScreenState extends State<CommunityListFlowScreen>
     if (widget.nested) {
       _onRefresh();
     }
+  }
+
+  _buildPopContextMenuButtons() {
+    return GenericContextMenu(
+      buttonConfigs: [
+        ContextMenuButtonConfig.checkbox(
+          "当前趋势",
+          checked: currentRankType == RankType.Relevance,
+          onPressed: () {
+            currentRankType = RankType.Relevance;
+            refresh();
+          },
+        ),
+        ContextMenuButtonConfig.checkbox(
+          "最新",
+          checked: currentRankType == RankType.Recency,
+          onPressed: () {
+            currentRankType = RankType.Recency;
+            refresh();
+          },
+        ),
+        ContextMenuButtonConfig.checkbox(
+          "最多点赞",
+          checked: currentRankType == RankType.Likes,
+          onPressed: () {
+            currentRankType = RankType.Likes;
+            refresh();
+          },
+        ),
+      ],
+    );
+  }
+
+  void showPopMenu() {
+    BottomSheetBuilder.showContextMenu(context, _buildPopContextMenuButtons());
   }
 
   @override
@@ -109,8 +167,24 @@ class _ListFlowScreenState extends State<CommunityListFlowScreen>
         _initPhase = InitPhase.connecting;
         setState(() {});
       }
-      var res = await CommunityApi.getCommunityListTimeline(
-          communityId: widget.listId);
+      ResponseResult res;
+      switch (widget.type) {
+        case CommunityListFlowType.SpecificCommunity:
+          res = await CommunityApi.getCommunityListTimeline(
+            communityId: widget.communityId!,
+            rankingMode: currentRankType,
+            location: widget.location,
+          );
+          break;
+        case CommunityListFlowType.Explore:
+          res = await CommunityApi.getCommunititesExploreTimeline(
+            topicId: widget.topicId,
+          );
+          break;
+        case CommunityListFlowType.Ranked:
+          res = await CommunityApi.getCommunititesRankedTimeline();
+          break;
+      }
       if (res.success) {
         _initPhase = InitPhase.successful;
         Timeline timeline = res.data;
@@ -158,10 +232,28 @@ class _ListFlowScreenState extends State<CommunityListFlowScreen>
         _initPhase = InitPhase.connecting;
         setState(() {});
       }
-      var res = await CommunityApi.getCommunityListTimeline(
-        cursorBottom: cursorBottom!.value,
-        communityId: widget.listId,
-      );
+      ResponseResult res;
+      switch (widget.type) {
+        case CommunityListFlowType.SpecificCommunity:
+          res = await CommunityApi.getCommunityListTimeline(
+            communityId: widget.communityId!,
+            rankingMode: currentRankType,
+            cursorBottom: cursorBottom!.value,
+            location: widget.location,
+          );
+          break;
+        case CommunityListFlowType.Explore:
+          res = await CommunityApi.getCommunititesExploreTimeline(
+            topicId: widget.topicId,
+            cursorBottom: cursorBottom!.value,
+          );
+          break;
+        case CommunityListFlowType.Ranked:
+          res = await CommunityApi.getCommunititesRankedTimeline(
+            cursorBottom: cursorBottom!.value,
+          );
+          break;
+      }
       if (res.success) {
         _initPhase = InitPhase.successful;
         Timeline timeline = res.data;

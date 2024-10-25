@@ -15,10 +15,12 @@
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:twitee/Utils/constant.dart';
+import 'package:flutter/services.dart';
+import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
+import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
-
-import '../Utils/responsive_util.dart';
 
 class TabItemData {
   final Tab tab;
@@ -34,30 +36,66 @@ class TabItemData {
   });
 
   factory TabItemData.build(
+    BuildContext context,
     String title,
     Widget Function(GlobalKey, ScrollController) widgetBuilder, {
     Widget? contextMenu,
+    Function(GlobalKey)? onPopTap,
+    bool showPopButton = false,
   }) {
     GlobalKey key = GlobalKey();
     ScrollController scrollController = ScrollController();
     return TabItemData(
-      tab: _buildTab(title, contextMenu),
+      tab: _buildTab(
+        context,
+        title,
+        contextMenu: contextMenu,
+        onPopTap: () {
+          onPopTap?.call(key);
+        },
+        showPopButton: showPopButton,
+      ),
       widget: widgetBuilder.call(key, scrollController),
       key: key,
       scrollController: scrollController,
     );
   }
 
-  static _buildTab(String str, [Widget? contextMenu]) {
+  static _buildTab(
+    BuildContext context,
+    String str, {
+    Widget? contextMenu,
+    Function()? onPopTap,
+    bool showPopButton = false,
+  }) {
+    var child = showPopButton
+        ? Row(
+            children: [
+              Text(str),
+              GestureDetector(
+                onTap: onPopTap,
+                child: const Icon(Icons.keyboard_arrow_down_rounded),
+              ),
+            ],
+          )
+        : Text(str);
     return Tab(
-      child: ContextMenuRegion(
-        behavior: ResponsiveUtil.isDesktop()
-            ? const [ContextMenuShowBehavior.secondaryTap]
-            : const [],
-        contextMenu: contextMenu ?? emptyWidget,
-        // child: AutoSizeText(str, maxLines: 1),
-        child: Text(str),
-      ),
+      child: contextMenu != null
+          ? ItemBuilder.buildContextMenuOverlay(GestureDetector(
+              onSecondaryTap: () {
+                BottomSheetBuilder.showContextMenu(
+                    context, contextMenu as GenericContextMenu);
+              },
+              onLongPress: () {
+                if (!ResponsiveUtil.isDesktop()) {
+                  HapticFeedback.mediumImpact();
+                  BottomSheetBuilder.showContextMenu(
+                      context, contextMenu as GenericContextMenu);
+                }
+              },
+              child: child,
+            ))
+          : child,
     );
   }
 }
@@ -81,6 +119,11 @@ class TabItemDataList {
   RefreshMixin? getRefreshMixin(int index) {
     if (index < 0 || index >= scrollControllerList.length) return null;
     return keyList[index].currentState as RefreshMixin?;
+  }
+
+  OnSelectTopicMixin? getOnSelectTopicMixin(int index) {
+    if (index < 0 || index >= scrollControllerList.length) return null;
+    return keyList[index].currentState as OnSelectTopicMixin?;
   }
 
   ScrollController? getScrollController(int index) {

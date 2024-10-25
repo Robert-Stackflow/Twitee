@@ -50,10 +50,11 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.setting,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -79,6 +80,7 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ItemBuilder.buildEntryItem(
                 context: context,
                 title: S.current.generalSetting,
@@ -87,7 +89,7 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 topRadius: true,
                 bottomRadius: true,
                 onTap: () {
-                  RouteUtil.pushCupertinoRoute(context,
+                  RouteUtil.pushPanelCupertinoRoute(context,
                       GeneralSettingScreen(key: generalSettingScreenKey));
                 },
               ),
@@ -100,7 +102,7 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 topRadius: true,
                 bottomRadius: true,
                 onTap: () {
-                  RouteUtil.pushCupertinoRoute(
+                  RouteUtil.pushPanelCupertinoRoute(
                       context, const AppearanceSettingScreen());
                 },
               ),
@@ -113,7 +115,7 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 topRadius: true,
                 bottomRadius: true,
                 onTap: () {
-                  RouteUtil.pushCupertinoRoute(
+                  RouteUtil.pushPanelCupertinoRoute(
                       context, const NetworkSettingScreen());
                 },
               ),
@@ -126,7 +128,7 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 topRadius: true,
                 bottomRadius: true,
                 onTap: () {
-                  RouteUtil.pushCupertinoRoute(
+                  RouteUtil.pushPanelCupertinoRoute(
                       context, const SafeSettingScreen());
                 },
               ),

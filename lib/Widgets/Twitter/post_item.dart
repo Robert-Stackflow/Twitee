@@ -382,7 +382,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (showFeedback)
           ContextMenuButtonConfig(
             "对此帖子不感兴趣",
-            icon: const Icon(Icons.sentiment_dissatisfied_rounded),
+            iconData: Icons.sentiment_dissatisfied_rounded,
             onPressed: () async {
               HapticFeedback.mediumImpact();
               await IToast.showLoadingSnackbar(
@@ -398,11 +398,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (showFeedback) ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "${user.legacy.following ?? false ? "取消关注" : "关注"} @$screenName",
-          icon: Icon(
-            user.legacy.following ?? false
-                ? Icons.person_remove_outlined
-                : Icons.person_add_outlined,
-          ),
+          iconData: user.legacy.following ?? false
+              ? Icons.person_remove_outlined
+              : Icons.person_add_outlined,
           onPressed: () async {
             if (user.legacy.following ?? false) {
               DialogBuilder.showConfirmDialog(context,
@@ -434,11 +432,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "${user.legacy.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
-          icon: Icon(
-            user.legacy.blocking ?? false
-                ? Icons.favorite_border_rounded
-                : Icons.heart_broken_outlined,
-          ),
+          iconData: user.legacy.blocking ?? false
+              ? Icons.favorite_border_rounded
+              : Icons.heart_broken_outlined,
           onPressed: () async {
             if (user.legacy.blocking ?? false) {
               var res = await IToast.showLoadingSnackbar("正在取消屏蔽@$screenName",
@@ -472,11 +468,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "${user.legacy.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
-          icon: Icon(
-            user.legacy.muting ?? false
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-          ),
+          iconData: user.legacy.muting ?? false
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined,
           onPressed: () async {
             if (user.legacy.muting ?? false) {
               var res = await IToast.showLoadingSnackbar("正在取消隐藏@$screenName",
@@ -510,7 +504,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "从列表添加或移除 @$screenName",
-          icon: const Icon(Icons.playlist_add_rounded),
+          iconData: Icons.playlist_add_rounded,
           onPressed: () async {
             if (ResponsiveUtil.isLandscape()) {
               RouteUtil.pushDialogRoute(
@@ -529,14 +523,14 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig(
           "分享帖子",
-          icon: const Icon(Icons.share_rounded),
+          iconData: Icons.share_rounded,
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
         ContextMenuButtonConfig(
           "复制帖子链接",
-          icon: const Icon(Icons.link_rounded),
+          iconData: Icons.link_rounded,
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制帖子链接");
           },
@@ -544,14 +538,14 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (ResponsiveUtil.isMobile())
           ContextMenuButtonConfig(
             "访问原帖子",
-            icon: const Icon(Icons.view_carousel_outlined),
+            iconData: Icons.view_carousel_rounded,
             onPressed: () async {
               UriUtil.openInternal(context, url);
             },
           ),
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: const Icon(Icons.open_in_browser_rounded),
+          iconData: Icons.open_in_browser_rounded,
           onPressed: () async {
             UriUtil.openExternal(url);
           },
@@ -1061,7 +1055,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       buttonConfigs: [
         ContextMenuButtonConfig(
           "查看${TweetUtil.getMediaDescription(media)}",
-          icon: const Icon(Icons.view_carousel_outlined, size: 24),
+          iconData: Icons.view_carousel_rounded,
           onPressed: () {
             RouteUtil.pushDialogRoute(
               context,
@@ -1078,7 +1072,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         ContextMenuButtonConfig(
           "保存${TweetUtil.getMediaDescription(media)}",
-          icon: const Icon(Icons.save_alt_rounded, size: 24),
+          iconData: Icons.save_alt_rounded,
           onPressed: () {
             ImageUtil.saveMedia(context, media);
           },
@@ -1086,7 +1080,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         if (medias.length > 1)
           ContextMenuButtonConfig(
             "保存所有${TweetUtil.getMediasDescription(medias)}",
-            icon: const Icon(Icons.save_alt_rounded, size: 24),
+            iconData: Icons.save_alt_rounded,
             onPressed: () {
               ImageUtil.saveMedias(context, medias);
             },

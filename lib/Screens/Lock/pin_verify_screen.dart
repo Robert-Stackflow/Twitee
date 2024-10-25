@@ -165,6 +165,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
               child: ItemBuilder.buildWindowTitle(
                 context,
                 forceClose: true,
+                leftWidgets: [const Spacer()],
                 backgroundColor: MyTheme.getBackground(context),
                 isStayOnTop: _isStayOnTop,
                 isMaximized: _isMaximized,

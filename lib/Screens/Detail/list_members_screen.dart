@@ -55,6 +55,7 @@ class ListMembersScreenState extends State<ListMembersScreen>
     tabDataList.addAll(
       [
         TabItemData.build(
+          context,
           "成员",
           (key, scrollController) => ListMembersFlowScreen(
             key: key,
@@ -64,6 +65,7 @@ class ListMembersScreenState extends State<ListMembersScreen>
           ),
         ),
         TabItemData.build(
+          context,
           "关注者",
           (key, scrollController) => ListMembersFlowScreen(
             key: key,

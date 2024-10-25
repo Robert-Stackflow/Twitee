@@ -85,14 +85,14 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
       buttonConfigs: [
         ContextMenuButtonConfig(
           "在浏览器打开",
-          icon: const Icon(Icons.open_in_browser),
+          iconData: Icons.open_in_browser_rounded,
           onPressed: () {
             UriUtil.processUrl(context, url);
           },
         ),
         ContextMenuButtonConfig(
           S.current.copyLink,
-          icon: const Icon(Icons.copy),
+          iconData: Icons.copy_rounded,
           onPressed: () {
             Utils.copy(context, url);
           },

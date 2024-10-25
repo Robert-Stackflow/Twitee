@@ -82,7 +82,8 @@ class KeyboardHandlerState extends State<KeyboardHandler> {
   static Map<Type, Action<Intent>> mainScreenShortcuts = {
     SettingIntent: CallbackAction(
       onInvoke: (_) {
-        RouteUtil.pushDialogRoute(rootContext, const SettingNavigationScreen());
+        RouteUtil.pushPanelCupertinoRoute(
+            rootContext, const SettingNavigationScreen());
         return null;
       },
     ),

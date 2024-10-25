@@ -40,6 +40,7 @@ class CustomConfirmDialogWidget extends StatelessWidget {
   final EdgeInsets? margin;
   final double borderRadius;
   final TextAlign? messageTextAlign;
+  final Widget? messageChild;
 
   final bool renderHtml;
 
@@ -48,6 +49,7 @@ class CustomConfirmDialogWidget extends StatelessWidget {
   const CustomConfirmDialogWidget({
     super.key,
     this.title,
+    this.messageChild,
     required this.message,
     required this.confirmButtonText,
     required this.cancelButtonText,
@@ -101,30 +103,32 @@ class CustomConfirmDialogWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               if (Utils.isNotEmpty(title)) const SizedBox(height: 20),
-              renderHtml
-                  ? CustomHtmlWidget(
-                      content: message,
-                      style: TextStyle(
-                        color: textColor ??
-                            Theme.of(context).textTheme.bodySmall?.color,
-                        height: 1.5,
-                        fontSize: 15,
-                      ),
-                    )
-                  : ItemBuilder.buildSelectableArea(
-                      context: context,
-                      child: Text(
-                        message,
+              if (Utils.isNotEmpty(message))
+                renderHtml
+                    ? CustomHtmlWidget(
+                        content: message,
                         style: TextStyle(
                           color: textColor ??
                               Theme.of(context).textTheme.bodySmall?.color,
                           height: 1.5,
                           fontSize: 15,
                         ),
-                        textAlign: messageTextAlign,
+                      )
+                    : ItemBuilder.buildSelectableArea(
+                        context: context,
+                        child: Text(
+                          message,
+                          style: TextStyle(
+                            color: textColor ??
+                                Theme.of(context).textTheme.bodySmall?.color,
+                            height: 1.5,
+                            fontSize: 15,
+                          ),
+                          textAlign: messageTextAlign,
+                        ),
                       ),
-                    ),
-              const SizedBox(height: 20),
+              if (messageChild != null) messageChild!,
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

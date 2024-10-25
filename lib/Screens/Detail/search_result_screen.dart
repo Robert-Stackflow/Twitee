@@ -78,6 +78,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
     for (int i = 0; i < _resultTabTitleList.length; i++) {
       resultTabDataList.add(
         TabItemData.build(
+          context,
           _resultTabTitleList[i],
           (key, scrollController) => SearchResultFlowScreen(
             key: key,

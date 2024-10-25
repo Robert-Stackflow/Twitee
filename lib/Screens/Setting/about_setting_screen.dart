@@ -16,6 +16,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:twitee/Screens/Setting/change_log_screen.dart';
 import 'package:twitee/Screens/Setting/egg_screen.dart';
 import 'package:twitee/Utils/file_util.dart';
@@ -26,14 +30,9 @@ import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/BottomSheet/star_bottom_sheet.dart';
 import 'package:twitee/Widgets/Custom/no_shadow_scroll_behavior.dart';
 import 'package:twitee/Widgets/Shake/shake_animation_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../Utils/constant.dart';
 import '../../Utils/hive_util.dart';
-import '../../Utils/iprint.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/General/EasyRefresh/easy_refresh.dart';
 import '../../Widgets/Item/item_builder.dart';
@@ -116,12 +115,12 @@ class _AboutSettingScreenState extends State<AboutSettingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ResponsiveUtil.isLandscape()
-          ? null
-          : ItemBuilder.buildSimpleAppBar(
-              transparent: true,
-              context: context,
-            ),
+      appBar: ItemBuilder.buildDesktopAppBar(
+        transparent: true,
+        context: context,
+        showBack: true,
+        title: S.current.about,
+      ),
       body: EasyRefresh(
         child: ListView(
           physics: const BouncingScrollPhysics(),
@@ -219,7 +218,7 @@ class _AboutSettingScreenState extends State<AboutSettingScreen>
                       topRadius: true,
                       showLeading: true,
                       onTap: () {
-                        RouteUtil.pushCupertinoRoute(
+                        RouteUtil.pushPanelCupertinoRoute(
                             context, const ChangelogScreen());
                       },
                       leading: Icons.merge_type_outlined,

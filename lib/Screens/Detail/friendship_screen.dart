@@ -59,6 +59,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
     String userId = widget.userId ?? info!.idStr;
     tabDataList.addAll([
       TabItemData.build(
+        context,
         "正在关注",
         (key, scrollController) => UserFlowScreen(
           key: key,
@@ -68,6 +69,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "关注者",
         (key, scrollController) => UserFlowScreen(
           key: key,
@@ -77,6 +79,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "认证关注者",
         (key, scrollController) => UserFlowScreen(
           key: key,
@@ -86,6 +89,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "订阅服务",
         (key, scrollController) => UserFlowScreen(
           key: key,
@@ -95,6 +99,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "你认识的关注者",
         (key, scrollController) => UserFlowScreen(
           key: key,

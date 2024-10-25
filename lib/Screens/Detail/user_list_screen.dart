@@ -55,6 +55,7 @@ class UserListScreenState extends State<UserListScreen>
     tabDataList.addAll(
       [
         TabItemData.build(
+          context,
           "创建的列表",
           (key, scrollController) => UserListFlowScreen(
             key: key,
@@ -64,6 +65,7 @@ class UserListScreenState extends State<UserListScreen>
           ),
         ),
         TabItemData.build(
+          context,
           "TA所在的列表",
           (key, scrollController) => UserListFlowScreen(
             key: key,

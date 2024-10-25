@@ -75,12 +75,11 @@ class _EggScreenState extends State<EggScreen> with TickerProviderStateMixin {
     return Stack(
       children: [
         Scaffold(
-          appBar: ResponsiveUtil.isLandscape()
-              ? null
-              : ItemBuilder.buildSimpleAppBar(
-                  transparent: true,
-                  context: context,
-                ),
+          appBar: ItemBuilder.buildDesktopAppBar(
+            transparent: true,
+            context: context,
+            showBack: true,
+          ),
           body: EasyRefresh(
             child: ListView(
               physics: const BouncingScrollPhysics(),

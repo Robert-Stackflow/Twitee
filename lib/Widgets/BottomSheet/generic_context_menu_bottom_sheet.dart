@@ -89,6 +89,18 @@ class GenericContextMenuBottomSheetState
         horizontal: 16,
       );
     } else {
+      bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
+      bool showCheck = isCheckbox && config.checked;
+      Widget checkIcon = Row(
+        children: [
+          Opacity(
+            opacity: showCheck ? 1 : 0,
+            child: Icon(Icons.check_rounded,
+                size: ResponsiveUtil.isMobile() ? null : 16),
+          ),
+          const SizedBox(width: 12),
+        ],
+      );
       return Material(
         child: InkWell(
           onTap: () {
@@ -99,13 +111,19 @@ class GenericContextMenuBottomSheetState
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
+                if (isCheckbox) checkIcon,
+                if (config.iconData != null)
+                  Icon(config.iconData,
+                      color: config.isWarning ? Colors.red : null),
                 if (config.icon != null) config.icon!,
-                if (config.icon != null) const SizedBox(width: 10),
+                if (config.icon != null || config.iconData != null)
+                  const SizedBox(width: 10),
                 Text(
                   config.label,
                   style: Theme.of(context).textTheme.bodyMedium?.apply(
                         fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                        color: config.textColor,
+                        color: config.textColor ??
+                            (config.isWarning ? Colors.red : null),
                       ),
                 ),
               ],

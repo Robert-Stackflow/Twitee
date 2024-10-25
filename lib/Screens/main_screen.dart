@@ -624,7 +624,7 @@ class MainScreenState extends State<MainScreen>
                     context: context,
                     icon: Icons.token_outlined,
                     onTap: () async {
-                      RouteUtil.pushDialogRoute(
+                      RouteUtil.pushPanelCupertinoRoute(
                           context, const SettingNavigationScreen());
                     },
                   ),
@@ -633,7 +633,7 @@ class MainScreenState extends State<MainScreen>
                     context: context,
                     icon: Icons.help_outline_rounded,
                     onTap: () async {
-                      RouteUtil.pushDialogRoute(
+                      RouteUtil.pushPanelCupertinoRoute(
                           context, const AboutSettingScreen());
                     },
                   ),

@@ -19,10 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/tab_item_data.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Detail/community_detail_screen.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 
+import '../../Api/community_api.dart';
 import '../../Openapi/models/community.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Utils/constant.dart';
@@ -33,6 +35,7 @@ import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../Widgets/Twitter/refresh_interface.dart';
 import '../Flow/community_list_flow_screen.dart';
+import 'list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -66,6 +69,7 @@ class HomeScreenState extends State<HomeScreen>
   initTab() {
     tabDataList.addAll([
       TabItemData.build(
+        context,
         "为你推荐",
         (key, scrollController) => TimelineFlowScreen(
           key: key,
@@ -75,6 +79,7 @@ class HomeScreenState extends State<HomeScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "正在关注",
         (key, scrollController) => TimelineFlowScreen(
           key: key,
@@ -101,6 +106,7 @@ class HomeScreenState extends State<HomeScreen>
       if (idToListFlowMap[idStr] == null) {
         if (list is TimelineTwitterListInfo) {
           idToListFlowMap[idStr] = TabItemData.build(
+            context,
             list.name,
             (key, scrollController) => ListFlowScreen(
               key: key,
@@ -108,16 +114,29 @@ class HomeScreenState extends State<HomeScreen>
               userId: info!.idStr,
               scrollController: scrollController,
             ),
+            contextMenu: ListScreenState.buildListTabContextMenu(context, list),
           );
         } else if (list is Community) {
           idToListFlowMap[idStr] = TabItemData.build(
+            context,
             list.result.name,
             (key, scrollController) => CommunityListFlowScreen(
               key: key,
-              listId: list.result.idStr ?? "",
-              userId: info!.idStr,
+              communityId: list.result.idStr ?? "",
               scrollController: scrollController,
+              location: CommunityDisplayLocation.home,
             ),
+            contextMenu: CommunityDetailScreenState.buildCommunityContextMenu(
+              context,
+              list.result,
+              showUrlButtons: false,
+            ),
+            showPopButton: true,
+            onPopTap: (key) {
+              CommunityListFlowScreenState? state =
+                  key.currentState as CommunityListFlowScreenState?;
+              state?.showPopMenu();
+            },
           );
         }
         tabDataList.add(idToListFlowMap[idStr]!);
@@ -192,7 +211,7 @@ class HomeScreenState extends State<HomeScreen>
             ? null
             : Container(
                 alignment: Alignment.center,
-                padding: const EdgeInsets.only(right: 60),
+                padding: const EdgeInsets.only(right: 56),
                 child: _buildLogo(),
               ),
         bottom: ItemBuilder.buildTabBar(

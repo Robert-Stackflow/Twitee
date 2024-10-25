@@ -77,10 +77,11 @@ class _SafeSettingScreenState extends State<SafeSettingScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.safeSetting,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -106,6 +107,7 @@ class _SafeSettingScreenState extends State<SafeSettingScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ..._gestureSettings(),
               if (_autoLockAvailable) ..._autoLockSettings(),
               if (ResponsiveUtil.isMobile()) ..._safeModeSettings(),
@@ -225,7 +227,7 @@ class _SafeSettingScreenState extends State<SafeSettingScreen>
 
   onEnablePinTapped() {
     setState(() {
-      RouteUtil.pushCupertinoRoute(
+      RouteUtil.pushPanelCupertinoRoute(
         context,
         PinVerifyScreen(
           onSuccess: () {
@@ -250,7 +252,7 @@ class _SafeSettingScreenState extends State<SafeSettingScreen>
 
   onBiometricTapped() {
     if (!_allowGuestureBiometric) {
-      RouteUtil.pushCupertinoRoute(
+      RouteUtil.pushPanelCupertinoRoute(
         context,
         PinVerifyScreen(
           onSuccess: () {
@@ -274,7 +276,7 @@ class _SafeSettingScreenState extends State<SafeSettingScreen>
 
   onChangePinTapped() {
     setState(() {
-      RouteUtil.pushCupertinoRoute(context, const PinChangeScreen())
+      RouteUtil.pushPanelCupertinoRoute(context, const PinChangeScreen())
           .then((value) {
         setState(() {
           _hasGuesturePasswd =

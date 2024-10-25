@@ -30,6 +30,7 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           : null,
       description: json['description'] ?? "",
       idStr: json['id_str'] as String?,
+      restId: json['rest_id'] as String?,
       invitesPolicy: json['invites_policy'] == null
           ? null
           : CommunityDataInvitesPolicy.fromJson(
@@ -38,7 +39,7 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           ? null
           : CommunityInvitesResult.fromJson(
               json['invites_result'] as Map<String, dynamic>),
-      isPinned: json['is_pinned'] as bool?,
+      isPinned: json['is_pinned'] as bool? ?? false,
       joinPolicy: json['join_policy'] == null
           ? null
           : CommunityDataJoinPolicy.fromJson(json['join_policy'] as String),
@@ -46,7 +47,7 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           ? null
           : CommunityJoinRequestsResult.fromJson(
               json['join_requests_result'] as Map<String, dynamic>),
-      memberCount: (json['member_count'] as num?)?.toInt(),
+      memberCount: (json['member_count'] as num?)?.toInt() ?? 0,
       membersFacepileResults:
           (json['members_facepile_results'] as List<dynamic>?)
               ?.map((e) => e == null
@@ -79,6 +80,8 @@ CommunityData _$CommunityDataFromJson(Map<String, dynamic> json) =>
           ? null
           : CommunityUrls.fromJson(json['urls'] as Map<String, dynamic>),
       viewerRelationship: json['viewer_relationship'],
+      isMember: json['is_member'] as bool? ?? false,
+      isNSFW: json['is_nsfw'] as bool?,
     );
 
 Map<String, dynamic> _$CommunityDataToJson(CommunityData instance) =>

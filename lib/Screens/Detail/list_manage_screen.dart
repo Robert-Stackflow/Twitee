@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/data_api.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Utils/constant.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Utils/responsive_util.dart';
@@ -31,6 +32,7 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Twitter/twitter_list_item.dart';
 
 class ListManageScreen extends StatefulWidget {
@@ -56,6 +58,9 @@ class _ListManageScreenState extends State<ListManageScreen>
   final ScrollController _scrollController = ScrollController();
 
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
+
+  final ScrollToHideController _scrollToHideController =
+      ScrollToHideController();
 
   bool _noMore = false;
 
@@ -178,60 +183,98 @@ class _ListManageScreenState extends State<ListManageScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: ItemBuilder.buildSimpleAppBar(
-          context: context,
-          title: "管理列表",
-          transparent: true,
-          actions: [
-            ItemBuilder.buildIconButton(
-              context: context,
-              icon: Icon(
-                Icons.add_rounded,
-                size: Theme.of(context).iconTheme.size,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              onTap: () {
-                IToast.showTop("暂不支持编辑列表");
-              },
+      appBar: ItemBuilder.buildDesktopAppBar(
+        context: context,
+        title: "管理列表",
+        transparent: true,
+        showBack: true,
+        actions: [
+          ItemBuilder.buildIconButton(
+            context: context,
+            icon: Icon(
+              Icons.add_rounded,
+              size: Theme.of(context).iconTheme.size,
+              color: Theme.of(context).iconTheme.color,
             ),
-            if (ResponsiveUtil.isLandscape())
-              ItemBuilder.buildBlankIconButton(context),
-            const SizedBox(width: 10),
-          ],
-        ),
+            onTap: () {
+              IToast.showTop("暂不支持编辑列表");
+            },
+          ),
+          if (ResponsiveUtil.isLandscape())
+            ItemBuilder.buildBlankIconButton(context),
+          const SizedBox(width: 10),
+        ],
       ),
-      body: EasyRefresh(
-        onRefresh: () async {
-          return await _onRefresh();
-        },
-        onLoad: () async {
-          return await _onLoad();
-        },
-        refreshOnStart: true,
-        triggerAxis: Axis.vertical,
-        controller: _easyRefreshController,
-        child: ItemBuilder.buildLoadMoreNotification(
-          onLoad: _onLoad,
-          noMore: _noMore,
-          child: WaterfallFlow.extent(
-            controller: _scrollController,
-            padding: ResponsiveUtil.isLandscape()
-                ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
-                : const EdgeInsets.only(bottom: 16),
-            mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-            maxCrossAxisExtent: 600,
-            crossAxisSpacing: 6,
-            children: List.generate(
-              validItems.length,
-              (index) {
-                return TwitterListItem(list: validItems[index]);
-              },
+      body: Stack(
+        children: [
+          EasyRefresh.builder(
+            onRefresh: () async {
+              return await _onRefresh();
+            },
+            onLoad: () async {
+              return await _onLoad();
+            },
+            refreshOnStart: true,
+            triggerAxis: Axis.vertical,
+            controller: _easyRefreshController,
+            childBuilder: (context, physics) => validItems.isNotEmpty
+                ? ItemBuilder.buildLoadMoreNotification(
+                    onLoad: _onLoad,
+                    noMore: _noMore,
+                    child: WaterfallFlow.extent(
+                      controller: _scrollController,
+                      physics: physics,
+                      padding: ResponsiveUtil.isLandscape()
+                          ? const EdgeInsets.all(8)
+                              .add(const EdgeInsets.only(bottom: 16))
+                          : const EdgeInsets.only(bottom: 16),
+                      mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+                      maxCrossAxisExtent: 600,
+                      crossAxisSpacing: 6,
+                      children: List.generate(
+                        validItems.length,
+                        (index) {
+                          return TwitterListItem(list: validItems[index]);
+                        },
+                      ),
+                    ),
+                  )
+                : ItemBuilder.buildEmptyPlaceholder(
+                    context: context,
+                    physics: physics,
+                    text: "暂无列表",
+                    scrollController: _scrollController,
+                  ),
+          ),
+          Positioned(
+            right: ResponsiveUtil.isLandscape() ? 16 : 12,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
+            child: ScrollToHide(
+              controller: _scrollToHideController,
+              scrollControllers: [_scrollController],
+              hideDirection: AxisDirection.down,
+              child: _buildFloatingButtons(),
             ),
           ),
-        ),
+        ],
       ),
     );
+  }
+
+  _buildFloatingButtons() {
+    return ResponsiveUtil.isLandscape()
+        ? Column(
+            children: [
+              if (ResponsiveUtil.isLandscape())
+                ItemBuilder.buildShadowIconButton(
+                  context: context,
+                  icon: const Icon(Icons.add_rounded),
+                  onTap: () async {
+                    IToast.showTop("暂不支持新建列表");
+                  },
+                ),
+            ],
+          )
+        : emptyWidget;
   }
 }

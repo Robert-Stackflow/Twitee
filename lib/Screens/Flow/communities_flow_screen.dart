@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Screens/Flow/topic_row.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -29,24 +28,24 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
 
-class CommunityExploreFlowScreen extends StatefulWidgetForFlow {
-  const CommunityExploreFlowScreen({
+class CommunitiesFlowScreen extends StatefulWidgetForFlow {
+  const CommunitiesFlowScreen({
     super.key,
+    required this.listId,
     super.nested,
     super.scrollController,
     super.triggerOffset,
-    this.topics = const [],
   });
 
-  final List<CommunityTopic> topics;
+  final String listId;
 
-  static const String routeName = "/navigtion/communityExploreFlow";
+  static const String routeName = "/navigtion/communitiesFlow";
 
   @override
-  State<CommunityExploreFlowScreen> createState() => _ListFlowScreenState();
+  State<CommunitiesFlowScreen> createState() => _CommunitiesFlowScreenState();
 }
 
-class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
+class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
@@ -56,8 +55,6 @@ class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
   List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
-
-  String? currentTopicId;
 
   bool _loading = false;
 
@@ -110,8 +107,8 @@ class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
         _initPhase = InitPhase.connecting;
         setState(() {});
       }
-      var res = await CommunityApi.getCommunititesExploreTimeline(
-          topicId: currentTopicId);
+      var res = await CommunityApi.getCommunityListTimeline(
+          communityId: widget.listId);
       if (res.success) {
         _initPhase = InitPhase.successful;
         Timeline timeline = res.data;
@@ -159,9 +156,9 @@ class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
         _initPhase = InitPhase.connecting;
         setState(() {});
       }
-      var res = await CommunityApi.getCommunititesExploreTimeline(
+      var res = await CommunityApi.getCommunityListTimeline(
         cursorBottom: cursorBottom!.value,
-        topicId: currentTopicId,
+        communityId: widget.listId,
       );
       if (res.success) {
         _initPhase = InitPhase.successful;
@@ -265,25 +262,7 @@ class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return widget.nested ? _buildBody() : _buildBodyWithTopics();
-  }
-
-  _buildBodyWithTopics() {
-    return Column(
-      children: [
-        TopicRow(
-          topics: widget.topics,
-          onSelectTopic: (topicId) async {
-            currentTopicId = topicId;
-            setState(() {});
-            _easyRefreshController.callRefresh();
-          },
-        ),
-        Expanded(
-          child: _buildMainBody(),
-        ),
-      ],
-    );
+    return widget.nested ? _buildBody() : _buildMainBody();
   }
 
   _buildBody() {
@@ -297,7 +276,7 @@ class _ListFlowScreenState extends State<CommunityExploreFlowScreen>
           onTap: refresh,
         );
       case InitPhase.successful:
-        return _buildBodyWithTopics();
+        return _buildMainBody();
       default:
         return Container();
     }

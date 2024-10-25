@@ -43,6 +43,7 @@ class DialogBuilder {
     bool renderHtml = false,
     Alignment align = Alignment.bottomCenter,
     bool responsive = true,
+    Widget? messageChild,
   }) {
     if (responsive && ResponsiveUtil.isWideLandscape()) {
       CustomConfirmDialog.show(
@@ -57,6 +58,7 @@ class DialogBuilder {
         margin: margin,
         padding: padding,
         barrierDismissible: barrierDismissible,
+        messageChild: messageChild,
         renderHtml: renderHtml,
         align: Alignment.center,
         confirmButtonText: confirmButtonText ?? S.current.confirm,
@@ -78,6 +80,7 @@ class DialogBuilder {
         margin: margin,
         padding: padding,
         barrierDismissible: barrierDismissible,
+        messageChild: messageChild,
         renderHtml: renderHtml,
         align: Alignment.bottomCenter,
         confirmButtonText: confirmButtonText ?? S.current.confirm,

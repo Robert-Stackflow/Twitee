@@ -22,7 +22,10 @@ part 'community_data.g.dart';
 
 @JsonSerializable()
 class CommunityData {
-  const CommunityData({
+  CommunityData({
+    required this.restId,
+    required this.isMember,
+    required this.isNSFW,
     required this.privateTypename,
     required this.actions,
     required this.adminResults,
@@ -70,18 +73,20 @@ class CommunityData {
   final String description;
   @JsonKey(name: 'id_str')
   final String? idStr;
+  @JsonKey(name: 'rest_id')
+  final String? restId;
   @JsonKey(name: 'invites_policy')
   final CommunityDataInvitesPolicy? invitesPolicy;
   @JsonKey(name: 'invites_result')
   final CommunityInvitesResult? invitesResult;
   @JsonKey(name: 'is_pinned')
-  final bool? isPinned;
+  bool isPinned;
   @JsonKey(name: 'join_policy')
   final CommunityDataJoinPolicy? joinPolicy;
   @JsonKey(name: 'join_requests_result')
   final CommunityJoinRequestsResult? joinRequestsResult;
   @JsonKey(name: 'member_count')
-  final int? memberCount;
+  int memberCount;
   @JsonKey(name: 'members_facepile_results')
   final List<UserResults?>? membersFacepileResults;
   @JsonKey(name: 'moderator_count')
@@ -99,6 +104,10 @@ class CommunityData {
   final CommunityUrls? urls;
   @JsonKey(name: 'viewer_relationship')
   final dynamic viewerRelationship;
+  @JsonKey(name: 'is_member')
+  bool isMember;
+  @JsonKey(name: 'is_nsfw')
+  final bool? isNSFW;
 
   Map<String, Object?> toJson() => _$CommunityDataToJson(this);
 }

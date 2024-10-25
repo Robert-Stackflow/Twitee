@@ -61,6 +61,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     primaryController = PrimaryScrollController.of(context);
     tabDataList.addAll([
       TabItemData.build(
+        context,
         "最相关",
         (key, scrollController) => CommentFlowScreen(
           key: key,
@@ -70,6 +71,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "最新",
         (key, scrollController) => CommentFlowScreen(
           key: key,
@@ -80,6 +82,7 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
         ),
       ),
       TabItemData.build(
+        context,
         "最多点赞",
         (key, scrollController) => CommentFlowScreen(
           key: key,

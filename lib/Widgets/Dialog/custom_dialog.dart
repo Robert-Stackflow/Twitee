@@ -13,10 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Widgets/Dialog/widgets/loading_dialog_widget.dart';
-import 'package:twitee/Widgets/Dialog/widgets/qrcodes_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:twitee/Widgets/Dialog/widgets/loading_dialog_widget.dart';
+import 'package:twitee/Widgets/Dialog/widgets/qrcodes_dialog_widget.dart';
 
 import '../../Utils/app_provider.dart';
 import '../Custom/floating_modal.dart';
@@ -381,6 +381,7 @@ class CustomConfirmDialog {
     String? title,
     required String message,
     String? imagePath,
+    Widget? messageChild,
     TextAlign messageTextAlign = TextAlign.center,
     required String confirmButtonText,
     required String cancelButtonText,
@@ -416,6 +417,7 @@ class CustomConfirmDialog {
           margin: margin,
           padding: padding,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -426,6 +428,7 @@ class CustomConfirmDialog {
     String? imagePath,
     required String confirmButtonText,
     TextAlign messageTextAlign = TextAlign.center,
+    Widget? messageChild,
     required String cancelButtonText,
     required VoidCallback onTapConfirm,
     required VoidCallback onTapCancel,
@@ -470,6 +473,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -479,6 +483,7 @@ class CustomConfirmDialog {
     required String message,
     String? imagePath,
     required String confirmButtonText,
+    Widget? messageChild,
     required String cancelButtonText,
     TextAlign messageTextAlign = TextAlign.center,
     required VoidCallback onTapConfirm,
@@ -524,6 +529,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -532,6 +538,7 @@ class CustomConfirmDialog {
     String? title,
     required String message,
     TextAlign messageTextAlign = TextAlign.center,
+    Widget? messageChild,
     String? imagePath,
     required String confirmButtonText,
     required String cancelButtonText,
@@ -578,6 +585,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -585,6 +593,7 @@ class CustomConfirmDialog {
     BuildContext context, {
     String? title,
     required String message,
+    Widget? messageChild,
     String? imagePath,
     required String confirmButtonText,
     TextAlign messageTextAlign = TextAlign.center,
@@ -632,6 +641,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -639,6 +649,7 @@ class CustomConfirmDialog {
     BuildContext context, {
     String? title,
     required String message,
+    Widget? messageChild,
     String? imagePath,
     required String confirmButtonText,
     TextAlign messageTextAlign = TextAlign.center,
@@ -686,6 +697,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 
@@ -693,6 +705,7 @@ class CustomConfirmDialog {
     BuildContext context, {
     String? title,
     required String message,
+    Widget? messageChild,
     String? imagePath,
     required String confirmButtonText,
     required String cancelButtonText,
@@ -740,6 +753,7 @@ class CustomConfirmDialog {
           padding: padding,
           renderHtml: renderHtml,
           align: align,
+          messageChild: messageChild,
         ),
       );
 }

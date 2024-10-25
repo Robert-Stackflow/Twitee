@@ -9,7 +9,7 @@ part of 'community.dart';
 Community _$CommunityFromJson(Map<String, dynamic> json) {
   print(json);
   return Community(
-  result: CommunityData.fromJson(json['result'] as Map<String, dynamic>),
+    result: CommunityData.fromJson(json['result'] as Map<String, dynamic>),
   );
 }
 

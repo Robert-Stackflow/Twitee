@@ -13,10 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Screens/Setting/select_font_screen.dart';
-import 'package:twitee/Screens/Setting/select_theme_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:twitee/Screens/Setting/select_font_screen.dart';
+import 'package:twitee/Screens/Setting/select_theme_screen.dart';
 
 import '../../Resources/fonts.dart';
 import '../../Resources/theme_color_data.dart';
@@ -75,10 +75,11 @@ class _AppearanceSettingScreenState extends State<AppearanceSettingScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.appearanceSetting,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -104,6 +105,7 @@ class _AppearanceSettingScreenState extends State<AppearanceSettingScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ..._apperanceSettings(),
               if (ResponsiveUtil.isMobile()) ..._mobileSettings(),
               const SizedBox(height: 30),
@@ -151,7 +153,8 @@ class _AppearanceSettingScreenState extends State<AppearanceSettingScreen>
             title: S.current.selectTheme,
             tip: "${lightTheme.intlName}/${darkTheme.intlName}",
             onTap: () {
-              RouteUtil.pushCupertinoRoute(context, const SelectThemeScreen());
+              RouteUtil.pushPanelCupertinoRoute(
+                  context, const SelectThemeScreen());
             },
           ),
         ),
@@ -164,7 +167,8 @@ class _AppearanceSettingScreenState extends State<AppearanceSettingScreen>
           tip: currentFont.intlFontName,
           bottomRadius: true,
           onTap: () {
-            RouteUtil.pushCupertinoRoute(context, const SelectFontScreen());
+            RouteUtil.pushPanelCupertinoRoute(
+                context, const SelectFontScreen());
           },
         ),
       ),

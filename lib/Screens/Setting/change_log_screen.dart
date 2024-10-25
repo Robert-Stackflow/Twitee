@@ -87,10 +87,11 @@ class _ChangelogScreenState extends State<ChangelogScreen>
       color: Colors.transparent,
       child: MyScaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.changelog,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -118,7 +119,11 @@ class _ChangelogScreenState extends State<ChangelogScreen>
             await fetchReleases();
           },
           child: ListView.builder(
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            padding: EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: 10,
+                top: ResponsiveUtil.isLandscape() ? 10 : 0),
             itemBuilder: (context, index) => _buildItem(releaseItems[index]),
             itemCount: releaseItems.length,
           ),

@@ -13,10 +13,10 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
 import 'package:twitee/Resources/theme_color_data.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/hive_util.dart';
-import 'package:flutter/material.dart';
 
 import '../../Utils/responsive_util.dart';
 import '../../Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -43,10 +43,11 @@ class _SelectThemeScreenState extends State<SelectThemeScreen>
       color: Colors.transparent,
       child: Scaffold(
         appBar: ResponsiveUtil.isLandscape()
-            ? ItemBuilder.buildSimpleAppBar(
+            ? ItemBuilder.buildDesktopAppBar(
                 title: S.current.selectTheme,
                 context: context,
                 transparent: true,
+                showBack: true,
               )
             : ItemBuilder.buildAppBar(
                 context: context,
@@ -72,6 +73,7 @@ class _SelectThemeScreenState extends State<SelectThemeScreen>
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
+              if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
               ItemBuilder.buildCaptionItem(
                   context: context, title: S.current.lightTheme),
               ItemBuilder.buildContainerItem(

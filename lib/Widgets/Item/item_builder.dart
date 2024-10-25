@@ -90,6 +90,7 @@ class ItemBuilder {
     Widget? titleWidget,
     bool showBack = false,
     bool showMenu = false,
+    bool transparent = false,
     double spacing = 10,
     bool centerInMobile = false,
     Function()? onBackTap,
@@ -102,13 +103,13 @@ class ItemBuilder {
     UserInfo? info = HiveUtil.getUserInfo();
     Widget? avatar = info != null
         ? Container(
-            margin: const EdgeInsets.symmetric(vertical: 6.5)
+            margin: const EdgeInsets.symmetric(vertical: 10.5)
                 .add(const EdgeInsets.only(right: 3)),
             child: ItemBuilder.buildAvatar(
               context: context,
               imageUrl: TweetUtil.getBigAvatarUrl(info.profileImageUrlHttps) ??
                   AssetUtil.avatar,
-              size: 40,
+              size: 32,
               onTap: () => panelScreenState?.openDrawer(),
             ),
           )
@@ -218,7 +219,14 @@ class ItemBuilder {
             backgroundColor: Theme.of(context).canvasColor,
             leftSpacing: 8,
             leadingTitleSpacing: spacing,
-            actions: actions,
+            actions: [
+              ...actions,
+              if (centerInMobile) ...[
+                ItemBuilder.buildBlankIconButton(context),
+                const SizedBox(width: 6.5)
+              ]
+            ],
+            center: centerInMobile,
             title: titleWidget != null
                 ? Container(
                     constraints: const BoxConstraints(maxHeight: 60),
@@ -504,7 +512,7 @@ class ItemBuilder {
             padding: padding,
             isScrollable: scrollable,
             tabAlignment: scrollable ? TabAlignment.start : null,
-            // physics: const ClampingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             labelStyle: titleMedium?.apply(
               fontWeightDelta: 2,
               // color: ColorUtil.getComplementaryColor(primaryColor),
@@ -1281,17 +1289,25 @@ class ItemBuilder {
               child: Row(
                 children: [
                   if (isCheckbox) checkIcon,
+                  if (config.iconData != null)
+                    Transform.scale(
+                      scale: 0.83,
+                      child: Icon(config.iconData,
+                          color: config.isWarning ? Colors.red : null),
+                    ),
                   if (config.icon != null)
                     Transform.scale(
                       scale: 0.83,
                       child: config.icon!,
                     ),
-                  if (config.icon != null) const SizedBox(width: 10),
+                  if (config.icon != null || config.iconData != null)
+                    const SizedBox(width: 10),
                   Text(
                     config.label,
                     style: Theme.of(context).textTheme.bodyMedium?.apply(
                           fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                          color: config.textColor,
+                          color: config.textColor ??
+                              (config.isWarning ? Colors.red : null),
                         ),
                   ),
                 ],
@@ -2822,7 +2838,7 @@ class ItemBuilder {
                 ...rightButtons,
                 StayOnTopWindowButton(
                   context: context,
-                  rotateAngle: isStayOnTop ? -pi / 4 : 0,
+                  rotateAngle: isStayOnTop ? 0 : pi / 4,
                   colors: isStayOnTop
                       ? MyColors.getStayOnTopButtonColors(context)
                       : MyColors.getNormalButtonColors(context),

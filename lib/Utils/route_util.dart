@@ -56,6 +56,17 @@ class RouteUtil {
     }
   }
 
+  static pushPanelCupertinoRoute(
+    BuildContext context,
+    Widget page, {
+    bool popAll = false,
+  }) {
+    if (popAll) {
+      panelScreenState?.popAll();
+    }
+    panelScreenState?.pushPage(page);
+  }
+
   static pushDesktopFadeRoute(
     Widget page, {
     bool removeUtil = false,

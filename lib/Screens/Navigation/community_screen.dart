@@ -17,7 +17,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Flow/community_discovery_screen.dart';
-import 'package:twitee/Screens/Flow/community_explore_flow_screen.dart';
+import 'package:twitee/Screens/Flow/community_explore_screen.dart';
+import 'package:twitee/Screens/Flow/community_home_screen.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Api/community_api.dart';
@@ -108,8 +109,9 @@ class CommunityScreenState extends State<CommunityScreen>
   initTab() {
     tabDataList.addAll([
       TabItemData.build(
-        "发现社群",
-        (key, scrollController) => CommunityDiscoveryFlowScreen(
+        context,
+        "主页",
+        (key, scrollController) => CommunityHomeScreen(
           key: key,
           scrollController: scrollController,
           triggerOffset: appBarWithTabBarHeight,
@@ -117,8 +119,19 @@ class CommunityScreenState extends State<CommunityScreen>
         ),
       ),
       TabItemData.build(
+        context,
+        "发现社群",
+        (key, scrollController) => CommunityDiscoveryScreen(
+          key: key,
+          scrollController: scrollController,
+          triggerOffset: appBarWithTabBarHeight,
+          topics: topics,
+        ),
+      ),
+      TabItemData.build(
+        context,
         "推荐",
-        (key, scrollController) => CommunityExploreFlowScreen(
+        (key, scrollController) => CommunityExploreScreen(
           key: key,
           scrollController: scrollController,
           triggerOffset: appBarWithTabBarHeight,
@@ -140,6 +153,7 @@ class CommunityScreenState extends State<CommunityScreen>
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "社群",
         bottomHeight: 56,
+        centerInMobile: true,
         bottom: _initPhase == InitPhase.successful
             ? ItemBuilder.buildTabBar(
                 context,
