@@ -270,9 +270,9 @@ class _UserFlowScreenState extends State<UserFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: _scrollController,
-          padding: MyTheme.responsiveListFlowPadding,
-          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
                 children: List.generate(
                   validEntries.length,

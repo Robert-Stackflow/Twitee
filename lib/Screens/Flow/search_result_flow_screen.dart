@@ -356,16 +356,16 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
           ? GridView.extent(
               controller: _scrollController,
               maxCrossAxisExtent: maxCrossAxisExtent,
-        padding: MyTheme.responsiveListFlowPadding,
-        mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-        crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+              padding: MyTheme.responsiveListFlowPadding,
+              mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+              crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
               children: children,
             )
           : WaterfallFlow.extent(
               controller: _scrollController,
-        padding: MyTheme.responsiveListFlowPadding,
-        mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-        crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+              padding: MyTheme.responsiveListFlowPadding,
+              mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+              crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
               maxCrossAxisExtent: maxCrossAxisExtent,
               children: children,
             ),

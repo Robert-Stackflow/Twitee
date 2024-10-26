@@ -212,9 +212,9 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         child: !_inited || items.isNotEmpty
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-          padding: MyTheme.responsiveListFlowPadding,
-          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 400,
                 children: List.generate(
                   items.length,
@@ -250,8 +250,8 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           }
         },
         child: Container(
-          decoration:
-              BoxDecoration(borderRadius: radius, border: MyTheme.responsiveBottomBorder),
+          decoration: BoxDecoration(
+              borderRadius: radius, border: MyTheme.responsiveBottomBorder),
           height: 80,
           padding: const EdgeInsets.all(10),
           child: Column(

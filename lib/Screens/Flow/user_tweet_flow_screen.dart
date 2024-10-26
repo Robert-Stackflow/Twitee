@@ -358,9 +358,9 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-          padding: MyTheme.responsiveListFlowPadding,
-          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 800,
                 children: List.generate(
                   validEntries.length,

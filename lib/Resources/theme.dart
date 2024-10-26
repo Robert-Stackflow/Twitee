@@ -77,7 +77,6 @@ class MyTheme {
     return ResponsiveUtil.isLandscape() ? 6 : 2;
   }
 
-
   static Border get bottomBorder {
     return Border(
       bottom: BorderSide(color: Theme.of(rootContext).dividerColor, width: 0.5),

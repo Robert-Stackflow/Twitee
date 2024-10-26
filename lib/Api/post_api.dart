@@ -39,7 +39,7 @@ enum RankType {
     }
   }
 
-  static RankType fromIndex(int index){
+  static RankType fromIndex(int index) {
     switch (index) {
       case 0:
         return RankType.Relevance;

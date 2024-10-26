@@ -238,9 +238,9 @@ class _UserListFlowScreenState extends State<UserListFlowScreen>
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-          padding: MyTheme.responsiveListFlowPadding,
-          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
                 children: List.generate(
                   validEntries.length,

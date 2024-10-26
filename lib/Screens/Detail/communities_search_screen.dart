@@ -123,7 +123,7 @@ class CommunitiesSearchScreenState extends State<CommunitiesSearchScreen>
     double width = MediaQuery.of(context).size.width;
     return Listener(
       onPointerDown: (_) {
-        if (!ResponsiveUtil.isDesktop()&&searchFocusNode.hasFocus) {
+        if (!ResponsiveUtil.isDesktop() && searchFocusNode.hasFocus) {
           FocusManager.instance.primaryFocus?.unfocus();
         }
       },
