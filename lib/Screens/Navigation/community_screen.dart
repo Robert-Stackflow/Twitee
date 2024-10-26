@@ -167,7 +167,7 @@ class CommunityScreenState extends State<CommunityScreen>
                 _tabController,
                 tabDataList.tabList,
                 onTap: onTapTab,
-                background: Theme.of(context).canvasColor,
+                forceUnscrollable: true,
                 showBorder: true,
                 width: MediaQuery.of(context).size.width,
               )

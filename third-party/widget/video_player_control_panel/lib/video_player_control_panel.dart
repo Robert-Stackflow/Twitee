@@ -842,7 +842,10 @@ class _VideoControlPanelState extends State<VideoControlPanel>
         // if (!isDesktop) Container(color: Colors.black38),
         if (!widget.isGif) _buildGestureWidget(),
         if (widget.showDetailPanel)
-          Positioned(right: 50, bottom: 5, child: _buildVolumeSlider()),
+          Positioned(
+              right: widget.showFullscreenButton ? 50 : 10,
+              bottom: 5,
+              child: _buildVolumeSlider()),
         if (widget.showDetailPanel)
           Positioned(left: 0, bottom: 0, right: 0, child: _buildBottomPanel()),
         if (isMobile && !widget.isGif)

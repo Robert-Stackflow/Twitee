@@ -578,7 +578,6 @@ class CommunityApi {
   }
 
   static Future<ResponseResult> getCommunityMemeberBySearch({
-    int count = 20,
     required String communityId,
     required String query,
     String? cursorBottom,
@@ -591,8 +590,7 @@ class CommunityApi {
         params: {
           "variables": jsonEncode({
             "communityId": communityId,
-            "prefix": "ff",
-            "count": count,
+            "prefix": query,
             "cursor": cursorBottom,
           }),
           "features": jsonEncode({
@@ -611,6 +609,10 @@ class CommunityApi {
       return ResponseResult.success(
         data: (data['data']['communityResults']['result']
                 ['member_relationship_typeahead'] as List)
+            .where((e) =>
+                CommunityDataRole.fromJson(
+                    e['role'] as String? ?? "NonMember") !=
+                CommunityDataRole.nonMember)
             .map((e) => User.fromJson(e['user_results']['result']))
             .toList(),
         message: 'Success',

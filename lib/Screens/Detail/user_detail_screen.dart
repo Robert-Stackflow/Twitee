@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Models/translation_result.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Detail/search_result_screen.dart';
 import 'package:twitee/Screens/Detail/user_list_screen.dart';
@@ -323,6 +324,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               _tabController,
               tabDataList.tabList,
               onTap: onTapTab,
+              forceUnscrollable: true,
               showBorder: true,
               padding: const EdgeInsets.symmetric(horizontal: 10),
             ),
@@ -681,15 +683,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        // border: Border(
-        //   bottom: BorderSide(
-        //     color: Theme.of(context).dividerColor,
-        //     width: 1,
-        //   ),
-        // ),
-      ),
+      decoration: BoxDecoration(color: MyTheme.itemBackground),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

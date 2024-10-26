@@ -30,11 +30,14 @@ class CommunityInsearchScreen extends StatefulWidget {
     super.key,
     required this.searchKey,
     required this.communityId,
+    required this.communityName,
   });
 
   final String searchKey;
 
   final String communityId;
+
+  final String communityName;
 
   static const String routeName = "/navigtion/communityInsearch";
 
@@ -121,70 +124,77 @@ class CommunityInsearchScreenState extends State<CommunityInsearchScreen>
   Widget build(BuildContext context) {
     super.build(context);
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: ItemBuilder.buildDesktopAppBar(
-        context: context,
-        showMenu: false,
-        showBack: true,
-        spacing: 0,
-        onBackTap: () {
-          panelScreenState?.popPage();
-        },
-        titleWidget: Container(
-          margin: const EdgeInsets.all(10),
-          constraints: ResponsiveUtil.isLandscape()
-              ? const BoxConstraints(
-                  maxWidth: searchBarWidth,
-                  minWidth: searchBarWidth,
-                  maxHeight: 56)
-              : BoxConstraints(
-                  maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
-          child: CompositedTransformTarget(
-            link: _layerLink,
-            child: ItemBuilder.buildDesktopSearchBar(
-              context: context,
-              borderRadius: 8,
-              tag: "SearchCommnuity",
-              bottomMargin: 18,
-              hintFontSizeDelta: 1,
-              focusNode: searchFocusNode,
-              controller: _searchController,
-              background: Colors.grey.withAlpha(40),
-              hintText: "社群搜索",
-              onSubmitted: (text) async {
-                perfromSearch(text);
-              },
+    return Listener(
+      onPointerDown: (_) {
+        if (!ResponsiveUtil.isDesktop() && searchFocusNode.hasFocus) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
+      },
+      child: Scaffold(
+        appBar: ItemBuilder.buildDesktopAppBar(
+          context: context,
+          showMenu: false,
+          showBack: true,
+          spacing: 0,
+          onBackTap: () {
+            panelScreenState?.popPage();
+          },
+          titleWidget: Container(
+            margin: const EdgeInsets.all(10),
+            constraints: ResponsiveUtil.isLandscape()
+                ? const BoxConstraints(
+                    maxWidth: searchBarWidth,
+                    minWidth: searchBarWidth,
+                    maxHeight: 56)
+                : BoxConstraints(
+                    maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
+            child: CompositedTransformTarget(
+              link: _layerLink,
+              child: ItemBuilder.buildDesktopSearchBar(
+                context: context,
+                borderRadius: 8,
+                tag: "SearchCommnuity",
+                bottomMargin: 18,
+                hintFontSizeDelta: 1,
+                focusNode: searchFocusNode,
+                controller: _searchController,
+                background: Colors.grey.withAlpha(40),
+                hintText: "搜索${widget.communityName}",
+                onSubmitted: (text) async {
+                  perfromSearch(text);
+                },
+              ),
             ),
           ),
-        ),
-        bottom: resultTabDataList.tabList.isEmpty
-            ? null
-            : ItemBuilder.buildTabBar(
-                context,
-                _resultTabController,
-                resultTabDataList.tabList,
-                showBorder: true,
-                forceUnscrollable: true,
-                width: MediaQuery.of(context).size.width,
-                background: Theme.of(context).canvasColor,
-                onTap: (index) {
-                  if (mounted) setState(() {});
-                  if (!_resultTabController.indexIsChanging &&
-                      index == currentResultIndex) {
-                    if (resultTabDataList.getScrollController(index) != null &&
-                        resultTabDataList.getScrollController(index)!.offset >
-                            30) {
-                      scrollToTop();
-                    } else {
-                      refresh();
+          bottom: resultTabDataList.tabList.isEmpty
+              ? null
+              : ItemBuilder.buildTabBar(
+                  context,
+                  _resultTabController,
+                  resultTabDataList.tabList,
+                  showBorder: true,
+                  forceUnscrollable: true,
+                  width: MediaQuery.of(context).size.width,
+                  onTap: (index) {
+                    if (mounted) setState(() {});
+                    if (!_resultTabController.indexIsChanging &&
+                        index == currentResultIndex) {
+                      if (resultTabDataList.getScrollController(index) !=
+                              null &&
+                          resultTabDataList.getScrollController(index)!.offset >
+                              30) {
+                        scrollToTop();
+                      } else {
+                        refresh();
+                      }
                     }
-                  }
-                },
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-              ),
-        bottomHeight: 56,
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+          bottomHeight: 56,
+        ),
+        body: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 

@@ -119,21 +119,25 @@ class ItemBuilder {
       bool hasLeftButton =
           showBack || (showMenu && !ResponsiveUtil.isLandscape());
       var finalTitle = titleWidget ??
-          Text(title, style: Theme.of(context).textTheme.titleLarge);
+          Expanded(
+            child: IgnorePointer(
+              child: Container(
+                margin: const EdgeInsets.only(right: 173),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          );
       topWidget = PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: Container(
           height: 56,
           decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            border: showBorder ?? true
-                ? Border(
-                    bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
-                    ),
-                  )
-                : null,
+            color: MyTheme.itemBackground,
+            border: showBorder ?? true ? MyTheme.bottomBorder : null,
           ),
           child: SafeArea(
             child: Stack(
@@ -185,7 +189,6 @@ class ItemBuilder {
                       ResponsiveUtil.isLandscape()
                           ? finalTitle
                           : Expanded(child: finalTitle),
-                      if (ResponsiveUtil.isDesktop()) Container(width: 173),
                     ],
                   ),
                 ),
@@ -199,15 +202,8 @@ class ItemBuilder {
         preferredSize: const Size.fromHeight(56),
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            border: showBorder ?? false
-                ? Border(
-                    bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
-                    ),
-                  )
-                : null,
+            color: MyTheme.background,
+            border: showBorder ?? false ? MyTheme.bottomBorder : null,
           ),
           child: ItemBuilder.buildAppBar(
             context: context,
@@ -216,7 +212,7 @@ class ItemBuilder {
             onLeadingTap: showMenu
                 ? () => panelScreenState?.openDrawer()
                 : onBackTap ?? () => panelScreenState?.popPage(),
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: MyTheme.itemBackground,
             leftSpacing: 8,
             leadingTitleSpacing: spacing,
             actions: [
@@ -488,14 +484,8 @@ class ItemBuilder {
         height: 56,
         width: width,
         decoration: BoxDecoration(
-          color: background,
-          border: showBorder
-              ? Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: ResponsiveUtil.isLandscape() ? 1 : 1),
-                )
-              : null,
+          color: background ?? MyTheme.itemBackground,
+          border: showBorder ? MyTheme.bottomBorder : null,
         ),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 10),
@@ -838,12 +828,8 @@ class ItemBuilder {
                         color: Theme.of(context).dividerColor, width: 0.5),
                   ),
                   Border(
-                    top: topRadius
-                        ? BorderSide(
-                            color: Theme.of(context).dividerColor, width: 0.5)
-                        : BorderSide.none,
-                    bottom: BorderSide(
-                        color: Theme.of(context).dividerColor, width: 0.5),
+                    top: topRadius ? MyTheme.borderSide : BorderSide.none,
+                    bottom: MyTheme.borderSide,
                   ),
                 )
               : const Border(),
@@ -1014,22 +1000,11 @@ class ItemBuilder {
           border: ThemeColorData.isImmersive(context)
               ? Border.merge(
                   Border.symmetric(
-                    vertical: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
+                    vertical: MyTheme.borderSide,
                   ),
                   Border(
-                    top: topRadius
-                        ? BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                          )
-                        : BorderSide.none,
-                    bottom: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 0.5,
-                    ),
+                    top: topRadius ? MyTheme.borderSide : BorderSide.none,
+                    bottom: MyTheme.borderSide,
                   ),
                 )
               : const Border(),
@@ -1135,15 +1110,7 @@ class ItemBuilder {
                       margin: EdgeInsets.symmetric(
                           horizontal: dividerPadding ? 10 : 0),
                       decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                            style: bottomRadius
-                                ? BorderStyle.none
-                                : BorderStyle.solid,
-                          ),
-                        ),
+                        border: bottomRadius ? MyTheme.bottomBorder : null,
                       ),
                     ),
             ],
@@ -1432,34 +1399,12 @@ class ItemBuilder {
         ),
         border: ThemeColorData.isImmersive(context)
             ? Border.merge(
-                Border.symmetric(
-                  vertical: BorderSide(
-                      color: Theme.of(context).dividerColor, width: 0.5),
-                ),
-                Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).dividerColor, width: 0.5),
-                ),
+                Border.symmetric(vertical: MyTheme.borderSide),
+                MyTheme.border,
               )
             : border,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 0.05,
-              style: bottomRadius ? BorderStyle.none : BorderStyle.solid,
-            ),
-            top: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 0.05,
-              style: topRadius ? BorderStyle.none : BorderStyle.solid,
-            ),
-          ),
-        ),
-        child: child,
-      ),
+      child: child,
     );
   }
 

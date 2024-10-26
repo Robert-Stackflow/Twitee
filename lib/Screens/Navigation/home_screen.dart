@@ -27,6 +27,7 @@ import 'package:twitee/Utils/app_provider.dart';
 import '../../Api/community_api.dart';
 import '../../Openapi/models/community.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
@@ -146,7 +147,9 @@ class HomeScreenState extends State<HomeScreen>
     }
     int index = currentIndex;
     _tabController = TabController(
-        length: tabDataList.length, vsync: this, initialIndex: index);
+        length: tabDataList.length,
+        vsync: this,
+        initialIndex: index.clamp(0, tabDataList.length - 1));
     if (mounted) setState(() {});
     panelScreenState?.refreshScrollControllers();
   }
@@ -200,7 +203,7 @@ class HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: MyTheme.background,
       extendBody: true,
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
@@ -215,7 +218,6 @@ class HomeScreenState extends State<HomeScreen>
           _tabController,
           tabDataList.tabList,
           onTap: onTapTab,
-          background: Theme.of(context).canvasColor,
           showBorder: true,
           width: MediaQuery.of(context).size.width,
         ),

@@ -82,7 +82,7 @@ class CustomInfoDialogWidget extends StatelessWidget {
           margin: margin ?? const EdgeInsets.all(24),
           padding: padding ?? const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: backgroundColor ?? MyTheme.getCardBackground(context),
+            color: backgroundColor ?? MyTheme.itemBackground,
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(bottomRadius ? 24 : 0),
               top: Radius.circular(topRadius ? 24 : 0),

@@ -33,6 +33,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Models/response_result.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
@@ -221,70 +222,30 @@ class _ListDetailScreenState extends State<ListDetailScreen>
 
   Widget _buildListInfo() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+          color: MyTheme.itemBackground, border: MyTheme.bottomBorder),
       child: Column(
-        crossAxisAlignment: ResponsiveUtil.isLandscape()
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: ResponsiveUtil.isLandscape()
-                ? MainAxisAlignment.start
-                : MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: ResponsiveUtil.isLandscape()
-                      ? CrossAxisAlignment.start
-                      : CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      listInfo!.name,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "${user!.name}@${user!.screenName} 创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.apply(fontSizeDelta: 1),
-                      textAlign: ResponsiveUtil.isLandscape()
-                          ? TextAlign.start
-                          : TextAlign.center,
-                    ),
-                  ],
+                child: Text(
+                  listInfo!.name,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.apply(fontSizeDelta: 5),
                 ),
               ),
               if (ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
             ],
           ),
-          if (Utils.isNotEmpty(listInfo!.description))
-            const SizedBox(height: 8),
-          if (Utils.isNotEmpty(listInfo!.description))
-            Text(
-              listInfo!.description,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.apply(fontSizeDelta: 1),
-              textAlign: ResponsiveUtil.isLandscape()
-                  ? TextAlign.start
-                  : TextAlign.center,
-            ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            runSpacing: 5,
+          Row(
             children: [
               ItemBuilder.buildCountItem(
                 context,
@@ -299,7 +260,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                   );
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(width: 10),
               ItemBuilder.buildCountItem(
                 context,
                 title: "关注者",
@@ -313,10 +274,26 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                   );
                 },
               ),
+              const Spacer(),
+              if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
             ],
           ),
-          if (!ResponsiveUtil.isLandscape()) const SizedBox(height: 8),
-          if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
+          if (Utils.isNotEmpty(listInfo!.description)) ...[
+            const SizedBox(height: 8),
+            Text(
+              listInfo!.description,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.apply(fontSizeDelta: 1),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Text(
+            "${user!.name}@${user!.screenName} 创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
+            style:
+                Theme.of(context).textTheme.bodySmall?.apply(fontSizeDelta: 1),
+          ),
         ],
       ),
     );
@@ -347,7 +324,10 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                 title: "取消订阅${listInfo!.name}",
                 message: "是否取消订阅${listInfo!.name}？",
                 onTapConfirm: () async {
-                  var res = await ListApi.unSubscribe(listId: widget.listId);
+                  var res = await IToast.showLoadingSnackbar(
+                      "正在取消订阅",
+                      () async =>
+                          await ListApi.unSubscribe(listId: widget.listId));
                   if (res.success) {
                     listInfo!.following = false;
                     listInfo!.subscriberCount--;
@@ -361,7 +341,8 @@ class _ListDetailScreenState extends State<ListDetailScreen>
                 },
               );
             } else {
-              var res = await ListApi.subscribe(listId: widget.listId);
+              var res = await IToast.showLoadingSnackbar("正在订阅",
+                  () async => await ListApi.subscribe(listId: widget.listId));
               if (res.success) {
                 listInfo!.following = true;
                 listInfo!.subscriberCount++;
@@ -445,6 +426,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           iconData: listInfo!.muting
               ? Icons.check_circle_outline_rounded
               : Icons.remove_circle_outline_rounded,
+          isWarning: !listInfo!.muting,
           onPressed: () async {
             if (listInfo!.muting) {
               ResponseResult res = await IToast.showLoadingSnackbar(

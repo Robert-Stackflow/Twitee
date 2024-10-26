@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -169,13 +170,10 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
         child: users.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
                 children: List.generate(
                   users.length,
                   (index) {

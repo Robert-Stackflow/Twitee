@@ -383,7 +383,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
               preferredSize: const Size.fromHeight(56),
               child: ItemBuilder.buildWindowTitle(
                 context,
-                backgroundColor: MyTheme.getBackground(context),
+                backgroundColor: MyTheme.background,
                 isStayOnTop: _isStayOnTop,
                 isMaximized: _isMaximized,
                 onStayOnTopTap: () {
@@ -416,7 +416,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             )
           : ItemBuilder.buildSimpleAppBar(
               title: "登录到你的Twitter帐户",
-              background: MyTheme.getBackground(context),
+              background: MyTheme.background,
               context: context,
               leading: Icons.close_rounded,
               showLeading: !widget.jumpToMain,

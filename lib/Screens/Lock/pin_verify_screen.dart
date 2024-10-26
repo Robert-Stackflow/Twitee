@@ -158,7 +158,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
     Utils.setSafeMode(HiveUtil.getBool(HiveUtil.enableSafeModeKey,
         defaultValue: defaultEnableSafeMode));
     return Scaffold(
-      backgroundColor: MyTheme.getBackground(context),
+      backgroundColor: MyTheme.background,
       appBar: ResponsiveUtil.isDesktop() && widget.showWindowTitle
           ? PreferredSize(
               preferredSize: const Size(0, 86),
@@ -166,7 +166,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
                 context,
                 forceClose: true,
                 leftWidgets: [const Spacer()],
-                backgroundColor: MyTheme.getBackground(context),
+                backgroundColor: MyTheme.background,
                 isStayOnTop: _isStayOnTop,
                 isMaximized: _isMaximized,
                 onStayOnTopTap: () {
@@ -181,7 +181,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
       bottomNavigationBar: widget.showWindowTitle
           ? Container(
               height: 86,
-              color: MyTheme.getBackground(context),
+              color: MyTheme.background,
             )
           : null,
       body: SafeArea(

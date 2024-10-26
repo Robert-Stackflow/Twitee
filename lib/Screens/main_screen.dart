@@ -39,6 +39,7 @@ import 'package:twitee/Widgets/Window/window_caption.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../Api/user_api.dart';
+import '../Resources/theme.dart';
 import '../Utils/app_provider.dart';
 import '../Utils/asset_util.dart';
 import '../Utils/enums.dart';
@@ -458,12 +459,7 @@ class MainScreenState extends State<MainScreen>
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
-        border: Border(
-          right: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
+        border: Border(right: MyTheme.borderSide),
       ),
       padding: EdgeInsets.only(left: leftPadding, right: rightPadding),
       child: Stack(

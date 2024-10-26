@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Api/user_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Screens/Detail/list_membership_manage_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
@@ -188,30 +189,6 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  _buildConversation(List<TimelineTweet> tweets) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        borderRadius: ResponsiveUtil.isLandscape()
-            ? BorderRadius.circular(8)
-            : BorderRadius.zero,
-      ),
-      child: Column(
-        children: List.generate(
-          tweets.length,
-          (index) {
-            return _buildConversationItem(
-              TweetUtil.getTrueTweet(tweets[index])!,
-              isFirst: index == 0,
-              isLast: index == tweets.length - 1,
-              socialContext: tweets[index].socialContext,
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   _processFeedback({
     required FeedbackType feedbackType,
     bool undo = false,
@@ -234,69 +211,77 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
 
   _buildFeedBackList(User user) {
     String screenName = user.legacy.screenName ?? user.legacy.name;
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFeedbackItem(
-            text: _currentFeedbackType!.getMessage(screenName),
-            onRevoke: () async {
-              HapticFeedback.mediumImpact();
-              await IToast.showLoadingSnackbar(
-                "正在撤销反馈",
-                () async => await _processFeedback(
-                  feedbackType: _currentFeedbackType!,
-                  undo: true,
-                  destFeedbackType:
-                      _currentFeedbackType == FeedbackType.DontLike
-                          ? null
-                          : FeedbackType.DontLike,
-                ),
-              );
-            },
+    return Material(
+      borderRadius: MyTheme.responsiveBorderRadius,
+      color: MyTheme.itemBackground,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: MyTheme.responsiveBorderRadius,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: MyTheme.responsiveBorderRadius,
+            border: MyTheme.responsiveBottomBorder,
           ),
-          if (_currentFeedbackType == FeedbackType.DontLike)
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildMoreFeedbackItem(
-                    text: "显示更少来自 $screenName 的帖子",
-                    onTap: () async {
-                      HapticFeedback.mediumImpact();
-                      await IToast.showLoadingSnackbar(
-                          "正在反馈",
-                          () async => await _processFeedback(
-                                feedbackType: FeedbackType.SeeFewer,
-                                undo: false,
-                                destFeedbackType: FeedbackType.SeeFewer,
-                              ));
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMoreFeedbackItem(
-                    text: "这个帖子没有相关性",
-                    onTap: () async {
-                      HapticFeedback.mediumImpact();
-                      await IToast.showLoadingSnackbar(
-                          "正在反馈",
-                          () async => await _processFeedback(
-                                feedbackType: FeedbackType.NotRelevant,
-                                undo: false,
-                                destFeedbackType: FeedbackType.NotRelevant,
-                              ));
-                    },
-                  ),
-                ],
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFeedbackItem(
+                text: _currentFeedbackType!.getMessage(screenName),
+                onRevoke: () async {
+                  HapticFeedback.mediumImpact();
+                  await IToast.showLoadingSnackbar(
+                    "正在撤销反馈",
+                    () async => await _processFeedback(
+                      feedbackType: _currentFeedbackType!,
+                      undo: true,
+                      destFeedbackType:
+                          _currentFeedbackType == FeedbackType.DontLike
+                              ? null
+                              : FeedbackType.DontLike,
+                    ),
+                  );
+                },
               ),
-            )
-        ],
+              if (_currentFeedbackType == FeedbackType.DontLike)
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMoreFeedbackItem(
+                        text: "显示更少来自 $screenName 的帖子",
+                        onTap: () async {
+                          HapticFeedback.mediumImpact();
+                          await IToast.showLoadingSnackbar(
+                              "正在反馈",
+                              () async => await _processFeedback(
+                                    feedbackType: FeedbackType.SeeFewer,
+                                    undo: false,
+                                    destFeedbackType: FeedbackType.SeeFewer,
+                                  ));
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _buildMoreFeedbackItem(
+                        text: "这个帖子没有相关性",
+                        onTap: () async {
+                          HapticFeedback.mediumImpact();
+                          await IToast.showLoadingSnackbar(
+                              "正在反馈",
+                              () async => await _processFeedback(
+                                    feedbackType: FeedbackType.NotRelevant,
+                                    undo: false,
+                                    destFeedbackType: FeedbackType.NotRelevant,
+                                  ));
+                        },
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -307,11 +292,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
+        border: MyTheme.border,
         borderRadius: BorderRadius.circular(9),
       ),
       child: Material(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: MyTheme.background,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: onTap,
@@ -332,8 +317,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
+        color: MyTheme.background,
+        border: MyTheme.border,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -412,6 +397,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   communityId: tweet.communityResults!.result.restId ??
                       tweet.communityResults!.result.idStr ??
                       "",
+                  communityName: tweet.communityResults!.result.name,
                 ),
               );
             },
@@ -579,6 +565,28 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  _buildConversation(List<TimelineTweet> tweets) {
+    return Container(
+      decoration: BoxDecoration(border: MyTheme.responsiveBottomBorder),
+      child: Column(
+        children: List.generate(
+          tweets.length,
+          (index) {
+            var tweet = TweetUtil.getTrueTweet(tweets[index]);
+            return tweet != null
+                ? _buildConversationItem(
+                    tweet,
+                    isFirst: index == 0,
+                    isLast: index == tweets.length - 1,
+                    socialContext: tweets[index].socialContext,
+                  )
+                : emptyWidget;
+          },
+        ),
+      ),
+    );
+  }
+
   _buildConversationItem(
     Tweet tweet, {
     bool isFirst = false,
@@ -675,6 +683,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       ),
     );
     var extendedBody = Material(
+      color: MyTheme.itemBackground,
       borderRadius: borderRadius,
       child: InkWell(
         borderRadius: borderRadius,
@@ -693,13 +702,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }) {
     var userResultUnion = tweet.core!.userResults!.result;
     User user = userResultUnion as User;
-    var radius = ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
     bool showCommunity =
         socialContext != null && socialContext is TimelineGeneralContext;
     var body = Container(
-      decoration: BoxDecoration(borderRadius: radius),
+      decoration: BoxDecoration(
+          borderRadius: MyTheme.responsiveBorderRadius,
+          border: MyTheme.responsiveBottomBorder),
       padding: widget.isDetail
           ? const EdgeInsets.symmetric(vertical: 12, horizontal: 10)
           : const EdgeInsets.all(8),
@@ -737,11 +745,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       ),
     );
     return widget.isDetail
-        ? body
+        ? Container(color: MyTheme.itemBackground, child: body)
         : Material(
-            borderRadius: radius,
+            color: MyTheme.itemBackground,
+            borderRadius: MyTheme.responsiveBorderRadius,
             child: InkWell(
-              borderRadius: radius,
+              borderRadius: MyTheme.responsiveBorderRadius,
               onTap: () => panelScreenState
                   ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
               child: body,
@@ -800,7 +809,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         width: MediaQuery.sizeOf(context).width,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
         ),
         padding: const EdgeInsets.all(12),
@@ -826,9 +835,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       bool hasText = Utils.isNotEmpty(fullText);
       body = Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
-        ),
+            borderRadius: BorderRadius.circular(8), border: MyTheme.border),
         child: Column(
           children: [
             Container(
@@ -878,12 +885,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       );
     }
     return Material(
-      color: widget.isDetail
-          ? Theme.of(context).cardColor
-          : Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(12),
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(8),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         onTap: tweet != null
             ? () => panelScreenState
                 ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!))
@@ -902,7 +907,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       return [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(8),
@@ -1149,13 +1154,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     var stack = Stack(
       children: [
         Container(
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-              width: 0.5,
-            ),
-          ),
+          decoration:
+              BoxDecoration(borderRadius: radius, border: MyTheme.border),
           child: ClipRRect(
             borderRadius: radius,
             child: isSingle && !isQuote

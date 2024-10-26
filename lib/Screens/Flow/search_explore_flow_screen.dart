@@ -28,6 +28,7 @@ import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 
@@ -211,13 +212,10 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         child: !_inited || items.isNotEmpty
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+          padding: MyTheme.responsiveListFlowPadding,
+          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 400,
-                crossAxisSpacing: 6,
                 children: List.generate(
                   items.length,
                   (index) {
@@ -242,7 +240,7 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         ? BorderRadius.circular(8)
         : BorderRadius.zero;
     return Material(
-      color: Theme.of(context).canvasColor,
+      color: MyTheme.itemBackground,
       borderRadius: radius,
       child: InkWell(
         borderRadius: radius,
@@ -252,8 +250,9 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
           }
         },
         child: Container(
-          decoration: BoxDecoration(borderRadius: radius),
-          height: 78,
+          decoration:
+              BoxDecoration(borderRadius: radius, border: MyTheme.responsiveBottomBorder),
+          height: 80,
           padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

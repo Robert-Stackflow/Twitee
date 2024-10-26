@@ -14,13 +14,13 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:twitee/Resources/theme.dart';
 
 import '../../Openapi/models/article_cover_media_info.dart';
 import '../../Openapi/models/community.dart';
 import '../../Openapi/models/community_data.dart';
 import '../../Screens/Detail/community_detail_screen.dart';
 import '../../Utils/asset_util.dart';
-import '../../Utils/responsive_util.dart';
 import '../../Utils/route_util.dart';
 import '../Item/item_builder.dart';
 
@@ -47,11 +47,9 @@ class CommunityItemState extends State<CommunityItem> {
     ArticleCoverMediaInfo mediaInfo =
         communityData.customBannerMedia?.mediaInfo ??
             communityData.defaultBannerMedia!.mediaInfo!;
-    var radius = ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
     return Material(
-      borderRadius: radius,
+      color: MyTheme.itemBackground,
+      borderRadius: MyTheme.responsiveBorderRadius,
       child: InkWell(
         onTap: () {
           RouteUtil.pushPanelCupertinoRoute(
@@ -61,11 +59,12 @@ class CommunityItemState extends State<CommunityItem> {
             ),
           );
         },
-        borderRadius: radius,
+        borderRadius: MyTheme.responsiveBorderRadius,
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            borderRadius: radius,
+            borderRadius: MyTheme.responsiveBorderRadius,
+            border: MyTheme.responsiveBottomBorder,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

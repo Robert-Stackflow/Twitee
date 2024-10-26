@@ -27,6 +27,7 @@ import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
 import '../../Widgets/Twitter/grid_item.dart';
+import '../../Resources/theme.dart';
 
 class UserMediaFlowScreen extends StatefulWidgetForFlow {
   const UserMediaFlowScreen({
@@ -294,12 +295,9 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
               child: GridView.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
-                crossAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
+                crossAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 maxCrossAxisExtent: 160,
                 children: List.generate(
                   gridTweets.length,

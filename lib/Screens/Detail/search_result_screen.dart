@@ -331,7 +331,6 @@ class SearchResultScreenState extends State<SearchResultScreen>
                   showBorder: true,
                   forceUnscrollable: true,
                   width: MediaQuery.of(context).size.width,
-                  background: Theme.of(context).canvasColor,
                   onTap: (index) {
                     if (mounted) setState(() {});
                     if (!_resultTabController.indexIsChanging &&

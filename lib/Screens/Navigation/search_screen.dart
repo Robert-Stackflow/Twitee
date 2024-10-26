@@ -313,7 +313,7 @@ class SearchScreenState extends State<SearchScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: MyTheme.background,
         appBar: ItemBuilder.buildDesktopAppBar(
           context: context,
           showMenu: true,
@@ -353,7 +353,6 @@ class SearchScreenState extends State<SearchScreen>
                   trendTabDataList.tabList,
                   showBorder: true,
                   width: MediaQuery.of(context).size.width,
-                  background: Theme.of(context).canvasColor,
                   onTap: (index) {
                     if (mounted) setState(() {});
                     if (!_trendTabController.indexIsChanging &&

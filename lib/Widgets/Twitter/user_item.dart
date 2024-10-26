@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/color_util.dart';
 
@@ -38,9 +39,6 @@ class _UserItemState extends State<UserItem> {
   @override
   Widget build(BuildContext context) {
     String screenName = user.screenName ?? user.name;
-    var radius = ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
     Color primaryColor = Theme.of(context).primaryColor;
     Color cardColor = Theme.of(context).cardColor;
     Color primaryComplementaryColor =
@@ -52,17 +50,18 @@ class _UserItemState extends State<UserItem> {
         const EdgeInsets.symmetric(horizontal: 4, vertical: 2);
     return ItemBuilder.buildClickItem(
       Material(
-        color: Theme.of(context).canvasColor,
-        borderRadius: radius,
+        color: MyTheme.itemBackground,
+        borderRadius: MyTheme.responsiveBorderRadius,
         child: InkWell(
           onTap: () {
             panelScreenState
                 ?.pushPage(UserDetailScreen(screenName: screenName));
           },
-          borderRadius: radius,
+          borderRadius: MyTheme.responsiveBorderRadius,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: radius,
+              borderRadius: MyTheme.responsiveBorderRadius,
+              border: MyTheme.responsiveBottomBorder,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(

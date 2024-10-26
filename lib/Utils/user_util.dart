@@ -48,6 +48,9 @@ class UserUtil {
         showingLoginDialog = false;
         RouteUtil.pushDialogRoute(rootContext, const LoginByPasswordScreen());
       },
+      onTapCancel: () {
+        showingLoginDialog = false;
+      },
     );
   }
 }

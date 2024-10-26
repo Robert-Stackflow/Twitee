@@ -32,6 +32,7 @@ import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_item.dart';
 import '../../Openapi/models/timeline_user.dart';
 import '../../Openapi/models/user.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 
 enum ListMembersFlowType { members, subscribers }
@@ -237,13 +238,11 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+          padding: MyTheme.responsiveListFlowPadding,
+          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
+
                 children: List.generate(
                   validEntries.length,
                   (index) {

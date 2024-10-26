@@ -34,6 +34,7 @@ import '../../Openapi/models/timeline_topic.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Dialog/dialog_builder.dart';
+import '../../Resources/theme.dart';
 
 class UserTopicFlowScreen extends StatefulWidgetForFlow {
   const UserTopicFlowScreen({
@@ -216,13 +217,10 @@ class _UserTopicFlowScreenState extends State<UserTopicFlowScreen>
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+          padding: MyTheme.responsiveListFlowPadding,
+          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,
                   (index) {

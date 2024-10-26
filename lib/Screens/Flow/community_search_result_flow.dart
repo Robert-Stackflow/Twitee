@@ -26,6 +26,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/community_api.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 
 class CommunitySearchResultFlowScreen extends StatefulWidgetForFlow {
@@ -260,12 +261,10 @@ class _SearchResultFlowScreenState
       noMore: _noMore,
       child: WaterfallFlow.extent(
         controller: _scrollController,
-        padding: ResponsiveUtil.isLandscape()
-            ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
-            : const EdgeInsets.only(bottom: 16),
-        mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+        padding: MyTheme.responsiveListFlowPadding,
+        mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+        crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
         maxCrossAxisExtent: maxCrossAxisExtent,
-        crossAxisSpacing: 6,
         children: children,
       ),
     );

@@ -183,21 +183,9 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: PostItem(
-              entry: tweetEntry!,
-              isDetail: true,
-            ),
+          child: PostItem(
+            entry: tweetEntry!,
+            isDetail: true,
           ),
         ),
         SliverPersistentHeader(

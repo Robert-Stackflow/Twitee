@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Resources/theme.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 
 import '../../Openapi/models/topic_context.dart';
@@ -63,13 +64,8 @@ class TopicRowState extends State<TopicRow> {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
+        color: MyTheme.itemBackground,
+        border: MyTheme.responsiveBottomBorder,
       ),
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: ListView.builder(
@@ -118,13 +114,8 @@ class TopicRowState extends State<TopicRow> {
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
+        color: MyTheme.background,
+        border: MyTheme.border,
       ),
       child: Wrap(
         spacing: 6,

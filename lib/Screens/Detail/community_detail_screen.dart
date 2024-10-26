@@ -31,6 +31,7 @@ import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../Models/tab_item_data.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/route_util.dart';
 import '../../Utils/uri_util.dart';
@@ -225,6 +226,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                   panelScreenState?.pushPage(CommunityInsearchScreen(
                     searchKey: '',
                     communityId: widget.communityId,
+                    communityName: communityData!.name,
                   ));
                 },
                 padding: const EdgeInsets.all(6),
@@ -274,6 +276,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
               _tabController,
               tabDataList.tabList,
               onTap: onTapTab,
+              forceUnscrollable: true,
               showBorder: true,
               padding: const EdgeInsets.symmetric(horizontal: 10),
             ),
@@ -321,84 +324,53 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
     UserLegacy? creator =
         (communityData!.creatorResults?.result as User?)?.legacy;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+          color: MyTheme.itemBackground, border: MyTheme.bottomBorder),
       child: Column(
-        crossAxisAlignment: ResponsiveUtil.isLandscape()
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: ResponsiveUtil.isLandscape()
-                ? MainAxisAlignment.start
-                : MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: ResponsiveUtil.isLandscape()
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    communityData!.name,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  if (communityData!.primaryCommunityTopic != null)
-                    const SizedBox(height: 8),
-                  if (communityData!.primaryCommunityTopic != null)
-                    ItemBuilder.buildRoundButton(
-                      context,
-                      text: communityData!.primaryCommunityTopic!.topicName,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      showBorder: true,
-                      background: Colors.transparent,
-                      color: Theme.of(context).primaryColor,
-                      textStyle: Theme.of(context).textTheme.bodySmall,
-                      onTap: () {},
-                    ),
-                  if (creator != null) const SizedBox(height: 8),
-                  if (creator != null)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      "${creator.name}@${creator.screenName ?? ""} 创建于 ${Utils.formatTimestamp(communityData!.createdAt ?? 0)}",
+                      communityData!.name,
                       style: Theme.of(context)
                           .textTheme
-                          .bodySmall
-                          ?.apply(fontSizeDelta: 1),
-                      textAlign: ResponsiveUtil.isLandscape()
-                          ? TextAlign.start
-                          : TextAlign.center,
+                          .titleLarge
+                          ?.apply(fontSizeDelta: 5),
                     ),
-                ],
+                    // if (communityData!.primaryCommunityTopic != null) ...[
+                    //   const SizedBox(height: 8),
+                    //   ItemBuilder.buildRoundButton(
+                    //     context,
+                    //     text: communityData!.primaryCommunityTopic!.topicName,
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 6, vertical: 2),
+                    //     showBorder: true,
+                    //     background: Colors.transparent,
+                    //     borderColor: Theme.of(context).primaryColor,
+                    //     textStyle: Theme.of(context)
+                    //         .textTheme
+                    //         .labelSmall
+                    //         ?.apply(color: Theme.of(context).primaryColor),
+                    //     onTap: () {},
+                    //   ),
+                    // ],
+                  ],
+                ),
               ),
-              if (ResponsiveUtil.isLandscape()) const Spacer(),
               if (ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
             ],
           ),
-          if (Utils.isNotEmpty(communityData!.description))
-            const SizedBox(height: 8),
-          if (Utils.isNotEmpty(communityData!.description))
-            Text(
-              communityData!.description,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.apply(fontSizeDelta: 1),
-              textAlign: ResponsiveUtil.isLandscape()
-                  ? TextAlign.start
-                  : TextAlign.center,
-            ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            runSpacing: 5,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ItemBuilder.buildCountItem(
                 context,
@@ -413,6 +385,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                   );
                 },
               ),
+              const SizedBox(width: 10),
               ItemBuilder.buildCountItem(
                 context,
                 title: "版主",
@@ -426,10 +399,32 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                   );
                 },
               ),
+              const Spacer(),
+              if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
             ],
           ),
-          if (!ResponsiveUtil.isLandscape()) const SizedBox(height: 8),
-          if (!ResponsiveUtil.isLandscape()) ..._buildOperationButtons(),
+          if (Utils.isNotEmpty(communityData!.description)) ...[
+            const SizedBox(height: 8),
+            Text(
+              communityData!.description,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(fontSizeDelta: 1),
+              textAlign: TextAlign.start,
+            ),
+          ],
+          if (ResponsiveUtil.isLandscape() && creator != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              "${creator.name}@${creator.screenName ?? ""} 创建于 ${Utils.formatTimestamp(communityData!.createdAt ?? 0)}",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.apply(fontSizeDelta: 1),
+              textAlign: TextAlign.start,
+            ),
+          ],
         ],
       ),
     );
@@ -500,6 +495,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
             panelScreenState?.pushPage(CommunityInsearchScreen(
               searchKey: '',
               communityId: widget.communityId,
+              communityName: communityData!.name,
             ));
           },
         ),

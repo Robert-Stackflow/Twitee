@@ -25,6 +25,7 @@ import '../../Api/list_api.dart';
 import '../../Models/response_result.dart';
 import '../../Openapi/models/user.dart';
 import '../../Openapi/models/user_legacy.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
@@ -58,21 +59,18 @@ class TwitterListItemState extends State<TwitterListItem> {
 
   _buildListItem(TimelineTwitterList list) {
     User user = list.list.userResults.result as User;
-    var radius = ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
     return ItemBuilder.buildClickItem(
       Material(
-        color: Theme.of(context).canvasColor,
-        borderRadius: radius,
+        color: MyTheme.itemBackground,
+        borderRadius: MyTheme.responsiveBorderRadius,
         child: InkWell(
           onTap: () {
             panelScreenState
                 ?.pushPage(ListDetailScreen(listId: list.list.idStr));
           },
-          borderRadius: radius,
+          borderRadius: MyTheme.responsiveBorderRadius,
           child: Container(
-            decoration: BoxDecoration(borderRadius: radius),
+            decoration: BoxDecoration(borderRadius: MyTheme.responsiveBorderRadius,border: MyTheme.responsiveBottomBorder),
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             child: Row(
               children: [

@@ -42,6 +42,7 @@ import 'package:twitee/Widgets/Window/window_caption.dart';
 import '../Api/user_api.dart';
 import '../Openapi/models/user.dart';
 import '../Openapi/models/user_response.dart';
+import '../Resources/theme.dart';
 import '../Utils/app_provider.dart';
 import '../Utils/enums.dart';
 import '../Utils/lottie_util.dart';
@@ -300,12 +301,7 @@ class PanelScreenState extends State<PanelScreen>
       hideDirection: AxisDirection.down,
       child: Container(
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-          ),
+          border: Border(top: MyTheme.borderSide),
         ),
         child: MyBottomNavigationBar(
           currentIndex: _currentIndex,

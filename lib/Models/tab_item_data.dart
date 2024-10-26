@@ -16,7 +16,6 @@
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
@@ -70,6 +69,7 @@ class TabItemData {
   }) {
     var child = showPopButton
         ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(str),
               GestureDetector(

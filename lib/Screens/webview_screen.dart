@@ -108,7 +108,7 @@ class _WebviewScreenState extends State<WebviewScreen>
       },
       child: Scaffold(
         backgroundColor: showAppBar
-            ? MyTheme.getBackground(context)
+            ? MyTheme.background
             : Utils.isDark(context)
                 ? const Color(0xFF151515)
                 : const Color(0xFFF5F5F5),
@@ -116,7 +116,7 @@ class _WebviewScreenState extends State<WebviewScreen>
             ? ItemBuilder.buildAppBar(
                 context: context,
                 leading: Icons.close_rounded,
-                backgroundColor: MyTheme.getBackground(context),
+                backgroundColor: MyTheme.background,
                 onLeadingTap: () {
                   Navigator.pop(context);
                 },
@@ -280,7 +280,7 @@ class _WebviewScreenState extends State<WebviewScreen>
         height: MediaQuery.sizeOf(context).height - 56,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: MyTheme.getBackground(context),
+          color: MyTheme.background,
         ),
         child: SingleChildScrollView(
           child: Column(

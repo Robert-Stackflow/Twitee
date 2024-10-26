@@ -23,6 +23,7 @@ import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
@@ -289,12 +290,9 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
               child: GridView.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
-                crossAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
+                crossAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 maxCrossAxisExtent: 160,
                 children: List.generate(
                   gridTweets.length,

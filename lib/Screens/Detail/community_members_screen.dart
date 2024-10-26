@@ -19,6 +19,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Models/tab_item_data.dart';
 import '../../Utils/app_provider.dart';
+import '../../Utils/constant.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Flow/community_members_flow_screen.dart';
@@ -49,6 +50,14 @@ class CommunityMembersScreenState extends State<CommunityMembersScreen>
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
+
+  FocusNode searchFocusNode = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+
+  bool showSearchResult = false;
+
+  GlobalKey<CommunityMembersFlowScreenState> searchResultKey =
+      GlobalKey<CommunityMembersFlowScreenState>();
 
   initTab() {
     String communityId = widget.communityId;
@@ -89,44 +98,118 @@ class CommunityMembersScreenState extends State<CommunityMembersScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    initTab();
+    _tabController = TabController(length: 0, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initTab();
+    });
+    _searchController.addListener(() {
+      if (showSearchResult && _searchController.text.isEmpty) {
+        showSearchResult = false;
+        setState(() {});
+      }
+    });
+  }
+
+  perfromSearch(String key) {
+    if (key.isEmpty) return;
+    _searchController.text = key;
+    showSearchResult = true;
+    searchResultKey.currentState?.performSearch(key);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ItemBuilder.buildDesktopAppBar(
-        context: context,
-        showBack: true,
-        title: "社群成员",
-        bottom: ItemBuilder.buildTabBar(
-          context,
-          _tabController,
-          tabDataList.tabList,
-          onTap: onTapTab,
-          background: Theme.of(context).canvasColor,
-          showBorder: true,
-          width: MediaQuery.of(context).size.width,
-        ),
-        bottomHeight: 56,
-      ),
-      body: Stack(
-        children: [
-          TabBarView(
-            controller: _tabController,
-            children: tabDataList.pageList,
-          ),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ScrollToHide(
-              controller: _scrollToHideController,
-              scrollControllers: tabDataList.scrollControllerList,
-              hideDirection: AxisDirection.down,
-              child: _buildFloatingButtons(),
+    double width = MediaQuery.of(context).size.width;
+    return PopScope(
+      canPop: !showSearchResult,
+      onPopInvokedWithResult: (_, __) {
+        if (showSearchResult) {
+          showSearchResult = false;
+          _searchController.text = "";
+          setState(() {});
+        }
+      },
+      child: Scaffold(
+        appBar: ItemBuilder.buildDesktopAppBar(
+          context: context,
+          showBack: true,
+          spacing: 0,
+          onBackTap: () {
+            if (showSearchResult) {
+              showSearchResult = false;
+              _searchController.text = "";
+              setState(() {});
+            } else {
+              panelScreenState?.popPage();
+            }
+          },
+          titleWidget: Container(
+            margin: const EdgeInsets.all(10),
+            constraints: ResponsiveUtil.isLandscape()
+                ? const BoxConstraints(
+                    maxWidth: searchBarWidth,
+                    minWidth: searchBarWidth,
+                    maxHeight: 56)
+                : BoxConstraints(
+                    maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
+            child: ItemBuilder.buildDesktopSearchBar(
+              context: context,
+              borderRadius: 8,
+              tag: "SearchCommnuityMembers",
+              bottomMargin: 18,
+              hintFontSizeDelta: 1,
+              focusNode: searchFocusNode,
+              controller: _searchController,
+              background: Colors.grey.withAlpha(40),
+              hintText: "搜索成员",
+              onSubmitted: (text) async {
+                perfromSearch(text);
+              },
             ),
           ),
-        ],
+          bottom: showSearchResult
+              ? null
+              : ItemBuilder.buildTabBar(
+                  context,
+                  _tabController,
+                  tabDataList.tabList,
+                  onTap: onTapTab,
+                  forceUnscrollable: true,
+                  showBorder: true,
+                  width: MediaQuery.of(context).size.width,
+                ),
+          bottomHeight: 56,
+        ),
+        body: Stack(
+          children: [
+            TabBarView(
+              controller: _tabController,
+              children: tabDataList.pageList,
+            ),
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: ScrollToHide(
+                controller: _scrollToHideController,
+                scrollControllers: tabDataList.scrollControllerList,
+                hideDirection: AxisDirection.down,
+                child: _buildFloatingButtons(),
+              ),
+            ),
+            if (showSearchResult)
+              Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: CommunityMembersFlowScreen(
+                  key: searchResultKey,
+                  type: CommunityMembersFlowType.members,
+                  communityId: widget.communityId,
+                  query: _searchController.text,
+                  isSearch: true,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -53,9 +53,7 @@ class CommunitiesSearchScreenState extends State<CommunitiesSearchScreen>
   late AnimationController _refreshRotationController;
 
   FocusNode searchFocusNode = FocusNode();
-
   final TextEditingController _searchController = TextEditingController();
-  final LayerLink _layerLink = LayerLink();
 
   initResultTab() {
     resultTabDataList.clear();
@@ -123,26 +121,30 @@ class CommunitiesSearchScreenState extends State<CommunitiesSearchScreen>
   Widget build(BuildContext context) {
     super.build(context);
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: ItemBuilder.buildDesktopAppBar(
-        context: context,
-        showMenu: false,
-        showBack: true,
-        spacing: 0,
-        onBackTap: () {
-          panelScreenState?.popPage();
-        },
-        titleWidget: Container(
-          margin: const EdgeInsets.all(10),
-          constraints: ResponsiveUtil.isLandscape()
-              ? const BoxConstraints(
-                  maxWidth: searchBarWidth,
-                  minWidth: searchBarWidth,
-                  maxHeight: 56)
-              : BoxConstraints(
-                  maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
-          child: CompositedTransformTarget(
-            link: _layerLink,
+    return Listener(
+      onPointerDown: (_) {
+        if (!ResponsiveUtil.isDesktop()&&searchFocusNode.hasFocus) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
+      },
+      child: Scaffold(
+        appBar: ItemBuilder.buildDesktopAppBar(
+          context: context,
+          showMenu: false,
+          showBack: true,
+          spacing: 0,
+          onBackTap: () {
+            panelScreenState?.popPage();
+          },
+          titleWidget: Container(
+            margin: const EdgeInsets.all(10),
+            constraints: ResponsiveUtil.isLandscape()
+                ? const BoxConstraints(
+                    maxWidth: searchBarWidth,
+                    minWidth: searchBarWidth,
+                    maxHeight: 56)
+                : BoxConstraints(
+                    maxWidth: width - 80, minWidth: width - 80, maxHeight: 56),
             child: ItemBuilder.buildDesktopSearchBar(
               context: context,
               borderRadius: 8,
@@ -158,35 +160,35 @@ class CommunitiesSearchScreenState extends State<CommunitiesSearchScreen>
               },
             ),
           ),
-        ),
-        bottom: resultTabDataList.tabList.isEmpty
-            ? null
-            : ItemBuilder.buildTabBar(
-                context,
-                _resultTabController,
-                resultTabDataList.tabList,
-                showBorder: true,
-                forceUnscrollable: true,
-                width: MediaQuery.of(context).size.width,
-                background: Theme.of(context).canvasColor,
-                onTap: (index) {
-                  if (mounted) setState(() {});
-                  if (!_resultTabController.indexIsChanging &&
-                      index == currentResultIndex) {
-                    if (resultTabDataList.getScrollController(index) != null &&
-                        resultTabDataList.getScrollController(index)!.offset >
-                            30) {
-                      scrollToTop();
-                    } else {
-                      refresh();
+          bottom: resultTabDataList.tabList.isEmpty
+              ? null
+              : ItemBuilder.buildTabBar(
+                  context,
+                  _resultTabController,
+                  resultTabDataList.tabList,
+                  showBorder: true,
+                  forceUnscrollable: true,
+                  width: MediaQuery.of(context).size.width,
+                  onTap: (index) {
+                    if (mounted) setState(() {});
+                    if (!_resultTabController.indexIsChanging &&
+                        index == currentResultIndex) {
+                      if (resultTabDataList.getScrollController(index) !=
+                              null &&
+                          resultTabDataList.getScrollController(index)!.offset >
+                              30) {
+                        scrollToTop();
+                      } else {
+                        refresh();
+                      }
                     }
-                  }
-                },
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-              ),
-        bottomHeight: 56,
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+          bottomHeight: 56,
+        ),
+        body: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 

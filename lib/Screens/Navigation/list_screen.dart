@@ -214,7 +214,6 @@ class ListScreenState extends State<ListScreen>
                 _tabController,
                 tabDataList.tabList,
                 onTap: onTapTab,
-                background: Theme.of(context).canvasColor,
                 showBorder: true,
                 width: MediaQuery.of(context).size.width,
               )

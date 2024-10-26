@@ -14,6 +14,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:twitee/Utils/responsive_util.dart';
 
 import '../Utils/app_provider.dart';
 import '../Utils/utils.dart';
@@ -51,6 +52,59 @@ class MyTheme {
           color: Theme.of(rootContext).dividerColor, width: borderWidth),
       boxShadow: defaultBoxShadow,
       borderRadius: BorderRadius.circular(radius),
+    );
+  }
+
+  static EdgeInsetsGeometry get responsiveListFlowPadding {
+    return ResponsiveUtil.isLandscape()
+        ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
+        : const EdgeInsets.only(bottom: 16);
+  }
+
+  static double get responsiveMainAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 6 : 0;
+  }
+
+  static double get responsiveCrossAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 6 : 0;
+  }
+
+  static double get responsiveMainAxisSpacingForMedia {
+    return ResponsiveUtil.isLandscape() ? 6 : 2;
+  }
+
+  static double get responsiveCrossAxisSpacingForMedia {
+    return ResponsiveUtil.isLandscape() ? 6 : 2;
+  }
+
+
+  static Border get bottomBorder {
+    return Border(
+      bottom: BorderSide(color: Theme.of(rootContext).dividerColor, width: 0.5),
+    );
+  }
+
+  static Border get border {
+    return Border.all(color: Theme.of(rootContext).dividerColor, width: 0.5);
+  }
+
+  static BorderSide get borderSide {
+    return BorderSide(color: Theme.of(rootContext).dividerColor, width: 0.5);
+  }
+
+  static Border? get responsiveBottomBorder {
+    return ResponsiveUtil.isLandscape() ? null : bottomBorder;
+  }
+
+  static BorderRadius get responsiveBorderRadius {
+    return ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
+  }
+
+  static Border get bottomBorderWithCanvas {
+    return Border(
+      bottom: BorderSide(color: MyTheme.itemBackground, width: 1),
     );
   }
 
@@ -218,15 +272,19 @@ class MyTheme {
     letterSpacing: 0.2,
   );
 
-  static getBackground(BuildContext context) {
-    return Utils.currentBrightness(context) == Brightness.light
-        ? Theme.of(context).canvasColor
-        : Theme.of(context).scaffoldBackgroundColor;
+  static Color get background {
+    return Theme.of(rootContext).scaffoldBackgroundColor;
+    // return Utils.currentBrightness(rootContext) == Brightness.light
+    //     ? Theme.of(rootContext).scaffoldBackgroundColor
+    //     : Theme.of(rootContext).canvasColor;
   }
 
-  static getCardBackground(BuildContext context) {
-    return Utils.currentBrightness(context) == Brightness.light
-        ? Theme.of(context).scaffoldBackgroundColor
-        : Theme.of(context).canvasColor;
+  static Color get itemBackground {
+    if (ResponsiveUtil.isLandscape()) {
+      return Theme.of(rootContext).canvasColor;
+    }
+    return Utils.currentBrightness(rootContext) == Brightness.light
+        ? Theme.of(rootContext).canvasColor
+        : Theme.of(rootContext).scaffoldBackgroundColor;
   }
 }

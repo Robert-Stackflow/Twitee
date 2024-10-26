@@ -27,6 +27,7 @@ import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 import 'package:twitee/Widgets/Twitter/user_item.dart';
+import '../../Resources/theme.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Utils/responsive_util.dart';
@@ -354,22 +355,18 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       child: useGrid
           ? GridView.extent(
               controller: _scrollController,
-              padding: const EdgeInsets.all(8)
-                  .add(const EdgeInsets.only(bottom: 16)),
               maxCrossAxisExtent: maxCrossAxisExtent,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 6,
+        padding: MyTheme.responsiveListFlowPadding,
+        mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+        crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
               children: children,
             )
           : WaterfallFlow.extent(
               controller: _scrollController,
-              padding: ResponsiveUtil.isLandscape()
-                  ? const EdgeInsets.all(8)
-                      .add(const EdgeInsets.only(bottom: 16))
-                  : const EdgeInsets.only(bottom: 16),
-              mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+        padding: MyTheme.responsiveListFlowPadding,
+        mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+        crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
               maxCrossAxisExtent: maxCrossAxisExtent,
-              crossAxisSpacing: 6,
               children: children,
             ),
     );

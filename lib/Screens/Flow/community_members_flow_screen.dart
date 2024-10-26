@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Models/response_result.dart';
+import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -25,7 +26,7 @@ import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Openapi/models/user.dart';
-import '../../Utils/responsive_util.dart';
+import '../../Resources/theme.dart';
 
 enum CommunityMembersFlowType { members, moderators }
 
@@ -37,20 +38,26 @@ class CommunityMembersFlowScreen extends StatefulWidgetForFlow {
     super.nested,
     super.scrollController,
     super.triggerOffset,
+    this.query,
+    this.isSearch = false,
   });
 
   final CommunityMembersFlowType type;
 
   final String communityId;
 
+  final String? query;
+
+  final bool isSearch;
+
   static const String routeName = "/navigtion/listMembersFlow";
 
   @override
   State<CommunityMembersFlowScreen> createState() =>
-      _CommunityMembersFlowScreenState();
+      CommunityMembersFlowScreenState();
 }
 
-class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
+class CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
@@ -67,6 +74,8 @@ class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
   bool _noMore = false;
 
   bool _inited = false;
+
+  late String? query = widget.query;
 
   @override
   void initState() {
@@ -94,21 +103,33 @@ class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
     _easyRefreshController.callRefresh();
   }
 
+  performSearch(String key) {
+    query = key;
+    refresh();
+  }
+
   _onRefresh() async {
     if (_loading) return;
     _loading = true;
     cursorBottom = null;
     try {
       ResponseResult res;
-      switch (widget.type) {
-        case CommunityMembersFlowType.members:
-          res = await CommunityApi.getCommunityMembers(
-              communityId: widget.communityId);
-          break;
-        case CommunityMembersFlowType.moderators:
-          res = await CommunityApi.getCommunityModerators(
-              communityId: widget.communityId);
-          break;
+      if (widget.isSearch) {
+        res = await CommunityApi.getCommunityMemeberBySearch(
+          query: query ?? "",
+          communityId: widget.communityId,
+        );
+      } else {
+        switch (widget.type) {
+          case CommunityMembersFlowType.members:
+            res = await CommunityApi.getCommunityMembers(
+                communityId: widget.communityId);
+            break;
+          case CommunityMembersFlowType.moderators:
+            res = await CommunityApi.getCommunityModerators(
+                communityId: widget.communityId);
+            break;
+        }
       }
       if (res.success) {
         List<User> newEntries = res.data;
@@ -141,15 +162,23 @@ class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
     _loading = true;
     try {
       ResponseResult res;
-      switch (widget.type) {
-        case CommunityMembersFlowType.members:
-          res = await CommunityApi.getCommunityMembers(
-              communityId: widget.communityId, cursorBottom: cursorBottom!);
-          break;
-        case CommunityMembersFlowType.moderators:
-          res = await CommunityApi.getCommunityModerators(
-              communityId: widget.communityId, cursorBottom: cursorBottom!);
-          break;
+      if (widget.isSearch) {
+        res = await CommunityApi.getCommunityMemeberBySearch(
+          query: query ?? "",
+          communityId: widget.communityId,
+          cursorBottom: cursorBottom!,
+        );
+      } else {
+        switch (widget.type) {
+          case CommunityMembersFlowType.members:
+            res = await CommunityApi.getCommunityMembers(
+                communityId: widget.communityId, cursorBottom: cursorBottom!);
+            break;
+          case CommunityMembersFlowType.moderators:
+            res = await CommunityApi.getCommunityModerators(
+                communityId: widget.communityId, cursorBottom: cursorBottom!);
+            break;
+        }
       }
       if (res.success) {
         List<User> newEntries = res.data;
@@ -200,13 +229,10 @@ class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+                padding: MyTheme.responsiveListFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
                 children: List.generate(
                   validEntries.length,
                   (index) {
@@ -216,7 +242,7 @@ class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无用户",
+                text: widget.isSearch ? "暂无搜索结果" : "暂无用户",
                 scrollController: _scrollController,
               ),
       ),
