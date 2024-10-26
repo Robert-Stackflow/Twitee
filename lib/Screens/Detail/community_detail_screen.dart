@@ -20,8 +20,8 @@ import 'package:flutter/services.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Api/post_api.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Detail/community_insearch_screen.dart';
 import 'package:twitee/Screens/Flow/community_list_flow_screen.dart';
-import 'package:twitee/Screens/Flow/list_members_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
 import 'package:twitee/Utils/enums.dart';
@@ -38,7 +38,8 @@ import '../../Utils/utils.dart';
 import '../../Widgets/Custom/sliver_appbar_delegate.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../Flow/community_media_flow_screen.dart';
-import 'list_members_screen.dart';
+import '../Flow/community_members_flow_screen.dart';
+import 'community_members_screen.dart';
 
 class CommunityDetailScreen extends StatefulWidget {
   const CommunityDetailScreen({
@@ -72,7 +73,9 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
   CommunityData? communityData;
 
   String get bannerUrl =>
-      communityData!.defaultBannerMedia?.mediaInfo?.originalImgUrl ?? "";
+      communityData!.customBannerMedia?.mediaInfo?.originalImgUrl ??
+      communityData!.defaultBannerMedia?.mediaInfo?.originalImgUrl ??
+      "";
 
   late TabController _tabController;
   TabItemDataList tabDataList = TabItemDataList([]);
@@ -215,6 +218,19 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                 height: kToolbarHeight + MediaQuery.paddingOf(context).top),
             pinned: true,
             actions: [
+              ItemBuilder.buildIconButton(
+                context: context,
+                icon: const Icon(Icons.search_rounded, color: Colors.white),
+                onTap: () {
+                  panelScreenState?.pushPage(CommunityInsearchScreen(
+                    searchKey: '',
+                    communityId: widget.communityId,
+                  ));
+                },
+                padding: const EdgeInsets.all(6),
+                background: Colors.black38,
+              ),
+              const SizedBox(width: 5),
               ItemBuilder.buildIconButton(
                 context: context,
                 icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
@@ -390,9 +406,9 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                 value: communityData!.memberCount,
                 onTap: () {
                   panelScreenState?.pushPage(
-                    ListMembersScreen(
-                      listId: widget.communityId,
-                      initType: ListMembersFlowType.members,
+                    CommunityMembersScreen(
+                      communityId: widget.communityId,
+                      initType: CommunityMembersFlowType.members,
                     ),
                   );
                 },
@@ -403,9 +419,9 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                 value: communityData!.moderatorCount ?? 0,
                 onTap: () {
                   panelScreenState?.pushPage(
-                    ListMembersScreen(
-                      listId: widget.communityId,
-                      initType: ListMembersFlowType.members,
+                    CommunityMembersScreen(
+                      communityId: widget.communityId,
+                      initType: CommunityMembersFlowType.moderators,
                     ),
                   );
                 },
@@ -474,8 +490,20 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
           }
         },
       ),
-      if (ResponsiveUtil.isLandscape()) const SizedBox(width: 8),
-      if (ResponsiveUtil.isLandscape())
+      if (ResponsiveUtil.isLandscape()) ...[
+        const SizedBox(width: 8),
+        ItemBuilder.buildRoundButton(
+          context,
+          icon: const Icon(Icons.search_rounded, size: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          onTap: () {
+            panelScreenState?.pushPage(CommunityInsearchScreen(
+              searchKey: '',
+              communityId: widget.communityId,
+            ));
+          },
+        ),
+        const SizedBox(width: 10),
         ItemBuilder.buildRoundButton(
           context,
           icon: const Icon(Icons.more_horiz_rounded),
@@ -493,6 +521,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                 ));
           },
         ),
+      ],
     ];
   }
 

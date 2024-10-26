@@ -16,7 +16,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:twitee/Screens/Detail/list_detail_screen.dart';
 import 'package:twitee/Screens/Detail/search_result_screen.dart';
+import 'package:twitee/Screens/Detail/tweet_detail_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/webview_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
@@ -26,6 +28,7 @@ import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Screens/Detail/community_detail_screen.dart';
 import '../Widgets/Dialog/custom_dialog.dart';
 import '../generated/l10n.dart';
 import './ilogger.dart';
@@ -94,31 +97,82 @@ class UriUtil {
   }
 
   static bool isUserUrl(String url) {
-    const pattern = r'^https?:\/\/x\.com\/[a-zA-Z0-9_-]+\/?$';
+    const pattern = r'^https?:\/\/(x\.com|twitter\.com)\/[a-zA-Z0-9_-]+\/?$';
     final regExp = RegExp(pattern);
     return regExp.hasMatch(url);
   }
 
   static String extractUserScreenName(String url) {
-    const pattern = r'^https?:\/\/x\.com\/([a-zA-Z0-9_-]+)\/?$';
+    const pattern = r'^https?:\/\/(x\.com|twitter\.com)\/([a-zA-Z0-9_-]+)\/?$';
     final regExp = RegExp(pattern);
-    return regExp.firstMatch(url)!.group(1)!;
+    return regExp.firstMatch(url)!.group(2)!;
   }
 
   static bool isHashTagUrl(String url) {
-    const pattern = r'^https?:\/\/x\.com\/hashtag\/([^\s\/]+)\/?$';
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/hashtag\/([^\s\/]+)\/?$';
     final regExp = RegExp(pattern);
     return regExp.hasMatch(url);
   }
 
   static String extractHashTag(String url) {
-    const pattern = r'^https?:\/\/x\.com\/hashtag\/([^\s\/]+)\/?$';
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/hashtag\/([^\s\/]+)\/?$';
     final regExp = RegExp(pattern);
-    return "#${regExp.firstMatch(url)!.group(1)!}";
+    return "#${regExp.firstMatch(url)!.group(2)!}";
+  }
+
+  static bool isListUrl(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/i\/lists\/([0-9]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(url);
+  }
+
+  static String extractListId(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/i\/lists\/([0-9]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.firstMatch(url)!.group(2)!;
+  }
+
+  static bool isCommunityUrl(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/communities\/([a-zA-Z0-9_-]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(url);
+  }
+
+  static String extractCommunityId(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/communities\/([a-zA-Z0-9_-]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.firstMatch(url)!.group(2)!;
+  }
+
+  static bool isStatusUrl(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/([a-zA-Z0-9_-]+)\/status\/([0-9]+)\/?$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(url);
+  }
+
+  static Map<String, String> extractStatus(String url) {
+    const pattern =
+        r'^https?:\/\/(x\.com|twitter\.com)\/([a-zA-Z0-9_-]+)\/status\/([0-9]+)\/?$';
+    final regExp = RegExp(pattern);
+    return {
+      "screenName": regExp.firstMatch(url)!.group(2)!,
+      "tweetId": regExp.firstMatch(url)!.group(3)!,
+    };
   }
 
   static bool isTwitterUrl(String url) {
-    return isUserUrl(url) || isHashTagUrl(url);
+    return isUserUrl(url) ||
+        isHashTagUrl(url) ||
+        isListUrl(url) ||
+        isCommunityUrl(url) ||
+        isStatusUrl(url);
   }
 
   static Future<bool> processUrl(
@@ -138,6 +192,19 @@ class UriUtil {
         if (!quiet) await CustomLoadingDialog.dismissLoading();
         panelScreenState
             ?.pushPage(SearchResultScreen(searchKey: extractHashTag(url)));
+      } else if (isListUrl(url)) {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        panelScreenState
+            ?.pushPage(ListDetailScreen(listId: extractListId(url)));
+      } else if (isCommunityUrl(url)) {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        panelScreenState?.pushPage(
+            CommunityDetailScreen(communityId: extractCommunityId(url)));
+      } else if (isStatusUrl(url)) {
+        if (!quiet) await CustomLoadingDialog.dismissLoading();
+        Map<String, String> status = extractStatus(url);
+        panelScreenState
+            ?.pushPage(TweetDetailScreen(tweetId: status["tweetId"] ?? ""));
       } else {
         if (!quiet) await CustomLoadingDialog.dismissLoading();
         if (!quiet) {

@@ -225,7 +225,24 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           onTap: fetchUserInfo,
         );
       case InitPhase.successful:
-        return _buildMainBody();
+        return Stack(
+          children: [
+            _buildMainBody(),
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: ScrollToHide(
+                controller: _scrollToHideController,
+                scrollControllers: [
+                  primaryController ?? ScrollController(),
+                  ...tabDataList.scrollControllerList
+                ],
+                hideDirection: AxisDirection.down,
+                child: _buildFloatingButtons(),
+              ),
+            ),
+          ],
+        );
       default:
         return Container();
     }
@@ -313,24 +330,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           ),
         ),
       ],
-      body: Stack(
-        children: [
-          _buildTabBarView(),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ScrollToHide(
-              controller: _scrollToHideController,
-              scrollControllers: [
-                primaryController ?? ScrollController(),
-                ...tabDataList.scrollControllerList
-              ],
-              hideDirection: AxisDirection.down,
-              child: _buildFloatingButtons(),
-            ),
-          ),
-        ],
-      ),
+      body: _buildTabBarView(),
     );
   }
 
@@ -573,7 +573,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           },
         ),
         ContextMenuButtonConfig(
-          "查看列表",
+          "TA的列表",
           iconData: Icons.featured_play_list_outlined,
           onPressed: () async {
             panelScreenState?.pushPage(UserListScreen(
@@ -583,7 +583,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           },
         ),
         ContextMenuButtonConfig(
-          "查看话题",
+          "TA的话题",
           iconData: Icons.topic_outlined,
           onPressed: () async {
             panelScreenState?.pushPage(UserTopicScreen(
@@ -776,9 +776,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               if (ResponsiveUtil.isLandscape()) ...[
                 ItemBuilder.buildRoundButton(
                   context,
-                  icon: const Icon(Icons.search_rounded),
+                  icon: const Icon(Icons.search_rounded, size: 20),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                   onTap: () {
                     panelScreenState?.pushPage(
                         SearchResultScreen(searchKey: 'from:$screenName '));

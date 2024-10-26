@@ -39,6 +39,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Api/post_api.dart';
 import '../../Openapi/export.dart';
+import '../../Screens/Detail/community_detail_screen.dart';
+import '../../Screens/Detail/community_insearch_screen.dart';
 import '../../Screens/Detail/tweet_detail_screen.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/ilogger.dart';
@@ -377,6 +379,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     String? actionMetaData = _getActionMeta(FeedbackType.DontLike);
     bool showFeedback =
         widget.feedbackActions.isNotEmpty && actionMetaData != null;
+    bool showCommunity = tweet.communityResults != null;
     return GenericContextMenu(
       buttonConfigs: [
         if (showFeedback)
@@ -396,6 +399,23 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             },
           ),
         if (showFeedback) ContextMenuButtonConfig.divider(),
+        if (showCommunity)
+          ContextMenuButtonConfig(
+            "搜索@$screenName在此社群中的帖子",
+            iconData: Icons.person_search_outlined,
+            onPressed: () {
+              String query = "(from:$screenName)";
+              RouteUtil.pushPanelCupertinoRoute(
+                context,
+                CommunityInsearchScreen(
+                  searchKey: query,
+                  communityId: tweet.communityResults!.result.restId ??
+                      tweet.communityResults!.result.idStr ??
+                      "",
+                ),
+              );
+            },
+          ),
         ContextMenuButtonConfig(
           "${user.legacy.following ?? false ? "取消关注" : "关注"} @$screenName",
           iconData: user.legacy.following ?? false
@@ -686,7 +706,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (showCommunity) _buildCommunityRow(socialContext),
+          if (showCommunity)
+            _buildCommunityRow(socialContext, tweet.communityResults),
           if (showCommunity) const SizedBox(height: 8),
           if (retweetedUser != null) _buildRetweetRow(retweetedUser),
           if (retweetedUser != null) const SizedBox(height: 8),
@@ -932,11 +953,24 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  _buildCommunityRow(TimelineGeneralContext socialContext) {
+  _buildCommunityRow(
+      TimelineGeneralContext socialContext, Community? communityResult) {
     return ItemBuilder.buildClickItem(
       GestureDetector(
         onTap: () {
-          IToast.showTop("查看社群${socialContext.text}");
+          if (communityResult != null) {
+            RouteUtil.pushPanelCupertinoRoute(
+              context,
+              CommunityDetailScreen(
+                communityId: communityResult.result.restId ??
+                    communityResult.result.idStr ??
+                    "",
+              ),
+            );
+          } else if (socialContext.landingUrl != null &&
+              Utils.isNotEmpty(socialContext.landingUrl!.url)) {
+            UriUtil.processUrl(context, socialContext.landingUrl!.url!);
+          }
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

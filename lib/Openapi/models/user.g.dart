@@ -53,6 +53,9 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
           ? null
           : UserVerificationInfo.fromJson(
               json['verification_info'] as Map<String, dynamic>),
+      communityRole: json['community_role'] == null
+          ? null
+          : CommunityDataRole.fromJson(json['community_role'] as String),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{

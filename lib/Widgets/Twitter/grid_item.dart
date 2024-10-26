@@ -19,6 +19,7 @@ import '../../Openapi/models/timeline_tweet.dart';
 import '../../Openapi/models/tweet.dart';
 import '../../Screens/Detail/tweet_detail_screen.dart';
 import '../../Utils/app_provider.dart';
+import '../../Utils/responsive_util.dart';
 import '../../Utils/tweet_util.dart';
 import '../Item/item_builder.dart';
 
@@ -46,18 +47,21 @@ class GridItemState extends State<GridItem> {
   _buildGridItem(double size, TimelineTweet timelineTweet) {
     Tweet tweet = TweetUtil.getTrueTweetByResult(timelineTweet.tweetResults)!;
     int count = TweetUtil.getMediaCount(timelineTweet);
+    var radius = ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: radius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: radius,
         onTap: () {
           panelScreenState?.pushPage(TweetDetailScreen(tweetId: tweet.restId!));
         },
         child: Stack(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: radius,
               child: ItemBuilder.buildCachedImage(
                 imageUrl: tweet.legacy!.entities.media![0]!.mediaUrlHttps!,
                 width: size,
@@ -72,7 +76,7 @@ class GridItemState extends State<GridItem> {
                 right: 8,
                 bottom: 8,
                 child: Icon(
-                  Icons.collections_outlined,
+                  Icons.photo_library_rounded,
                   color: Colors.white,
                 ),
               )

@@ -14,7 +14,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Screens/Flow/list_members_flow_screen.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
@@ -22,25 +21,26 @@ import '../../Models/tab_item_data.dart';
 import '../../Utils/app_provider.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../Flow/community_members_flow_screen.dart';
 
-class ListMembersScreen extends StatefulWidget {
-  const ListMembersScreen({
+class CommunityMembersScreen extends StatefulWidget {
+  const CommunityMembersScreen({
     super.key,
-    required this.listId,
+    required this.communityId,
     this.initType,
   });
 
-  final String listId;
+  final String communityId;
 
-  final ListMembersFlowType? initType;
+  final CommunityMembersFlowType? initType;
 
-  static const String routeName = "/navigtion/listMembers";
+  static const String routeName = "/navigtion/communityMembers";
 
   @override
-  State<ListMembersScreen> createState() => ListMembersScreenState();
+  State<CommunityMembersScreen> createState() => CommunityMembersScreenState();
 }
 
-class ListMembersScreenState extends State<ListMembersScreen>
+class CommunityMembersScreenState extends State<CommunityMembersScreen>
     with TickerProviderStateMixin, ScrollToHideMixin {
   late TabController _tabController;
   late AnimationController _refreshRotationController;
@@ -51,26 +51,26 @@ class ListMembersScreenState extends State<ListMembersScreen>
   int get currentIndex => _tabController.index;
 
   initTab() {
-    String listId = widget.listId;
+    String communityId = widget.communityId;
     tabDataList.addAll(
       [
         TabItemData.build(
           context,
           "成员",
-          (key, scrollController) => ListMembersFlowScreen(
+          (key, scrollController) => CommunityMembersFlowScreen(
             key: key,
-            type: ListMembersFlowType.members,
-            listId: listId,
+            type: CommunityMembersFlowType.members,
+            communityId: communityId,
             scrollController: scrollController,
           ),
         ),
         TabItemData.build(
           context,
-          "关注者",
-          (key, scrollController) => ListMembersFlowScreen(
+          "版主",
+          (key, scrollController) => CommunityMembersFlowScreen(
             key: key,
-            type: ListMembersFlowType.subscribers,
-            listId: listId,
+            type: CommunityMembersFlowType.moderators,
+            communityId: communityId,
             scrollController: scrollController,
           ),
         ),
@@ -98,7 +98,7 @@ class ListMembersScreenState extends State<ListMembersScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showBack: true,
-        title: "列表成员",
+        title: "社群成员",
         bottom: ItemBuilder.buildTabBar(
           context,
           _tabController,

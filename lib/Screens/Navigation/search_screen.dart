@@ -55,6 +55,8 @@ class SearchScreenState extends State<SearchScreen>
   @override
   bool get wantKeepAlive => true;
 
+  bool get hasSearchFocus => searchFocusNode.hasFocus;
+
   late TabController _trendTabController;
   final ScrollToHideController _scrollToHideController =
       ScrollToHideController();

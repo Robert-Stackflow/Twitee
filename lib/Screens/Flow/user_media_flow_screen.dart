@@ -294,11 +294,13 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
               child: GridView.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16)),
-                mainAxisSpacing: 6,
+                padding: ResponsiveUtil.isLandscape()
+                    ? const EdgeInsets.all(8)
+                    .add(const EdgeInsets.only(bottom: 16))
+                    : const EdgeInsets.only(bottom: 16),
+                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
+                crossAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
                 maxCrossAxisExtent: 160,
-                crossAxisSpacing: 6,
                 children: List.generate(
                   gridTweets.length,
                   (index) =>

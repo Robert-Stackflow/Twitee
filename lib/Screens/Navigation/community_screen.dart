@@ -16,9 +16,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:twitee/Screens/Detail/communities_search_screen.dart';
 import 'package:twitee/Screens/Flow/community_discovery_screen.dart';
 import 'package:twitee/Screens/Flow/community_explore_screen.dart';
 import 'package:twitee/Screens/Flow/community_home_screen.dart';
+import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 import '../../Api/community_api.dart';
@@ -140,6 +142,10 @@ class CommunityScreenState extends State<CommunityScreen>
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
+    panelScreenState?.refreshScrollControllers();
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
     if (mounted) setState(() {});
   }
 
@@ -153,6 +159,7 @@ class CommunityScreenState extends State<CommunityScreen>
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "社群",
         bottomHeight: 56,
+        // rightPadding: 46.5,
         centerInMobile: true,
         bottom: _initPhase == InitPhase.successful
             ? ItemBuilder.buildTabBar(
@@ -165,6 +172,17 @@ class CommunityScreenState extends State<CommunityScreen>
                 width: MediaQuery.of(context).size.width,
               )
             : null,
+        actions: [
+          ItemBuilder.buildIconButton(
+            context: context,
+            icon: const Icon(Icons.search_rounded),
+            onTap: () {
+              RouteUtil.pushPanelCupertinoRoute(
+                  context, const CommunitiesSearchScreen());
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _buildBody(),
     );
@@ -244,6 +262,17 @@ class CommunityScreenState extends State<CommunityScreen>
               refresh();
             },
           ),
+        if (ResponsiveUtil.isLandscape() && _tabController.index == 1) ...[
+          const SizedBox(height: 10),
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: const Icon(Icons.search_rounded),
+            onTap: () async {
+              RouteUtil.pushPanelCupertinoRoute(
+                  context, const CommunitiesSearchScreen());
+            },
+          ),
+        ],
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

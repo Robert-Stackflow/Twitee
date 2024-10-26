@@ -76,6 +76,8 @@ class TimelineTwitterListInfo extends PinnedTimelineUnion {
     required this.createdAt,
     required this.defaultBannerMedia,
     required this.defaultBannerMediaResults,
+    required this.customBannerMedia,
+    required this.customBannerMediaResults,
     required this.description,
     required this.facepileUrls,
     required this.following,
@@ -95,6 +97,8 @@ class TimelineTwitterListInfo extends PinnedTimelineUnion {
   final int createdAt;
   final DefaultBannerMedia defaultBannerMedia;
   final DefaultBannerMediaResults defaultBannerMediaResults;
+  final DefaultBannerMedia? customBannerMedia;
+  final DefaultBannerMediaResults? customBannerMediaResults;
   final String description;
   final List<String> facepileUrls;
   bool following;
@@ -119,6 +123,14 @@ class TimelineTwitterListInfo extends PinnedTimelineUnion {
           json['default_banner_media'] as Map<String, Object?>),
       defaultBannerMediaResults: DefaultBannerMediaResults.fromJson(
           json['default_banner_media_results'] as Map<String, Object?>),
+      customBannerMedia: json['custom_banner_media'] != null
+          ? DefaultBannerMedia.fromJson(
+              json['custom_banner_media'] as Map<String, Object?>)
+          : null,
+      customBannerMediaResults: json['custom_banner_media_results'] != null
+          ? DefaultBannerMediaResults.fromJson(
+              json['custom_banner_media_results'] as Map<String, Object?>)
+          : null,
       description: json['description'] as String,
       facepileUrls: (json['facepile_urls'] as List<Object?>)
           .map((e) => e as String)

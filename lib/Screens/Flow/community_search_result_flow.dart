@@ -14,46 +14,53 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Api/community_api.dart';
+import 'package:twitee/Api/post_api.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Utils/enums.dart';
+import '../../Api/community_api.dart';
 import '../../Utils/responsive_util.dart';
-import '../../Utils/tweet_util.dart';
-import '../../Widgets/Twitter/grid_item.dart';
 
-class CommunityMediaFlowScreen extends StatefulWidgetForFlow {
-  const CommunityMediaFlowScreen({
+class CommunitySearchResultFlowScreen extends StatefulWidgetForFlow {
+  const CommunitySearchResultFlowScreen({
     super.key,
+    required this.type,
+    required this.query,
     required this.communityId,
     super.nested,
     super.scrollController,
     super.triggerOffset,
   });
 
+  final RankType type;
+
+  final String query;
+
   final String communityId;
 
-  static const String routeName = "/navigtion/communityMediaFlow";
+  static const String routeName = "/navigtion/communitySearchResultFlow";
 
   @override
-  State<CommunityMediaFlowScreen> createState() =>
-      CommunityMediaFlowScreenState();
+  State<CommunitySearchResultFlowScreen> createState() =>
+      _SearchResultFlowScreenState();
 }
 
-class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
+class _SearchResultFlowScreenState
+    extends State<CommunitySearchResultFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
 
-  List<TimelineTweet> gridTweets = [];
+  List<TimelineAddEntry> validEntries = [];
 
   bool _loading = false;
 
@@ -62,15 +69,13 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
-  InitPhase _initPhase = InitPhase.haveNotConnected;
+
+  bool _inited = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
-    if (widget.nested) {
-      _onRefresh();
-    }
   }
 
   @override
@@ -90,93 +95,83 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    if (widget.nested) {
-      await _onRefresh();
-    } else {
-      _easyRefreshController.callRefresh(scrollController: _scrollController);
-    }
+    _easyRefreshController.callRefresh();
   }
 
   _onRefresh() async {
+    if (widget.query.isEmpty) {
+      _inited = true;
+      setState(() {});
+      return;
+    }
     if (_loading) return;
     _loading = true;
     cursorBottom = null;
     try {
-      if (_initPhase != InitPhase.successful) {
-        _initPhase = InitPhase.connecting;
-        setState(() {});
-      }
       ResponseResult res;
-      res = await CommunityApi.getCommunityMediaTimeline(
+      res = await CommunityApi.getCommunitySearchTimeline(
         communityId: widget.communityId,
+        query: widget.query,
+        rankingMode: widget.type,
       );
       if (res.success) {
-        _initPhase = InitPhase.successful;
         Timeline timeline = res.data;
-        List<TimelineTweet> newTweets = [];
+        List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            newTweets.addAll(_processEntries(instruction.entries));
+            newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
           }
-          if (instruction is TimelineAddToModule) {
-            newTweets.addAll(filterTweet(instruction.moduleItems));
-          }
         }
-        gridTweets = newTweets;
-        if (mounted) setState(() {});
-        if (newTweets.isEmpty) {
+        if (newEntries.isEmpty) {
           _noMore = true;
         } else {
           _noMore = false;
         }
         return IndicatorResult.success;
       } else {
-        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
       IToast.showTop("加载失败：${e.toString()}");
-      ILogger.error("Twitee", "Failed to get list timeline", e, t);
-      _initPhase = InitPhase.failed;
+      ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
       if (mounted) setState(() {});
     }
   }
 
   _onLoad() async {
+    if (widget.query.isEmpty) {
+      _inited = true;
+      setState(() {});
+      return;
+    }
     if (cursorBottom == null) return;
     if (_loading) return;
     _loading = true;
     try {
-      if (_initPhase != InitPhase.successful) {
-        _initPhase = InitPhase.connecting;
-        setState(() {});
-      }
       ResponseResult res;
-      res = await CommunityApi.getCommunityMediaTimeline(
+      res = await CommunityApi.getCommunitySearchTimeline(
         communityId: widget.communityId,
+        query: widget.query,
+        rankingMode: widget.type,
         cursorBottom: cursorBottom!.value,
       );
       if (res.success) {
-        _initPhase = InitPhase.successful;
         Timeline timeline = res.data;
-        List<TimelineTweet> newTweets = [];
+        List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
           if (instruction is TimelineAddEntries) {
-            newTweets.addAll(_processEntries(instruction.entries));
+            validEntries.addAll(_processEntries(instruction.entries));
+            newEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
           }
-          if (instruction is TimelineAddToModule) {
-            newTweets.addAll(filterTweet(instruction.moduleItems));
-          }
         }
-        gridTweets.addAll(newTweets);
-        if (mounted) setState(() {});
-        if (newTweets.isEmpty) {
+        if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
         } else {
@@ -184,14 +179,12 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
-      _initPhase = InitPhase.failed;
       IToast.showTop("加载失败：${e.toString()}");
-      ILogger.error("Twitee", "Failed to load list timeline", e, t);
+      ILogger.error("Twitee", "Failed to load homeline", e, t);
       return IndicatorResult.fail;
     } finally {
       _loading = false;
@@ -213,66 +206,20 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
     }
   }
 
-  List<TimelineTweet> _processEntries(List<TimelineAddEntry> entries) {
+  List<TimelineAddEntry> _processEntries(List<TimelineAddEntry> entries) {
     List<TimelineAddEntry> result = [];
     for (var entry in entries) {
-      if (entry.content is TimelineTimelineModule &&
-          (entry.content as TimelineTimelineModule).displayType ==
-              DisplayType.verticalGrid) {
+      if (entry.content is TimelineTimelineItem) {
         result.add(entry);
       }
     }
-    return getGridTweets(result);
-  }
-
-  getGridTweets(List<TimelineAddEntry> entries) {
-    List<TimelineTweet> tweets = [];
-    for (var entry in entries) {
-      TimelineTimelineModule module = entry.content as TimelineTimelineModule;
-      tweets.addAll(filterTweet(module.items ?? []));
-    }
-    return tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
-  }
-
-  filterTweet(List<ModuleItem?> moduleItems) {
-    List<TimelineTweet> tweets = [];
-    List<ModuleItem> items = moduleItems
-        .where((e) => e != null)
-        .map((e) => e as ModuleItem)
-        .toList();
-    for (var item in items) {
-      if (item.item.itemContent is TimelineTweet) {
-        tweets.add(item.item.itemContent as TimelineTweet);
-      }
-    }
-    return tweets.where((e) => TweetUtil.hasMediaByTimelineTweet(e)).toList();
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return widget.nested ? _buildBody() : _buildMainBody();
-  }
-
-  _buildBody() {
-    switch (_initPhase) {
-      case InitPhase.connecting:
-        return ItemBuilder.buildLoadingDialog(context,
-            background: Colors.transparent);
-      case InitPhase.failed:
-        return ItemBuilder.buildError(
-          context: context,
-          onTap: refresh,
-        );
-      case InitPhase.successful:
-        return _buildMainBody();
-      default:
-        return Container();
-    }
-  }
-
-  _buildMainBody() {
-    return EasyRefresh.builder(
+    return EasyRefresh(
       onRefresh: () async {
         return await _onRefresh();
       },
@@ -282,33 +229,52 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      childBuilder: (context, pyhsics) => gridTweets.isNotEmpty
-          ? ItemBuilder.buildLoadMoreNotification(
-              onLoad: _onLoad,
-              noMore: _noMore,
-              child: GridView.extent(
-                physics: pyhsics,
-                controller: widget.nested ? null : _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                    .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
-                crossAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 3,
-                maxCrossAxisExtent: 160,
-                children: List.generate(
-                  gridTweets.length,
-                  (index) =>
-                      GridItem(size: 160, timelineTweet: gridTweets[index]),
-                ),
-              ),
-            )
+      child: !_inited || validEntries.isNotEmpty
+          ? _buildBody()
           : ItemBuilder.buildEmptyPlaceholder(
               context: context,
-              text: "暂无内容",
+              text: "暂无搜索结果",
               scrollController: _scrollController,
-              physics: pyhsics,
             ),
     );
+  }
+
+  _buildBody() {
+    return _buildWaterfallFlow(
+      maxCrossAxisExtent: 800,
+      children: List.generate(
+        validEntries.length,
+        (index) {
+          return _buildItem(validEntries[index]);
+        },
+      ),
+    );
+  }
+
+  _buildWaterfallFlow({
+    double maxCrossAxisExtent = 800,
+    List<Widget> children = const [],
+  }) {
+    return ItemBuilder.buildLoadMoreNotification(
+      onLoad: _onLoad,
+      noMore: _noMore,
+      child: WaterfallFlow.extent(
+        controller: _scrollController,
+        padding: ResponsiveUtil.isLandscape()
+            ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
+            : const EdgeInsets.only(bottom: 16),
+        mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
+        maxCrossAxisExtent: maxCrossAxisExtent,
+        crossAxisSpacing: 6,
+        children: children,
+      ),
+    );
+  }
+
+  _buildItem(TimelineAddEntry entry) {
+    TimelineTimelineItem item = entry.content as TimelineTimelineItem;
+    if (item.itemContent is TimelineTweet) {
+      return PostItem(entry: entry);
+    }
   }
 }

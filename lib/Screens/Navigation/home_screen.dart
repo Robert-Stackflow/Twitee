@@ -207,13 +207,9 @@ class HomeScreenState extends State<HomeScreen>
         showMenu: true,
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "首页",
-        titleWidget: ResponsiveUtil.isLandscape()
-            ? null
-            : Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.only(right: 56),
-                child: _buildLogo(),
-              ),
+        rightPadding: 30.5,
+        centerInMobile: true,
+        titleWidget: ResponsiveUtil.isLandscape() ? null : _buildLogo(),
         bottom: ItemBuilder.buildTabBar(
           context,
           _tabController,
@@ -228,9 +224,7 @@ class HomeScreenState extends State<HomeScreen>
       body: Stack(
         children: [
           TabBarView(
-            controller: _tabController,
-            children: tabDataList.pageList,
-          ),
+              controller: _tabController, children: tabDataList.pageList),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,
             bottom: ResponsiveUtil.isLandscape() ? 16 : 76,

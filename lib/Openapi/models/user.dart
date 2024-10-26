@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'community_data_role.dart';
 import 'type_name.dart';
 import 'user_highlights_info.dart';
 import 'user_legacy.dart';
@@ -19,6 +20,7 @@ part 'user.g.dart';
 @JsonSerializable()
 class User extends UserUnion {
   const User({
+    required this.communityRole,
     required this.privateTypename,
     required this.affiliatesHighlightedLabel,
     required this.businessAccount,
@@ -71,6 +73,8 @@ class User extends UserUnion {
   @JsonKey(name: 'is_profile_translatable')
   final bool? isProfileTranslatable;
   final UserLegacy legacy;
+  @JsonKey(name: 'community_role')
+  final CommunityDataRole? communityRole;
   @JsonKey(name: 'legacy_extended_profile')
   final UserLegacyExtendedProfile? legacyExtendedProfile;
   @JsonKey(name: 'premium_gifting_eligible')

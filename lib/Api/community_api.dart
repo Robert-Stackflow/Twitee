@@ -890,6 +890,7 @@ class CommunityApi {
   static Future<ResponseResult> getGlobalCommunitiesPostSearchTimeline({
     required String query,
     int count = 20,
+    String? cursorBottom,
   }) async {
     try {
       ILogger.info("Twitee API", "Getting global communities timeline");
@@ -900,6 +901,7 @@ class CommunityApi {
           "variables": jsonEncode({
             "rawQuery": query,
             "count": 20,
+            "cursor": cursorBottom,
           }),
           "features": jsonEncode({
             "rweb_tipjar_consumption_enabled": true,
@@ -953,16 +955,18 @@ class CommunityApi {
   static Future<ResponseResult> getGlobalCommunitiesLatestPostSearchTimeline({
     required String query,
     int count = 20,
+    String? cursorBottom,
   }) async {
     try {
       ILogger.info("Twitee API", "Getting global communities latest timeline");
       final response = await RequestUtil.get(
-        "/CK1l2roINrMofbB8pcALbw/GlobalCommunitiesPostSearchTimeline",
+        "/IX-ELlAKl5DCJJ8HZTS0dw/GlobalCommunitiesLatestPostSearchTimeline",
         domainType: DomainType.graphql,
         params: {
           "variables": jsonEncode({
             "rawQuery": query,
             "count": 20,
+            "cursor": cursorBottom,
           }),
           "features": jsonEncode({
             "rweb_tipjar_consumption_enabled": true,

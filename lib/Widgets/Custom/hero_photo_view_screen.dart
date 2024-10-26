@@ -414,6 +414,7 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
           : Utils.getDarkColor(mainColors[currentIndex]).withOpacity(0.5),
       leading: Icons.arrow_back_rounded,
       leadingColor: Colors.white,
+      leftSpacing: 6,
       onLeadingTap: () {
         Navigator.pop(context);
       },

@@ -24,6 +24,7 @@ import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 import '../Resources/fonts.dart';
+import '../Screens/Navigation/community_screen.dart';
 import '../Screens/Navigation/home_screen.dart';
 import '../Screens/Navigation/list_screen.dart';
 import '../Screens/panel_screen.dart';
@@ -33,14 +34,12 @@ import 'enums.dart';
 import 'hive_util.dart';
 
 GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
-
 GlobalKey<NavigatorState> panelNavigatorKey = GlobalKey<NavigatorState>();
 
-NavigatorState? get panelNavigatorState => panelNavigatorKey.currentState;
-
-NavigatorState? get globalNavigatorState => globalNavigatorKey.currentState;
-
 BuildContext get rootContext => globalNavigatorState!.context;
+
+NavigatorState? get panelNavigatorState => panelNavigatorKey.currentState;
+NavigatorState? get globalNavigatorState => globalNavigatorKey.currentState;
 
 GlobalKey<GeneralSettingScreenState> generalSettingScreenKey =
     GlobalKey<GeneralSettingScreenState>();
@@ -60,28 +59,21 @@ GlobalKey<KeyboardHandlerState> keyboardHandlerKey =
 KeyboardHandlerState? get keyboardHandlerState =>
     keyboardHandlerKey.currentState;
 
-GlobalKey<PanelScreenState> panelScreenKey = GlobalKey<PanelScreenState>();
-
 GlobalKey<MainScreenState> mainScreenKey = GlobalKey<MainScreenState>();
-
+GlobalKey<PanelScreenState> panelScreenKey = GlobalKey<PanelScreenState>();
 GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
-
-GlobalKey<ListScreenState> listScreenKey = GlobalKey<ListScreenState>();
-
 GlobalKey<SearchScreenState> searchScreenKey = GlobalKey<SearchScreenState>();
-
-PanelScreenState? get panelScreenState => panelScreenKey.currentState;
+GlobalKey<ListScreenState> listScreenKey = GlobalKey<ListScreenState>();
+GlobalKey<CommunityScreenState> communityScreenKey =
+    GlobalKey<CommunityScreenState>();
 
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
-
+PanelScreenState? get panelScreenState => panelScreenKey.currentState;
 HomeScreenState? get homeScreenState => homeScreenKey.currentState;
-
-ListScreenState? get listScreenState => listScreenKey.currentState;
-
 SearchScreenState? get searchScreenState => searchScreenKey.currentState;
-
-bool get canPopByKey =>
-    panelNavigatorState != null && panelNavigatorState!.canPop();
+ListScreenState? get listScreenState => listScreenKey.currentState;
+CommunityScreenState? get communityScreenState =>
+    communityScreenKey.currentState;
 
 RouteObserver<PageRoute> routeObserver = RouteObserver();
 

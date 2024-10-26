@@ -221,10 +221,7 @@ class ItemBuilder {
             leadingTitleSpacing: spacing,
             actions: [
               ...actions,
-              if (centerInMobile) ...[
-                ItemBuilder.buildBlankIconButton(context),
-                const SizedBox(width: 6.5)
-              ]
+              SizedBox(width: rightPadding),
             ],
             center: centerInMobile,
             title: titleWidget != null
@@ -477,7 +474,7 @@ class ItemBuilder {
     if (ResponsiveUtil.isLandscape()) {
       scrollable = true;
     } else {
-      if (tabs.length <= 1 || tabs.length > 3) {
+      if (tabs.length > 3) {
         scrollable = true;
       } else {
         scrollable = false;
@@ -681,7 +678,10 @@ class ItemBuilder {
         child: Container(
           padding: padding ?? const EdgeInsets.all(8),
           child: RotatedBox(
-              quarterTurns: quarterTurns, child: icon ?? emptyWidget),
+              quarterTurns: quarterTurns,
+              child: IconTheme(
+                  data: Theme.of(context).iconTheme,
+                  child: icon ?? emptyWidget)),
         ),
       ),
     );
@@ -2955,16 +2955,14 @@ class ItemBuilder {
                   onTap: showDetail
                       ? () {
                           if (ResponsiveUtil.isMobile()) {
-                            Navigator.push(
+                            RouteUtil.pushMaterialRoute(
                               rootContext,
-                              MaterialPageRoute(
-                                builder: (context) => HeroPhotoViewScreen(
-                                  tagPrefix: tagPrefix,
-                                  imageUrls: [tagUrl],
-                                  useMainColor: false,
-                                  title: title,
-                                  captions: [caption ?? ""],
-                                ),
+                              HeroPhotoViewScreen(
+                                tagPrefix: tagPrefix,
+                                imageUrls: [tagUrl],
+                                useMainColor: false,
+                                title: title,
+                                captions: [caption ?? ""],
                               ),
                             );
                           } else {

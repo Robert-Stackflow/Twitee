@@ -15,42 +15,48 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
-import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
-import 'package:twitee/Widgets/Twitter/community_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
+import 'package:twitee/Widgets/Twitter/user_item.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Utils/enums.dart';
+import '../../Openapi/models/user.dart';
 import '../../Utils/responsive_util.dart';
 
-class CommunitiesFlowScreen extends StatefulWidgetForFlow {
-  const CommunitiesFlowScreen({
+enum CommunityMembersFlowType { members, moderators }
+
+class CommunityMembersFlowScreen extends StatefulWidgetForFlow {
+  const CommunityMembersFlowScreen({
     super.key,
-    required this.query,
+    required this.type,
+    required this.communityId,
     super.nested,
     super.scrollController,
     super.triggerOffset,
   });
 
-  final String query;
+  final CommunityMembersFlowType type;
 
-  static const String routeName = "/navigtion/communitiesFlow";
+  final String communityId;
+
+  static const String routeName = "/navigtion/listMembersFlow";
 
   @override
-  State<CommunitiesFlowScreen> createState() => _CommunitiesFlowScreenState();
+  State<CommunityMembersFlowScreen> createState() =>
+      _CommunityMembersFlowScreenState();
 }
 
-class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
+class _CommunityMembersFlowScreenState extends State<CommunityMembersFlowScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
   @override
   bool get wantKeepAlive => true;
   String? cursorBottom;
 
-  List<Community> validEntries = [];
+  List<User> validEntries = [];
 
   bool _loading = false;
 
@@ -59,15 +65,13 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
   final EasyRefreshController _easyRefreshController = EasyRefreshController();
 
   bool _noMore = false;
-  InitPhase _initPhase = InitPhase.haveNotConnected;
+
+  bool _inited = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
-    if (widget.nested) {
-      _onRefresh();
-    }
   }
 
   @override
@@ -87,31 +91,27 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
   @override
   refresh() async {
     _easyRefreshController.resetHeader();
-    if (widget.nested) {
-      await _onRefresh();
-    } else {
-      _easyRefreshController.callRefresh(scrollController: _scrollController);
-    }
+    _easyRefreshController.callRefresh();
   }
 
   _onRefresh() async {
-    if (widget.query.isEmpty) {
-      _initPhase = InitPhase.successful;
-      setState(() {});
-      return;
-    }
     if (_loading) return;
     _loading = true;
     cursorBottom = null;
     try {
-      if (_initPhase != InitPhase.successful) {
-        _initPhase = InitPhase.connecting;
-        setState(() {});
+      ResponseResult res;
+      switch (widget.type) {
+        case CommunityMembersFlowType.members:
+          res = await CommunityApi.getCommunityMembers(
+              communityId: widget.communityId);
+          break;
+        case CommunityMembersFlowType.moderators:
+          res = await CommunityApi.getCommunityModerators(
+              communityId: widget.communityId);
+          break;
       }
-      var res = await CommunityApi.getCommunitiesSearch(query: widget.query);
       if (res.success) {
-        _initPhase = InitPhase.successful;
-        List<Community> newEntries = res.data;
+        List<User> newEntries = res.data;
         cursorBottom = res.data2;
         validEntries = newEntries;
         if (newEntries.isEmpty) {
@@ -121,40 +121,45 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
         }
         return IndicatorResult.success;
       } else {
-        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
       IToast.showTop("加载失败：${e.toString()}");
-      ILogger.error("Twitee", "Failed to get list timeline", e, t);
-      _initPhase = InitPhase.failed;
+      ILogger.error("Twitee", "Failed to get homeline", e, t);
       return IndicatorResult.fail;
     } finally {
+      _inited = true;
       _loading = false;
       if (mounted) setState(() {});
     }
   }
 
   _onLoad() async {
-    if (cursorBottom == null) return;
+    if (cursorBottom == null) return IndicatorResult.noMore;
     if (_loading) return;
     _loading = true;
     try {
-      if (_initPhase != InitPhase.successful) {
-        _initPhase = InitPhase.connecting;
-        setState(() {});
+      ResponseResult res;
+      switch (widget.type) {
+        case CommunityMembersFlowType.members:
+          res = await CommunityApi.getCommunityMembers(
+              communityId: widget.communityId, cursorBottom: cursorBottom!);
+          break;
+        case CommunityMembersFlowType.moderators:
+          res = await CommunityApi.getCommunityModerators(
+              communityId: widget.communityId, cursorBottom: cursorBottom!);
+          break;
       }
-      var res = await CommunityApi.getCommunitiesSearch(
-        cursorBottom: cursorBottom!,
-        query: widget.query,
-      );
       if (res.success) {
-        _initPhase = InitPhase.successful;
-        _initPhase = InitPhase.successful;
-        List<Community> newEntries = res.data;
+        List<User> newEntries = res.data;
         cursorBottom = res.data2;
         validEntries.addAll(newEntries);
+        if (newEntries.isEmpty) {
+          _noMore = true;
+        } else {
+          _noMore = false;
+        }
         if (newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
@@ -163,14 +168,12 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
           return IndicatorResult.success;
         }
       } else {
-        _initPhase = InitPhase.failed;
         IToast.showTop("加载失败");
         return IndicatorResult.fail;
       }
     } catch (e, t) {
-      _initPhase = InitPhase.failed;
       IToast.showTop("加载失败：${e.toString()}");
-      ILogger.error("Twitee", "Failed to load list timeline", e, t);
+      ILogger.error("Twitee", "Failed to load homeline", e, t);
       return IndicatorResult.fail;
     } finally {
       _loading = false;
@@ -181,28 +184,7 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return widget.nested ? _buildBody() : _buildMainBody();
-  }
-
-  _buildBody() {
-    switch (_initPhase) {
-      case InitPhase.connecting:
-        return ItemBuilder.buildLoadingDialog(context,
-            background: Colors.transparent);
-      case InitPhase.failed:
-        return ItemBuilder.buildError(
-          context: context,
-          onTap: refresh,
-        );
-      case InitPhase.successful:
-        return _buildMainBody();
-      default:
-        return Container();
-    }
-  }
-
-  _buildMainBody() {
-    return EasyRefresh.builder(
+    return EasyRefresh(
       onRefresh: () async {
         return await _onRefresh();
       },
@@ -212,13 +194,12 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
+      child: ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: validEntries.isNotEmpty
+        child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
-                physics: pyhsics,
-                controller: widget.nested ? null : _scrollController,
+                controller: _scrollController,
                 padding: ResponsiveUtil.isLandscape()
                     ? const EdgeInsets.all(8)
                         .add(const EdgeInsets.only(bottom: 16))
@@ -229,17 +210,24 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
                 children: List.generate(
                   validEntries.length,
                   (index) {
-                    return CommunityItem(community: validEntries[index]);
+                    return _buildUserItem(validEntries[index]);
                   },
                 ),
               )
             : ItemBuilder.buildEmptyPlaceholder(
                 context: context,
-                text: "暂无社群",
+                text: "暂无用户",
                 scrollController: _scrollController,
-                physics: pyhsics,
               ),
       ),
+    );
+  }
+
+  _buildUserItem(User user) {
+    return UserItem(
+      userLegacy: user.legacy,
+      userId: user.restId ?? "",
+      communityRole: user.communityRole,
     );
   }
 }

@@ -10,9 +10,14 @@ enum CommunityDataRole {
   nonMember('NonMember'),
   @JsonValue('Member')
   member('Member'),
-
+  @JsonValue('Admin')
+  admin('Admin'),
+  @JsonValue('Moderator')
+  moderator('Moderator'),
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
+
+  bool get isAdminOrModerator => this == admin || this == moderator;
 
   const CommunityDataRole(this.json);
 

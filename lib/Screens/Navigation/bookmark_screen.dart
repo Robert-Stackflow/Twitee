@@ -323,7 +323,7 @@ class _BookmarkScreenState extends State<BookmarkScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        showMenu: true,
+        showBack: !ResponsiveUtil.isLandscape(),
         spacing: 0,
         showBorder: true,
         titleWidget: Container(
@@ -395,8 +395,8 @@ class _BookmarkScreenState extends State<BookmarkScreen>
             ),
           ),
           Positioned(
-            right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
+            right: ResponsiveUtil.isLandscape() ? 16 : 16,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 16,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
               hideDirection: AxisDirection.down,

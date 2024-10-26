@@ -281,11 +281,10 @@ class _LikeScreenState extends State<LikeScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        showMenu: true,
+        showBack: !ResponsiveUtil.isLandscape(),
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "喜欢",
         showBorder: true,
-        centerInMobile: true,
       ),
       body: Stack(
         children: [
@@ -331,8 +330,8 @@ class _LikeScreenState extends State<LikeScreen>
             ),
           ),
           Positioned(
-            right: ResponsiveUtil.isLandscape() ? 16 : 12,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
+            right: ResponsiveUtil.isLandscape() ? 16 : 16,
+            bottom: ResponsiveUtil.isLandscape() ? 16 : 16,
             child: ScrollToHide(
               scrollControllers: [_scrollController],
               hideDirection: AxisDirection.down,

@@ -16,11 +16,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Screens/Detail/user_detail_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
 import 'package:twitee/Screens/Navigation/bookmark_screen.dart';
-import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/community_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Screens/Navigation/list_screen.dart';
@@ -164,27 +164,44 @@ class PanelScreenState extends State<PanelScreen>
     if (info == null) {
       _pageList = [];
     } else {
-      _keyList = [
-        homeScreenKey,
-        searchScreenKey,
-        GlobalKey(),
-        GlobalKey(),
-        listScreenKey,
-        GlobalKey(),
-      ];
-      _pageList = [
-        HomeScreen(key: homeScreenKey),
-        SearchScreen(key: searchScreenKey),
-        BookmarkScreen(key: _keyList[2]),
-        LikeScreen(key: _keyList[3], userId: info.idStr),
-        ListScreen(key: _keyList[4], userId: info.idStr),
-        CommunityScreen(key: _keyList[5]),
-      ];
+      if (ResponsiveUtil.isLandscape()) {
+        _keyList = [
+          homeScreenKey,
+          searchScreenKey,
+          GlobalKey(),
+          GlobalKey(),
+          listScreenKey,
+          communityScreenKey,
+        ];
+        _pageList = [
+          HomeScreen(key: homeScreenKey),
+          SearchScreen(key: searchScreenKey),
+          BookmarkScreen(key: _keyList[2]),
+          LikeScreen(key: _keyList[3], userId: info.idStr),
+          ListScreen(key: listScreenKey, userId: info.idStr),
+          CommunityScreen(key: communityScreenKey),
+        ];
+      } else {
+        _keyList = [
+          homeScreenKey,
+          searchScreenKey,
+          listScreenKey,
+          communityScreenKey,
+        ];
+        _pageList = [
+          HomeScreen(key: homeScreenKey),
+          SearchScreen(key: searchScreenKey),
+          ListScreen(key: listScreenKey, userId: info.idStr),
+          CommunityScreen(key: communityScreenKey),
+        ];
+      }
       jumpToPage(appProvider.sidebarChoice.index);
     }
+    if (mounted) setState(() {});
   }
 
   void jumpToPage(int index) {
+    index = index.clamp(0, _pageList.length - 1);
     if (_currentIndex == index) {
       BottomNavgationMixin? mixin =
           _keyList[_currentIndex].currentState is BottomNavgationMixin?
@@ -309,16 +326,16 @@ class PanelScreenState extends State<PanelScreen>
               activeIcon: Icon(Icons.manage_search_rounded, size: 28),
               label: "搜索",
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_border_rounded, size: 28),
-              activeIcon: Icon(Icons.bookmark_rounded, size: 28),
-              label: "收藏",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_rounded, size: 28),
-              activeIcon: Icon(Icons.favorite_rounded, size: 28),
-              label: "喜欢",
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.bookmark_border_rounded, size: 28),
+            //   activeIcon: Icon(Icons.bookmark_rounded, size: 28),
+            //   label: "书签",
+            // ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.favorite_border_rounded, size: 28),
+            //   activeIcon: Icon(Icons.favorite_rounded, size: 28),
+            //   label: "喜欢",
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.featured_play_list_outlined, size: 28),
               activeIcon: Icon(Icons.featured_play_list_rounded, size: 28),
@@ -442,8 +459,8 @@ class PanelScreenState extends State<PanelScreen>
                 ItemBuilder.buildDivider(context, horizontal: 24, vertical: 10),
                 ItemBuilder.buildListTile(
                   context: context,
-                  title: "个人主页",
-                  leading: Icons.photo_filter_rounded,
+                  title: "个人资料",
+                  leading: Icons.person_outline_rounded,
                   onTap: () {
                     panelScreenState?.pushPage(
                       UserDetailScreen(
@@ -454,7 +471,25 @@ class PanelScreenState extends State<PanelScreen>
                 ),
                 ItemBuilder.buildListTile(
                   context: context,
-                  title: "我的列表",
+                  title: "书签",
+                  leading: Icons.bookmark_border_rounded,
+                  onTap: () {
+                    panelScreenState?.pushPage(const BookmarkScreen());
+                  },
+                ),
+                ItemBuilder.buildListTile(
+                  context: context,
+                  title: "喜欢",
+                  leading: Icons.favorite_border_rounded,
+                  onTap: () {
+                    panelScreenState?.pushPage(
+                      LikeScreen(userId: info!.idStr),
+                    );
+                  },
+                ),
+                ItemBuilder.buildListTile(
+                  context: context,
+                  title: "列表",
                   leading: Icons.featured_play_list_outlined,
                   onTap: () {
                     panelScreenState?.pushPage(

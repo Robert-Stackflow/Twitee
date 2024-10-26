@@ -18,7 +18,7 @@ import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/dialog_builder.dart';
 
-import '../Widgets/Custom/custom_cupertino_route.dart';
+import '../Widgets/Scaffold/custom_cupertino_route.dart';
 import '../Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 class RouteUtil {
@@ -29,7 +29,7 @@ class RouteUtil {
     bool popAll = false,
   }) {
     return Navigator.push(
-            context, MaterialPageRoute(builder: (context) => page))
+            context, getFadeRoute(page))
         .then(onThen ?? (_) => {});
   }
 

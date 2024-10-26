@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Utils/color_util.dart';
 
 import '../../Api/user_api.dart';
+import '../../Openapi/models/community_data_role.dart';
 import '../../Openapi/models/user_legacy.dart';
 import '../../Screens/Detail/user_detail_screen.dart';
 import '../../Utils/asset_util.dart';
@@ -17,11 +19,14 @@ class UserItem extends StatefulWidget {
     super.key,
     required this.userLegacy,
     required this.userId,
+    this.communityRole,
   });
 
   final UserLegacy userLegacy;
 
   final String userId;
+
+  final CommunityDataRole? communityRole;
 
   @override
   State<UserItem> createState() => _UserItemState();
@@ -36,6 +41,15 @@ class _UserItemState extends State<UserItem> {
     var radius = ResponsiveUtil.isLandscape()
         ? BorderRadius.circular(8)
         : BorderRadius.zero;
+    Color primaryColor = Theme.of(context).primaryColor;
+    Color cardColor = Theme.of(context).cardColor;
+    Color primaryComplementaryColor =
+        ColorUtil.getComplementaryColor(primaryColor);
+    TextStyle? bodyMedium = Theme.of(context).textTheme.bodyMedium;
+    TextStyle? titleLarge =
+        Theme.of(context).textTheme.titleLarge?.apply(fontSizeDelta: -2);
+    EdgeInsets tagPadding =
+        const EdgeInsets.symmetric(horizontal: 4, vertical: 2);
     return ItemBuilder.buildClickItem(
       Material(
         color: Theme.of(context).canvasColor,
@@ -72,32 +86,56 @@ class _UserItemState extends State<UserItem> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        user.name,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: user.name,
+                                        style: titleLarge,
                                       ),
-                                    ),
-                                    if (user.followedBy ?? false)
-                                      const SizedBox(width: 5),
-                                    if (user.followedBy ?? false)
-                                      ItemBuilder.buildRoundButton(context,
-                                          text: "关注了你",
-                                          radius: 4,
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.apply(fontSizeDelta: -2),
-                                          background:
-                                              Theme.of(context).cardColor,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4, vertical: 2)),
-                                  ],
+                                      if (widget.communityRole != null &&
+                                          widget.communityRole!
+                                              .isAdminOrModerator)
+                                        WidgetSpan(
+                                          alignment:
+                                              PlaceholderAlignment.middle,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(5),
+                                            child: ItemBuilder.buildRoundButton(
+                                              context,
+                                              text: widget.communityRole ==
+                                                      CommunityDataRole.admin
+                                                  ? "管理员"
+                                                  : "版主",
+                                              radius: 4,
+                                              textStyle: bodyMedium?.apply(
+                                                  fontSizeDelta: -2,
+                                                  color:
+                                                      primaryComplementaryColor),
+                                              background: primaryColor,
+                                              padding: tagPadding,
+                                            ),
+                                          ),
+                                        ),
+                                      if (user.followedBy ?? false)
+                                        WidgetSpan(
+                                          alignment:
+                                              PlaceholderAlignment.middle,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(5),
+                                            child: ItemBuilder.buildRoundButton(
+                                              context,
+                                              text: "关注了你",
+                                              radius: 4,
+                                              textStyle: bodyMedium?.apply(
+                                                  fontSizeDelta: -2),
+                                              background: cardColor,
+                                              padding: tagPadding,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                                 Text(
                                   "@$screenName",

@@ -17,7 +17,6 @@ import 'dart:async';
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
@@ -43,6 +42,7 @@ import '../../Utils/responsive_util.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Detail/list_detail_screen.dart';
+import '../Detail/list_manage_screen.dart';
 import '../Flow/list_flow_screen.dart';
 
 class ListScreen extends StatefulWidget {
@@ -207,6 +207,7 @@ class ListScreenState extends State<ListScreen>
         title: "列表",
         bottomHeight: 56,
         centerInMobile: true,
+        rightPadding: 0,
         bottom: tabDataList.isNotEmpty
             ? ItemBuilder.buildTabBar(
                 context,
@@ -218,6 +219,17 @@ class ListScreenState extends State<ListScreen>
                 width: MediaQuery.of(context).size.width,
               )
             : null,
+        actions: [
+          ItemBuilder.buildIconButton(
+            context: context,
+            icon: const Icon(Icons.category_outlined),
+            onTap: () {
+              UserInfo? info = HiveUtil.getUserInfo();
+              panelScreenState?.pushPage(ListManageScreen(userId: info!.idStr));
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _buildBody(),
     );
@@ -299,16 +311,6 @@ class ListScreenState extends State<ListScreen>
             ),
             onTap: () async {
               refresh();
-            },
-          ),
-        if (ResponsiveUtil.isLandscape()) const SizedBox(height: 10),
-        if (ResponsiveUtil.isLandscape())
-          ItemBuilder.buildShadowIconButton(
-            context: context,
-            icon: const Icon(Icons.settings_rounded),
-            onTap: () async {
-              RouteUtil.pushPanelCupertinoRoute(
-                  context, ListManageScreen(userId: widget.userId));
             },
           ),
         const SizedBox(height: 10),

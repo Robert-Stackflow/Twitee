@@ -70,7 +70,9 @@ class _ListDetailScreenState extends State<ListDetailScreen>
 
   TimelineTwitterListInfo? listInfo;
 
-  String get bannerUrl => listInfo!.defaultBannerMedia.mediaInfo.originalImgUrl;
+  String get bannerUrl =>
+      listInfo!.customBannerMedia?.mediaInfo.originalImgUrl ??
+      listInfo!.defaultBannerMedia.mediaInfo.originalImgUrl;
 
   UserLegacy? get user => listInfo!.userResults.result != null
       ? (listInfo!.userResults.result! as User).legacy

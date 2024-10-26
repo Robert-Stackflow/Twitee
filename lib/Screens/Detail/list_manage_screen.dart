@@ -185,9 +185,10 @@ class _ListManageScreenState extends State<ListManageScreen>
     return Scaffold(
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
-        title: "管理列表",
+        title: "列表",
         transparent: true,
         showBack: true,
+        showBorder: true,
         actions: [
           ItemBuilder.buildIconButton(
             context: context,
@@ -197,7 +198,7 @@ class _ListManageScreenState extends State<ListManageScreen>
               color: Theme.of(context).iconTheme.color,
             ),
             onTap: () {
-              IToast.showTop("暂不支持编辑列表");
+              IToast.showTop("暂不支持新建列表");
             },
           ),
           if (ResponsiveUtil.isLandscape())

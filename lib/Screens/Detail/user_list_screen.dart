@@ -98,7 +98,6 @@ class UserListScreenState extends State<UserListScreen>
       appBar: ItemBuilder.buildDesktopAppBar(
         context: context,
         showBack: true,
-        spacing: ResponsiveUtil.isLandscape() ? 0 : 10,
         title: "用户列表",
         bottomHeight: 56,
         bottom: ItemBuilder.buildTabBar(

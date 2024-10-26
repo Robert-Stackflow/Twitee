@@ -38,6 +38,19 @@ enum RankType {
         return "Likes";
     }
   }
+
+  static RankType fromIndex(int index){
+    switch (index) {
+      case 0:
+        return RankType.Relevance;
+      case 1:
+        return RankType.Recency;
+      case 2:
+        return RankType.Likes;
+      default:
+        return RankType.Relevance;
+    }
+  }
 }
 
 enum FeedbackType {

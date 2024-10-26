@@ -236,7 +236,15 @@ class MyApp extends StatelessWidget {
                     builder: (context) => MediaQuery(
                       data: MediaQuery.of(context)
                           .copyWith(textScaler: TextScaler.noScaling),
-                      child: widget,
+                      child: Listener(
+                        onPointerDown: (_) {
+                          if (!ResponsiveUtil.isDesktop() &&
+                              searchScreenState?.hasSearchFocus == true) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          }
+                        },
+                        child: widget,
+                      ),
                     ),
                   ),
                 ],

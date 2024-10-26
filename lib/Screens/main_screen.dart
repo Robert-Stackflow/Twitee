@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Screens/Detail/friendship_screen.dart';
+import 'package:twitee/Screens/Detail/list_manage_screen.dart';
 import 'package:twitee/Screens/Setting/about_setting_screen.dart';
 import 'package:twitee/Screens/Setting/setting_navigation_screen.dart';
 import 'package:twitee/Screens/panel_screen.dart';
@@ -406,22 +407,33 @@ class MainScreenState extends State<MainScreen>
     return GenericContextMenu(
       buttonConfigs: [
         ContextMenuButtonConfig(
-          "查看个人主页",
+          "个人资料",
+          iconData: Icons.person_outline_rounded,
           onPressed: () async {
             panelScreenState
                 ?.pushPage(UserDetailScreen(screenName: _userInfo!.screenName));
           },
         ),
         ContextMenuButtonConfig(
-          "查看社交网络",
+          "社交网络",
+          iconData: Icons.auto_awesome_outlined,
           onPressed: () async {
             panelScreenState
                 ?.pushPage(FriendshipScreen(userId: _userInfo!.idStr));
           },
         ),
+        ContextMenuButtonConfig(
+          "列表",
+          iconData: Icons.featured_play_list_outlined,
+          onPressed: () async {
+            panelScreenState
+                ?.pushPage(ListManageScreen(userId: _userInfo!.idStr));
+          },
+        ),
         ContextMenuButtonConfig.divider(),
         ContextMenuButtonConfig.warning(
           "退出登录",
+          iconData: Icons.logout_rounded,
           onPressed: () async {
             DialogBuilder.showConfirmDialog(
               context,

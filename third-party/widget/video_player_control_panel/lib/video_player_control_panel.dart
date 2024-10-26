@@ -280,7 +280,8 @@ class _VideoControlPanelState extends State<VideoControlPanel>
     var size = await FullScreenWindow.getScreenSize(context);
     double min = math.min(size.width, size.height);
     if (kIsWeb || Platform.isWindows) {
-      iconSize = min / 30;
+      iconSize = min / 36;
+      iconSize = math.min(iconSize, 30);
     } else {
       iconSize = min / 15;
     }
