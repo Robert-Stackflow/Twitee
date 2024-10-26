@@ -21,13 +21,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Models/translation_result.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Detail/search_result_screen.dart';
 import 'package:twitee/Screens/Detail/user_list_screen.dart';
 import 'package:twitee/Screens/Detail/user_topic_screen.dart';
 import 'package:twitee/Screens/Flow/user_list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_media_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_tweet_flow_screen.dart';
-import 'package:twitee/Screens/Detail/friendship_screen.dart';
 import 'package:twitee/Screens/Navigation/like_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/asset_util.dart';
@@ -408,7 +408,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     String url = userLegacy?.url ?? "https://twitter.com/$screenName";
     return GenericContextMenu(
       buttonConfigs: [
-        if (!isMyself)
+        if (!isMyself && (userLegacy?.following ?? false))
           ContextMenuButtonConfig(
             userLegacy?.wantRetweets ?? false ? "关闭转推" : "开启转推",
             iconData: userLegacy?.wantRetweets ?? false
