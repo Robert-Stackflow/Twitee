@@ -70,7 +70,9 @@ class TwitterListItemState extends State<TwitterListItem> {
           },
           borderRadius: MyTheme.responsiveBorderRadius,
           child: Container(
-            decoration: BoxDecoration(borderRadius: MyTheme.responsiveBorderRadius,border: MyTheme.responsiveBottomBorder),
+            decoration: BoxDecoration(
+                borderRadius: MyTheme.responsiveBorderRadius,
+                border: MyTheme.responsiveBottomBorder),
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             child: Row(
               children: [

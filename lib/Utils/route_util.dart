@@ -28,8 +28,7 @@ class RouteUtil {
     Function(dynamic)? onThen,
     bool popAll = false,
   }) {
-    return Navigator.push(
-            context, getFadeRoute(page))
+    return Navigator.push(context, getFadeRoute(page))
         .then(onThen ?? (_) => {});
   }
 
