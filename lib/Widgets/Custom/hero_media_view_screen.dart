@@ -337,7 +337,9 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
         ),
         builder: (BuildContext context, int index) {
           var media = medias[index];
-          if (media.type == MediaType.photo) {
+          if (media.type == MediaType.photo ||
+              (media.type != MediaType.photo &&
+                  !ResponsiveUtil.showVideoPlayer())) {
             return PhotoViewGalleryPageOptions(
               controller: _viewControllers[index],
               imageProvider:

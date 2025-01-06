@@ -94,6 +94,7 @@ class HiveUtil {
   static const String oldVersionKey = "oldVersion";
   static const String haveMigratedToSupportDirectoryKey =
       "haveMigratedToSupportDirectory";
+  static const String enableVideoOnDesktopKey = "enableVideoOnDesktop";
 
   static initialize() async {
     if (HiveUtil.isFirstLogin()) {

@@ -180,13 +180,14 @@ class TweetUtil {
     Entities entities, {
     bool replaceNewline = true,
     bool renderLink = true,
+    bool renderAt = false,
   }) {
     fullText = fullText.replaceAll("\n", replaceNewline ? "<br>" : "");
     entities.hashtags.sort((a, b) {
       return (b['text'] as String).length - (a['text'] as String).length;
     });
     if (renderLink) {
-      String tmpTag = "@**@/~?><?%^@!()~==/&&/|\\";
+      String tmpTag = "~**`/~?><?%^|!()~==/&&/|\\";
       for (var i = 0; i < entities.hashtags.length; i++) {
         Map hashtag = entities.hashtags[i];
         fullText = fullText.replaceAll("#${hashtag['text']}",
@@ -202,6 +203,24 @@ class TweetUtil {
           Map mention = entities.userMentions![i];
           fullText = fullText.replaceAll("@${mention['screen_name']}",
               '<a href="https://x.com/${Uri.encodeComponent(mention['screen_name'])}">$tmpTag${mention['screen_name']}</a>');
+        }
+        if (renderAt) {
+          RegExp regex = RegExp(r'@\w+');
+          List<String> matchedUsers = regex
+              .allMatches(fullText)
+              .map((match) => match.group(0)!.substring(1))
+              .toList();
+          fullText = fullText.replaceAllMapped(
+            regex,
+            (match) {
+              String username = match.group(0)!.substring(1);
+              return '<a href="https://x.com/$username">$tmpTag$username</a>';
+            },
+          );
+          for (var i = 0; i < matchedUsers.length; i++) {
+            fullText = fullText.replaceAll(
+                "$tmpTag${matchedUsers[i]}", '@${matchedUsers[i]}');
+          }
         }
         for (var i = 0; i < entities.userMentions!.length; i++) {
           Map mention = entities.userMentions![i];
@@ -283,14 +302,35 @@ class TweetUtil {
     return videoList[0].url;
   }
 
-  static getFullText(Tweet tweet) {
+  static getFullText(
+    Tweet tweet, [
+    bool isExpanded = false,
+  ]) {
     String fullText = tweet.legacy!.fullText!;
+    List<int> range = [0, fullText.length];
+    if (tweet.legacy!.displayTextRange != null) {
+      range = tweet.legacy!.displayTextRange!.map((e) => e!).toList();
+    }
     try {
-      fullText = _processTweetFullText(tweet);
+      if (isExpandable(tweet) && isExpanded) {
+        fullText = _processTweetFullText(
+            tweet, getNoteTweetResult(tweet)!.result.text);
+      } else {
+        fullText = _processTweetFullText(
+            tweet, fullText.substring(range[0], range[1]));
+      }
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to process tweet", e, t);
     }
     return fullText;
+  }
+
+  static bool isExpandable(Tweet tweet) {
+    return tweet.noteTweet != null && tweet.noteTweet!.isExpandable == true;
+  }
+
+  static NoteTweetResult? getNoteTweetResult(Tweet tweet) {
+    return tweet.noteTweet?.noteTweetResults;
   }
 
   static getTranslation(Tweet tweet) {
@@ -310,9 +350,9 @@ class TweetUtil {
     return TweetUtil.processWithEntities(fullText, entities);
   }
 
-  static String _processTweetFullText(Tweet tweet) {
-    String fullText = tweet.legacy!.fullText!;
+  static String _processTweetFullText(Tweet tweet, [String? fullText]) {
+    String text = fullText ?? tweet.legacy!.fullText!;
     Entities entities = tweet.legacy!.entities;
-    return TweetUtil.processWithEntities(fullText, entities);
+    return TweetUtil.processWithEntities(text, entities);
   }
 }

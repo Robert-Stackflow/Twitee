@@ -367,7 +367,7 @@ class PostApi {
         params: {
           "variables": jsonEncode({
             "focalTweetId": tweetId,
-            "referrer": "home",
+            "referrer": "profile",
             "cursor": cursorBottom,
             "controller_data":
                 "DAACDAABDAABCgABAkAABEoCAAMKAAIAAAAAAAEBAAoACdWUvTi8Qt8rCAALAAAAAg8ADAMAAAALAwACSgQAQAIAAQEKAA6cMjFW+ypM9AAAAAA=",
@@ -375,7 +375,7 @@ class PostApi {
             "rankingMode": rankType.value,
             "includePromotedContent": false,
             "withCommunity": true,
-            "withQuickPromoteEligibilityTweetFields": true,
+            "withQuickPromoteEligibilityTweetFields": false,
             "withBirdwatchNotes": true,
             "withVoice": true,
           }),
@@ -428,6 +428,89 @@ class PostApi {
       );
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to get tweet detail", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> getTweetReplyDetail({
+    required String tweetId,
+    RankType rankType = RankType.Relevance,
+    String? cursorBottom,
+  }) async {
+    try {
+      ILogger.info("Twitee API", "Getting tweet reply detail");
+      final response = await RequestUtil.get(
+        "/L3fZ4xtO2dIO1fseWq7vGQ/TweetDetail",
+        domainType: DomainType.graphql,
+        params: {
+          "variables": jsonEncode({
+            "focalTweetId": tweetId,
+            "referrer": "tweet",
+            "cursor": cursorBottom,
+            "controller_data":
+                "DAACDAABDAABCgABAkAABEoCAAMKAAIAAAAAAAEBAAoACdWUvTi8Qt8rCAALAAAAAg8ADAMAAAALAwACSgQAQAIAAQEKAA6cMjFW+ypM9AAAAAA=",
+            "with_rux_injections": false,
+            "rankingMode": rankType.value,
+            "includePromotedContent": false,
+            "withCommunity": true,
+            "withQuickPromoteEligibilityTweetFields": false,
+            "withBirdwatchNotes": true,
+            "withVoice": true,
+          }),
+          "features": jsonEncode({
+            "profile_label_improvements_pcf_label_in_post_enabled": false,
+            "rweb_tipjar_consumption_enabled": true,
+            "responsive_web_graphql_exclude_directive_enabled": true,
+            "verified_phone_label_enabled": false,
+            "creator_subscriptions_tweet_preview_api_enabled": true,
+            "responsive_web_graphql_timeline_navigation_enabled": true,
+            "responsive_web_graphql_skip_user_profile_image_extensions_enabled":
+                false,
+            "premium_content_api_read_enabled": false,
+            "communities_web_enable_tweet_community_results_fetch": true,
+            "c9s_tweet_anatomy_moderator_badge_enabled": true,
+            "responsive_web_grok_analyze_button_fetch_trends_enabled": false,
+            "responsive_web_grok_analyze_post_followups_enabled": false,
+            "responsive_web_grok_share_attachment_enabled": true,
+            "articles_preview_enabled": true,
+            "responsive_web_edit_tweet_api_enabled": true,
+            "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+            "view_counts_everywhere_api_enabled": true,
+            "longform_notetweets_consumption_enabled": true,
+            "responsive_web_twitter_article_tweet_consumption_enabled": true,
+            "tweet_awards_web_tipping_enabled": false,
+            "creator_subscriptions_quote_tweet_preview_enabled": false,
+            "freedom_of_speech_not_reach_fetch_enabled": true,
+            "standardized_nudges_misinfo": true,
+            "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":
+                true,
+            "rweb_video_timestamps_enabled": true,
+            "longform_notetweets_rich_text_read_enabled": true,
+            "longform_notetweets_inline_media_enabled": true,
+            "responsive_web_enhance_cards_enabled": false
+          }),
+          "fieldToggles": jsonEncode({
+            "withArticleRichContentState": true,
+            "withArticlePlainText": false,
+            "withGrokAnalyze": false,
+            "withDisallowedReplyControls": false,
+          }),
+        },
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: "Failed to get tweet reply detail",
+          data: response?.data,
+          statusCode: response?.statusCode ?? 500,
+        );
+      }
+      final data = response.data;
+      return ResponseResult.success(
+        data: TweetDetailResponse.fromJson(data),
+        message: 'Success',
+      );
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to get tweet reply detail", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }

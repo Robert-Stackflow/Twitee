@@ -77,6 +77,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   InitPhase _initPhase = InitPhase.haveNotConnected;
 
   bool isTranslating = false;
+  bool isTranslationExpanded = true;
   TranslationResult? translationResult;
 
   late TabController _tabController;
@@ -906,9 +907,26 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomHtmlWidget(
-                content: translation,
-                style: Theme.of(context).textTheme.bodyMedium,
+              if (isTranslationExpanded)
+                CustomHtmlWidget(
+                  content: translation,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              if (isTranslationExpanded) const SizedBox(height: 8),
+              ItemBuilder.buildClickItem(
+                GestureDetector(
+                  onTap: () {
+                    isTranslationExpanded = !isTranslationExpanded;
+                    setState(() {});
+                  },
+                  child: Text(
+                    isTranslationExpanded ? "收起翻译" : "查看翻译",
+                    style: Theme.of(context).textTheme.bodyMedium!.apply(
+                          fontWeightDelta: 2,
+                          color: MyColors.getLinkColor(context),
+                        ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -924,8 +942,12 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     Map map = userLegacy!.entities;
     if (map.containsKey("description")) {
       Entities entities = Entities.fromJson(map["description"]);
-      return TweetUtil.processWithEntities(fullText, entities,
-          replaceNewline: false);
+      return TweetUtil.processWithEntities(
+        fullText,
+        entities,
+        replaceNewline: false,
+        renderAt: true,
+      );
     }
     return fullText;
   }

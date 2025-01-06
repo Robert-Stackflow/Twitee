@@ -40,6 +40,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Api/post_api.dart';
 import '../../Openapi/export.dart';
+import '../../Resources/colors.dart';
 import '../../Screens/Detail/community_detail_screen.dart';
 import '../../Screens/Detail/community_insearch_screen.dart';
 import '../../Screens/Detail/tweet_detail_screen.dart';
@@ -57,11 +58,14 @@ class PostItem extends StatefulWidget {
     required this.entry,
     this.feedbackActions = const [],
     this.isDetail = false,
+    this.onLoadMoreReply,
   });
 
   final List<FeedbackActions> feedbackActions;
 
   final TimelineAddEntry entry;
+
+  final Function(String cursor)? onLoadMoreReply;
 
   final bool isDetail;
 
@@ -161,10 +165,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           .where((e) => e != null)
           .map((e) => e as ModuleItem)
           .toList();
-      items = items.where((e) => e.item.itemContent is TimelineTweet).toList();
-      List<TimelineTweet> tweets =
-          items.map((e) => e.item.itemContent as TimelineTweet).toList();
-      return _buildConversation(tweets);
+      List<TimelineTweet> tweets = items
+          .where((e) => e.item.itemContent is TimelineTweet)
+          .map((e) => e.item.itemContent as TimelineTweet)
+          .toList();
+      List<TimelineTimelineCursor> cursors = items
+          .where((e) => e.item.itemContent is TimelineTimelineCursor)
+          .map((e) => e.item.itemContent as TimelineTimelineCursor)
+          .toList();
+      return _buildConversation(tweets, cursors);
     } else if (!_isModule(entry)) {
       var timelineTweet =
           (entry.content as TimelineTimelineItem).itemContent as TimelineTweet;
@@ -565,11 +574,12 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  _buildConversation(List<TimelineTweet> tweets) {
+  _buildConversation(
+      List<TimelineTweet> tweets, List<TimelineTimelineCursor> cursors) {
     return Container(
       decoration: BoxDecoration(border: MyTheme.responsiveBottomBorder),
-      child: Column(
-        children: List.generate(
+      child: Column(children: [
+        ...List.generate(
           tweets.length,
           (index) {
             var tweet = TweetUtil.getTrueTweet(tweets[index]);
@@ -577,11 +587,60 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                 ? _buildConversationItem(
                     tweet,
                     isFirst: index == 0,
-                    isLast: index == tweets.length - 1,
+                    isLast: cursors.isEmpty && index == tweets.length - 1,
                     socialContext: tweets[index].socialContext,
                   )
                 : emptyWidget;
           },
+        ),
+        if (cursors.isNotEmpty) _buildConversationCursor(cursors),
+      ]),
+    );
+  }
+
+  _buildConversationCursor(List<TimelineTimelineCursor> cursors) {
+    BorderRadius borderRadius = BorderRadius.zero;
+    if (ResponsiveUtil.isLandscape()) {
+      borderRadius = borderRadius
+          .add(const BorderRadius.only(
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ))
+          .resolve(null);
+    }
+    return Material(
+      color: MyTheme.itemBackground,
+      borderRadius: borderRadius,
+      child: InkWell(
+        borderRadius: borderRadius,
+        onTap: () {
+          widget.onLoadMoreReply?.call(cursors.first.value);
+        },
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(border: MyTheme.responsiveBottomBorder),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: List.generate(
+              cursors.length,
+              (index) {
+                var cursor = cursors[index];
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    cursor.displayTreatment?.actionText ?? "",
+                    style: Theme.of(context).textTheme.bodyMedium?.apply(
+                          color: MyColors.getLinkColor(context),
+                          fontWeightDelta: 2,
+                        ),
+                    textAlign: TextAlign.start,
+                  ),
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -762,7 +821,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     Tweet tweet, {
     double bottom = 8,
   }) {
-    String fullText = TweetUtil.getFullText(tweet);
+    String fullText =
+        TweetUtil.getFullText(tweet, widget.isDetail || tweet.isExpanded);
+    bool showExpandable = TweetUtil.isExpandable(tweet) && !widget.isDetail;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -778,7 +839,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   content: fullText,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-              if (Utils.isNotEmpty(fullText)) const SizedBox(height: 8),
+              if (Utils.isNotEmpty(fullText) && !showExpandable)
+                const SizedBox(height: 8),
+              if (showExpandable) _buildExpandable(tweet),
               ..._buildTranslation(tweet),
               if (TweetUtil.hasTranslation(tweet) &&
                   (TweetUtil.hasMedia(tweet) || TweetUtil.hasQuote(tweet)))
@@ -796,6 +859,32 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ),
         ),
       ],
+    );
+  }
+
+  _buildExpandable(Tweet tweet) {
+    return ItemBuilder.buildClickItem(
+      GestureDetector(
+        onTap: () {
+          tweet.isExpanded = !tweet.isExpanded;
+          setState(() {});
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            tweet.isExpanded ? "收起全文" : "查看全文",
+            style: Theme.of(context).textTheme.bodyMedium!.apply(
+                  color: MyColors.getLinkColor(context),
+                  fontWeightDelta: 2,
+                ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -914,9 +1003,26 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomHtmlWidget(
-                content: translation,
-                style: Theme.of(context).textTheme.bodyMedium,
+              if (tweet.isTranslationExpanded)
+                CustomHtmlWidget(
+                  content: translation,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              if (tweet.isTranslationExpanded) const SizedBox(height: 8),
+              ItemBuilder.buildClickItem(
+                GestureDetector(
+                  onTap: () {
+                    tweet.isTranslationExpanded = !tweet.isTranslationExpanded;
+                    setState(() {});
+                  },
+                  child: Text(
+                    tweet.isTranslationExpanded ? "收起翻译" : "查看翻译",
+                    style: Theme.of(context).textTheme.bodyMedium!.apply(
+                          fontWeightDelta: 2,
+                          color: MyColors.getLinkColor(context),
+                        ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -960,6 +1066,39 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
 
   _buildCommunityRow(
       TimelineGeneralContext socialContext, Community? communityResult) {
+    IconData icon = Icons.people_rounded;
+    switch (socialContext.contextType) {
+      case TimelineGeneralContextContextType.pin:
+        icon = Icons.push_pin_rounded;
+        break;
+      case TimelineGeneralContextContextType.community:
+        icon = Icons.people_rounded;
+        break;
+      case TimelineGeneralContextContextType.follow:
+        icon = Icons.people_rounded;
+        break;
+      case TimelineGeneralContextContextType.list:
+        icon = Icons.list_rounded;
+        break;
+      case TimelineGeneralContextContextType.location:
+        icon = Icons.location_on_rounded;
+        break;
+      case TimelineGeneralContextContextType.like:
+        icon = Icons.favorite_rounded;
+        break;
+      case TimelineGeneralContextContextType.conversation:
+        icon = Icons.chat_bubble_rounded;
+        break;
+      case null:
+        icon = Icons.help_rounded;
+        break;
+      case TimelineGeneralContextContextType.sparkle:
+        icon = Icons.star_rounded;
+        break;
+      case TimelineGeneralContextContextType.$unknown:
+        icon = Icons.help_rounded;
+        break;
+    }
     return ItemBuilder.buildClickItem(
       GestureDetector(
         onTap: () {
@@ -982,7 +1121,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           children: [
             const SizedBox(width: 4),
             Icon(
-              Icons.people_rounded,
+              icon,
               size: 16,
               color: Theme.of(context).textTheme.bodySmall?.color,
             ),
@@ -1232,6 +1371,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     if (isQuote && !widget.isDetail) {
       return _buildImageMedia(media, index, medias,
           radius: radius, isQuote: true, size: size);
+    } else if (!ResponsiveUtil.showVideoPlayer()) {
+      return _buildImageMedia(media, index, medias,
+          radius: radius, isQuote: false, size: size);
     } else {
       double ratio = media.sizes.large.w / media.sizes.large.h;
       ratio = ratio.clamp(0, 2);

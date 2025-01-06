@@ -24,6 +24,7 @@ import 'package:shell_executor/shell_executor.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'app_provider.dart';
+import 'hive_util.dart';
 
 enum LinuxOSType {
   Gnome,
@@ -194,6 +195,12 @@ class ResponsiveUtil {
         (useAppProvider &&
             appProvider.enableLandscapeInTablet &&
             isLandscapeTablet());
+  }
+
+  static bool showVideoPlayer() {
+    bool enableVideoOnDesktop =
+        HiveUtil.getBool(HiveUtil.enableVideoOnDesktopKey, defaultValue: false);
+    return !isDesktop() || (isDesktop() && enableVideoOnDesktop);
   }
 
   static bool isWideLandscape([bool useAppProvider = true]) {

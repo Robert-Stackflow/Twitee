@@ -18,6 +18,8 @@ enum TimelineGeneralContextContextType {
   sparkle('Sparkle'),
   @JsonValue('Conversation')
   conversation('Conversation'),
+  @JsonValue('Community')
+  community('Community'),
   @JsonValue('List')
   list('List'),
 

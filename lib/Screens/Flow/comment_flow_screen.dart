@@ -26,7 +26,6 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
-import '../../Utils/responsive_util.dart';
 import '../../Widgets/WaterfallFlow/extended_list_library.dart';
 
 class CommentFlowScreen extends StatefulWidgetForFlow {
@@ -236,10 +235,60 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
       if (entry.content is TimelineTimelineModule &&
           (entry.content as TimelineTimelineModule).displayType ==
               DisplayType.verticalConversation) {
-        result.add(entry);
+        TimelineTimelineModule module = entry.content as TimelineTimelineModule;
+        bool hasPromoted = false;
+        for (var item in module.items ?? []) {
+          if (item is ModuleItem &&
+              (item.item.itemContent is TimelineTweet) &&
+              ((item.item.itemContent as TimelineTweet)).promotedMetadata !=
+                  null) {
+            hasPromoted = true;
+          }
+        }
+        if (!hasPromoted) result.add(entry);
       }
     }
     return result;
+  }
+
+  Future<List<TimelineTweet>> getMoreReplyTweets(
+      String tweetId, String cursor) async {
+    try {
+      var res = await PostApi.getTweetReplyDetail(
+        tweetId: tweetId,
+        rankType: widget.rankType,
+        cursorBottom: cursor,
+      );
+      if (res.success) {
+        TweetDetailResponse response = res.data;
+        Timeline? timeline = response.data.threadedConversationWithInjectionsV2;
+        if (timeline == null) {
+          return [];
+        }
+        List<TimelineTweet> newTweets = [];
+        for (var instruction in timeline.instructions) {
+          if (instruction is TimelineAddToModule) {
+            for (var entry in instruction.moduleItems) {
+              if (entry.item.itemContent is TimelineTweet) {
+                newTweets.add(entry.item.itemContent as TimelineTweet);
+              }
+            }
+          }
+        }
+        if (newTweets.isEmpty) {
+          return [];
+        } else {
+          return newTweets;
+        }
+      } else {
+        IToast.showTop("加载失败");
+        return [];
+      }
+    } catch (e, t) {
+      IToast.showTop("加载失败：${e.toString()}");
+      ILogger.error("Twitee", "Failed to load homeline", e, t);
+      return [];
+    }
   }
 
   @override
@@ -294,7 +343,30 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
                 children: List.generate(
                   validEntries.length + (cursorMore != null ? 1 : 0),
                   (index) {
-                    return PostItem(entry: validEntries[index]);
+                    return PostItem(
+                      entry: validEntries[index],
+                      onLoadMoreReply: (value) async {
+                        List<TimelineTweet> newTweets =
+                            await getMoreReplyTweets(widget.tweetId, value);
+                        TimelineTimelineModule module = (validEntries[index]
+                            .content as TimelineTimelineModule);
+                        module.items!.removeWhere((e) =>
+                            e != null &&
+                            e.item.itemContent is TimelineTimelineCursor);
+                        module.items?.addAll(
+                          newTweets.map(
+                            (e) => ModuleItem(
+                              entryId: "",
+                              item: ModuleEntry(
+                                  clientEventInfo: null,
+                                  feedbackInfo: null,
+                                  itemContent: e),
+                            ),
+                          ),
+                        );
+                        setState(() {});
+                      },
+                    );
                   },
                 ),
               )

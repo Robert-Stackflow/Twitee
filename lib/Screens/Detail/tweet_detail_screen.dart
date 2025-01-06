@@ -125,10 +125,12 @@ class TweetDetailScreenState extends State<TweetDetailScreen>
 
   _processEntries(List<TimelineAddEntry> entries) {
     for (TimelineAddEntry entry in entries) {
-      if (entry.content is TimelineTimelineItem &&
-          (entry.content as TimelineTimelineItem).itemContent
-              is TimelineTweet) {
+      TimelineTimelineItem? item = entry.content is TimelineTimelineItem
+          ? entry.content as TimelineTimelineItem
+          : null;
+      if (item != null && item.itemContent is TimelineTweet) {
         tweetEntry = entry;
+      } else if (item != null && item.itemContent is! TimelineTimelineItem) {
         break;
       }
     }

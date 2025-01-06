@@ -52,6 +52,8 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
   bool enableMinimizeToTray = HiveUtil.getBool(HiveUtil.enableCloseToTrayKey);
   bool launchAtStartup = HiveUtil.getBool(HiveUtil.launchAtStartupKey);
   bool recordWindowState = HiveUtil.getBool(HiveUtil.recordWindowStateKey);
+  bool enableVideoOnDesktop =
+      HiveUtil.getBool(HiveUtil.enableVideoOnDesktopKey,defaultValue: false);
   bool showTray = HiveUtil.getBool(HiveUtil.showTrayKey);
   bool enableCloseNotice = HiveUtil.getBool(HiveUtil.enableCloseNoticeKey);
   List<Tuple2<String, Locale?>> _supportedLocaleTuples = [];
@@ -314,7 +316,6 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
         title: S.current.autoMemoryWindowPositionAndSize,
         value: recordWindowState,
         description: S.current.autoMemoryWindowPositionAndSizeTip,
-        bottomRadius: true,
         onTap: () async {
           setState(() {
             recordWindowState = !recordWindowState;
@@ -322,6 +323,21 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
           });
           HiveUtil.setWindowSize(await windowManager.getSize());
           HiveUtil.setWindowPosition(await windowManager.getPosition());
+        },
+      ),
+      ItemBuilder.buildRadioItem(
+        context: context,
+        title: "桌面端强制启用视频功能",
+        value: enableVideoOnDesktop,
+        description: "桌面端默认不加载视频而是视频封面，强制启用视频功能可能会导致程序卡死崩溃，请谨慎使用；重启程序生效",
+        bottomRadius: true,
+        onTap: () async {
+          setState(() {
+            enableVideoOnDesktop = !enableVideoOnDesktop;
+            HiveUtil.put(
+                HiveUtil.enableVideoOnDesktopKey, enableVideoOnDesktop);
+          });
+          IToast.showTop("重启程序生效");
         },
       ),
     ];

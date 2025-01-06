@@ -98,6 +98,8 @@ class Tweet extends TweetUnion {
   final TweetView? views;
   TranslationResult? translation;
   bool isTranslating;
+  bool isExpanded = false;
+  bool isTranslationExpanded = true;
 
   Map<String, Object?> toJson() => _$TweetToJson(this);
 }

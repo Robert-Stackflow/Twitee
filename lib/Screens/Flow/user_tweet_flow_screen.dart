@@ -28,7 +28,6 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
-import '../../Utils/responsive_util.dart';
 
 enum UserTweetFlowType { Tweets, TweetsAndReplies, Highlights }
 
@@ -62,6 +61,8 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
+
+  TimelinePinEntry? pinEntry;
 
   bool _loading = false;
 
@@ -150,10 +151,12 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         }
         List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
+          if (instruction is TimelinePinEntry) {
+            pinEntry = instruction;
+          }
           if (instruction is TimelineAddEntries) {
             newEntries = validEntries = _processEntries(instruction.entries);
             _refreshCursor(instruction.entries);
-            if (mounted) setState(() {});
           }
         }
         if (newEntries.isEmpty) {
@@ -224,6 +227,9 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
         }
         List<TimelineAddEntry> newEntries = [];
         for (var instruction in timeline.instructions) {
+          if (instruction is TimelinePinEntry) {
+            pinEntry = instruction;
+          }
           if (instruction is TimelineAddEntries) {
             validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
@@ -363,14 +369,24 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: 800,
                 children: List.generate(
-                  validEntries.length,
+                  validEntries.length + (pinEntry != null ? 1 : 0),
                   (index) {
-                    return PostItem(
-                      key: GlobalObjectKey(
-                          validEntries[index].sortIndex.toString()),
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
-                    );
+                    if (pinEntry != null && index == 0) {
+                      return PostItem(
+                        key: const GlobalObjectKey("Pinned"),
+                        entry: pinEntry!.entry,
+                        feedbackActions: _getFeedBackActions(pinEntry!.entry),
+                      );
+                    } else {
+                      if (pinEntry != null) index -= 1;
+                      return PostItem(
+                        key: GlobalObjectKey(
+                            validEntries[index].sortIndex.toString()),
+                        entry: validEntries[index],
+                        feedbackActions:
+                            _getFeedBackActions(validEntries[index]),
+                      );
+                    }
                   },
                 ),
               )
