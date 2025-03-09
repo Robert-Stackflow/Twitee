@@ -1,5 +1,5 @@
 name: twitee
-version: 0.0.1+1
+version: 1.0.0+100
 description: An awesome two-factor authenticator which supports cloud storage and multiple platforms.
 publish_to: none
 
