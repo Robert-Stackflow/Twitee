@@ -13,12 +13,11 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
-import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
 class TabItemData {
@@ -38,7 +37,7 @@ class TabItemData {
     BuildContext context,
     String title,
     Widget Function(GlobalKey, ScrollController) widgetBuilder, {
-    Widget? contextMenu,
+    FlutterContextMenu? contextMenu,
     Function(GlobalKey)? onPopTap,
     bool showPopButton = false,
   }) {
@@ -63,7 +62,7 @@ class TabItemData {
   static _buildTab(
     BuildContext context,
     String str, {
-    Widget? contextMenu,
+    FlutterContextMenu? contextMenu,
     Function()? onPopTap,
     bool showPopButton = false,
   }) {
@@ -81,20 +80,18 @@ class TabItemData {
         : Text(str);
     return Tab(
       child: contextMenu != null
-          ? ItemBuilder.buildContextMenuOverlay(GestureDetector(
+          ? GestureDetector(
               onSecondaryTap: () {
-                BottomSheetBuilder.showContextMenu(
-                    context, contextMenu as GenericContextMenu);
+                BottomSheetBuilder.showContextMenu(context, contextMenu);
               },
               onLongPress: () {
                 if (!ResponsiveUtil.isDesktop()) {
                   HapticFeedback.mediumImpact();
-                  BottomSheetBuilder.showContextMenu(
-                      context, contextMenu as GenericContextMenu);
+                  BottomSheetBuilder.showContextMenu(context, contextMenu);
                 }
               },
               child: child,
-            ))
+            )
           : child,
     );
   }

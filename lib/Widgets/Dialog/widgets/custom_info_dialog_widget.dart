@@ -118,6 +118,7 @@ class CustomInfoDialogWidget extends StatelessWidget {
                       )
                     : ItemBuilder.buildSelectableArea(
                         context: context,
+                        focusNode: FocusNode(),
                         child: Text(
                           message!,
                           style: TextStyle(

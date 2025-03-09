@@ -208,6 +208,7 @@ class MySelectableRegion extends StatefulWidget {
   const MySelectableRegion({
     super.key,
     this.contextMenuBuilder,
+    this.onRightclick,
     required this.focusNode,
     required this.selectionControls,
     required this.child,
@@ -234,6 +235,8 @@ class MySelectableRegion extends StatefulWidget {
 
   /// {@macro flutter.widgets.EditableText.contextMenuBuilder}
   final MySelectableRegionContextMenuBuilder? contextMenuBuilder;
+
+  final MySelectableRegionRightclickCallback? onRightclick;
 
   /// The delegate to build the selection handles and toolbar for mobile
   /// devices.
@@ -326,6 +329,8 @@ class MySelectableRegion extends StatefulWidget {
 class MySelectableRegionState extends State<MySelectableRegion>
     with TextSelectionDelegate
     implements SelectionRegistrar {
+  FocusNode get focusNode => widget.focusNode;
+
   late final Map<Type, Action<Intent>> _actions = <Type, Action<Intent>>{
     SelectAllTextIntent: _makeOverridable(_SelectAllAction(this)),
     CopySelectionTextIntent: _makeOverridable(_CopySelectionAction(this)),
@@ -489,7 +494,9 @@ class MySelectableRegionState extends State<MySelectableRegion>
       if (kIsWeb) {
         PlatformSelectableRegionContextMenu.detach(_selectionDelegate);
       }
-      _clearSelection();
+      if (widget.onRightclick == null) {
+        _clearSelection();
+      }
     }
     if (kIsWeb) {
       PlatformSelectableRegionContextMenu.attach(_selectionDelegate);
@@ -1028,6 +1035,12 @@ class MySelectableRegionState extends State<MySelectableRegion>
     }
 
     _selectionOverlay!.toolbarLocation = location;
+
+    if (widget.onRightclick != null) {
+      widget.onRightclick!(this);
+      return true;
+    }
+
     if (widget.selectionControls is! TextSelectionHandleControls) {
       _selectionOverlay!.showToolbar();
       return true;
@@ -1440,6 +1453,10 @@ class MySelectableRegionState extends State<MySelectableRegion>
     if (hideHandles) {
       _selectionOverlay?.hideHandles();
     }
+  }
+
+  void clearSelection() {
+    _clearSelection();
   }
 
   @override
@@ -2799,5 +2816,9 @@ abstract class MultiSelectableSelectionContainerDelegate
 ///    [EditableText].
 typedef MySelectableRegionContextMenuBuilder = Widget Function(
   BuildContext context,
+  MySelectableRegionState selectableRegionState,
+);
+
+typedef MySelectableRegionRightclickCallback = void Function(
   MySelectableRegionState selectableRegionState,
 );

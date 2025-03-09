@@ -14,9 +14,9 @@
  */
 
 import 'package:blur/blur.dart';
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Api/post_api.dart';
 import 'package:twitee/Openapi/export.dart';
@@ -631,10 +631,10 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
   }) {
     String id = communityData.restId ?? communityData.idStr ?? "";
     String url = "https://x.com/i/communities/$id";
-    return GenericContextMenu(
-      buttonConfigs: [
+    return FlutterContextMenu(
+      entries: [
         if (!showUrlButtons)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "查看社群",
             iconData: Icons.people_outlined,
             onPressed: () async {
@@ -642,9 +642,11 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                   context, CommunityDetailScreen(communityId: id));
             },
           ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           communityData.isPinned ? "取消置顶社群" : "置顶社群",
-          isWarning: communityData.isPinned,
+          status: communityData.isPinned
+              ? MenuItemStatus.warning
+              : MenuItemStatus.normal,
           iconData: (communityData.isPinned
               ? Icons.push_pin_outlined
               : Icons.push_pin_rounded),
@@ -682,7 +684,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
           },
         ),
         if (showUrlButtons)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "查看规则",
             iconData: Icons.rule_rounded,
             onPressed: () async {
@@ -693,9 +695,9 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
               );
             },
           ),
-        if (showUrlButtons) ContextMenuButtonConfig.divider(),
+        if (showUrlButtons) FlutterContextMenuItem.divider(),
         if (showUrlButtons)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "分享社群",
             iconData: Icons.share_rounded,
             onPressed: () async {
@@ -703,7 +705,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
             },
           ),
         if (showUrlButtons)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "复制社群链接",
             iconData: Icons.link_rounded,
             onPressed: () async {
@@ -711,7 +713,7 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
             },
           ),
         if (showUrlButtons)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "在浏览器打开",
             iconData: Icons.open_in_browser_rounded,
             onPressed: () async {

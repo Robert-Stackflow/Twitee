@@ -242,6 +242,7 @@
   "home": "返回首页",
   "escape": "退出",
   "lock": "锁定软件",
+  "yesterday": "昨天",
   "dayAgo": "{day}天前",
   "hourAgo": "{hour}小时前",
   "minuteAgo": "{minute}分钟前",

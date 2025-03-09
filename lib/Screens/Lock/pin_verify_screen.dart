@@ -16,13 +16,13 @@
 import 'dart:math';
 
 import 'package:biometric_storage/biometric_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:tray_manager/tray_manager.dart';
 import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Utils/utils.dart';
 import 'package:twitee/Widgets/General/Unlock/gesture_notifier.dart';
 import 'package:twitee/Widgets/General/Unlock/gesture_unlock_view.dart';
-import 'package:flutter/material.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Resources/theme.dart';
@@ -30,6 +30,7 @@ import '../../Utils/biometric_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Widgets/Custom/custom_mouse_region.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../../generated/l10n.dart';
 import '../main_screen.dart';
@@ -143,8 +144,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
         if (widget.onSuccess != null) widget.onSuccess!();
         if (widget.jumpToMain) {
           Navigator.of(context).pushReplacement(RouteUtil.getFadeRoute(
-              ItemBuilder.buildContextMenuOverlay(
-                  MainScreen(key: mainScreenKey))));
+              CustomMouseRegion(child: MainScreen(key: mainScreenKey))));
         } else {
           Navigator.of(context).pop();
         }
@@ -246,8 +246,7 @@ class PinVerifyScreenState extends State<PinVerifyScreen>
           if (widget.onSuccess != null) widget.onSuccess!();
           if (widget.jumpToMain) {
             Navigator.of(context).pushReplacement(RouteUtil.getFadeRoute(
-                ItemBuilder.buildContextMenuOverlay(
-                    MainScreen(key: mainScreenKey))));
+                CustomMouseRegion(child: MainScreen(key: mainScreenKey))));
           } else {
             Navigator.of(context).pop();
           }

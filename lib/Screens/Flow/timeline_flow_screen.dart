@@ -16,9 +16,9 @@
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Openapi/export.dart';
+import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
-import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
@@ -27,6 +27,7 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
 import '../../Resources/theme.dart';
+import '../../Utils/tweet_util.dart';
 
 class TimelineFlowScreen extends StatefulWidgetForFlow {
   const TimelineFlowScreen({
@@ -170,8 +171,13 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
         for (var instruction
             in response!.data.home.homeTimelineUrt!.instructions) {
           if (instruction is TimelineAddEntries) {
-            validEntries.addAll(_processEntries(instruction.entries));
             newEntries = _processEntries(instruction.entries);
+            newEntries.removeWhere((element) {
+              return validEntries.any((e) {
+                return e.entryId == element.entryId;
+              });
+            });
+            validEntries.addAll(newEntries);
             _refreshCursor(instruction.entries);
           }
         }
@@ -219,7 +225,17 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
-        result.add(entry);
+        TimelineTweet tweet = (entry.content as TimelineTimelineItem)
+            .itemContent as TimelineTweet;
+        bool add = true;
+        String? screenName = TweetUtil.getTweetScreenName(tweet);
+        if (TweetUtil.isRetweet(tweet) &&
+            appProvider.isBlockRetweetUser(screenName)) {
+          add = false;
+        }
+        if (add) {
+          result.add(entry);
+        }
       } else if (entry.content is TimelineTimelineModule &&
           (entry.content as TimelineTimelineModule).displayType ==
               DisplayType.verticalConversation) {

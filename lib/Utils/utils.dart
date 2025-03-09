@@ -332,6 +332,8 @@ class Utils {
     var diff = now.difference(date);
     bool isSameDay =
         now.year == date.year && now.month == date.month && now.day == date.day;
+    String hourString =
+        "${date.hour < 10 ? "0${date.hour}" : date.hour}:${date.minute < 10 ? "0${date.minute}" : date.minute}";
     if (date.year != now.year) {
       return dateFormat.format(date);
     } else if (diff.inDays > 7) {
@@ -339,9 +341,9 @@ class Utils {
     } else if (diff.inDays > 0) {
       return S.current.dayAgo(diff.inDays + 1);
     } else if (isSameDay && diff.inHours > 0) {
-      return S.current.hourAgo(diff.inHours);
-    } else if (diff.inHours > 0) {
-      return "${date.hour < 10 ? "0${date.hour}" : date.hour}:${date.minute < 10 ? "0${date.minute}" : date.minute}";
+      return "${S.current.hourAgo(diff.inHours)} · $hourString";
+    } else if (!isSameDay && diff.inHours > 0) {
+      return "${S.current.yesterday} $hourString";
     } else if (diff.inSeconds > 60) {
       return S.current.minuteAgo(diff.inMinutes);
     } else if (diff.inSeconds > 3) {

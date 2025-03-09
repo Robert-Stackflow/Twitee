@@ -38,6 +38,8 @@ class HiveUtil {
 
   //Auth
   static const String userInfoKey = "userInfo";
+  static const String blockRetweetUsersKey = "blockRetweetUsers";
+  static const String historyUsersKey = "historyUsers";
 
   //General
   static const String localeKey = "locale";
@@ -411,7 +413,7 @@ class HiveUtil {
     return res;
   }
 
-  static List<dynamic>? getList(
+  static List<dynamic> getList(
     String key, {
     String boxName = HiveUtil.settingsBox,
     bool autoCreate = true,
@@ -420,14 +422,14 @@ class HiveUtil {
     final Box box = Hive.box(name: boxName);
     if (!box.containsKey(key)) {
       if (!autoCreate) {
-        return null;
+        return [];
       }
       put(key, defaultValue, boxName: boxName);
     }
-    return box.get(key);
+    return box.get(key) ?? [];
   }
 
-  static List<String>? getStringList(
+  static List<String> getStringList(
     String key, {
     String boxName = HiveUtil.settingsBox,
     bool autoCreate = true,
@@ -438,9 +440,21 @@ class HiveUtil {
       boxName: boxName,
       autoCreate: autoCreate,
       defaultValue: defaultValue,
-    )!
-        .map((e) => e.toString())
-        .toList();
+    ).map((e) => e.toString()).toList();
+  }
+
+  static List<Map<String, dynamic>> getMapList(
+    String key, {
+    String boxName = HiveUtil.settingsBox,
+    bool autoCreate = true,
+    List<dynamic> defaultValue = const [],
+  }) {
+    return getList(
+      key,
+      boxName: boxName,
+      autoCreate: autoCreate,
+      defaultValue: defaultValue,
+    ).map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   static Future<void> put(

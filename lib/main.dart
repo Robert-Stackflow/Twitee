@@ -38,8 +38,6 @@ import 'package:twitee/Utils/file_util.dart';
 import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/request_util.dart';
-import 'package:twitee/Widgets/Item/item_builder.dart';
-import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_manager/window_manager.dart';
 
 import './Utils/ilogger.dart';
@@ -49,6 +47,7 @@ import 'Utils/constant.dart';
 import 'Utils/notification_util.dart';
 import 'Utils/responsive_util.dart';
 import 'Utils/utils.dart';
+import 'Widgets/Custom/custom_mouse_region.dart';
 import 'Widgets/Custom/keyboard_handler.dart';
 import 'generated/l10n.dart';
 
@@ -120,9 +119,9 @@ Future<void> initApp(WidgetsBinding widgetsBinding) async {
       await protocolHandler.register(scheme);
     }
     await HotKeyManager.instance.unregisterAll();
-    if (ResponsiveUtil.isWindows()) {
-      WindowsVideoPlayer.registerWith();
-    }
+    // if (ResponsiveUtil.isWindows()) {
+    //   WindowsVideoPlayer.registerWith();
+    // }
   }
   CustomFont.downloadFont(showToast: false);
 }
@@ -227,7 +226,7 @@ class MyApp extends StatelessWidget {
               }
             }
           },
-          home: ItemBuilder.buildContextMenuOverlay(home),
+          home: CustomMouseRegion(child: home),
           builder: (context, widget) {
             return Overlay(
               initialEntries: [

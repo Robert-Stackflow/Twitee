@@ -13,6 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:math';
+
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/utils.dart';
 
@@ -97,6 +99,22 @@ class TweetUtil {
       } else {
         return null;
       }
+    }
+  }
+
+  static bool isRetweet(TimelineTweet timelineTweet) {
+    return getRetweetedUser(timelineTweet) != null;
+  }
+
+  static String? getTweetScreenName(TimelineTweet timelineTweet) {
+    TweetUnion? union = timelineTweet.tweetResults?.result;
+    if (union == null) {
+      return null;
+    }
+    if (isRetweet(timelineTweet)) {
+      return getRetweetedUser(timelineTweet)?.legacy.screenName;
+    } else {
+      return getTrueUser(timelineTweet)?.legacy.screenName;
     }
   }
 
@@ -311,6 +329,7 @@ class TweetUtil {
     if (tweet.legacy!.displayTextRange != null) {
       range = tweet.legacy!.displayTextRange!.map((e) => e!).toList();
     }
+    range[1] = min(fullText.length, range[1] + 1);
     try {
       if (isExpandable(tweet) && isExpanded) {
         fullText = _processTweetFullText(

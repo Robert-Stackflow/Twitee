@@ -286,4 +286,31 @@ class MyTheme {
         ? Theme.of(rootContext).canvasColor
         : Theme.of(rootContext).scaffoldBackgroundColor;
   }
+
+  static TextStyle get titleSmall => textTheme.titleSmall!;
+
+  static TextStyle get titleMedium => textTheme.titleMedium!;
+
+  static TextStyle get titleLarge => textTheme.titleLarge!;
+
+  static TextStyle get labelSmall => textTheme.labelSmall!;
+
+  static TextStyle get labelMedium => textTheme.labelMedium!;
+
+  static TextStyle get labelLarge => textTheme.labelLarge!;
+
+  static TextStyle get bodySmall => textTheme.bodySmall!;
+
+  static TextStyle get bodyMedium => textTheme.bodyMedium!;
+
+  static TextStyle get bodyLarge => textTheme.bodyLarge!;
+
+  static Color get canvasColor => Theme.of(rootContext).canvasColor;
+
+  static Color get cardColor => Theme.of(rootContext).cardColor;
+
+  static Color get scaffoldBackgroundColor =>
+      Theme.of(rootContext).scaffoldBackgroundColor;
+
+  static Color get dividerColor => Theme.of(rootContext).dividerColor;
 }

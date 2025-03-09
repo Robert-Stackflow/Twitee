@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/user_info.dart';
+import 'package:twitee/Screens/Flow/block_retweet_user_flow_screen.dart';
 import 'package:twitee/Screens/Flow/user_flow_screen.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
@@ -56,6 +57,7 @@ class FriendshipScreenState extends State<FriendshipScreen>
 
   initTab() {
     UserInfo? info = HiveUtil.getUserInfo();
+    bool isMyself = widget.userId == null || widget.userId == info!.idStr;
     String userId = widget.userId ?? info!.idStr;
     tabDataList.addAll([
       TabItemData.build(
@@ -108,6 +110,15 @@ class FriendshipScreenState extends State<FriendshipScreen>
           scrollController: scrollController,
         ),
       ),
+      if (isMyself)
+        TabItemData.build(
+          context,
+          "已关闭转推（本地）",
+          (key, scrollController) => BlockRetweetUserFlowScreen(
+            key: key,
+            scrollController: scrollController,
+          ),
+        ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
     if (widget.initType != null) {

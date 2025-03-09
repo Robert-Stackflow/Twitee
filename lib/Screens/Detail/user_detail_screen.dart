@@ -16,9 +16,9 @@
 import 'dart:math';
 
 import 'package:blur/blur.dart';
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Models/translation_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Resources/theme.dart';
@@ -40,6 +40,7 @@ import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
 import '../../Api/user_api.dart';
+import '../../Models/local_model.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Models/user_info.dart';
 import '../../Resources/colors.dart';
@@ -101,17 +102,29 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     tabDataList.addAll([
       TabItemData.build(
         context,
-        "帖子",
+        "推文",
         (key2, scrollController2) => UserTweetFlowScreen(
           key: key2,
           userId: user!.restId!,
           nested: true,
           scrollController: primaryController,
+          type: UserTweetFlowType.Tweets,
         ),
       ),
       TabItemData.build(
         context,
-        "回复",
+        "转推",
+        (key2, scrollController2) => UserTweetFlowScreen(
+          key: key2,
+          userId: user!.restId!,
+          nested: true,
+          scrollController: primaryController,
+          type: UserTweetFlowType.Retweets,
+        ),
+      ),
+      TabItemData.build(
+        context,
+        "推文与回复",
         (key2, scrollController2) => UserTweetFlowScreen(
           key: key2,
           userId: user!.restId!,
@@ -409,10 +422,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   _buildMoreContextMenuButtons() {
     String screenName = userLegacy?.screenName ?? "";
     String url = userLegacy?.url ?? "https://twitter.com/$screenName";
-    return GenericContextMenu(
-      buttonConfigs: [
+    return FlutterContextMenu(
+      entries: [
         if (!isMyself && (userLegacy?.following ?? false))
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             userLegacy?.wantRetweets ?? false ? "关闭转推" : "开启转推",
             iconData: userLegacy?.wantRetweets ?? false
                 ? Icons.repeat_rounded
@@ -453,7 +466,42 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             },
           ),
         if (!isMyself)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
+            appProvider.isBlockRetweetUser(userLegacy?.screenName)
+                ? "开启转推（本地）"
+                : "关闭转推（本地）",
+            iconData: appProvider.isBlockRetweetUser(userLegacy?.screenName)
+                ? Icons.repeat_rounded
+                : Icons.repeat_rounded,
+            onPressed: () async {
+              if (!appProvider.isBlockRetweetUser(userLegacy?.screenName)) {
+                DialogBuilder.showConfirmDialog(
+                  context,
+                  title: "在本地关闭来自 @$screenName 的转推？",
+                  message: "你将不会在Twitee里的任何地方看到来自 @$screenName 的转推。",
+                  onTapConfirm: () async {
+                    appProvider.addBlockRetweetUser(LocalUserModel(
+                      screenName: userLegacy?.screenName ?? "",
+                      nickName: userLegacy?.name ?? "",
+                      userId: user!.restId ?? "",
+                      avatar: userLegacy?.profileImageUrlHttps ?? "",
+                      viewCount: 0,
+                      lastViewTime: 0,
+                      lastBlockRetweetTime:
+                          DateTime.now().millisecondsSinceEpoch,
+                    ));
+                    IToast.showTop("已关闭转推（本地）");
+                  },
+                );
+              } else {
+                appProvider
+                    .removeBlockRetweetUser(userLegacy?.screenName ?? "");
+                IToast.showTop("已开启转推（本地）");
+              }
+            },
+          ),
+        if (!isMyself)
+          FlutterContextMenuItem(
             "${userLegacy?.blocking ?? false ? "取消屏蔽" : "屏蔽"} @$screenName",
             iconData: userLegacy?.blocking ?? false
                 ? Icons.favorite_border_rounded
@@ -491,7 +539,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             },
           ),
         if (!isMyself)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "${userLegacy?.muting ?? false ? "取消隐藏" : "隐藏"} @$screenName",
             iconData: userLegacy?.muting ?? false
                 ? Icons.visibility_outlined
@@ -529,7 +577,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             },
           ),
         if (!isMyself)
-          ContextMenuButtonConfig(
+          FlutterContextMenuItem(
             "从列表添加或移除 @$screenName",
             iconData: Icons.playlist_add_rounded,
             onPressed: () async {
@@ -547,8 +595,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               }
             },
           ),
-        if (!isMyself) ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig(
+        if (!isMyself) FlutterContextMenuItem.divider(),
+        FlutterContextMenuItem(
           "翻译简介",
           iconData: Icons.translate_rounded,
           onPressed: () async {
@@ -575,7 +623,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             }
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "TA的列表",
           iconData: Icons.featured_play_list_outlined,
           onPressed: () async {
@@ -585,7 +633,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ));
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "TA的话题",
           iconData: Icons.topic_outlined,
           onPressed: () async {
@@ -594,22 +642,22 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             ));
           },
         ),
-        ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem.divider(),
+        FlutterContextMenuItem(
           "分享用户",
           iconData: Icons.share_rounded,
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "复制用户链接",
           iconData: Icons.link_rounded,
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制用户链接");
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "在浏览器打开",
           iconData: Icons.open_in_browser_rounded,
           onPressed: () async {

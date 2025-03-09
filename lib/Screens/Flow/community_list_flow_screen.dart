@@ -13,7 +13,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
@@ -100,27 +100,33 @@ class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
   }
 
   _buildPopContextMenuButtons() {
-    return GenericContextMenu(
-      buttonConfigs: [
-        ContextMenuButtonConfig.checkbox(
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem(
           "当前趋势",
-          checked: currentRankType == RankType.Relevance,
+          iconData: currentRankType == RankType.Relevance
+              ? Icons.check_rounded
+              : null,
           onPressed: () {
             currentRankType = RankType.Relevance;
             refresh();
           },
         ),
-        ContextMenuButtonConfig.checkbox(
+        FlutterContextMenuItem(
           "最新",
-          checked: currentRankType == RankType.Recency,
+          iconData: currentRankType == RankType.Recency
+              ? Icons.check_rounded
+              : null,
           onPressed: () {
             currentRankType = RankType.Recency;
             refresh();
           },
         ),
-        ContextMenuButtonConfig.checkbox(
+        FlutterContextMenuItem(
           "最多点赞",
-          checked: currentRankType == RankType.Likes,
+          iconData: currentRankType == RankType.Likes
+              ? Icons.check_rounded
+              : null,
           onPressed: () {
             currentRankType = RankType.Likes;
             refresh();

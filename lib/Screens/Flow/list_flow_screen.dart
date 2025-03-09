@@ -26,8 +26,9 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
 import '../../Resources/theme.dart';
+import '../../Utils/app_provider.dart';
 import '../../Utils/enums.dart';
-import '../../Utils/responsive_util.dart';
+import '../../Utils/tweet_util.dart';
 
 class ListFlowScreen extends StatefulWidgetForFlow {
   const ListFlowScreen({
@@ -232,6 +233,17 @@ class _ListFlowScreenState extends State<ListFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
+        TimelineTweet tweet = (entry.content as TimelineTimelineItem)
+            .itemContent as TimelineTweet;
+        bool add = true;
+        String? screenName = TweetUtil.getTweetScreenName(tweet);
+        if (TweetUtil.isRetweet(tweet) &&
+            appProvider.isBlockRetweetUser(screenName)) {
+          add = false;
+        }
+        if (add) {
+          result.add(entry);
+        }
         result.add(entry);
       }
     }

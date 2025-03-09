@@ -28,8 +28,9 @@ import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
+import '../../Utils/tweet_util.dart';
 
-enum UserTweetFlowType { Tweets, TweetsAndReplies, Highlights }
+enum UserTweetFlowType { Tweets, Retweets, TweetsAndReplies, Highlights }
 
 class UserTweetFlowScreen extends StatefulWidgetForFlow {
   const UserTweetFlowScreen({
@@ -120,6 +121,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
       ResponseResult res;
       switch (widget.type) {
         case UserTweetFlowType.Tweets:
+        case UserTweetFlowType.Retweets:
           res = await UserApi.getUserTweets(
             userId: widget.userId,
           );
@@ -193,6 +195,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
       ResponseResult res;
       switch (widget.type) {
         case UserTweetFlowType.Tweets:
+        case UserTweetFlowType.Retweets:
           res = await UserApi.getUserTweets(
             userId: widget.userId,
             cursorBottom: cursorBottom?.value,
@@ -282,11 +285,22 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
-        result.add(entry);
+        TimelineTweet tweet = (entry.content as TimelineTimelineItem)
+            .itemContent as TimelineTweet;
+        bool add = true;
+        if (TweetUtil.isRetweet(tweet) !=
+            (widget.type == UserTweetFlowType.Retweets)) {
+          add = false;
+        }
+        if (add) {
+          result.add(entry);
+        }
       } else if (entry.content is TimelineTimelineModule &&
           (entry.content as TimelineTimelineModule).displayType ==
               DisplayType.verticalConversation) {
-        result.add(entry);
+        if (widget.type != UserTweetFlowType.Retweets) {
+          result.add(entry);
+        }
       }
     }
     return result;

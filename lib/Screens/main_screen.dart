@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:protocol_handler/protocol_handler.dart';
@@ -405,9 +405,9 @@ class MainScreenState extends State<MainScreen>
   }
 
   _buildAvatarContextMenuButtons() {
-    return GenericContextMenu(
-      buttonConfigs: [
-        ContextMenuButtonConfig(
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem(
           "个人资料",
           iconData: Icons.person_outline_rounded,
           onPressed: () async {
@@ -415,7 +415,7 @@ class MainScreenState extends State<MainScreen>
                 ?.pushPage(UserDetailScreen(screenName: _userInfo!.screenName));
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "社交网络",
           iconData: Icons.auto_awesome_outlined,
           onPressed: () async {
@@ -423,7 +423,7 @@ class MainScreenState extends State<MainScreen>
                 ?.pushPage(FriendshipScreen(userId: _userInfo!.idStr));
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "列表",
           iconData: Icons.featured_play_list_outlined,
           onPressed: () async {
@@ -431,9 +431,10 @@ class MainScreenState extends State<MainScreen>
                 ?.pushPage(ListManageScreen(userId: _userInfo!.idStr));
           },
         ),
-        ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig.warning(
+        FlutterContextMenuItem.divider(),
+        FlutterContextMenuItem(
           "退出登录",
+          status: MenuItemStatus.warning,
           iconData: Icons.logout_rounded,
           onPressed: () async {
             DialogBuilder.showConfirmDialog(

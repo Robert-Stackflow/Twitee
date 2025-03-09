@@ -19,7 +19,7 @@ import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -48,12 +48,14 @@ import '../../Utils/enums.dart';
 import '../../Utils/hive_util.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
 import '../../generated/l10n.dart';
 import '../Custom/hero_media_view_screen.dart';
 import '../Custom/hero_photo_view_screen.dart';
 import '../Scaffold/my_appbar.dart';
 import '../Scaffold/my_popupmenu.dart';
+import '../Selectable/my_selectable_region.dart';
 import '../Selectable/my_selection_area.dart';
 import '../Selectable/my_selection_toolbar.dart';
 import '../Selectable/selection_transformer.dart';
@@ -1144,149 +1146,6 @@ class ItemBuilder {
     );
   }
 
-  static List<MyPopupMenuItem> buildPopupMenuItems(
-    BuildContext context,
-    GenericContextMenu menu,
-  ) {
-    return menu.buttonConfigs.map((config) {
-      if (config == null ||
-          config.type == ContextMenuButtonConfigType.divider) {
-        return MyPopupMenuItem(
-          child: ItemBuilder.buildDivider(
-            context,
-            width: 1.5,
-            vertical: 6,
-            horizontal: 4,
-          ),
-        );
-      }
-      bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
-      bool showCheck = isCheckbox && config.checked;
-      var bodyMedium = Theme.of(context).textTheme.bodyMedium;
-      Widget checkIcon = Row(
-        children: [
-          Opacity(
-            opacity: showCheck ? 1 : 0,
-            child: Icon(
-              Icons.check_rounded,
-              size: ResponsiveUtil.isMobile() ? null : 16,
-              color: Theme.of(context).iconTheme.color,
-            ),
-          ),
-          SizedBox(width: showCheck ? 8 : 4),
-        ],
-      );
-      return MyPopupMenuItem(
-        child: Material(
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: () {
-              if (globalNavigatorState!.canPop()) {
-                globalNavigatorState?.pop();
-              }
-              config.onPressed?.call();
-            },
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: EdgeInsets.only(
-                  left: showCheck ? 8 : 12, right: 12, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  if (isCheckbox) checkIcon,
-                  if (config.icon != null) config.icon!,
-                  if (config.icon != null) const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      config.label,
-                      style: bodyMedium?.apply(
-                        fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                        color: config.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  static buildContextMenuOverlay(Widget child) {
-    return ContextMenuOverlay(
-      cardBuilder: (context, widgets) => Container(
-        constraints: const BoxConstraints(minWidth: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: MyTheme.defaultDecoration,
-        child: Column(children: widgets),
-      ),
-      dividerBuilder: (context) => ItemBuilder.buildDivider(
-        context,
-        width: 1.5,
-        vertical: 6,
-        horizontal: 4,
-      ),
-      buttonBuilder: (context, config, [_]) {
-        bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
-        bool showCheck = isCheckbox && config.checked;
-        Widget checkIcon = Row(
-          children: [
-            Opacity(
-              opacity: showCheck ? 1 : 0,
-              child: Icon(Icons.check_rounded,
-                  size: ResponsiveUtil.isMobile() ? null : 16),
-            ),
-            SizedBox(width: showCheck ? 8 : 4),
-          ],
-        );
-        return Material(
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: config.onPressed,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: EdgeInsets.only(
-                  left: showCheck ? 8 : 12, right: 12, top: 8, bottom: 8),
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                children: [
-                  if (isCheckbox) checkIcon,
-                  if (config.iconData != null)
-                    Transform.scale(
-                      scale: 0.83,
-                      child: Icon(config.iconData,
-                          color: config.isWarning ? Colors.red : null),
-                    ),
-                  if (config.icon != null)
-                    Transform.scale(
-                      scale: 0.83,
-                      child: config.icon!,
-                    ),
-                  if (config.icon != null || config.iconData != null)
-                    const SizedBox(width: 10),
-                  Text(
-                    config.label,
-                    style: Theme.of(context).textTheme.bodyMedium?.apply(
-                          fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                          color: config.textColor ??
-                              (config.isWarning ? Colors.red : null),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-      child: child,
-    );
-  }
-
   static Widget buildCountItem(
     BuildContext context, {
     required String title,
@@ -1890,8 +1749,11 @@ class ItemBuilder {
       maxLines: 5,
     );
     if (selectable) {
-      textWidget =
-          ItemBuilder.buildSelectableArea(context: context, child: textWidget);
+      textWidget = ItemBuilder.buildSelectableArea(
+        context: context,
+        child: textWidget,
+        focusNode: FocusNode(),
+      );
     }
     return ItemBuilder.buildClickItem(
       clickable: onTap != null,
@@ -2584,8 +2446,75 @@ class ItemBuilder {
   static buildSelectableArea({
     required BuildContext context,
     required Widget child,
+    required FocusNode focusNode,
+    List<FlutterContextMenuItem> Function(MySelectableRegionState, String?)?
+        contextMenuItemsBuilder,
   }) {
     return MySelectionArea(
+      focusNode: focusNode,
+      onRightclick: !ResponsiveUtil.isDesktop()
+          ? null
+          : (details) {
+              String? selectedText = details.selectedText;
+              FlutterContextMenu contextMenu = FlutterContextMenu(
+                entries: [
+                  if (Utils.isNotEmpty(selectedText))
+                    FlutterContextMenuItem(
+                      S.current.copy,
+                      iconData: Icons.copy_rounded,
+                      onPressed: () {
+                        details.clearSelection();
+                        Utils.copy(context, selectedText);
+                        IToast.showTop(S.current.copySuccess);
+                      },
+                    ),
+                  if (Utils.isNotEmpty(selectedText))
+                    FlutterContextMenuItem.submenu(
+                      S.current.search,
+                      iconData: Icons.content_paste_search_rounded,
+                      items: [
+                        FlutterContextMenuItem(
+                          "Google搜索",
+                          onPressed: () {
+                            details.clearSelection();
+                            UriUtil.launchUrlUri(context,
+                                "https://www.google.com/search?q=$selectedText");
+                          },
+                        ),
+                        FlutterContextMenuItem(
+                          "Bing搜索",
+                          onPressed: () {
+                            details.clearSelection();
+                            UriUtil.launchUrlUri(context,
+                                "https://bing.com/search?q=$selectedText");
+                          },
+                        ),
+                        FlutterContextMenuItem(
+                          "百度搜索",
+                          onPressed: () {
+                            details.clearSelection();
+                            UriUtil.launchUrlUri(context,
+                                "https://www.baidu.com/s?wd=$selectedText");
+                          },
+                        ),
+                      ],
+                    ),
+                  FlutterContextMenuItem(
+                    S.current.selectAll,
+                    iconData: Icons.select_all_rounded,
+                    onPressed: () {
+                      details.clearSelection();
+                      details.selectAll();
+                    },
+                  ),
+                  if (Utils.isNotEmpty(selectedText))
+                    ...contextMenuItemsBuilder?.call(details, selectedText) ??
+                        [],
+                ],
+              );
+              contextMenu.showAtMousePosition(
+                  context, details.contextMenuAnchors.primaryAnchor);
+            },
       contextMenuBuilder: (contextMenuContext, details) {
         Map<ContextMenuButtonType, String> typeToString = {
           ContextMenuButtonType.copy: S.current.copy,
@@ -2616,40 +2545,25 @@ class ItemBuilder {
             );
           }
         }
-        if (Utils.isNotEmpty(details.selectedText)) {
-          items.add(
-            MyContextMenuItem(
-              label: S.current.search,
-              type: ContextMenuButtonType.custom,
-              onPressed: () {
-                if (Utils.isNotEmpty(details.selectedText)) {
-                  panelScreenState?.pushPage(
-                      SearchResultScreen(searchKey: details.selectedText!));
-                }
-                details.hideToolbar();
-              },
-            ),
-          );
-        }
         if (ResponsiveUtil.isMobile()) {
           return MyMobileTextSelectionToolbar.items(
             anchorAbove: details.contextMenuAnchors.primaryAnchor,
             anchorBelow: details.contextMenuAnchors.primaryAnchor,
-            backgroundColor: Theme.of(context).canvasColor,
-            dividerColor: Theme.of(context).dividerColor,
+            backgroundColor: MyTheme.canvasColor,
+            dividerColor: MyTheme.dividerColor,
             items: items,
             itemBuilder: (MyContextMenuItem item) {
               return Text(
                 item.label ?? "",
-                style: Theme.of(context).textTheme.titleMedium,
+                style: MyTheme.titleMedium,
               );
             },
           );
         } else {
           return MyDesktopTextSelectionToolbar(
             anchor: details.contextMenuAnchors.primaryAnchor,
-            backgroundColor: Theme.of(context).canvasColor,
-            dividerColor: Theme.of(context).dividerColor,
+            decoration: MyTheme.defaultDecoration,
+            dividerColor: MyTheme.dividerColor,
             items: items,
           );
         }
@@ -2732,8 +2646,8 @@ class ItemBuilder {
     } else {
       return MyDesktopTextSelectionToolbar(
         anchor: details.contextMenuAnchors.primaryAnchor,
-        backgroundColor: Theme.of(contextMenuContext).canvasColor,
         dividerColor: Theme.of(contextMenuContext).dividerColor,
+        decoration: MyTheme.defaultDecoration,
         items: items,
       );
     }

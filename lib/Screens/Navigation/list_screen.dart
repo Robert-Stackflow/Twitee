@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
@@ -136,8 +136,8 @@ class ListScreenState extends State<ListScreen>
         ? (list.userResults.result! as User?)?.legacy
         : null;
     bool isMyself = (info?.screenName == user?.screenName);
-    return GenericContextMenu(buttonConfigs: [
-      ContextMenuButtonConfig(
+    return FlutterContextMenu(entries: [
+      FlutterContextMenuItem(
         "查看列表",
         iconData: Icons.featured_play_list_outlined,
         onPressed: () {
@@ -145,9 +145,10 @@ class ListScreenState extends State<ListScreen>
               context, ListDetailScreen(listId: list.idStr));
         },
       ),
-      ContextMenuButtonConfig.warning(
+      FlutterContextMenuItem(
         isMyself ? "取消置顶" : "取消订阅",
         iconData: Icons.push_pin_outlined,
+        status: MenuItemStatus.warning,
         onPressed: () {
           TwitterListItemState.processPinOrUnpin(context, list);
         },

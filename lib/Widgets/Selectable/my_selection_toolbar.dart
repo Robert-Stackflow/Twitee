@@ -1431,26 +1431,25 @@ class MyDesktopTextSelectionToolbar extends StatelessWidget {
   const MyDesktopTextSelectionToolbar({
     super.key,
     required this.anchor,
-    this.backgroundColor,
     required this.items,
+    this.decoration,
     this.dividerColor,
-    this.toolbarBuilder = _defaultToolbarBuilder,
+    this.padding,
+    this.itemBuilder,
   });
 
   /// {@macro flutter.material.TextSelectionToolbar.anchorAbove}
   final Offset anchor;
 
-  final Color? backgroundColor;
-
   final Color? dividerColor;
+
+  final BoxDecoration? decoration;
+
+  final EdgeInsetsGeometry? padding;
 
   final List<MyContextMenuItem> items;
 
-  /// {@macro flutter.material.TextSelectionToolbar.toolbarBuilder}
-  ///
-  /// The given anchor and isAbove can be used to position an arrow, as in the
-  /// default Cupertino toolbar.
-  final CupertinoToolbarBuilder toolbarBuilder;
+  final Function(BuildContext, MyContextMenuItem)? itemBuilder;
 
   /// Minimal padding from all edges of the selection toolbar to all edges of the
   /// viewport.
@@ -1461,27 +1460,6 @@ class MyDesktopTextSelectionToolbar extends StatelessWidget {
   ///    padding from the edges of the viewport.
   ///  * [TextSelectionToolbar], which uses this same value as well.
   static const double kToolbarScreenPadding = 8.0;
-
-  // Builds a toolbar just like the default iOS toolbar, with the right color
-  // background and a rounded cutout with an arrow.
-  static Widget _defaultToolbarBuilder(
-    BuildContext context,
-    Offset anchorAbove,
-    Offset anchorBelow,
-    Widget child,
-    Color? backgroundColor,
-    Color? dividerColor,
-  ) {
-    return _CupertinoTextSelectionToolbarShape(
-      anchorAbove: anchorAbove,
-      anchorBelow: anchorBelow,
-      shadowColor: Theme.of(context).shadowColor,
-      child: ColoredBox(
-        color: backgroundColor ?? _kToolbarBackgroundColor.resolveFrom(context),
-        child: child,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1506,50 +1484,46 @@ class MyDesktopTextSelectionToolbar extends StatelessWidget {
         child: items.isNotEmpty
             ? Container(
                 width: 160,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: Theme.of(context).dividerColor, width: 1),
-                  color: Theme.of(context).canvasColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).shadowColor,
-                      offset: const Offset(0, 4),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                    ).scale(2)
-                  ],
-                ),
+                padding: padding ??
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                decoration: decoration ??
+                    BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: Theme.of(context).dividerColor, width: 1),
+                      color: Theme.of(context).canvasColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor,
+                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ).scale(2)
+                      ],
+                    ),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    BorderRadius radius = BorderRadius.circular(10);
-                    return Material(
-                      // borderRadius: BorderRadius.vertical(
-                      //   top: index == 0 ? const Radius.circular(10) : Radius.zero,
-                      //   bottom: index == items.length - 1
-                      //       ? const Radius.circular(10)
-                      //       : Radius.zero,
-                      // ),
-                      borderRadius: radius,
-                      child: InkWell(
-                        borderRadius: radius,
-                        onTap: items[index].onPressed,
-                        child: Container(
-                          decoration: BoxDecoration(
+                  itemBuilder: itemBuilder != null
+                      ? (context, index) => itemBuilder!(context, items[index])
+                      : (context, index) {
+                          BorderRadius radius = BorderRadius.circular(8);
+                          return Material(
                             borderRadius: radius,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          child: Text(
-                            items[index].label ?? "",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                            child: InkWell(
+                              borderRadius: radius,
+                              onTap: items[index].onPressed,
+                              child: Container(
+                                decoration: BoxDecoration(borderRadius: radius),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                child: Text(
+                                  items[index].label ?? "",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                   itemCount: items.length,
                 ),
               )

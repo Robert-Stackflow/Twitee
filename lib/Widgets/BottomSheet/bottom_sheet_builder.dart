@@ -13,22 +13,26 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:twitee/Utils/responsive_util.dart';
 
+import '../../Utils/app_provider.dart';
 import '../Custom/floating_modal.dart';
 import 'generic_context_menu_bottom_sheet.dart';
 
 class BottomSheetBuilder {
-  static void showContextMenu(BuildContext context, GenericContextMenu menu) {
+  static void showContextMenu(BuildContext context, FlutterContextMenu menu) {
     if (ResponsiveUtil.isLandscape()) {
-      context.contextMenuOverlay.show(menu);
+      menu.showAtMousePosition(context, appProvider.mousePosition);
     } else {
-      showBottomSheet(
-          context, (context) => GenericContextMenuBottomSheet(menu: menu));
+      showBottomSheet(context, (context) => ContextMenuBottomSheet(menu: menu));
     }
+  }
+
+  static void showFlutterContextMenu(BuildContext context, Widget menu) {
+    context.genericContextMenuOverlay.show(menu);
   }
 
   static void showBottomSheet(

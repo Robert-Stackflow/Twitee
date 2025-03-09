@@ -13,26 +13,25 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
-import 'package:twitee/Utils/responsive_util.dart';
-import 'package:twitee/Widgets/Item/item_builder.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 
-class GenericContextMenuBottomSheet extends StatefulWidget {
-  const GenericContextMenuBottomSheet({
+import '../../Utils/responsive_util.dart';
+import '../Item/item_builder.dart';
+
+class ContextMenuBottomSheet extends StatefulWidget {
+  const ContextMenuBottomSheet({
     super.key,
     required this.menu,
   });
 
-  final GenericContextMenu menu;
+  final FlutterContextMenu menu;
 
   @override
-  GenericContextMenuBottomSheetState createState() =>
-      GenericContextMenuBottomSheetState();
+  ContextMenuBottomSheetState createState() => ContextMenuBottomSheetState();
 }
 
-class GenericContextMenuBottomSheetState
-    extends State<GenericContextMenuBottomSheet> {
+class ContextMenuBottomSheetState extends State<ContextMenuBottomSheet> {
   @override
   void initState() {
     super.initState();
@@ -71,8 +70,8 @@ class GenericContextMenuBottomSheetState
                   ),
                 ],
               ),
-              for (var config in widget.menu.buttonConfigs)
-                _buildConfigItem(config),
+              for (var config in widget.menu.entries)
+                _buildConfigItem(config as FlutterContextMenuItem),
             ],
           ),
         ),
@@ -80,8 +79,8 @@ class GenericContextMenuBottomSheetState
     );
   }
 
-  _buildConfigItem(ContextMenuButtonConfig? config) {
-    if (config == null || config.type == ContextMenuButtonConfigType.divider) {
+  _buildConfigItem(FlutterContextMenuItem? config) {
+    if (config == null || config.type == MenuItemType.divider) {
       return ItemBuilder.buildDivider(
         context,
         width: 1.5,
@@ -89,18 +88,6 @@ class GenericContextMenuBottomSheetState
         horizontal: 16,
       );
     } else {
-      bool isCheckbox = config.type == ContextMenuButtonConfigType.checkbox;
-      bool showCheck = isCheckbox && config.checked;
-      Widget checkIcon = Row(
-        children: [
-          Opacity(
-            opacity: showCheck ? 1 : 0,
-            child: Icon(Icons.check_rounded,
-                size: ResponsiveUtil.isMobile() ? null : 16),
-          ),
-          const SizedBox(width: 12),
-        ],
-      );
       return Material(
         child: InkWell(
           onTap: () {
@@ -111,20 +98,14 @@ class GenericContextMenuBottomSheetState
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                if (isCheckbox) checkIcon,
-                if (config.iconData != null)
-                  Icon(config.iconData,
-                      color: config.isWarning ? Colors.red : null),
-                if (config.icon != null) config.icon!,
-                if (config.icon != null || config.iconData != null)
+                if (config.iconData != null) ...[
+                  Icon(config.iconData, size: 24),
                   const SizedBox(width: 10),
+                ],
+                if (config.iconData != null) const SizedBox(width: 10),
                 Text(
                   config.label,
-                  style: Theme.of(context).textTheme.bodyMedium?.apply(
-                        fontSizeDelta: ResponsiveUtil.isMobile() ? 2 : 0,
-                        color: config.textColor ??
-                            (config.isWarning ? Colors.red : null),
-                      ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),

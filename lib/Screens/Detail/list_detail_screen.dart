@@ -14,7 +14,7 @@
  */
 
 import 'package:blur/blur.dart';
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twitee/Api/list_api.dart';
@@ -419,14 +419,16 @@ class _ListDetailScreenState extends State<ListDetailScreen>
   _buildMoreContextMenuButtons() {
     String id = listInfo!.idStr;
     String url = "https://twitter.com/i/lists/$id";
-    return GenericContextMenu(
-      buttonConfigs: [
-        ContextMenuButtonConfig(
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem(
           listInfo!.muting ? "在“为你推荐”中显示这些帖子" : "在“为你推荐”中隐藏这些帖子",
           iconData: listInfo!.muting
               ? Icons.check_circle_outline_rounded
               : Icons.remove_circle_outline_rounded,
-          isWarning: !listInfo!.muting,
+          status: !listInfo!.muting
+              ? MenuItemStatus.warning
+              : MenuItemStatus.normal,
           onPressed: () async {
             if (listInfo!.muting) {
               ResponseResult res = await IToast.showLoadingSnackbar(
@@ -459,8 +461,9 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           },
         ),
         if (isMyself)
-          ContextMenuButtonConfig.warning(
+          FlutterContextMenuItem(
             "删除列表",
+            status: MenuItemStatus.warning,
             iconData: Icons.delete_forever_outlined,
             onPressed: () async {
               DialogBuilder.showConfirmDialog(
@@ -481,22 +484,22 @@ class _ListDetailScreenState extends State<ListDetailScreen>
               );
             },
           ),
-        ContextMenuButtonConfig.divider(),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem.divider(),
+        FlutterContextMenuItem(
           "分享列表",
           iconData: Icons.share_rounded,
           onPressed: () async {
             UriUtil.share(context, url);
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "复制列表链接",
           iconData: Icons.link_rounded,
           onPressed: () async {
             Utils.copy(context, url, toastText: "已复制列表链接");
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           "在浏览器打开",
           iconData: Icons.open_in_browser_rounded,
           onPressed: () async {

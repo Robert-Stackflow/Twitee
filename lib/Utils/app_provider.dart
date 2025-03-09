@@ -21,8 +21,10 @@ import 'package:twitee/Screens/main_screen.dart';
 import 'package:twitee/Utils/Tuple/tuple.dart';
 import 'package:twitee/Utils/proxy_util.dart';
 import 'package:twitee/Utils/responsive_util.dart';
+import 'package:twitee/Utils/utils.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
+import '../Models/local_model.dart';
 import '../Resources/fonts.dart';
 import '../Screens/Navigation/community_screen.dart';
 import '../Screens/Navigation/home_screen.dart';
@@ -39,6 +41,7 @@ GlobalKey<NavigatorState> panelNavigatorKey = GlobalKey<NavigatorState>();
 BuildContext get rootContext => globalNavigatorState!.context;
 
 NavigatorState? get panelNavigatorState => panelNavigatorKey.currentState;
+
 NavigatorState? get globalNavigatorState => globalNavigatorKey.currentState;
 
 GlobalKey<GeneralSettingScreenState> generalSettingScreenKey =
@@ -68,10 +71,15 @@ GlobalKey<CommunityScreenState> communityScreenKey =
     GlobalKey<CommunityScreenState>();
 
 MainScreenState? get mainScreenState => mainScreenKey.currentState;
+
 PanelScreenState? get panelScreenState => panelScreenKey.currentState;
+
 HomeScreenState? get homeScreenState => homeScreenKey.currentState;
+
 SearchScreenState? get searchScreenState => searchScreenKey.currentState;
+
 ListScreenState? get listScreenState => listScreenKey.currentState;
+
 CommunityScreenState? get communityScreenState =>
     communityScreenKey.currentState;
 
@@ -120,8 +128,6 @@ enum AutoLockTime {
         return S.current.after5MinutesLock;
       case AutoLockTime.after10Minutes:
         return S.current.after10MinutesLock;
-      default:
-        return "";
     }
   }
 
@@ -146,6 +152,8 @@ class AppProvider with ChangeNotifier {
 
   bool shownShortcutHelp = false;
 
+  Offset mousePosition = Offset.zero;
+
   bool _showNavigator = false;
 
   bool get showNavigator => _showNavigator;
@@ -165,6 +173,83 @@ class AppProvider with ChangeNotifier {
     HiveUtil.setProxyConfig(value);
     notifyListeners();
     ProxyUtil.refresh();
+  }
+
+  List<LocalUserModel> _blockRetweetUsers =
+      HiveUtil.getMapList(HiveUtil.blockRetweetUsersKey)
+          .map((e) => LocalUserModel.fromJson(e))
+          .toList();
+
+  List<LocalUserModel> get blockRetweetUsers {
+    _blockRetweetUsers.sort(
+        (a, b) => b.lastBlockRetweetTime.compareTo(a.lastBlockRetweetTime));
+    return _blockRetweetUsers;
+  }
+
+  set blockRetweetUsers(List<LocalUserModel> value) {
+    _blockRetweetUsers = value;
+    HiveUtil.put(
+        HiveUtil.blockRetweetUsersKey, value.map((e) => e.toJson()).toList());
+    notifyListeners();
+  }
+
+  void addBlockRetweetUser(LocalUserModel user) {
+    List<LocalUserModel> tmp = List.from(_blockRetweetUsers);
+    tmp.removeWhere((element) => element.screenName == user.screenName);
+    tmp.insert(0, user);
+    blockRetweetUsers = tmp;
+    notifyListeners();
+  }
+
+  void removeBlockRetweetUser(String? screenName) {
+    if (Utils.isEmpty(screenName)) return;
+    List<LocalUserModel> tmp = List.from(_blockRetweetUsers);
+    tmp.removeWhere((element) => element.screenName == screenName!);
+    blockRetweetUsers = tmp;
+    notifyListeners();
+  }
+
+  bool isBlockRetweetUser(String? screenName) {
+    return _blockRetweetUsers
+        .any((element) => element.screenName == screenName);
+  }
+
+  List<LocalUserModel> _historyUsers =
+      HiveUtil.getMapList(HiveUtil.historyUsersKey)
+          .map((e) => LocalUserModel.fromJson(e))
+          .toList();
+
+  List<LocalUserModel> get historyUsers {
+    _historyUsers.sort((a, b) => b.lastViewTime.compareTo(a.lastViewTime));
+    return _historyUsers;
+  }
+
+  set historyUsers(List<LocalUserModel> value) {
+    _historyUsers = value;
+    HiveUtil.put(
+        HiveUtil.historyUsersKey, value.map((e) => e.toJson()).toList());
+    notifyListeners();
+  }
+
+  void addHistoryUser(LocalUserModel user) {
+    List<LocalUserModel> tmp = List.from(_historyUsers);
+    tmp.removeWhere((element) => element.userId == user.userId);
+    tmp.insert(0, user);
+    historyUsers = tmp;
+    notifyListeners();
+  }
+
+  void removeHistoryUser(String? screenName) {
+    if (Utils.isEmpty(screenName)) return;
+    List<LocalUserModel> tmp = List.from(_historyUsers);
+    tmp.removeWhere((element) => element.screenName == screenName);
+    historyUsers = tmp;
+    notifyListeners();
+  }
+
+  void clearHistoryUsers() {
+    historyUsers = [];
+    notifyListeners();
   }
 
   SideBarChoice _sidebarChoice = SideBarChoice.fromString(

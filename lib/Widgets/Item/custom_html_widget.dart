@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:context_menus/context_menus.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:twitee/Utils/responsive_util.dart';
@@ -81,16 +81,16 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
   }
 
   _buildLinkContextMenuButtons(String url) {
-    return GenericContextMenu(
-      buttonConfigs: [
-        ContextMenuButtonConfig(
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem(
           "在浏览器打开",
           iconData: Icons.open_in_browser_rounded,
           onPressed: () {
             UriUtil.processUrl(context, url);
           },
         ),
-        ContextMenuButtonConfig(
+        FlutterContextMenuItem(
           S.current.copyLink,
           iconData: Icons.copy_rounded,
           onPressed: () {
@@ -119,6 +119,7 @@ class CustomHtmlWidgetState extends State<CustomHtmlWidget> {
         ?.apply(fontSizeDelta: 3, heightDelta: 0.3);
     return ItemBuilder.buildSelectableArea(
       context: context,
+      focusNode: FocusNode(),
       child: HtmlWidget(
         content,
         enableCaching: true,

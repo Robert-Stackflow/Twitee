@@ -53,6 +53,7 @@ class MySelectionArea extends StatefulWidget {
     this.focusNode,
     this.selectionControls,
     this.contextMenuBuilder = _defaultContextMenuBuilder,
+    this.onRightclick,
     this.magnifierConfiguration,
     this.onSelectionChanged,
     required this.child,
@@ -92,6 +93,8 @@ class MySelectionArea extends StatefulWidget {
   ///  * [AdaptiveTextSelectionToolbar], which is built by default.
   final MySelectableRegionContextMenuBuilder? contextMenuBuilder;
 
+  final MySelectableRegionRightclickCallback? onRightclick;
+
   /// Called when the selected content changes.
   final ValueChanged<SelectedContent?>? onSelectionChanged;
 
@@ -129,10 +132,10 @@ class _MySelectionAreaState extends State<MySelectionArea> {
         switch (Theme.of(context).platform) {
           TargetPlatform.android ||
           TargetPlatform.fuchsia =>
-            materialTextSelectionHandleControls,
+          materialTextSelectionHandleControls,
           TargetPlatform.linux ||
           TargetPlatform.windows =>
-            desktopTextSelectionHandleControls,
+          desktopTextSelectionHandleControls,
           TargetPlatform.iOS => cupertinoTextSelectionHandleControls,
           TargetPlatform.macOS => cupertinoDesktopTextSelectionHandleControls,
         };
@@ -140,6 +143,7 @@ class _MySelectionAreaState extends State<MySelectionArea> {
       selectionControls: controls,
       focusNode: _effectiveFocusNode,
       contextMenuBuilder: widget.contextMenuBuilder,
+      onRightclick: widget.onRightclick,
       magnifierConfiguration: widget.magnifierConfiguration ??
           TextMagnifier.adaptiveMagnifierConfiguration,
       onSelectionChanged: widget.onSelectionChanged,
