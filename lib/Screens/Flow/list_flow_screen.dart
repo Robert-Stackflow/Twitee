@@ -229,9 +229,9 @@ class _ListFlowScreenState extends State<ListFlowScreen>
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
           (entry.content as TimelineTimelineItem).itemContent
-              is TimelineTweet &&
+          is TimelineTweet &&
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
-                  .promotedMetadata ==
+              .promotedMetadata ==
               null) {
         TimelineTweet tweet = (entry.content as TimelineTimelineItem)
             .itemContent as TimelineTweet;
@@ -244,7 +244,6 @@ class _ListFlowScreenState extends State<ListFlowScreen>
         if (add) {
           result.add(entry);
         }
-        result.add(entry);
       }
     }
     return result;
@@ -315,34 +314,35 @@ class _ListFlowScreenState extends State<ListFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
-        onLoad: _onLoad,
-        noMore: _noMore,
-        child: validEntries.isNotEmpty
-            ? WaterfallFlow.extent(
-                physics: pyhsics,
-                controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
-                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 600,
-                children: List.generate(
-                  validEntries.length,
-                  (index) {
-                    return PostItem(
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
-                    );
-                  },
-                ),
-              )
-            : ItemBuilder.buildEmptyPlaceholder(
-                context: context,
-                text: "暂无内容",
-                scrollController: _scrollController,
-                physics: pyhsics,
+      childBuilder: (context, pyhsics) =>
+          ItemBuilder.buildLoadMoreNotification(
+            onLoad: _onLoad,
+            noMore: _noMore,
+            child: validEntries.isNotEmpty
+                ? WaterfallFlow.extent(
+              physics: pyhsics,
+              controller: widget.nested ? null : _scrollController,
+              padding: MyTheme.responsiveListFlowPadding,
+              mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+              crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+              maxCrossAxisExtent: 600,
+              children: List.generate(
+                validEntries.length,
+                    (index) {
+                  return PostItem(
+                    entry: validEntries[index],
+                    feedbackActions: _getFeedBackActions(validEntries[index]),
+                  );
+                },
               ),
-      ),
+            )
+                : ItemBuilder.buildEmptyPlaceholder(
+              context: context,
+              text: "暂无内容",
+              scrollController: _scrollController,
+              physics: pyhsics,
+            ),
+          ),
     );
   }
 }

@@ -124,7 +124,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       ),
       TabItemData.build(
         context,
-        "推文与回复",
+        "回复",
         (key2, scrollController2) => UserTweetFlowScreen(
           key: key2,
           userId: user!.restId!,
