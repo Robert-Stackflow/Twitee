@@ -56,6 +56,8 @@ class HiveUtil {
   static const String filenameFormatKey = "filenameFormat";
   static const String savePathKey = "savePath";
   static const String proxyConfigKey = "proxyConfig";
+  static const String homeTabIndexKey = "homeTabIndex";
+  static const String lastViewListIdKey = "lastViewListId";
 
   //Appearance
   static const String expandSidebarKey = "expandSidebar";

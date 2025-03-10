@@ -264,6 +264,26 @@ class AppProvider with ChangeNotifier {
     panelScreenState?.jumpToPage(_sidebarChoice.index);
   }
 
+  int _homeTabIndex = HiveUtil.getInt(HiveUtil.homeTabIndexKey);
+
+  int get homeTabIndex => _homeTabIndex;
+
+  set homeTabIndex(int value) {
+    _homeTabIndex = value;
+    HiveUtil.put(HiveUtil.homeTabIndexKey, value);
+    notifyListeners();
+  }
+
+  String? _lastViewListId = HiveUtil.getString(HiveUtil.lastViewListIdKey);
+
+  String? get lastViewListId => _lastViewListId;
+
+  set lastViewListId(String? value) {
+    _lastViewListId = value;
+    HiveUtil.put(HiveUtil.lastViewListIdKey, value);
+    notifyListeners();
+  }
+
   bool _enableLandscapeInTablet =
       HiveUtil.getBool(HiveUtil.enableLandscapeInTabletKey);
 

@@ -90,6 +90,11 @@ class HomeScreenState extends State<HomeScreen>
       ),
     ]);
     _tabController = TabController(length: tabDataList.length, vsync: this);
+    _tabController.index =
+        appProvider.homeTabIndex.clamp(0, tabDataList.length - 1);
+    _tabController.addListener(() {
+      appProvider.homeTabIndex = _tabController.index;
+    });
     if (mounted) setState(() {});
     panelScreenState?.refreshScrollControllers();
   }
@@ -147,9 +152,10 @@ class HomeScreenState extends State<HomeScreen>
     }
     int index = currentIndex;
     _tabController = TabController(
-        length: tabDataList.length,
-        vsync: this,
-        initialIndex: index.clamp(0, tabDataList.length - 1));
+      length: tabDataList.length,
+      vsync: this,
+      initialIndex: index.clamp(0, tabDataList.length - 1),
+    );
     if (mounted) setState(() {});
     panelScreenState?.refreshScrollControllers();
   }
@@ -171,7 +177,7 @@ class HomeScreenState extends State<HomeScreen>
     );
     _tabController = TabController(length: 0, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      initTab();
+      if (mounted) initTab();
       refreshPinnedLists();
     });
   }
@@ -226,7 +232,9 @@ class HomeScreenState extends State<HomeScreen>
       body: Stack(
         children: [
           TabBarView(
-              controller: _tabController, children: tabDataList.pageList),
+            controller: _tabController,
+            children: tabDataList.pageList,
+          ),
           Positioned(
             right: ResponsiveUtil.isLandscape() ? 16 : 12,
             bottom: ResponsiveUtil.isLandscape() ? 16 : 76,
@@ -252,6 +260,7 @@ class HomeScreenState extends State<HomeScreen>
         refresh();
       }
     }
+    appProvider.homeTabIndex = index;
   }
 
   scrollToTop() async {

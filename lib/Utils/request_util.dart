@@ -118,8 +118,8 @@ class RequestUtil {
   }) {
     options = BaseOptions(
       baseUrl: domainType.baseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 25),
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 300),
       contentType: Headers.jsonContentType,
       responseType: ResponseType.json,
     );

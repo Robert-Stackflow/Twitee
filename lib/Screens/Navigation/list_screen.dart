@@ -15,8 +15,8 @@
 
 import 'dart:async';
 
-import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Utils/route_util.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
@@ -170,7 +170,7 @@ class ListScreenState extends State<ListScreen>
     });
   }
 
-  initTab() {
+  initTab([bool isInit = true]) {
     tabDataList.clear();
     for (var list in validItems) {
       if (idToListFlowMap[list.list.idStr] == null) {
@@ -193,6 +193,15 @@ class ListScreenState extends State<ListScreen>
     int index = currentIndex;
     _tabController = TabController(
         length: tabDataList.length, vsync: this, initialIndex: index);
+    if (isInit) {
+      int toIndex = validItems.indexWhere((element) =>
+          element.list.idStr == appProvider.lastViewListId &&
+          element.list.idStr.isNotEmpty);
+      _tabController.index = toIndex != -1 ? toIndex : appProvider.homeTabIndex;
+    }
+    _tabController.addListener(() {
+      appProvider.lastViewListId = validItems[_tabController.index].list.idStr;
+    });
     panelScreenState?.refreshScrollControllers();
     if (mounted) setState(() {});
   }
@@ -281,6 +290,7 @@ class ListScreenState extends State<ListScreen>
         refresh();
       }
     }
+    appProvider.lastViewListId = validItems[index].list.idStr;
   }
 
   scrollToTop() async {

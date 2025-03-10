@@ -283,6 +283,10 @@ class TweetUtil {
     return tweet.quotedStatusResult != null;
   }
 
+  static bool hasCard(Tweet tweet) {
+    return tweet.card != null && tweet.card!.legacy != null;
+  }
+
   static bool hasTranslation(Tweet tweet) {
     String translation = getTranslation(tweet);
     return Utils.isNotEmpty(translation);
