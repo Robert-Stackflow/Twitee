@@ -20,6 +20,7 @@ import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/utils.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
@@ -30,7 +31,7 @@ import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/tweet_util.dart';
 
-enum UserTweetFlowType { Tweets, Retweets, TweetsAndReplies, Highlights }
+enum UserTweetFlowType { Tweets, Retweets, Replies, Highlights }
 
 class UserTweetFlowScreen extends StatefulWidgetForFlow {
   const UserTweetFlowScreen({
@@ -113,6 +114,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
     if (_loading) return;
     _loading = true;
     cursorBottom = null;
+    bool reload = false;
     try {
       if (_initPhase != InitPhase.successful) {
         _initPhase = InitPhase.connecting;
@@ -126,7 +128,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             userId: widget.userId,
           );
           break;
-        case UserTweetFlowType.TweetsAndReplies:
+        case UserTweetFlowType.Replies:
           res = await UserApi.getUserTweetsAndReplies(
             userId: widget.userId,
           );
@@ -152,16 +154,24 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
                   .toList();
         }
         List<TimelineAddEntry> newEntries = [];
+        bool hasResult = false;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelinePinEntry) {
             pinEntry = instruction;
           }
           if (instruction is TimelineAddEntries) {
-            newEntries = validEntries = _processEntries(instruction.entries);
+            var tmp = _processEntries(instruction.entries);
+            hasResult = tmp[0];
+            newEntries = validEntries = tmp[1];
             _refreshCursor(instruction.entries);
           }
         }
-        if (newEntries.isEmpty) {
+        reload = hasResult && newEntries.isEmpty;
+        if (reload) {
+          _loading = false;
+          return await _onLoad();
+        }
+        if (!hasResult && newEntries.isEmpty) {
           _noMore = true;
         } else {
           _noMore = false;
@@ -187,6 +197,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
     if (cursorBottom == null) return;
     if (_loading) return;
     _loading = true;
+    bool reload = false;
     try {
       if (_initPhase != InitPhase.successful) {
         _initPhase = InitPhase.connecting;
@@ -201,7 +212,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
             cursorBottom: cursorBottom?.value,
           );
           break;
-        case UserTweetFlowType.TweetsAndReplies:
+        case UserTweetFlowType.Replies:
           res = await UserApi.getUserTweetsAndReplies(
             userId: widget.userId,
             cursorBottom: cursorBottom?.value,
@@ -229,17 +240,25 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
                   .toList());
         }
         List<TimelineAddEntry> newEntries = [];
+        bool hasResult = false;
         for (var instruction in timeline.instructions) {
           if (instruction is TimelinePinEntry) {
             pinEntry = instruction;
           }
           if (instruction is TimelineAddEntries) {
-            validEntries.addAll(_processEntries(instruction.entries));
-            newEntries = _processEntries(instruction.entries);
+            var tmp = _processEntries(instruction.entries);
+            hasResult = tmp[0];
+            newEntries = tmp[1];
+            validEntries.addAll(newEntries);
             _refreshCursor(instruction.entries);
           }
         }
-        if (newEntries.isEmpty) {
+        reload = hasResult && newEntries.isEmpty;
+        if (reload) {
+          _loading = false;
+          return await _onLoad();
+        }
+        if (!hasResult && newEntries.isEmpty) {
           _noMore = true;
           return IndicatorResult.noMore;
         } else {
@@ -278,6 +297,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
 
   _processEntries(List<TimelineAddEntry> entries) {
     List<TimelineAddEntry> result = [];
+    bool hasResult = false;
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
           (entry.content as TimelineTimelineItem).itemContent
@@ -285,6 +305,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
+        hasResult = true;
         TimelineTweet tweet = (entry.content as TimelineTimelineItem)
             .itemContent as TimelineTweet;
         bool add = true;
@@ -298,12 +319,13 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
       } else if (entry.content is TimelineTimelineModule &&
           (entry.content as TimelineTimelineModule).displayType ==
               DisplayType.verticalConversation) {
-        if (widget.type != UserTweetFlowType.Retweets) {
+        hasResult = true;
+        if (widget.type == UserTweetFlowType.Replies) {
           result.add(entry);
         }
       }
     }
-    return result;
+    return [hasResult, result];
   }
 
   List<FeedbackActions> _getFeedBackActions(TimelineAddEntry entry) {
@@ -361,6 +383,8 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
   }
 
   _buildMainBody() {
+    bool addPin = pinEntry != null && widget.type == UserTweetFlowType.Tweets;
+    bool hasContent = validEntries.isNotEmpty || addPin;
     return EasyRefresh.builder(
       onRefresh: () async {
         return await _onRefresh();
@@ -374,7 +398,7 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: validEntries.isNotEmpty
+        child: hasContent
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
@@ -383,22 +407,23 @@ class _UserTweetFlowScreenState extends State<UserTweetFlowScreen>
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
                 maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
                 children: List.generate(
-                  validEntries.length + (pinEntry != null ? 1 : 0),
+                  validEntries.length + (addPin ? 1 : 0),
                   (index) {
-                    if (pinEntry != null && index == 0) {
+                    if (addPin && index == 0) {
                       return PostItem(
-                        key: const GlobalObjectKey("Pinned"),
+                        key: ValueKey("Pinned_${Utils.generateUid()}"),
                         entry: pinEntry!.entry,
                         feedbackActions: _getFeedBackActions(pinEntry!.entry),
                       );
                     } else {
-                      if (pinEntry != null) index -= 1;
+                      int trueIndex = index;
+                      if (addPin) trueIndex -= 1;
                       return PostItem(
-                        key: GlobalObjectKey(
-                            validEntries[index].sortIndex.toString()),
-                        entry: validEntries[index],
+                        key: ValueKey(
+                            "${validEntries[trueIndex].sortIndex}_${Utils.generateUid()}"),
+                        entry: validEntries[trueIndex],
                         feedbackActions:
-                            _getFeedBackActions(validEntries[index]),
+                            _getFeedBackActions(validEntries[trueIndex]),
                       );
                     }
                   },

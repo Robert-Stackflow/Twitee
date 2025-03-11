@@ -434,7 +434,7 @@ class RenderSliverWaterfallFlow extends RenderSliverMultiBoxAdaptor
     // Find the last child that is at or before the scrollOffset.
     earliestUsefulChild = firstChild;
 
-    if (crossAxisChildrenData.maxLeadingLayoutOffset! > scrollOffset) {
+    if ((crossAxisChildrenData.maxLeadingLayoutOffset ?? 0) > scrollOffset) {
       RenderBox? child = firstChild;
       // Add children from min index to max index of leading to
       // make sure indexes are continuous.
@@ -449,7 +449,8 @@ class RenderSliverWaterfallFlow extends RenderSliverMultiBoxAdaptor
         child = childBefore(child);
       }
 
-      while (crossAxisChildrenData.maxLeadingLayoutOffset! > scrollOffset) {
+      while (
+          (crossAxisChildrenData.maxLeadingLayoutOffset ?? 0) > scrollOffset) {
         // We have to add children before the earliestUsefulChild.
         earliestUsefulChild =
             insertAndLayoutLeadingChild(childConstraints, parentUsesSize: true);

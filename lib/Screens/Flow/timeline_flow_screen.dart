@@ -19,6 +19,7 @@ import 'package:twitee/Models/view_config.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
+import 'package:twitee/Utils/utils.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 import 'package:twitee/Widgets/Twitter/post_item.dart';
@@ -83,7 +84,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
 
   @override
   refreshViewConfig(ViewConfig viewConfig) async {
-    await scrollToTop();
+    // await scrollToTop();
     this.viewConfig = viewConfig;
     if (mounted) setState(() {});
   }
@@ -315,8 +316,8 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
                   filteredEntries.length,
                   (index) {
                     return PostItem(
-                      key: GlobalObjectKey(
-                          filteredEntries[index].sortIndex.toString()),
+                      key: ValueKey(
+                          "${filteredEntries[index].sortIndex}_${Utils.generateUid()}"),
                       entry: filteredEntries[index],
                       feedbackActions:
                           _getFeedBackActions(filteredEntries[index]),

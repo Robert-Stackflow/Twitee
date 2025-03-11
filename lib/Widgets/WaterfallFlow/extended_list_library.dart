@@ -226,6 +226,6 @@ mixin ExtendedRenderObjectMixin on RenderSliverMultiBoxAdaptor {
     assert(child.parent == this);
     final SliverMultiBoxAdaptorParentData childParentData =
         child.parentData as SliverMultiBoxAdaptorParentData;
-    return childParentData.layoutOffset! + closeToTrailingDistance;
+    return childParentData.layoutOffset ?? 0 + closeToTrailingDistance;
   }
 }

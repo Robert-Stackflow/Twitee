@@ -129,7 +129,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
           key: key2,
           userId: user!.restId!,
           nested: true,
-          type: UserTweetFlowType.TweetsAndReplies,
+          type: UserTweetFlowType.Replies,
           scrollController: primaryController,
         ),
       ),
@@ -424,7 +424,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
 
   _buildMoreContextMenuButtons() {
     String screenName = userLegacy?.screenName ?? "";
-    String url = userLegacy?.url ?? "https://twitter.com/$screenName";
+    String url = "https://twitter.com/$screenName";
     return FlutterContextMenu(
       entries: [
         if (!isMyself && (userLegacy?.following ?? false))

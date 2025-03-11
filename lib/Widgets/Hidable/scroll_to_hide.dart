@@ -189,17 +189,19 @@ class ScrollToHideState extends State<ScrollToHide>
   }
 
   void listen() {
-    if (widget.enabled) {
-      if (widget.scrollControllers.any((element) =>
-          element.hasClients &&
-          element.position.userScrollDirection == ScrollDirection.forward)) {
-        show();
-      } else if (widget.scrollControllers.any((element) =>
-          element.hasClients &&
-          element.position.userScrollDirection == ScrollDirection.reverse &&
-          element.position.pixels >= widget.triggerOffset)) {
-        hide();
+    try {
+      if (widget.enabled) {
+        if (widget.scrollControllers.any((element) =>
+            element.hasClients &&
+            element.position.userScrollDirection == ScrollDirection.forward)) {
+          show();
+        } else if (widget.scrollControllers.any((element) =>
+            element.hasClients &&
+            element.position.userScrollDirection == ScrollDirection.reverse &&
+            element.position.pixels >= widget.triggerOffset)) {
+          hide();
+        }
       }
-    }
+    } catch (_) {}
   }
 }
