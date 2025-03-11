@@ -206,6 +206,7 @@ class MyTooltip extends StatefulWidget {
         );
 
   final TooltipPosition position;
+
   /// The text to display in the tooltip.
   ///
   /// Only one of [message] and [richMessage] may be non-null.
@@ -434,7 +435,8 @@ class MyTooltip extends StatefulWidget {
 ///
 /// This class can be used to programmatically show the Tooltip, see the
 /// [ensureTooltipVisible] method.
-class MyTooltipState extends State<MyTooltip> with SingleTickerProviderStateMixin {
+class MyTooltipState extends State<MyTooltip>
+    with SingleTickerProviderStateMixin {
   static const double _defaultVerticalOffset = 24.0;
   static const bool _defaultPreferBelow = true;
   static const EdgeInsetsGeometry _defaultMargin = EdgeInsets.zero;

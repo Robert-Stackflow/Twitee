@@ -651,24 +651,24 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
     User user = userResultUnion as User;
     double avatarSize = 40;
     BorderRadius borderRadius = BorderRadius.zero;
-    if (ResponsiveUtil.isLandscape()) {
-      if (isFirst) {
-        borderRadius = borderRadius
-            .add(const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ))
-            .resolve(null);
-      }
-      if (isLast) {
-        borderRadius = borderRadius
-            .add(const BorderRadius.only(
-              bottomLeft: Radius.circular(8),
-              bottomRight: Radius.circular(8),
-            ))
-            .resolve(null);
-      }
-    }
+    // if (ResponsiveUtil.isLandscape()) {
+    //   if (isFirst) {
+    //     borderRadius = borderRadius
+    //         .add(const BorderRadius.only(
+    //           topLeft: Radius.circular(8),
+    //           topRight: Radius.circular(8),
+    //         ))
+    //         .resolve(null);
+    //   }
+    //   if (isLast) {
+    //     borderRadius = borderRadius
+    //         .add(const BorderRadius.only(
+    //           bottomLeft: Radius.circular(8),
+    //           bottomRight: Radius.circular(8),
+    //         ))
+    //         .resolve(null);
+    //   }
+    // }
     var body = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8).add(
         EdgeInsets.only(
@@ -955,7 +955,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         );
       } else {
         mainWidget = Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             imageWidget,
             contentWidget,
@@ -975,6 +975,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
         onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
         child: Container(
+          constraints: const BoxConstraints(maxWidth: maxMediaOrQuoteWidth),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: MyTheme.border,
@@ -994,14 +995,15 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: MyTheme.canvasColor,
             borderRadius: BorderRadius.circular(8),
+            border: MyTheme.divider,
           ),
           padding: const EdgeInsets.all(8),
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
             tweet.isExpanded ? "收起全文" : "查看全文",
-            style: MyTheme.bodyMedium!.apply(
+            style: MyTheme.bodyMedium.apply(
               color: MyColors.getLinkColor(context),
               fontWeightDelta: 2,
             ),
@@ -1022,11 +1024,11 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
+          border: MyTheme.divider,
         ),
         padding: const EdgeInsets.all(12),
         child: Text("这个引用的帖子不可用",
-            style: MyTheme.bodySmall?.apply(fontSizeDelta: 3)),
+            style: MyTheme.bodySmall.apply(fontSizeDelta: 3)),
       );
     } else {
       Article? article = tweet.article;
@@ -1074,6 +1076,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                       if (hasText)
                         Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (article != null)
                                 Row(
@@ -1146,8 +1149,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       return [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: MyTheme.canvasColor,
             borderRadius: BorderRadius.circular(8),
+            border: MyTheme.divider,
           ),
           padding: const EdgeInsets.all(8),
           child: Column(

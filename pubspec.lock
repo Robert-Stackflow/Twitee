@@ -1623,13 +1623,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  swagger_parser:
-    dependency: "direct dev"
-    description:
-      path: "third-party/tool/swagger_parser"
-      relative: true
-    source: path
-    version: "1.19.1"
   synchronized:
     dependency: transitive
     description:

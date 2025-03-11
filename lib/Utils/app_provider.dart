@@ -185,7 +185,8 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String _filterContentRegExp = HiveUtil.getString(HiveUtil.filterContentRegExpKey) ?? "";
+  String _filterContentRegExp =
+      HiveUtil.getString(HiveUtil.filterContentRegExpKey) ?? "";
 
   String get filterContentRegExp => _filterContentRegExp;
 
@@ -205,7 +206,8 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String _filterUserRegExp = HiveUtil.getString(HiveUtil.filterUserRegExpKey) ?? "";
+  String _filterUserRegExp =
+      HiveUtil.getString(HiveUtil.filterUserRegExpKey) ?? "";
 
   String get filterUserRegExp => _filterUserRegExp;
 

@@ -64,8 +64,8 @@ class CommunityScreenState extends State<CommunityScreen>
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
-  ViewConfig viewConfig =
-      ViewConfig.fromJson(HiveUtil.getMap(HiveUtil.communityViewConfigKey) ?? {});
+  ViewConfig viewConfig = ViewConfig.fromJson(
+      HiveUtil.getMap(HiveUtil.communityViewConfigKey) ?? {});
 
   Map<String, TabItemData> idToListFlowMap = {};
 

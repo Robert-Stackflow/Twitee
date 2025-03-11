@@ -108,7 +108,8 @@ class _FilterSettingScreenState extends State<FilterSettingScreen>
         builder: (context, enableFilterContent, child) {
           if (enableFilterContent) {
             return Selector<AppProvider, String>(
-              selector: (context, appProvider) => appProvider.filterContentRegExp,
+              selector: (context, appProvider) =>
+                  appProvider.filterContentRegExp,
               builder: (context, filterContent, child) =>
                   ItemBuilder.buildEntryItem(
                 context: context,
@@ -171,7 +172,7 @@ class _FilterSettingScreenState extends State<FilterSettingScreen>
                   BottomSheetBuilder.showBottomSheet(
                     context,
                     responsive: true,
-                        (context) => InputBottomSheet(
+                    (context) => InputBottomSheet(
                       title: "设置过滤关键词",
                       message: "支持正则表达式，留空则忽略",
                       text: filterUser,

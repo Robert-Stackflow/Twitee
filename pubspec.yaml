@@ -1,5 +1,5 @@
 name: twitee
-version: 1.1.0+110
+version: 1.2.0+120
 description: An awesome two-factor authenticator which supports cloud storage and multiple platforms.
 publish_to: none
 
@@ -124,8 +124,8 @@ dev_dependencies:
   # OpenAPI
   json_serializable: ^6.7.1
   freezed: ^2.5.7
-  swagger_parser:
-    path: third-party/tool/swagger_parser
+#  swagger_parser:
+#    path: third-party/tool/swagger_parser
   retrofit_generator: ^9.1.2
 
 swagger_parser:
