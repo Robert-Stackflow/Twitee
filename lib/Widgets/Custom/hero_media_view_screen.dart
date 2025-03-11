@@ -155,7 +155,7 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
     _viewControllers.addAll(List.generate(medias.length, (index) {
       return PhotoViewController();
     }));
-    initVideo();
+    if (!ResponsiveUtil.isWindows()) initVideo();
     captions =
         widget.captions ?? medias.map((e) => e.extAltText ?? "").toList();
     minScale = widget.minScale;
