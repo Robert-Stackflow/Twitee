@@ -181,6 +181,10 @@ class CardBindings {
     }
   }
 
+  bool hasCardType(CardBindingKeyEnum key) {
+    return items.any((element) => element.key == key.key);
+  }
+
   ImageValue? getImageValue(CardBindingKeyEnum key) {
     List<CardBindingItem> imageItems = items
         .where((element) => element.type == DataType.IMAGE)

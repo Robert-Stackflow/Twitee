@@ -27,6 +27,7 @@ import 'package:twitee/Utils/hive_util.dart';
 import 'package:twitee/Utils/image_util.dart';
 import 'package:twitee/Widgets/Window/window_button.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/responsive_util.dart';
@@ -421,16 +422,16 @@ class HeroPhotoViewScreenState extends State<HeroPhotoViewScreen>
       title: imageUrls.length > 1
           ? Text(
               "${currentIndex + 1}/${imageUrls.length}",
-              style: Theme.of(context).textTheme.titleLarge?.apply(
-                    color: Colors.white,
-                  ),
+              style: MyTheme.titleLarge.apply(
+                color: Colors.white,
+              ),
             )
           : widget.title != null
               ? Text(
                   widget.title!,
-                  style: Theme.of(context).textTheme.titleLarge?.apply(
-                        color: Colors.white,
-                      ),
+                  style: MyTheme.titleLarge.apply(
+                    color: Colors.white,
+                  ),
                 )
               : emptyWidget,
       actions: [

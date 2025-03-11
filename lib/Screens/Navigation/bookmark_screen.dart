@@ -31,6 +31,7 @@ import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/constant.dart';
 
@@ -351,59 +352,60 @@ class _BookmarkScreenState extends State<BookmarkScreen>
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          EasyRefresh(
-            onRefresh: () async {
-              return await _onRefresh();
-            },
-            onLoad: () async {
-              return await _onLoad();
-            },
-            refreshOnStart: true,
-            triggerAxis: Axis.vertical,
-            controller: _easyRefreshController,
-            child: ItemBuilder.buildLoadMoreNotification(
-              onLoad: _onLoad,
-              noMore: _noMore,
-              child: !_inited || validEntries.isNotEmpty
-                  ? WaterfallFlow.extent(
-                      controller: _scrollController,
-                      padding: ResponsiveUtil.isLandscape()
-                          ? const EdgeInsets.all(8)
-                              .add(const EdgeInsets.only(bottom: 16))
-                          : const EdgeInsets.only(bottom: 16),
-                      mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                      maxCrossAxisExtent: 800,
-                      crossAxisSpacing: 6,
-                      children: List.generate(
-                        validEntries.length,
-                        (index) {
-                          return PostItem(
-                            entry: validEntries[index],
-                            feedbackActions:
-                                _getFeedBackActions(validEntries[index]),
-                          );
-                        },
-                      ),
-                    )
-                  : ItemBuilder.buildEmptyPlaceholder(
-                      context: context,
-                      text: "暂无内容",
-                      scrollController: _scrollController,
-                    ),
+      body: ItemBuilder.buildConstraintContainer(
+        child: Stack(
+          children: [
+            ItemBuilder.buildConstraintContainer(
+              child: EasyRefresh(
+                onRefresh: () async {
+                  return await _onRefresh();
+                },
+                onLoad: () async {
+                  return await _onLoad();
+                },
+                refreshOnStart: true,
+                triggerAxis: Axis.vertical,
+                controller: _easyRefreshController,
+                child: ItemBuilder.buildLoadMoreNotification(
+                  onLoad: _onLoad,
+                  noMore: _noMore,
+                  child: !_inited || validEntries.isNotEmpty
+                      ? WaterfallFlow.extent(
+                          controller: _scrollController,
+                          padding: MyTheme.responsiveFlowPadding,
+                          mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                          crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                          maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
+                          children: List.generate(
+                            validEntries.length,
+                            (index) {
+                              return PostItem(
+                                entry: validEntries[index],
+                                feedbackActions:
+                                    _getFeedBackActions(validEntries[index]),
+                              );
+                            },
+                          ),
+                        )
+                      : ItemBuilder.buildEmptyPlaceholder(
+                          context: context,
+                          text: "暂无内容",
+                          scrollController: _scrollController,
+                        ),
+                ),
+              ),
             ),
-          ),
-          Positioned(
-            right: ResponsiveUtil.isLandscape() ? 16 : 16,
-            bottom: ResponsiveUtil.isLandscape() ? 16 : 16,
-            child: ScrollToHide(
-              scrollControllers: [_scrollController],
-              hideDirection: AxisDirection.down,
-              child: _buildFloatingButtons(),
+            Positioned(
+              right: ResponsiveUtil.isLandscape() ? 16 : 16,
+              bottom: ResponsiveUtil.isLandscape() ? 16 : 16,
+              child: ScrollToHide(
+                scrollControllers: [_scrollController],
+                hideDirection: AxisDirection.down,
+                child: _buildFloatingButtons(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

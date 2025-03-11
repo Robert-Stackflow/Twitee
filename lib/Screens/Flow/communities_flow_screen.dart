@@ -220,10 +220,10 @@ class _CommunitiesFlowScreenState extends State<CommunitiesFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
-                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 600,
+                padding: MyTheme.responsiveCardFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
+                maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
                 children: List.generate(
                   validEntries.length,
                   (index) {

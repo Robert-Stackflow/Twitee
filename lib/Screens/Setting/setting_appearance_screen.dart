@@ -151,7 +151,7 @@ class _AppearanceSettingScreenState extends State<AppearanceSettingScreen>
           builder: (context, darkTheme, child) => ItemBuilder.buildEntryItem(
             context: context,
             title: S.current.selectTheme,
-            tip: "${lightTheme.intlName}/${darkTheme.intlName}",
+            tip: "${lightTheme.name}/${darkTheme.name}",
             onTap: () {
               RouteUtil.pushPanelCupertinoRoute(
                   context, const SelectThemeScreen());

@@ -19,9 +19,9 @@ import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:group_button/group_button.dart';
 import 'package:pinput/pinput.dart';
@@ -55,6 +55,7 @@ import '../Custom/hero_media_view_screen.dart';
 import '../Custom/hero_photo_view_screen.dart';
 import '../Scaffold/my_appbar.dart';
 import '../Scaffold/my_popupmenu.dart';
+import '../Scaffold/my_tooltip.dart';
 import '../Selectable/my_selectable_region.dart';
 import '../Selectable/my_selection_area.dart';
 import '../Selectable/my_selection_toolbar.dart';
@@ -97,6 +98,7 @@ class ItemBuilder {
     bool centerInMobile = false,
     Function()? onBackTap,
     List<Widget> actions = const [],
+    double leftPadding = 0,
     double rightPadding = 0,
     bool? showBorder,
     Widget? bottom,
@@ -127,7 +129,7 @@ class ItemBuilder {
                 margin: const EdgeInsets.only(right: 173),
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: MyTheme.titleLarge,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -138,7 +140,7 @@ class ItemBuilder {
         child: Container(
           height: 56,
           decoration: BoxDecoration(
-            color: MyTheme.itemBackground,
+            color: MyTheme.appBarAndTabBarBackground,
             border: showBorder ?? true ? MyTheme.bottomBorder : null,
           ),
           child: SafeArea(
@@ -224,14 +226,18 @@ class ItemBuilder {
             center: centerInMobile,
             title: titleWidget != null
                 ? Container(
+                    margin: EdgeInsets.only(left: leftPadding),
                     constraints: const BoxConstraints(maxHeight: 60),
                     child: titleWidget,
                   )
-                : Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 2,
-                        ),
+                : Container(
+                    margin: EdgeInsets.only(left: leftPadding),
+                    child: Text(
+                      title,
+                      style: MyTheme.titleMedium.apply(
+                        fontWeightDelta: 2,
+                      ),
+                    ),
                   ),
           ),
         ),
@@ -301,9 +307,9 @@ class ItemBuilder {
                   margin: EdgeInsets.only(left: finalShowLeading ? 5 : 20),
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 2,
-                        ),
+                    style: MyTheme.titleMedium.apply(
+                      fontWeightDelta: 2,
+                    ),
                   ),
                 )
               : emptyWidget,
@@ -479,14 +485,14 @@ class ItemBuilder {
       }
     }
     scrollable = forceUnscrollable ? false : scrollable;
-    var titleMedium = Theme.of(context).textTheme.titleMedium;
+    var titleMedium = MyTheme.titleMedium;
     return PreferredSize(
       preferredSize: Size.fromHeight(height ?? 56),
       child: Container(
         height: 56,
         width: width,
         decoration: BoxDecoration(
-          color: background ?? MyTheme.itemBackground,
+          color: background ?? MyTheme.appBarAndTabBarBackground,
           border: showBorder ? MyTheme.bottomBorder : null,
         ),
         child: Container(
@@ -502,14 +508,14 @@ class ItemBuilder {
             isScrollable: scrollable,
             tabAlignment: scrollable ? TabAlignment.start : null,
             physics: const BouncingScrollPhysics(),
-            labelStyle: titleMedium?.apply(
+            labelStyle: titleMedium.apply(
               fontWeightDelta: 2,
               // color: ColorUtil.getComplementaryColor(primaryColor),
               color: Utils.isDark(context)
                   ? Colors.black
                   : const Color(0xFFF1F1F1),
             ),
-            unselectedLabelStyle: titleMedium?.apply(color: Colors.grey),
+            unselectedLabelStyle: titleMedium.apply(color: Colors.grey),
             indicator: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(8),
@@ -608,8 +614,8 @@ class ItemBuilder {
                     ? Theme.of(context).primaryColor.withAlpha(80)
                     : Theme.of(context).primaryColor
                 : null,
-            textStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                fontSizeDelta: 2, color: selected ? Colors.white : null),
+            textStyle: MyTheme.titleSmall
+                .apply(fontSizeDelta: 2, color: selected ? Colors.white : null),
           ),
         );
       },
@@ -823,18 +829,7 @@ class ItemBuilder {
                 ? Radius.circular(radius)
                 : const Radius.circular(0),
           ),
-          border: ThemeColorData.isImmersive(context)
-              ? Border.merge(
-                  Border.symmetric(
-                    vertical: BorderSide(
-                        color: Theme.of(context).dividerColor, width: 0.5),
-                  ),
-                  Border(
-                    top: topRadius ? MyTheme.borderSide : BorderSide.none,
-                    bottom: MyTheme.borderSide,
-                  ),
-                )
-              : const Border(),
+          border: const Border(),
         ),
         child: InkWell(
           borderRadius: BorderRadius.vertical(
@@ -865,7 +860,7 @@ class ItemBuilder {
                         children: [
                           Text(
                             title,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: MyTheme.titleMedium,
                           ),
                           description.isNotEmpty
                               ? Text(description,
@@ -896,24 +891,21 @@ class ItemBuilder {
                   ],
                 ),
               ),
-              ThemeColorData.isImmersive(context)
-                  ? Container()
-                  : Container(
-                      height: 0,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 0.5,
-                            style: bottomRadius
-                                ? BorderStyle.none
-                                : BorderStyle.solid,
-                          ),
-                        ),
-                      ),
+              Container(
+                height: 0,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context).dividerColor,
+                      width: 0.5,
+                      style:
+                          bottomRadius ? BorderStyle.none : BorderStyle.solid,
                     ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -999,17 +991,7 @@ class ItemBuilder {
                 ? Radius.circular(radius)
                 : const Radius.circular(0),
           ),
-          border: ThemeColorData.isImmersive(context)
-              ? Border.merge(
-                  Border.symmetric(
-                    vertical: MyTheme.borderSide,
-                  ),
-                  Border(
-                    top: topRadius ? MyTheme.borderSide : BorderSide.none,
-                    bottom: MyTheme.borderSide,
-                  ),
-                )
-              : const Border(),
+          border: const Border(),
         ),
         child: InkWell(
           onTap: onTap,
@@ -1105,16 +1087,14 @@ class ItemBuilder {
                   ],
                 ),
               ),
-              ThemeColorData.isImmersive(context)
-                  ? Container()
-                  : Container(
-                      height: 0,
-                      margin: EdgeInsets.symmetric(
-                          horizontal: dividerPadding ? 10 : 0),
-                      decoration: BoxDecoration(
-                        border: bottomRadius ? MyTheme.bottomBorder : null,
-                      ),
-                    ),
+              Container(
+                height: 0,
+                margin:
+                    EdgeInsets.symmetric(horizontal: dividerPadding ? 10 : 0),
+                decoration: BoxDecoration(
+                  border: bottomRadius ? null : MyTheme.bottomBorder,
+                ),
+              ),
             ],
           ),
         ),
@@ -1171,10 +1151,10 @@ class ItemBuilder {
               const WidgetSpan(child: SizedBox(width: 4)),
               TextSpan(
                 text: title,
-                style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                      fontSizeDelta: fontSizeDelta,
-                    ),
+                style: MyTheme.titleMedium.apply(
+                  color: MyTheme.textLightGreyColor,
+                  fontSizeDelta: fontSizeDelta,
+                ),
               ),
             ],
           ),
@@ -1192,15 +1172,18 @@ class ItemBuilder {
   }
 
   static Widget buildToolTip({
-    required Widget child,
     required String message,
+    required Widget child,
+    TooltipPosition? position = TooltipPosition.bottom,
   }) {
-    return Tooltip(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: MyTheme.getDefaultDecoration(8),
-      textStyle:
-          Theme.of(rootContext).textTheme.titleLarge?.apply(fontSizeDelta: -2),
+    return MyTooltip(
       message: message,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: MyTheme.getDefaultDecoration(8),
+      textStyle: MyTheme.bodyMedium,
+      waitDuration: const Duration(milliseconds: 500),
+      position: position ?? TooltipPosition.bottom,
+      verticalOffset: 12,
       child: child,
     );
   }
@@ -1256,14 +1239,18 @@ class ItemBuilder {
           bottom:
               bottomRadius ? Radius.circular(radius) : const Radius.circular(0),
         ),
-        border: ThemeColorData.isImmersive(context)
-            ? Border.merge(
-                Border.symmetric(vertical: MyTheme.borderSide),
-                MyTheme.border,
-              )
-            : border,
+        border: border,
       ),
       child: child,
+    );
+  }
+
+  static buildConstraintContainer({required Widget child}) {
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: MyTheme.maxWidth),
+        child: child,
+      ),
     );
   }
 
@@ -1284,7 +1271,7 @@ class ItemBuilder {
             padding:
                 const EdgeInsets.only(top: 10, bottom: 0, left: 8, right: 8),
             decoration: BoxDecoration(
-              color: themeColorData.background,
+              color: themeColorData.scaffoldBackgroundColor,
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               border: Border.all(
                 color: themeColorData.dividerColor,
@@ -1307,7 +1294,7 @@ class ItemBuilder {
                     if (states.contains(WidgetState.selected)) {
                       return themeColorData.primaryColor;
                     } else {
-                      return themeColorData.textGrayColor;
+                      return themeColorData.textLightGreyColor;
                     }
                   }),
                 ),
@@ -1316,8 +1303,8 @@ class ItemBuilder {
           ),
           const SizedBox(height: 8),
           AutoSizeText(
-            themeColorData.intlName,
-            style: Theme.of(context).textTheme.bodySmall,
+            themeColorData.name,
+            style: MyTheme.bodySmall,
             maxLines: 1,
           ),
         ],
@@ -1425,7 +1412,7 @@ class ItemBuilder {
                         if (states.contains(WidgetState.selected)) {
                           return Theme.of(context).primaryColor;
                         } else {
-                          return Theme.of(context).textTheme.bodySmall?.color;
+                          return MyTheme.textLightGreyColor;
                         }
                       }),
                     ),
@@ -1451,9 +1438,9 @@ class ItemBuilder {
           const SizedBox(height: 8),
           AutoSizeText(
             font.intlFontName,
-            style: Theme.of(context).textTheme.bodySmall?.apply(
-                  fontFamily: font.fontFamily,
-                ),
+            style: MyTheme.bodySmall.apply(
+              fontFamily: font.fontFamily,
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
           ),
@@ -1488,7 +1475,7 @@ class ItemBuilder {
                 child: Icon(
                   Icons.add_rounded,
                   size: 40,
-                  color: Theme.of(context).textTheme.labelSmall?.color,
+                  color: MyTheme.textLightGreyColor,
                 ),
               ),
             ),
@@ -1496,7 +1483,7 @@ class ItemBuilder {
           const SizedBox(height: 8),
           Text(
             S.current.loadFontFamily,
-            style: Theme.of(context).textTheme.bodySmall,
+            style: MyTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
         ],
@@ -1532,18 +1519,17 @@ class ItemBuilder {
                 Icon(
                   Icons.add_rounded,
                   size: 30,
-                  color: Theme.of(context).textTheme.titleSmall?.color,
+                  color: MyTheme.textLightGreyColor,
                 ),
                 const SizedBox(height: 6),
-                Text(S.current.newTheme,
-                    style: Theme.of(context).textTheme.titleSmall),
+                Text(S.current.newTheme, style: MyTheme.titleSmall),
               ],
             ),
           ),
           const SizedBox(height: 6),
           Text(
             "",
-            style: Theme.of(context).textTheme.bodySmall,
+            style: MyTheme.bodySmall,
           ),
         ],
       ),
@@ -1556,7 +1542,7 @@ class ItemBuilder {
       width: 90,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: themeColorData.canvasBackground,
+        color: themeColorData.canvasColor,
         borderRadius: const BorderRadius.all(Radius.circular(5)),
       ),
       child: Row(
@@ -1592,7 +1578,7 @@ class ItemBuilder {
                 height: 5,
                 width: 35,
                 decoration: BoxDecoration(
-                  color: themeColorData.textGrayColor,
+                  color: themeColorData.textLightGreyColor,
                   borderRadius: const BorderRadius.all(
                     Radius.circular(5),
                   ),
@@ -1654,7 +1640,7 @@ class ItemBuilder {
           ),
           Text(
             text,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: MyTheme.titleSmall,
           ),
           Expanded(
             child: Container(
@@ -1699,13 +1685,13 @@ class ItemBuilder {
                   Icon(
                     Icons.inbox_rounded,
                     size: size,
-                    color: Theme.of(context).textTheme.labelLarge?.color,
+                    color: MyTheme.textDarkGreyColor,
                   ),
                   const SizedBox(height: 10),
                   Text(
                     text,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge,
+                    style: MyTheme.labelLarge,
                   ),
                   if (showButton) const SizedBox(height: 10),
                   if (showButton)
@@ -1741,10 +1727,10 @@ class ItemBuilder {
   }) {
     Widget textWidget = Text(
       text,
-      style: Theme.of(context).textTheme.bodySmall?.apply(
-            color: Colors.white,
-            fontSizeDelta: fontSizeDelta ?? -1,
-          ),
+      style: MyTheme.bodySmall.apply(
+        color: Colors.white,
+        fontSizeDelta: fontSizeDelta ?? -1,
+      ),
       overflow: TextOverflow.ellipsis,
       maxLines: 5,
     );
@@ -1831,8 +1817,7 @@ class ItemBuilder {
             ),
             if (showText) const SizedBox(height: 10),
             if (showText)
-              Text(text ?? S.current.loading,
-                  style: Theme.of(context).textTheme.labelLarge),
+              Text(text ?? S.current.loading, style: MyTheme.labelLarge),
           ],
         ),
       ),
@@ -1898,19 +1883,19 @@ class ItemBuilder {
             ? Colors.white
             : disabled
                 ? Colors.grey
-                : Theme.of(context).textTheme.titleSmall?.color);
-    if (ColorUtil.areColorsSimilar(textColor!.value, fBackground.value)) {
+                : MyTheme.textLightGreyColor);
+    if (ColorUtil.areColorsSimilar(textColor.value, fBackground.value)) {
       textColor = ColorUtil.getComplementaryColor(fBackground);
     }
     Widget titleWidget = AutoSizeText(
       text ?? "",
       textAlign: TextAlign.center,
       style: textStyle ??
-          Theme.of(context).textTheme.titleSmall?.apply(
-                color: textColor,
-                fontWeightDelta: 2,
-                fontSizeDelta: fontSizeDelta,
-              ),
+          MyTheme.titleSmall.apply(
+            color: textColor,
+            fontWeightDelta: 2,
+            fontSizeDelta: fontSizeDelta,
+          ),
       maxLines: 1,
     );
 
@@ -2006,11 +1991,11 @@ class ItemBuilder {
                 Text(
                   text ?? "",
                   style: textStyle ??
-                      Theme.of(context).textTheme.titleSmall?.apply(
-                            color: color ?? Theme.of(context).primaryColor,
-                            fontWeightDelta: 2,
-                            fontSizeDelta: fontSizeDelta,
-                          ),
+                      MyTheme.titleSmall.apply(
+                        color: color ?? Theme.of(context).primaryColor,
+                        fontWeightDelta: 2,
+                        fontSizeDelta: fontSizeDelta,
+                      ),
                 ),
               ],
             ),
@@ -2055,14 +2040,14 @@ class ItemBuilder {
                   onSubmitted: onSubmitted,
                   cursorColor: Theme.of(context).primaryColor,
                   cursorRadius: const Radius.circular(5),
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: MyTheme.titleSmall,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.only(left: 8),
                     border:
                         const OutlineInputBorder(borderSide: BorderSide.none),
                     hintText: hintText,
-                    hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                        color: Theme.of(context).textTheme.labelSmall?.color),
+                    hintStyle: MyTheme.titleSmall
+                        .apply(color: MyTheme.textLightGreyColor),
                   ),
                 ),
               ),
@@ -2110,19 +2095,18 @@ class ItemBuilder {
                     cursorRadius: const Radius.circular(5),
                     textInputAction: TextInputAction.search,
                     onSubmitted: onSubmitted,
-                    style: Theme.of(context).textTheme.titleSmall?.apply(
-                          fontSizeDelta: hintFontSizeDelta,
-                        ),
+                    style: MyTheme.titleSmall.apply(
+                      fontSizeDelta: hintFontSizeDelta,
+                    ),
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.only(left: 8),
                       border:
                           const OutlineInputBorder(borderSide: BorderSide.none),
                       hintText: hintText,
-                      hintStyle: Theme.of(context).textTheme.titleSmall?.apply(
-                            color:
-                                Theme.of(context).textTheme.labelSmall?.color,
-                            fontSizeDelta: hintFontSizeDelta,
-                          ),
+                      hintStyle: MyTheme.titleSmall.apply(
+                        color: MyTheme.textLightGreyColor,
+                        fontSizeDelta: hintFontSizeDelta,
+                      ),
                     ),
                   ),
                 ),
@@ -2185,7 +2169,7 @@ class ItemBuilder {
               icon: Icon(
                 icon,
                 size: 18,
-                color: Theme.of(context).textTheme.labelSmall?.color,
+                color: MyTheme.textLightGreyColor,
               ),
               onTap: onTap,
             ),
@@ -2196,12 +2180,12 @@ class ItemBuilder {
                 children: [
                   Text(
                     suffixText!,
-                    style: Theme.of(context).textTheme.labelMedium,
+                    style: MyTheme.labelMedium,
                   ),
                   Icon(
                     Icons.keyboard_arrow_right_rounded,
                     size: 18,
-                    color: Theme.of(context).textTheme.labelSmall?.color,
+                    color: MyTheme.textLightGreyColor,
                   ),
                 ],
               ),
@@ -2252,7 +2236,7 @@ class ItemBuilder {
                       children: [
                         Text(
                           countWithScale['count'],
-                          style: Theme.of(context).textTheme.titleLarge?.apply(
+                          style: MyTheme.titleLarge.apply(
                               color: countColor,
                               fontWeightDelta: countFontWeightDelta),
                         ),
@@ -2273,18 +2257,18 @@ class ItemBuilder {
                     )
                   : Text(
                       "-",
-                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                      style: MyTheme.titleLarge.apply(
                           color: countColor,
                           fontWeightDelta: countFontWeightDelta),
                     ),
               const SizedBox(height: 4),
               Text(
                 title,
-                style: Theme.of(context).textTheme.labelMedium?.apply(
-                      fontSizeDelta: -1,
-                      color: labelColor,
-                      fontWeightDelta: labelFontWeightDelta,
-                    ),
+                style: MyTheme.labelMedium.apply(
+                  fontSizeDelta: -1,
+                  color: labelColor,
+                  fontWeightDelta: labelFontWeightDelta,
+                ),
               ),
             ],
           ),
@@ -2325,11 +2309,11 @@ class ItemBuilder {
                   if (showText && text != "0")
                     Text(
                       text,
-                      style: Theme.of(context).textTheme.titleSmall?.apply(
-                            fontSizeDelta: fontSizeDelta,
-                            color: color,
-                            fontWeightDelta: fontWeightDelta,
-                          ),
+                      style: MyTheme.titleSmall.apply(
+                        fontSizeDelta: fontSizeDelta,
+                        color: color,
+                        fontWeightDelta: fontWeightDelta,
+                      ),
                     ),
                 ],
               )
@@ -2346,11 +2330,11 @@ class ItemBuilder {
                   if (showText && text != "0")
                     Text(
                       text,
-                      style: Theme.of(context).textTheme.titleSmall?.apply(
-                            fontSizeDelta: fontSizeDelta,
-                            color: color,
-                            fontWeightDelta: fontWeightDelta,
-                          ),
+                      style: MyTheme.titleSmall.apply(
+                        fontSizeDelta: fontSizeDelta,
+                        color: color,
+                        fontWeightDelta: fontWeightDelta,
+                      ),
                     ),
                 ],
               ),
@@ -2406,7 +2390,7 @@ class ItemBuilder {
           ),
           child: Text(
             str,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: MyTheme.titleSmall,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -2423,14 +2407,14 @@ class ItemBuilder {
     bool sameFontSize = false,
     double fontSizeDelta = 0,
   }) {
-    TextStyle normalStyle = Theme.of(context).textTheme.titleLarge!.apply(
-          color: Colors.grey,
-          fontSizeDelta: fontSizeDelta - (sameFontSize ? 0 : 1),
-          fontWeightDelta: normalUserBold ? 0 : -2,
-        );
-    TextStyle selectedStyle = Theme.of(context).textTheme.titleLarge!.apply(
-          fontSizeDelta: fontSizeDelta + (sameFontSize ? 0 : 1),
-        );
+    TextStyle normalStyle = MyTheme.titleLarge.apply(
+      color: Colors.grey,
+      fontSizeDelta: fontSizeDelta - (sameFontSize ? 0 : 1),
+      fontWeightDelta: normalUserBold ? 0 : -2,
+    );
+    TextStyle selectedStyle = MyTheme.titleLarge.apply(
+      fontSizeDelta: fontSizeDelta + (sameFontSize ? 0 : 1),
+    );
     return Tab(
       child: AnimatedDefaultTextStyle(
         style: selected ? selectedStyle : normalStyle,
@@ -2466,6 +2450,19 @@ class ItemBuilder {
                         details.clearSelection();
                         Utils.copy(context, selectedText);
                         IToast.showTop(S.current.copySuccess);
+                      },
+                    ),
+                  if (Utils.isNotEmpty(selectedText))
+                    FlutterContextMenuItem(
+                      "过滤",
+                      iconData: Icons.filter_list_rounded,
+                      onPressed: () {
+                        details.clearSelection();
+                        if (appProvider.filterContentRegExp.isNotEmpty) {
+                          appProvider.filterContentRegExp += "|";
+                        }
+                        appProvider.filterContentRegExp +=
+                            RegExp.escape(selectedText!);
                       },
                     ),
                   if (Utils.isNotEmpty(selectedText))
@@ -2545,6 +2542,35 @@ class ItemBuilder {
             );
           }
         }
+        items.add(
+          MyContextMenuItem(
+            label: S.current.search,
+            type: ContextMenuButtonType.custom,
+            onPressed: () {
+              if (Utils.isNotEmpty(details.selectedText)) {
+                panelScreenState?.pushPage(
+                    SearchResultScreen(searchKey: details.selectedText!));
+              }
+              details.hideToolbar();
+            },
+          ),
+        );
+        items.add(
+          MyContextMenuItem(
+            label: "过滤",
+            type: ContextMenuButtonType.custom,
+            onPressed: () {
+              if (Utils.isNotEmpty(details.selectedText)) {
+                if (appProvider.filterContentRegExp.isNotEmpty) {
+                  appProvider.filterContentRegExp += "|";
+                }
+                appProvider.filterContentRegExp +=
+                    RegExp.escape(details.selectedText!);
+              }
+              details.hideToolbar();
+            },
+          ),
+        );
         if (ResponsiveUtil.isMobile()) {
           return MyMobileTextSelectionToolbar.items(
             anchorAbove: details.contextMenuAnchors.primaryAnchor,
@@ -2991,7 +3017,7 @@ class ItemBuilder {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
-      textStyle: Theme.of(context).textTheme.titleLarge,
+      textStyle: MyTheme.titleLarge,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8),

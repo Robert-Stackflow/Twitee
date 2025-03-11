@@ -27,10 +27,9 @@ import 'package:twitee/Widgets/Twitter/post_item.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/Twitter/twitter_list_item.dart';
 import 'package:twitee/Widgets/Twitter/user_item.dart';
-import '../../Resources/theme.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
-import '../../Utils/responsive_util.dart';
+import '../../Resources/theme.dart';
 import '../../Widgets/Twitter/grid_item.dart';
 
 class SearchResultFlowScreen extends StatefulWidgetForFlow {
@@ -323,17 +322,18 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
       );
     } else if (_isList) {
       return _buildWaterfallFlow(
-        maxCrossAxisExtent: 800,
+        maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
         children: List.generate(
           timelineTwitterLists.length,
           (index) {
             return TwitterListItem(list: timelineTwitterLists[index]);
           },
         ),
+        useCard: true,
       );
     } else {
       return _buildWaterfallFlow(
-        maxCrossAxisExtent: 800,
+        maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
         children: List.generate(
           validEntries.length,
           (index) {
@@ -348,6 +348,7 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
     double maxCrossAxisExtent = 800,
     List<Widget> children = const [],
     bool useGrid = false,
+    bool useCard = false,
   }) {
     return ItemBuilder.buildLoadMoreNotification(
       onLoad: _onLoad,
@@ -356,19 +357,28 @@ class _SearchResultFlowScreenState extends State<SearchResultFlowScreen>
           ? GridView.extent(
               controller: _scrollController,
               maxCrossAxisExtent: maxCrossAxisExtent,
-              padding: MyTheme.responsiveListFlowPadding,
+              padding: MyTheme.responsiveFlowPadding,
               mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
               crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
               children: children,
             )
-          : WaterfallFlow.extent(
-              controller: _scrollController,
-              padding: MyTheme.responsiveListFlowPadding,
-              mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-              crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-              maxCrossAxisExtent: maxCrossAxisExtent,
-              children: children,
-            ),
+          : useCard
+              ? WaterfallFlow.extent(
+                  controller: _scrollController,
+                  padding: MyTheme.responsiveCardFlowPadding,
+                  mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                  crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
+                  maxCrossAxisExtent: maxCrossAxisExtent,
+                  children: children,
+                )
+              : WaterfallFlow.extent(
+                  controller: _scrollController,
+                  padding: MyTheme.responsiveFlowPadding,
+                  mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                  crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                  maxCrossAxisExtent: maxCrossAxisExtent,
+                  children: children,
+                ),
     );
   }
 

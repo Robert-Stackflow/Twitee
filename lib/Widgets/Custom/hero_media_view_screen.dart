@@ -33,6 +33,7 @@ import 'package:video_player/video_player.dart';
 import 'package:video_player_control_panel/video_player_control_panel.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/asset_util.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/ilogger.dart';
@@ -577,16 +578,16 @@ class HeroMediaViewScreenState extends State<HeroMediaViewScreen>
       title: medias.length > 1
           ? Text(
               "${currentIndex + 1}/${medias.length}",
-              style: Theme.of(context).textTheme.titleLarge?.apply(
-                    color: Colors.white,
-                  ),
+              style: MyTheme.titleLarge.apply(
+                color: Colors.white,
+              ),
             )
           : widget.title != null
               ? Text(
                   widget.title!,
-                  style: Theme.of(context).textTheme.titleLarge?.apply(
-                        color: Colors.white,
-                      ),
+                  style: MyTheme.titleLarge.apply(
+                    color: Colors.white,
+                  ),
                 )
               : emptyWidget,
       actions: [

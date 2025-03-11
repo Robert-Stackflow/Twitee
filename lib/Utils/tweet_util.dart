@@ -18,8 +18,12 @@ import 'dart:math';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Utils/utils.dart';
 
+import '../Models/card_value.dart';
 import '../Models/translation_result.dart';
+import '../Models/view_config.dart';
+import 'app_provider.dart';
 import 'ilogger.dart';
+import 'image_util.dart';
 
 class TweetUtil {
   static String getMediaDescription(Media media) {
@@ -284,7 +288,90 @@ class TweetUtil {
   }
 
   static bool hasCard(Tweet tweet) {
-    return tweet.card != null && tweet.card!.legacy != null;
+    if (tweet.card == null) return false;
+    if (tweet.card!.legacy == null) return false;
+    TweetCardLegacy legacy = tweet.card!.legacy!;
+    CardBindings valueList = CardBindings.fromList(legacy.bindingValues);
+    return valueList.hasCardType(CardBindingKeyEnum.title) ||
+        valueList.hasCardType(CardBindingKeyEnum.vanityUrl) ||
+        valueList.hasCardType(CardBindingKeyEnum.description);
+  }
+
+  static bool hasVote(Tweet tweet) {
+    if (tweet.card == null) return false;
+    if (tweet.card!.legacy == null) return false;
+    return !hasCard(tweet);
+  }
+
+  static bool filterContent(String content) {
+    if (!appProvider.enableFilterContent) return true;
+    if (Utils.isEmpty(appProvider.filterContentRegExp)) return true;
+    return !RegExp(appProvider.filterContentRegExp).hasMatch(content);
+  }
+
+  static bool filterUser(String user) {
+    if (!appProvider.enableFilterUser) return true;
+    if (Utils.isEmpty(appProvider.filterUserRegExp)) return true;
+    return !RegExp(appProvider.filterUserRegExp).hasMatch(user);
+  }
+
+  static bool filterEntry(TimelineAddEntry entry, ViewConfig? viewConfig) {
+    try {
+      var containRetweets = viewConfig?.containRetweets ?? true;
+      var containReplies = viewConfig?.containReplies ?? true;
+      var onlyShowMedia = viewConfig?.onlyShowMedia ?? false;
+      bool res = true;
+      if (entry.content is TimelineTimelineItem) {
+        var item = entry.content as TimelineTimelineItem;
+        if (item.itemContent is TimelineTweet) {
+          var timlineTweet = item.itemContent as TimelineTweet;
+          if (TweetUtil.isRetweet(timlineTweet)) {
+            res &= (containRetweets &&
+                !appProvider.isBlockRetweetUser(
+                  TweetUtil.getTweetScreenName(timlineTweet),
+                ));
+          }
+          Tweet? tweet = TweetUtil.getTrueTweet(timlineTweet);
+          if (tweet != null && onlyShowMedia) {
+            res &= TweetUtil.hasMedia(tweet);
+          }
+          if (tweet != null) {
+            String fullText = TweetUtil.getFullText(tweet);
+            User? user = TweetUtil.getTrueUser(timlineTweet);
+            res &= filterContent(fullText);
+            res &= filterUser(
+                "${user!.legacy.screenName ?? ""} ${user.legacy.name}");
+          }
+        }
+      } else if (entry.content is TimelineTimelineModule) {
+        var module = entry.content as TimelineTimelineModule;
+        if (module.displayType == DisplayType.verticalConversation) {
+          TimelineTimelineModule module =
+              (entry.content as TimelineTimelineModule);
+          res &= containReplies;
+          List<ModuleItem> items = module.items!
+              .where((e) => e != null)
+              .map((e) => e as ModuleItem)
+              .toList();
+          List<TimelineTweet> tweets = items
+              .where((e) => e.item.itemContent is TimelineTweet)
+              .map((e) => e.item.itemContent as TimelineTweet)
+              .toList();
+          for (TimelineTweet timlineTweet in tweets) {
+            String fullText =
+                TweetUtil.getFullText(TweetUtil.getTrueTweet(timlineTweet)!);
+            User? user = TweetUtil.getTrueUser(timlineTweet);
+            res &= filterContent(fullText);
+            res &= filterUser(
+                "${user!.legacy.screenName ?? ""} ${user.legacy.name}");
+          }
+        }
+      }
+      return res;
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to filter entry ${entry.toJson()}", e, t);
+      return true;
+    }
   }
 
   static bool hasTranslation(Tweet tweet) {
@@ -322,6 +409,19 @@ class TweetUtil {
         .toList();
     videoList.sort((a, b) => b.bitrate!.compareTo(a.bitrate!));
     return videoList[0].url;
+  }
+
+  static String getPlayUrlByMedia(Media media) {
+    switch (media.type) {
+      case MediaType.photo:
+        return ImageUtil.getOriginalUrl(TweetUtil.getMediaImageUrl(media));
+      case MediaType.video:
+        return TweetUtil.getMp4Url(media);
+      case MediaType.animatedGif:
+        return TweetUtil.getGifVideoUrl(media);
+      default:
+        return "";
+    }
   }
 
   static getFullText(

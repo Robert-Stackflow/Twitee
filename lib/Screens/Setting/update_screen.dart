@@ -23,6 +23,7 @@ import 'package:twitee/Utils/responsive_util.dart';
 import 'package:twitee/Widgets/Dialog/widgets/dialog_wrapper_widget.dart';
 
 import '../../Models/github_response.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/file_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/uri_util.dart';
@@ -121,10 +122,8 @@ class _UpdateScreenState extends State<UpdateScreen>
             CustomHtmlWidget(
               content: S.current.changelogAsFollow(
                   "<br/>${Utils.replaceLineBreak(item.body ?? "")}"),
-              style: Theme.of(context).textTheme.titleMedium?.apply(
-                    fontSizeDelta: 1,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+              style: MyTheme.titleMedium
+                  .apply(fontSizeDelta: 1, color: MyTheme.textDarkGreyColor),
             ),
           ],
         ),

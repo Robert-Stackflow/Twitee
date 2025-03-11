@@ -290,7 +290,7 @@ class CommunityMediaFlowScreenState extends State<CommunityMediaFlowScreen>
               child: GridView.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 crossAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 maxCrossAxisExtent: 160,

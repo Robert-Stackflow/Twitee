@@ -48,8 +48,8 @@ class CommunityItemState extends State<CommunityItem> {
         communityData.customBannerMedia?.mediaInfo ??
             communityData.defaultBannerMedia!.mediaInfo!;
     return Material(
-      color: MyTheme.itemBackground,
-      borderRadius: MyTheme.responsiveBorderRadius,
+      color: MyTheme.cardItemBackground,
+      borderRadius: MyTheme.responsiveCardBorderRadius,
       child: InkWell(
         onTap: () {
           RouteUtil.pushPanelCupertinoRoute(
@@ -59,12 +59,12 @@ class CommunityItemState extends State<CommunityItem> {
             ),
           );
         },
-        borderRadius: MyTheme.responsiveBorderRadius,
+        borderRadius: MyTheme.responsiveCardBorderRadius,
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            borderRadius: MyTheme.responsiveBorderRadius,
-            border: MyTheme.responsiveBottomBorder,
+            borderRadius: MyTheme.responsiveCardBorderRadius,
+            border: MyTheme.responsiveCardBottomBorder,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

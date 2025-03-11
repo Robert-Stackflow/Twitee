@@ -242,7 +242,7 @@ class _SearchResultFlowScreenState
 
   _buildBody() {
     return _buildWaterfallFlow(
-      maxCrossAxisExtent: 800,
+      maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
       children: List.generate(
         validEntries.length,
         (index) {
@@ -261,7 +261,7 @@ class _SearchResultFlowScreenState
       noMore: _noMore,
       child: WaterfallFlow.extent(
         controller: _scrollController,
-        padding: MyTheme.responsiveListFlowPadding,
+        padding: MyTheme.responsiveFlowPadding,
         mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
         crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
         maxCrossAxisExtent: maxCrossAxisExtent,

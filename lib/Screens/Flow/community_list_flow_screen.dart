@@ -13,8 +13,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Api/community_api.dart';
 import 'package:twitee/Models/feedback_actions.dart';
 import 'package:twitee/Models/response_result.dart';
@@ -29,8 +29,10 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/post_api.dart';
+import '../../Models/view_config.dart';
 import '../../Resources/theme.dart';
 import '../../Utils/enums.dart';
+import '../../Utils/tweet_util.dart';
 
 enum CommunityListFlowType {
   SpecificCommunity,
@@ -49,6 +51,7 @@ class CommunityListFlowScreen extends StatefulWidgetForFlow {
     super.nested,
     super.scrollController,
     super.triggerOffset,
+    this.viewConfig,
   });
 
   final CommunityListFlowType type;
@@ -60,6 +63,7 @@ class CommunityListFlowScreen extends StatefulWidgetForFlow {
   final String? topicId;
 
   final CommunityDisplayLocation location;
+  final ViewConfig? viewConfig;
 
   static const String routeName = "/navigtion/communityListFlow";
 
@@ -69,7 +73,11 @@ class CommunityListFlowScreen extends StatefulWidgetForFlow {
 }
 
 class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        RefreshMixin,
+        ViewConfigMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
@@ -78,6 +86,20 @@ class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
   List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
+  late ViewConfig? viewConfig = widget.viewConfig;
+
+  List<TimelineAddEntry> get filteredEntries {
+    return validEntries
+        .where((entry) => TweetUtil.filterEntry(entry, viewConfig))
+        .toList();
+  }
+
+  @override
+  refreshViewConfig(ViewConfig viewConfig) async {
+    await scrollToTop();
+    this.viewConfig = viewConfig;
+    if (mounted) setState(() {});
+  }
 
   bool _loading = false;
 
@@ -102,31 +124,25 @@ class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
   _buildPopContextMenuButtons() {
     return FlutterContextMenu(
       entries: [
-        FlutterContextMenuItem(
+        FlutterContextMenuItem.checkbox(
           "当前趋势",
-          iconData: currentRankType == RankType.Relevance
-              ? Icons.check_rounded
-              : null,
+          checked: currentRankType == RankType.Relevance,
           onPressed: () {
             currentRankType = RankType.Relevance;
             refresh();
           },
         ),
-        FlutterContextMenuItem(
+        FlutterContextMenuItem.checkbox(
           "最新",
-          iconData: currentRankType == RankType.Recency
-              ? Icons.check_rounded
-              : null,
+          checked: currentRankType == RankType.Recency,
           onPressed: () {
             currentRankType = RankType.Recency;
             refresh();
           },
         ),
-        FlutterContextMenuItem(
+        FlutterContextMenuItem.checkbox(
           "最多点赞",
-          iconData: currentRankType == RankType.Likes
-              ? Icons.check_rounded
-              : null,
+          checked: currentRankType == RankType.Likes,
           onPressed: () {
             currentRankType = RankType.Likes;
             refresh();
@@ -396,20 +412,21 @@ class CommunityListFlowScreenState extends State<CommunityListFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: validEntries.isNotEmpty
+        child: filteredEntries.isNotEmpty
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
                 children: List.generate(
-                  validEntries.length,
+                  filteredEntries.length,
                   (index) {
                     return PostItem(
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
+                      entry: filteredEntries[index],
+                      feedbackActions:
+                          _getFeedBackActions(filteredEntries[index]),
                     );
                   },
                 ),

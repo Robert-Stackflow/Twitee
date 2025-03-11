@@ -94,10 +94,12 @@ class SearchScreenState extends State<SearchScreen>
         TabItemData.build(
           context,
           tabItems[i].labelText!,
-          (key, scrollController) => SearchExploreFlowScreen(
-            key: key,
-            tabItem: tabItems[i],
-            scrollController: scrollController,
+          (key, scrollController) => ItemBuilder.buildConstraintContainer(
+            child: SearchExploreFlowScreen(
+              key: key,
+              tabItem: tabItems[i],
+              scrollController: scrollController,
+            ),
           ),
         ),
       );
@@ -131,7 +133,8 @@ class SearchScreenState extends State<SearchScreen>
         if (_searchController.text.isNotEmpty) {
           _fetchSuggestions();
         } else {
-          _hideSuggestions();
+          _suggestionResponse = null;
+          _hideSuggestions(false);
         }
       });
     });
@@ -188,10 +191,11 @@ class SearchScreenState extends State<SearchScreen>
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  void _hideSuggestions() {
+  void _hideSuggestions([bool unfocus = true]) {
     _showSuggestion = false;
     _overlayEntry?.remove();
     _overlayEntry = null;
+    if (unfocus) searchFocusNode.unfocus();
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -233,6 +237,7 @@ class SearchScreenState extends State<SearchScreen>
     return Material(
       child: InkWell(
         onTap: () {
+          _hideSuggestions();
           perfromSearch(e.topic);
         },
         child: Container(
@@ -340,6 +345,7 @@ class SearchScreenState extends State<SearchScreen>
                 background: Colors.grey.withAlpha(40),
                 hintText: "搜索推文、用户或列表",
                 onSubmitted: (text) async {
+                  _hideSuggestions();
                   perfromSearch(text);
                 },
               ),

@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../Models/github_response.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/uri_util.dart';
 import '../../Utils/utils.dart';
@@ -175,7 +176,7 @@ class _ChangelogScreenState extends State<ChangelogScreen>
                     icon: Icon(
                       Icons.keyboard_arrow_right_rounded,
                       size: 20,
-                      color: Theme.of(context).textTheme.labelMedium?.color,
+                      color: MyTheme.textLightGreyColor,
                     ),
                     onTap: () {
                       UriUtil.launchUrlUri(context, item.htmlUrl);
@@ -187,10 +188,8 @@ class _ChangelogScreenState extends State<ChangelogScreen>
               const SizedBox(height: 9),
               CustomHtmlWidget(
                 content: Utils.replaceLineBreak(item.body ?? ""),
-                style: Theme.of(context).textTheme.titleMedium?.apply(
-                      fontSizeDelta: 1,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
+                style: MyTheme.titleMedium
+                    .apply(fontSizeDelta: 1, color: MyTheme.textDarkGreyColor),
               ),
               const SizedBox(height: 5),
             ],

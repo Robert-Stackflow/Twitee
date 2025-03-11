@@ -225,7 +225,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   "个人主页${user != null && userLegacy != null ? " - ${userLegacy!.name}" : ""}",
               showBack: true)
           : null,
-      body: _buildBody(),
+      body: ItemBuilder.buildConstraintContainer(
+        child: _buildBody(),
+      ),
     );
   }
 
@@ -341,6 +343,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               forceUnscrollable: true,
               showBorder: true,
               padding: const EdgeInsets.symmetric(horizontal: 10),
+              background: MyTheme.itemBackground,
             ),
             radius: 0,
           ),
@@ -674,7 +677,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     Function()? onTap,
     Color? color,
   }) {
-    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    Color? labelColor = MyTheme.textDarkGreyColor;
     return ItemBuilder.buildIconTextButton(
       context,
       icon: icon,
@@ -698,7 +701,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         birthDate = "${profile.birthdate?.year}年$birthDate";
       }
     }
-    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    Color? labelColor = MyTheme.textDarkGreyColor;
     String description = _processDescription();
     var metaRow = Wrap(
       spacing: 20,
@@ -754,7 +757,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   children: [
                     Text(
                       userLegacy!.name,
-                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                      style: MyTheme.titleLarge.apply(
                           fontSizeDelta: ResponsiveUtil.isMobile() ? 0 : 4),
                     ),
                     const SizedBox(height: 3),
@@ -969,10 +972,10 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   },
                   child: Text(
                     isTranslationExpanded ? "收起翻译" : "查看翻译",
-                    style: Theme.of(context).textTheme.bodyMedium!.apply(
-                          fontWeightDelta: 2,
-                          color: MyColors.getLinkColor(context),
-                        ),
+                    style: MyTheme.bodyMedium.apply(
+                      fontWeightDelta: 2,
+                      color: MyColors.getLinkColor(context),
+                    ),
                   ),
                 ),
               ),

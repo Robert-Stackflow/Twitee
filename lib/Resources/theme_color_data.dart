@@ -14,9 +14,8 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Resources/colors.dart';
 
-import '../generated/l10n.dart';
+import 'colors.dart';
 import 'fonts.dart';
 
 class ThemeColorData {
@@ -30,9 +29,25 @@ class ThemeColorData {
 
   Color primaryColor;
 
-  Color background;
+  Color canvasColor;
 
-  Color cardBackground;
+  Color scaffoldBackgroundColor;
+
+  Color cardColor;
+
+  Color hintColor;
+
+  Color indicatorColor;
+
+  Color hoverColor;
+
+  Color splashColor;
+
+  Color highlightColor;
+
+  Color shadowColor;
+
+  Color iconColor;
 
   Color appBarBackgroundColor;
 
@@ -44,272 +59,393 @@ class ThemeColorData {
 
   double appBarScrollUnderElevation;
 
-  Color splashColor;
-
-  Color highlightColor;
-
-  Color iconColor;
-
-  Color shadowColor;
-
-  Color canvasBackground;
-
   Color textColor;
 
-  Color textGrayColor;
+  Color textLightGreyColor;
 
-  Color textDisabledColor;
+  Color textDarkGreyColor;
 
-  Color buttonTextColor;
+  Color buttonPrimaryColor;
+
+  Color buttonSecondaryColor;
 
   Color buttonDisabledColor;
 
+  Color buttonHoverColor;
+
+  Color buttonLightHoverColor;
+
+  Color textSelectionColor;
+
+  Color textSelectionHandleColor;
+
+  Color cursorColor;
+
   Color dividerColor;
 
-  Color tagBackground;
+  Color borderColor;
 
-  Color tagColor;
+  Color scrollBarThumbColor;
+
+  Color scrollBarThumbHoverColor;
+
+  Color scrollBarTrackColor;
+
+  Color scrollBarTrackHoverColor;
+
+  Color successColor;
+
+  Color warningColor;
+
+  Color errorColor;
 
   ThemeColorData({
     this.isDarkMode = false,
     required this.id,
     required this.name,
     this.description,
-    required this.cardBackground,
+    required this.cardColor,
     required this.primaryColor,
-    required this.background,
+    required this.scaffoldBackgroundColor,
     required this.appBarBackgroundColor,
     required this.appBarSurfaceTintColor,
     required this.appBarShadowColor,
     this.appBarElevation = 0.0,
     this.appBarScrollUnderElevation = 1.0,
+    required this.hoverColor,
     required this.splashColor,
     required this.highlightColor,
     required this.iconColor,
     required this.shadowColor,
-    required this.canvasBackground,
-    required this.textColor,
-    required this.textGrayColor,
-    required this.textDisabledColor,
-    required this.buttonTextColor,
-    required this.buttonDisabledColor,
+    required this.canvasColor,
     required this.dividerColor,
-    required this.tagBackground,
-    required this.tagColor,
+    required this.cursorColor,
+    required this.textColor,
+    required this.indicatorColor,
+    required this.hintColor,
+    required this.borderColor,
+    required this.textLightGreyColor,
+    required this.textDarkGreyColor,
+    required this.textSelectionColor,
+    required this.textSelectionHandleColor,
+    required this.buttonPrimaryColor,
+    required this.buttonSecondaryColor,
+    required this.buttonHoverColor,
+    required this.buttonLightHoverColor,
+    required this.buttonDisabledColor,
+    required this.scrollBarThumbColor,
+    required this.scrollBarThumbHoverColor,
+    required this.scrollBarTrackColor,
+    required this.scrollBarTrackHoverColor,
+    required this.successColor,
+    required this.warningColor,
+    required this.errorColor,
   });
-
-  String get intlName {
-    switch (id) {
-      case "pureWhite":
-        return S.current.pureWhite;
-      case "freshGreen":
-        return S.current.freshGreen;
-      case "pureBlack":
-        return S.current.pureBlack;
-      case "blueIron":
-        return S.current.blueIron;
-      default:
-        return name;
-    }
-  }
 
   static List<ThemeColorData> defaultLightThemes = [
     ThemeColorData(
-      id: "pureWhite",
+      id: "PureWhite",
       name: "极简白",
-      background: const Color(0xFFF7F8F9),
-      canvasBackground: const Color(0xFFFFFFFF),
+      canvasColor: const Color(0xFFFFFFFF),
+      scaffoldBackgroundColor: const Color(0xFFFAFAFA),
+      cardColor: const Color(0xFFF5F5F5),
       primaryColor: const Color(0xFF1F1F1F),
-      //0xFF1D9BF0
+      hintColor: const Color(0xFF1F1F1F),
+      cursorColor: const Color(0xFF1F1F1F),
+      indicatorColor: const Color(0xFF1F1F1F),
+      textSelectionColor: const Color(0xFF1F1F1F).withAlpha(70),
+      textSelectionHandleColor: const Color(0xFF1F1F1F),
       iconColor: const Color(0xFF333333),
+      hoverColor: const Color(0x33C8C8C8),
       splashColor: const Color(0x44c8c8c8),
       highlightColor: const Color(0x44bcbcbc),
       shadowColor: const Color(0x12000000),
+      dividerColor: const Color(0xFFEAEAEA),
+      borderColor: const Color(0xFFE7E5E4),
       appBarShadowColor: const Color(0xFFF6F6F6),
       appBarBackgroundColor: const Color(0xFFF7F8F9),
       appBarSurfaceTintColor: const Color(0xFFF7F8F9),
       textColor: const Color(0xFF333333),
-      textGrayColor: const Color(0xFF71767B),
-      textDisabledColor: const Color(0xFFD4E2FA),
-      buttonTextColor: const Color(0xFFF2F2F2),
+      textLightGreyColor: const Color(0xFFB0B8C0),
+      textDarkGreyColor: const Color(0xFF50555A),
+      buttonPrimaryColor: const Color(0xFF14C2BB),
+      buttonSecondaryColor: const Color(0xFFF2F2F2),
+      buttonHoverColor: const Color(0xFFF2F2F2),
+      buttonLightHoverColor: const Color(0xFFECECED),
       buttonDisabledColor: const Color(0xFF96BBFA),
-      dividerColor: Colors.grey.shade200,
-      tagBackground: const Color(0xFFF5F5F5),
-      tagColor: const Color(0xFFBDBDBD),
-      cardBackground: const Color(0x119E9E9E),
+      scrollBarThumbColor: const Color(0xFFC4C4C4),
+      scrollBarThumbHoverColor: const Color(0xFFB5B5B5),
+      scrollBarTrackColor: const Color(0xFFF0F0F0),
+      scrollBarTrackHoverColor: const Color(0xFFE0E0E0),
+      successColor: const Color(0xFF4CAF50),
+      warningColor: const Color(0xFFFFC107),
+      errorColor: const Color(0xFFF44336),
     ),
     ThemeColorData(
-      id: "freshGreen",
-      name: "清新绿",
-      background: const Color(0xFFE8F5E9),
-      canvasBackground: const Color(0xFFECF7EF),
-      primaryColor: const Color(0xFF66BB6A),
-      iconColor: const Color(0xFF333333),
-      splashColor: const Color(0x44c8c8c8),
-      highlightColor: const Color(0x44bcbcbc),
-      shadowColor: Colors.grey.shade200,
-      appBarShadowColor: const Color(0xFFF6F6F6),
-      appBarBackgroundColor: const Color(0xFFE8F5E9),
-      appBarSurfaceTintColor: const Color(0xFFE8F5E9),
-      textColor: const Color(0xFF333333),
-      textGrayColor: const Color(0xFF71767B),
-      textDisabledColor: const Color(0xFFD4E2FA),
-      buttonTextColor: const Color(0xFFF2F2F2),
-      buttonDisabledColor: const Color(0xFF96BBFA),
-      dividerColor: const Color(0xFFF5F5F5),
-      tagBackground: const Color(0xFFF5F5F5),
-      tagColor: const Color(0xFFBDBDBD),
-      cardBackground: const Color(0xFFF5F5F5),
-    ),
+      id: "SoftLight",
+      name: "柔和光明",
+      canvasColor: const Color(0xFFF9F9F9),
+      scaffoldBackgroundColor: const Color(0xFFF0F0F0),
+      cardColor: const Color(0xFFF5F5F5),
+      primaryColor: const Color(0xFF3A3A3A),
+      hintColor: const Color(0xFF9E9E9E),
+      cursorColor: const Color(0xFF3A3A3A),
+      indicatorColor: const Color(0xFF3A3A3A),
+      textSelectionColor: const Color(0xFF3A3A3A).withAlpha(70),
+      textSelectionHandleColor: const Color(0xFF3A3A3A),
+      iconColor: const Color(0xFF6F6F6F),
+      hoverColor: const Color(0x33E8E8E8),
+      splashColor: const Color(0x66E8E8E8),
+      highlightColor: const Color(0x66D1D1D1),
+      shadowColor: const Color(0x12000000),
+      dividerColor: const Color(0xFFE0E0E0),
+      borderColor: const Color(0xFFE0E0E0),
+      appBarShadowColor: const Color(0xFFE1E1E1),
+      appBarBackgroundColor: const Color(0xFFEDEDED),
+      appBarSurfaceTintColor: const Color(0xFFEDEDED),
+      textColor: const Color(0xFF2D2D2D),
+      textLightGreyColor: const Color(0xFF9E9E9E),
+      textDarkGreyColor: const Color(0xFF636363),
+      buttonPrimaryColor: const Color(0xFF1976D2),
+      buttonSecondaryColor: const Color(0xFFE0E0E0),
+      buttonHoverColor: const Color(0xFF2196F3),
+      buttonLightHoverColor: const Color(0xFF90CAF9),
+      buttonDisabledColor: const Color(0xFFB0BEC5),
+      scrollBarThumbColor: const Color(0xFFC1C1C1),
+      scrollBarThumbHoverColor: const Color(0xFF9E9E9E),
+      scrollBarTrackColor: const Color(0xFFF5F5F5),
+      scrollBarTrackHoverColor: const Color(0xFFE0E0E0),
+      successColor: const Color(0xFF4CAF50),
+      warningColor: const Color(0xFFFFC107),
+      errorColor: const Color(0xFFF44336),
+    )
   ];
 
   static List<ThemeColorData> defaultDarkThemes = [
     ThemeColorData(
-      id: "pureBlack",
+      id: "PureBlack",
       name: "极简黑",
-      background: const Color(0xFF151515),
-      canvasBackground: const Color(0xFF232326),
-      primaryColor: const Color(0xFFE8E8E8), //F1F1F1
+      canvasColor: const Color(0xFF232326),
+      scaffoldBackgroundColor: const Color(0xFF151515),
+      cardColor: const Color(0xFF333333),
+      primaryColor: const Color(0xFFE8E8E8),
+      hintColor: const Color(0xFFE8E8E8),
+      cursorColor: const Color(0xFFE8E8E8),
+      indicatorColor: const Color(0xFFE8E8E8),
+      textSelectionColor: const Color(0xFFE8E8E8).withAlpha(70),
+      textSelectionHandleColor: const Color(0xFFE8E8E8),
+      textColor: const Color(0xFFE0E0E0),
+      textLightGreyColor: const Color(0xFFA0A0A0),
+      textDarkGreyColor: const Color(0xFF5C5C5C),
       iconColor: const Color(0xFFCACACA),
+      hoverColor: const Color(0x44383838),
       splashColor: const Color(0x12cccccc),
       highlightColor: const Color(0x12cfcfcf),
+      dividerColor: const Color(0xFF303030),
+      borderColor: const Color(0xFF383838),
       shadowColor: Colors.black.withAlpha(84),
       appBarShadowColor: const Color(0xFF1F1F1F),
       appBarBackgroundColor: const Color(0xFF232326),
       appBarSurfaceTintColor: const Color(0xFF232326),
-      textColor: const Color(0xFFCCCCCC),
-      textGrayColor: const Color(0xFF888888),
-      textDisabledColor: const Color(0xFFCEDBF2),
-      buttonTextColor: const Color(0xFFF2F2F2),
-      buttonDisabledColor: const Color(0xFF83A5E0),
-      dividerColor: const Color(0xFF303030),
-      tagBackground: const Color(0xFF333333),
-      tagColor: const Color(0xFF888888),
-      cardBackground: const Color(0xFF333333),
+      buttonPrimaryColor: const Color(0xFFF2F2F2),
+      buttonSecondaryColor: const Color(0xFF333333),
+      buttonDisabledColor: const Color(0xFF4A4A4A),
+      buttonHoverColor: const Color(0xFF333333),
+      buttonLightHoverColor: const Color(0xFF2C2C2C),
+      scrollBarThumbColor: const Color(0xFF737373),
+      scrollBarThumbHoverColor: const Color(0xFF868686),
+      scrollBarTrackColor: const Color(0xFF303030),
+      scrollBarTrackHoverColor: const Color(0xFF404040),
+      successColor: const Color(0xFF81C784),
+      warningColor: const Color(0xFFFFA726),
+      errorColor: const Color(0xFFCF6679),
     ),
     ThemeColorData(
       id: "blueIron",
       name: "蓝铁",
-      background: const Color(0xFF1D2733),
-      canvasBackground: const Color(0xFF242E39),
-      cardBackground: const Color(0xFF2E3A45),
+      scaffoldBackgroundColor: const Color(0xFF1D2733),
+      canvasColor: const Color(0xFF242E39),
+      cardColor: const Color(0xFF2E3A45),
       primaryColor: const Color(0xFF14C2BB),
+      hintColor: const Color(0xFF14C2BB),
+      cursorColor: const Color(0xFF14C2BB),
+      indicatorColor: const Color(0xFF14C2BB),
+      textSelectionColor: const Color(0xFF14C2BB).withAlpha(70),
+      textSelectionHandleColor: const Color(0xFF14C2BB),
+      textColor: const Color(0xFFB8B8B8),
+      textLightGreyColor: const Color(0xFF94A3B8),
+      textDarkGreyColor: const Color(0xFF5C677D),
       iconColor: const Color(0xFFB8B8B8),
-      splashColor: const Color(0x0Acccccc),
-      highlightColor: const Color(0x0Acfcfcf),
+      hoverColor: const Color(0x22C8C8C8),
+      splashColor: const Color(0x22CCCCCC),
+      highlightColor: const Color(0x22CFCFCF),
       shadowColor: const Color(0xFF1B2530),
       appBarShadowColor: const Color(0xFF1B2530),
       appBarBackgroundColor: const Color(0xFF252E3A),
       appBarSurfaceTintColor: const Color(0xFF252E3A),
-      textColor: const Color(0xFFB8B8B8),
-      textGrayColor: const Color(0xFF6B7783),
-      textDisabledColor: const Color(0xFFCEDBF2),
-      buttonTextColor: const Color(0xFFF2F2F2),
-      buttonDisabledColor: const Color(0xFF83A5E0),
+      buttonPrimaryColor: const Color(0xFFF2F2F2),
+      buttonSecondaryColor: const Color(0xFF333333),
+      buttonHoverColor: const Color(0xFF333333),
+      buttonLightHoverColor: const Color(0xFF2C2C2C),
+      buttonDisabledColor: const Color(0xFF4A4A4A),
       dividerColor: const Color(0xFF2D3743),
-      tagBackground: const Color(0xFF424242),
-      tagColor: const Color(0xFF757575),
-    ),
+      borderColor: const Color(0xFF2D3743),
+      scrollBarThumbColor: const Color(0xFF5A5A5A),
+      scrollBarThumbHoverColor: const Color(0xFF333333),
+      scrollBarTrackColor: const Color(0xFF2D3743),
+      scrollBarTrackHoverColor: const Color(0xFF404040),
+      successColor: const Color(0xFF81C784),
+      warningColor: const Color(0xFFFFA726),
+      errorColor: const Color(0xFFCF6679),
+    )
   ];
 
   ThemeData toThemeData() {
-    TextStyle labelSmall = TextStyle(
-      fontWeight: FontWeight.normal,
-      fontSize: 11,
-      letterSpacing: 0.1,
-      color: tagColor,
+    TextStyle displayLarge = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 57,
+      letterSpacing: -0.25,
+      color: textColor,
     );
 
-    TextStyle labelMedium = TextStyle(
-      fontWeight: FontWeight.normal,
-      fontSize: 13,
-      letterSpacing: 0.1,
-      color: tagColor,
+    TextStyle displayMedium = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 45,
+      letterSpacing: 0.0,
+      color: textColor,
     );
 
-    TextStyle labelLarge = TextStyle(
-      fontWeight: FontWeight.normal,
-      fontSize: 15,
+    TextStyle displaySmall = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 36,
+      letterSpacing: 0.0,
+      color: textColor,
+    );
+
+    TextStyle headlineLarge = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 32,
+      letterSpacing: 0.0,
+      height: 1.3,
+      color: textColor,
+    );
+
+    TextStyle headlineMedium = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 28,
+      letterSpacing: 0.0,
+      height: 1.3,
+      color: textColor,
+    );
+
+    TextStyle headlineSmall = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 24,
+      letterSpacing: 0.0,
+      height: 1.3,
+      color: textColor,
+    );
+
+    TextStyle titleLarge = TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 18,
       letterSpacing: 0.1,
-      color: tagColor,
+      color: textColor,
+    );
+
+    TextStyle titleMedium = TextStyle(
+      fontWeight: FontWeight.w500,
+      fontSize: 16,
+      letterSpacing: 0.1,
+      color: textColor,
     );
 
     TextStyle titleSmall = TextStyle(
-      fontWeight: FontWeight.normal,
-      fontSize: 13,
+      fontWeight: FontWeight.w500,
+      fontSize: 14,
       letterSpacing: 0.1,
       height: 1.2,
       color: textColor,
     );
 
-    TextStyle titleMedium = TextStyle(
-      fontWeight: FontWeight.normal,
+    TextStyle bodyLarge = TextStyle(
+      fontWeight: FontWeight.w400,
       fontSize: 16,
-      letterSpacing: 0.1,
+      letterSpacing: 0.5,
       color: textColor,
     );
 
-    TextStyle titleLarge = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 17,
-      letterSpacing: 0.18,
+    TextStyle bodyMedium = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 14,
+      letterSpacing: 0.25,
       color: textColor,
     );
 
     TextStyle bodySmall = TextStyle(
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w400,
       fontSize: 12,
-      letterSpacing: 0.1,
-      color: textGrayColor,
+      letterSpacing: 0.4,
+      color: textDarkGreyColor,
     );
 
-    TextStyle bodyMedium = TextStyle(
-      fontWeight: FontWeight.normal,
+    TextStyle labelLarge = TextStyle(
+      fontWeight: FontWeight.w500,
       fontSize: 14,
       letterSpacing: 0.1,
-      color: textColor,
+      color: textLightGreyColor,
     );
 
-    TextStyle bodyLarge = TextStyle(
-      fontSize: 16,
-      color: textColor,
+    TextStyle labelMedium = TextStyle(
+      fontWeight: FontWeight.w500,
+      fontSize: 12,
+      letterSpacing: 0.5,
+      color: textLightGreyColor,
+    );
+
+    TextStyle labelSmall = TextStyle(
+      fontWeight: FontWeight.w500,
+      fontSize: 11,
+      letterSpacing: 0.5,
+      color: textLightGreyColor,
     );
 
     return ThemeData(
       fontFamily: CustomFont.getCurrentFont().fontFamily,
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
       primaryColor: primaryColor,
-      hintColor: primaryColor,
-      indicatorColor: primaryColor,
-      scaffoldBackgroundColor: background,
-      canvasColor: canvasBackground,
+      hintColor: hintColor,
+      indicatorColor: indicatorColor,
+      scaffoldBackgroundColor: scaffoldBackgroundColor,
+      canvasColor: canvasColor,
       dividerColor: dividerColor,
       shadowColor: shadowColor,
       splashColor: splashColor,
       highlightColor: highlightColor,
-      cardColor: cardBackground,
+      hoverColor: hoverColor,
+      cardColor: cardColor,
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return canvasBackground;
+            return canvasColor;
           } else if (states.contains(WidgetState.disabled)) {
             return Colors.grey;
           } else {
-            return textGrayColor.withAlpha(200);
+            return textLightGreyColor.withAlpha(200);
           }
         }),
         trackOutlineColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return primaryColor;
           } else {
-            return textGrayColor.withAlpha(40);
+            return textLightGreyColor.withAlpha(40);
           }
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return primaryColor;
           } else {
-            return canvasBackground;
+            return canvasColor;
           }
         }),
       ),
@@ -318,17 +454,28 @@ class ThemeColorData {
           if (states.contains(WidgetState.selected)) {
             return primaryColor;
           } else {
-            return canvasBackground;
+            return canvasColor;
           }
         }),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return primaryColor;
+          } else {
+            return canvasColor;
+          }
+        }),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        side: BorderSide(color: primaryColor, width: 2),
       ),
       iconTheme: IconThemeData(
         size: 24,
         color: iconColor,
       ),
       textSelectionTheme: TextSelectionThemeData(
-        selectionColor: primaryColor.withAlpha(70),
-        selectionHandleColor: primaryColor,
+        selectionColor: textSelectionColor,
+        selectionHandleColor: textSelectionHandleColor,
       ),
       textTheme: TextTheme(
         labelSmall: labelSmall,
@@ -340,6 +487,12 @@ class ThemeColorData {
         bodySmall: bodySmall,
         bodyMedium: bodyMedium,
         bodyLarge: bodyLarge,
+        headlineLarge: headlineLarge,
+        headlineMedium: headlineMedium,
+        headlineSmall: headlineSmall,
+        displayLarge: displayLarge,
+        displayMedium: displayMedium,
+        displaySmall: displaySmall,
       ),
       appBarTheme: AppBarTheme(
         elevation: appBarElevation,
@@ -351,6 +504,37 @@ class ThemeColorData {
       tabBarTheme: const TabBarTheme(
         splashFactory: NoSplash.splashFactory,
       ),
+      buttonTheme: ButtonThemeData(
+        buttonColor: buttonPrimaryColor,
+        hoverColor: buttonHoverColor,
+        disabledColor: buttonDisabledColor,
+        textTheme: ButtonTextTheme.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered)) {
+            return scrollBarThumbHoverColor;
+          } else {
+            return scrollBarThumbColor;
+          }
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered)) {
+            return scrollBarTrackHoverColor;
+          } else {
+            return scrollBarTrackColor;
+          }
+        }),
+        radius: const Radius.circular(8),
+        thickness: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered)) {
+            return 6.0;
+          } else {
+            return 4.0;
+          }
+        }),
+      ),
     );
   }
 
@@ -360,61 +544,103 @@ class ThemeColorData {
         "name": name,
         "description": description,
         "primaryColor": primaryColor.toHex(),
-        "background": background.toHex(),
-        "appBarBackground": appBarBackgroundColor.toHex(),
+        "canvasColor": canvasColor.toHex(),
+        "scaffoldBackgroundColor": scaffoldBackgroundColor.toHex(),
+        "cardColor": cardColor.toHex(),
+        "hintColor": hintColor.toHex(),
+        "indicatorColor": indicatorColor.toHex(),
+        "splashColor": splashColor.toHex(),
+        "highlightColor": highlightColor.toHex(),
+        "shadowColor": shadowColor.toHex(),
+        'hoverColor': hoverColor.toHex(),
+        "iconColor": iconColor.toHex(),
+        "appBarBackgroundColor": appBarBackgroundColor.toHex(),
         "appBarSurfaceTintColor": appBarSurfaceTintColor.toHex(),
         "appBarShadowColor": appBarShadowColor.toHex(),
         "appBarElevation": appBarElevation,
         "appBarScrollUnderElevation": appBarScrollUnderElevation,
-        "splashColor": splashColor.toHex(),
-        "highlightColor": highlightColor.toHex(),
-        "iconColor": iconColor.toHex(),
-        "shadowColor": shadowColor.toHex(),
-        "materialBackground": canvasBackground.toHex(),
         "textColor": textColor.toHex(),
-        "textGrayColor": textGrayColor.toHex(),
-        "textDisabledColor": textDisabledColor.toHex(),
-        "buttonTextColor": buttonTextColor.toHex(),
+        "textLightGreyColor": textLightGreyColor.toHex(),
+        "textDarkGreyColor": textDarkGreyColor.toHex(),
+        "buttonPrimaryColor": buttonPrimaryColor.toHex(),
+        "buttonSecondaryColor": buttonSecondaryColor.toHex(),
         "buttonDisabledColor": buttonDisabledColor.toHex(),
+        "buttonHoverColor": buttonHoverColor.toHex(),
+        'buttonLightHoverColor': buttonLightHoverColor.toHex(),
+        "textSelectionColor": textSelectionColor.toHex(),
+        "textSelectionHandleColor": textSelectionHandleColor.toHex(),
+        "cursorColor": cursorColor.toHex(),
         "dividerColor": dividerColor.toHex(),
-        "tagColor": tagColor.toHex(),
-        "tagBackground": tagBackground.toHex(),
-        "cardBackground": cardBackground.toHex(),
+        "borderColor": borderColor.toHex(),
+        "scrollBarThumbColor": scrollBarThumbColor.toHex(),
+        "scrollBarThumbHoverColor": scrollBarThumbHoverColor.toHex(),
+        "scrollBarTrackColor": scrollBarTrackColor.toHex(),
+        "scrollBarTrackHoverColor": scrollBarTrackHoverColor.toHex(),
+        'successColor': successColor.toHex(),
+        'warningColor': warningColor.toHex(),
+        'errorColor': errorColor.toHex(),
       };
 
-  factory ThemeColorData.fromJson(Map<String, dynamic> map) => ThemeColorData(
-        isDarkMode: map['isDarkMode'] == 0 ? false : true,
-        id: map['id'] as String,
-        name: map['name'] as String,
-        description: map['description'] as String,
-        primaryColor: HexColor.fromHex(map['primaryColor'] as String),
-        background: HexColor.fromHex(map['background'] as String),
-        appBarShadowColor: HexColor.fromHex(map['appBarShadowColor'] as String),
-        appBarBackgroundColor:
-            HexColor.fromHex(map['appBarBackground'] as String),
-        appBarSurfaceTintColor:
-            HexColor.fromHex(map['appBarSurfaceTintColor'] as String),
-        appBarElevation: map['appBarElevation'] as double,
-        appBarScrollUnderElevation: map['appBarScrollUnderElevation'] as double,
-        splashColor: HexColor.fromHex(map['splashColor'] as String),
-        highlightColor: HexColor.fromHex(map['highlightColor'] as String),
-        iconColor: HexColor.fromHex(map['iconColor'] as String),
-        shadowColor: HexColor.fromHex(map['shadowColor'] as String),
-        canvasBackground: HexColor.fromHex(map['materialBackground'] as String),
-        textColor: HexColor.fromHex(map['textColor'] as String),
-        textGrayColor: HexColor.fromHex(map['textGrayColor'] as String),
-        textDisabledColor: HexColor.fromHex(map['textDisabledColor'] as String),
-        buttonTextColor: HexColor.fromHex(map['buttonTextColor'] as String),
-        buttonDisabledColor:
-            HexColor.fromHex(map['buttonDisabledColor'] as String),
-        dividerColor: HexColor.fromHex(map['dividerColor'] as String),
-        tagColor: HexColor.fromHex(map['tagColor'] as String),
-        tagBackground: HexColor.fromHex(map['tagBackground'] as String),
-        cardBackground: HexColor.fromHex(map['cardBackground'] as String),
-      );
-
-  static bool isImmersive(BuildContext context) {
-    return Theme.of(context).scaffoldBackgroundColor ==
-        Theme.of(context).canvasColor;
+  factory ThemeColorData.fromJson(Map<String, dynamic> map) {
+    return ThemeColorData(
+      id: map['id'] ?? "",
+      isDarkMode: map['isDarkMode'] == 1,
+      name: map['name'] ?? "",
+      description: map['description'] as String?,
+      primaryColor: HexColor.fromHex(map['primaryColor'] ?? "#FFFFFFFF"),
+      canvasColor: HexColor.fromHex(map['canvasColor'] ?? "#FFFFFFFF"),
+      scaffoldBackgroundColor:
+          HexColor.fromHex(map['scaffoldBackgroundColor'] ?? "#FFFFFFFF"),
+      cardColor: HexColor.fromHex(map['cardColor'] ?? "#FFFFFFFF"),
+      hintColor: HexColor.fromHex(map['hintColor'] ?? "#80FFFFFF"),
+      indicatorColor: HexColor.fromHex(map['indicatorColor'] ?? "#FFFFFFFF"),
+      splashColor: HexColor.fromHex(map['splashColor'] ?? "#29FFFFFF"),
+      highlightColor: HexColor.fromHex(map['highlightColor'] ?? "#29FFFFFF"),
+      hoverColor: HexColor.fromHex(map['hoverColor'] ?? "#29FFFFFF"),
+      shadowColor: HexColor.fromHex(map['shadowColor'] ?? "#40000000"),
+      iconColor: HexColor.fromHex(map['iconColor'] ?? "#FFFFFFFF"),
+      appBarBackgroundColor:
+          HexColor.fromHex(map['appBarBackgroundColor'] ?? "#FF1F1F1F"),
+      appBarSurfaceTintColor:
+          HexColor.fromHex(map['appBarSurfaceTintColor'] ?? "#FFFFFFFF"),
+      appBarShadowColor:
+          HexColor.fromHex(map['appBarShadowColor'] ?? "#40000000"),
+      appBarElevation: (map['appBarElevation'] as num?)?.toDouble() ?? 0.0,
+      appBarScrollUnderElevation:
+          (map['appBarScrollUnderElevation'] as num?)?.toDouble() ?? 0.0,
+      textColor: HexColor.fromHex(map['textColor'] ?? "#FFFFFFFF"),
+      textLightGreyColor:
+          HexColor.fromHex(map['textLightGreyColor'] ?? "#FFBDBDBD"),
+      textDarkGreyColor:
+          HexColor.fromHex(map['textDarkGreyColor'] ?? "#FF757575"),
+      buttonPrimaryColor:
+          HexColor.fromHex(map['buttonPrimaryColor'] ?? "#FF6200EE"),
+      buttonSecondaryColor:
+          HexColor.fromHex(map['buttonSecondaryColor'] ?? "#FF03DAC6"),
+      buttonDisabledColor:
+          HexColor.fromHex(map['buttonDisabledColor'] ?? "#FFBDBDBD"),
+      buttonHoverColor:
+          HexColor.fromHex(map['buttonHoverColor'] ?? "#296200EE"),
+      buttonLightHoverColor:
+          HexColor.fromHex(map['buttonLightHoverColor'] ?? "#FF2C2C2C"),
+      textSelectionColor:
+          HexColor.fromHex(map['textSelectionColor'] ?? "#FFBB86FC"),
+      textSelectionHandleColor:
+          HexColor.fromHex(map['textSelectionHandleColor'] ?? "#FF3700B3"),
+      cursorColor: HexColor.fromHex(map['cursorColor'] ?? "#FFBB86FC"),
+      dividerColor: HexColor.fromHex(map['dividerColor'] ?? "#FFBDBDBD"),
+      borderColor: HexColor.fromHex(map['borderColor'] ?? "#FF6200EE"),
+      scrollBarThumbColor:
+          HexColor.fromHex(map['scrollBarThumbColor'] ?? "#FFBDBDBD"),
+      scrollBarThumbHoverColor:
+          HexColor.fromHex(map['scrollBarThumbHoverColor'] ?? "#FF3700B3"),
+      scrollBarTrackColor:
+          HexColor.fromHex(map['scrollBarTrackColor'] ?? "#FF6200EE"),
+      scrollBarTrackHoverColor:
+          HexColor.fromHex(map['scrollBarTrackHoverColor'] ?? "#FF3700B3"),
+      successColor: HexColor.fromHex(map['successColor'] ?? "#FF4CAF50"),
+      warningColor: HexColor.fromHex(map['warningColor'] ?? "#FFFFC107"),
+      errorColor: HexColor.fromHex(map['errorColor'] ?? "#FFF44336"),
+    );
   }
 }

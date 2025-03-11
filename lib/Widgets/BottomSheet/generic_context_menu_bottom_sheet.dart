@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_context_menu/flutter_context_menu.dart';
+import 'package:twitee/Resources/theme.dart';
 
 import '../../Utils/responsive_util.dart';
 import '../Item/item_builder.dart';
@@ -80,6 +81,7 @@ class ContextMenuBottomSheetState extends State<ContextMenuBottomSheet> {
   }
 
   _buildConfigItem(FlutterContextMenuItem? config) {
+    Color? textColor = null;
     if (config == null || config.type == MenuItemType.divider) {
       return ItemBuilder.buildDivider(
         context,
@@ -88,6 +90,20 @@ class ContextMenuBottomSheetState extends State<ContextMenuBottomSheet> {
         horizontal: 16,
       );
     } else {
+      switch (config.status) {
+        case MenuItemStatus.success:
+          textColor = MyTheme.successColor;
+          break;
+        case MenuItemStatus.warning:
+          textColor = MyTheme.warningColor;
+          break;
+        case MenuItemStatus.error:
+          textColor = MyTheme.errorColor;
+          break;
+        default:
+          textColor = null;
+          break;
+      }
       return Material(
         child: InkWell(
           onTap: () {
@@ -98,14 +114,19 @@ class ContextMenuBottomSheetState extends State<ContextMenuBottomSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                if (config.iconData != null) ...[
-                  Icon(config.iconData, size: 24),
+                if (config.type != MenuItemType.checkbox &&
+                    config.iconData != null) ...[
+                  Icon(config.iconData, size: 24, color: textColor),
                   const SizedBox(width: 10),
                 ],
+                if (config.type == MenuItemType.checkbox && config.checked)
+                  Icon(Icons.check_rounded, size: 20, color: textColor),
+                if (config.type == MenuItemType.checkbox && !config.checked)
+                  const SizedBox(width: 20, height: 20),
                 if (config.iconData != null) const SizedBox(width: 10),
                 Text(
                   config.label,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: MyTheme.bodyLarge.apply(color: textColor),
                 ),
               ],
             ),

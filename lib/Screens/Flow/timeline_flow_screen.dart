@@ -15,8 +15,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Models/feedback_actions.dart';
+import 'package:twitee/Models/view_config.dart';
 import 'package:twitee/Openapi/export.dart';
-import 'package:twitee/Utils/app_provider.dart';
 import 'package:twitee/Utils/ilogger.dart';
 import 'package:twitee/Utils/itoast.dart';
 import 'package:twitee/Widgets/General/EasyRefresh/easy_refresh.dart';
@@ -36,9 +36,12 @@ class TimelineFlowScreen extends StatefulWidgetForFlow {
     super.scrollController,
     super.nested,
     super.triggerOffset,
+    this.viewConfig,
   });
 
   final bool isLatest;
+
+  final ViewConfig? viewConfig;
 
   static const String routeName = "/navigtion/timelineFlow";
 
@@ -47,15 +50,26 @@ class TimelineFlowScreen extends StatefulWidgetForFlow {
 }
 
 class _TimelineFlowScreenState extends State<TimelineFlowScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        RefreshMixin,
+        ViewConfigMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
+  late ViewConfig? viewConfig = widget.viewConfig;
 
   List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
+
+  List<TimelineAddEntry> get filteredEntries {
+    return validEntries
+        .where((entry) => TweetUtil.filterEntry(entry, viewConfig))
+        .toList();
+  }
 
   bool _loading = false;
 
@@ -66,6 +80,13 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
   bool _noMore = false;
 
   bool _inited = false;
+
+  @override
+  refreshViewConfig(ViewConfig viewConfig) async {
+    await scrollToTop();
+    this.viewConfig = viewConfig;
+    if (mounted) setState(() {});
+  }
 
   @override
   ScrollController? getScrollController() {
@@ -225,17 +246,7 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
                   .promotedMetadata ==
               null) {
-        TimelineTweet tweet = (entry.content as TimelineTimelineItem)
-            .itemContent as TimelineTweet;
-        bool add = true;
-        String? screenName = TweetUtil.getTweetScreenName(tweet);
-        if (TweetUtil.isRetweet(tweet) &&
-            appProvider.isBlockRetweetUser(screenName)) {
-          add = false;
-        }
-        if (add) {
-          result.add(entry);
-        }
+        result.add(entry);
       } else if (entry.content is TimelineTimelineModule &&
           (entry.content as TimelineTimelineModule).displayType ==
               DisplayType.verticalConversation) {
@@ -292,22 +303,23 @@ class _TimelineFlowScreenState extends State<TimelineFlowScreen>
       childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
         onLoad: _onLoad,
         noMore: _noMore,
-        child: !_inited || validEntries.isNotEmpty
+        child: !_inited || filteredEntries.isNotEmpty
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 800,
+                maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
                 children: List.generate(
-                  validEntries.length,
+                  filteredEntries.length,
                   (index) {
                     return PostItem(
                       key: GlobalObjectKey(
-                          validEntries[index].sortIndex.toString()),
-                      entry: validEntries[index],
-                      feedbackActions: _getFeedBackActions(validEntries[index]),
+                          filteredEntries[index].sortIndex.toString()),
+                      entry: filteredEntries[index],
+                      feedbackActions:
+                          _getFeedBackActions(filteredEntries[index]),
                     );
                   },
                 ),

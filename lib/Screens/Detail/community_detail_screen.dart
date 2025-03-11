@@ -171,7 +171,9 @@ class CommunityDetailScreenState extends State<CommunityDetailScreen>
                   "社群详情${communityData != null ? " - ${communityData!.name}" : ""}",
               showBack: true)
           : null,
-      body: _buildBody(),
+      body: ItemBuilder.buildConstraintContainer(
+        child: _buildBody(),
+      ),
     );
   }
 

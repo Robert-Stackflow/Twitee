@@ -92,7 +92,7 @@ class ContextMenuWidget extends StatelessWidget {
                 child: Column(
                   children: [
                     for (final item in state.entries)
-                      MenuEntryWidget(entry: item,focusNode: focusNode),
+                      MenuEntryWidget(entry: item, focusNode: focusNode),
                   ],
                 ),
               ),

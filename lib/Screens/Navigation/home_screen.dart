@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Models/tab_item_data.dart';
 import 'package:twitee/Models/user_info.dart';
@@ -23,8 +24,10 @@ import 'package:twitee/Screens/Detail/community_detail_screen.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
 import 'package:twitee/Screens/Flow/timeline_flow_screen.dart';
 import 'package:twitee/Utils/app_provider.dart';
+import 'package:twitee/Widgets/BottomSheet/bottom_sheet_builder.dart';
 
 import '../../Api/community_api.dart';
+import '../../Models/view_config.dart';
 import '../../Openapi/models/community.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Resources/theme.dart';
@@ -67,25 +70,34 @@ class HomeScreenState extends State<HomeScreen>
 
   Map<String, TabItemData> idToListFlowMap = {};
 
+  ViewConfig viewConfig =
+      ViewConfig.fromJson(HiveUtil.getMap(HiveUtil.homeViewConfigKey) ?? {});
+
   initTab() {
     tabDataList.addAll([
       TabItemData.build(
         context,
         "为你推荐",
-        (key, scrollController) => TimelineFlowScreen(
-          key: key,
-          isLatest: false,
-          scrollController: scrollController,
-          triggerOffset: appBarWithTabBarHeight,
+        (key, scrollController) => ItemBuilder.buildConstraintContainer(
+          child: TimelineFlowScreen(
+            key: key,
+            isLatest: false,
+            scrollController: scrollController,
+            triggerOffset: appBarWithTabBarHeight,
+            viewConfig: viewConfig,
+          ),
         ),
       ),
       TabItemData.build(
         context,
         "正在关注",
-        (key, scrollController) => TimelineFlowScreen(
-          key: key,
-          scrollController: scrollController,
-          triggerOffset: appBarWithTabBarHeight,
+        (key, scrollController) => ItemBuilder.buildConstraintContainer(
+          child: TimelineFlowScreen(
+            key: key,
+            scrollController: scrollController,
+            triggerOffset: appBarWithTabBarHeight,
+            viewConfig: viewConfig,
+          ),
         ),
       ),
     ]);
@@ -114,11 +126,13 @@ class HomeScreenState extends State<HomeScreen>
           idToListFlowMap[idStr] = TabItemData.build(
             context,
             list.name,
-            (key, scrollController) => ListFlowScreen(
-              key: key,
-              listId: list.idStr,
-              userId: info!.idStr,
-              scrollController: scrollController,
+            (key, scrollController) => ItemBuilder.buildConstraintContainer(
+              child: ListFlowScreen(
+                key: key,
+                listId: list.idStr,
+                userId: info!.idStr,
+                scrollController: scrollController,
+              ),
             ),
             contextMenu: ListScreenState.buildListTabContextMenu(context, list),
           );
@@ -126,11 +140,13 @@ class HomeScreenState extends State<HomeScreen>
           idToListFlowMap[idStr] = TabItemData.build(
             context,
             list.result.name,
-            (key, scrollController) => CommunityListFlowScreen(
-              key: key,
-              communityId: list.result.idStr ?? "",
-              scrollController: scrollController,
-              location: CommunityDisplayLocation.home,
+            (key, scrollController) => ItemBuilder.buildConstraintContainer(
+              child: CommunityListFlowScreen(
+                key: key,
+                communityId: list.result.idStr ?? "",
+                scrollController: scrollController,
+                location: CommunityDisplayLocation.home,
+              ),
             ),
             contextMenu: CommunityDetailScreenState.buildCommunityContextMenu(
               context,
@@ -216,9 +232,24 @@ class HomeScreenState extends State<HomeScreen>
         showMenu: true,
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "首页",
-        rightPadding: 30.5,
+        leftPadding: 12,
+        rightPadding: 8,
         centerInMobile: true,
         titleWidget: ResponsiveUtil.isLandscape() ? null : _buildLogo(),
+        actions: [
+          ItemBuilder.buildIconButton(
+            context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                context,
+                _buildViewConfigContextMenuButtons(),
+              );
+            },
+          ),
+        ],
         bottom: ItemBuilder.buildTabBar(
           context,
           _tabController,
@@ -278,10 +309,47 @@ class HomeScreenState extends State<HomeScreen>
     tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
+  refreshViewConfig() {
+    setState(() {});
+    HiveUtil.put(HiveUtil.homeViewConfigKey, viewConfig.toJson());
+    tabDataList.getViewConfigMixin(currentIndex)?.refreshViewConfig(viewConfig);
+  }
+
+  _buildViewConfigContextMenuButtons() {
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem.checkbox(
+          "包含回复",
+          checked: viewConfig.containReplies,
+          onPressed: () {
+            viewConfig.containReplies = !viewConfig.containReplies;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "包含转推",
+          checked: viewConfig.containRetweets,
+          onPressed: () {
+            viewConfig.containRetweets = !viewConfig.containRetweets;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "只显示媒体",
+          checked: viewConfig.onlyShowMedia,
+          onPressed: () {
+            viewConfig.onlyShowMedia = !viewConfig.onlyShowMedia;
+            refreshViewConfig();
+          },
+        ),
+      ],
+    );
+  }
+
   _buildFloatingButtons() {
     return Column(
       children: [
-        if (ResponsiveUtil.isLandscape())
+        if (ResponsiveUtil.isLandscape()) ...[
           ItemBuilder.buildShadowIconButton(
             context: context,
             icon: RotationTransition(
@@ -293,6 +361,18 @@ class HomeScreenState extends State<HomeScreen>
               refresh();
             },
           ),
+          const SizedBox(height: 10),
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                  context, _buildViewConfigContextMenuButtons());
+            },
+          ),
+        ],
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

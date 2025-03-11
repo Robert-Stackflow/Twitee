@@ -170,10 +170,10 @@ class _FriendsFlowScreenState extends State<FriendsFlowScreen>
         child: users.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
-                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 600,
+                padding: MyTheme.responsiveCardFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
+                maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
                 children: List.generate(
                   users.length,
                   (index) {

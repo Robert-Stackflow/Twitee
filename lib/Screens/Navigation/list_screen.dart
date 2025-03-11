@@ -25,6 +25,7 @@ import '../../Api/data_api.dart';
 import '../../Models/response_result.dart';
 import '../../Models/tab_item_data.dart';
 import '../../Models/user_info.dart';
+import '../../Models/view_config.dart';
 import '../../Openapi/models/module_item.dart';
 import '../../Openapi/models/timeline.dart';
 import '../../Openapi/models/timeline_add_entries.dart';
@@ -39,6 +40,7 @@ import '../../Utils/hive_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Widgets/BottomSheet/bottom_sheet_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 import '../Detail/list_detail_screen.dart';
@@ -69,6 +71,9 @@ class ListScreenState extends State<ListScreen>
   final ScrollToHideController _scrollToHideController =
       ScrollToHideController();
   TabItemDataList tabDataList = TabItemDataList([]);
+
+  ViewConfig viewConfig =
+      ViewConfig.fromJson(HiveUtil.getMap(HiveUtil.listViewConfigKey) ?? {});
 
   int get currentIndex => _tabController.index;
   List<TimelineTwitterList> validItems = [];
@@ -177,11 +182,13 @@ class ListScreenState extends State<ListScreen>
         idToListFlowMap[list.list.idStr] = TabItemData.build(
           context,
           list.list.name,
-          (key, scrollController) => ListFlowScreen(
-            key: key,
-            listId: list.list.idStr,
-            userId: widget.userId,
-            scrollController: scrollController,
+          (key, scrollController) => ItemBuilder.buildConstraintContainer(
+            child: ListFlowScreen(
+              key: key,
+              listId: list.list.idStr,
+              userId: widget.userId,
+              scrollController: scrollController,
+            ),
           ),
           contextMenu: buildListTabContextMenu(context, list.list),
         );
@@ -217,7 +224,8 @@ class ListScreenState extends State<ListScreen>
         title: "列表",
         bottomHeight: 56,
         centerInMobile: true,
-        rightPadding: 0,
+        leftPadding: 48,
+        rightPadding: 8,
         bottom: tabDataList.isNotEmpty
             ? ItemBuilder.buildTabBar(
                 context,
@@ -231,13 +239,25 @@ class ListScreenState extends State<ListScreen>
         actions: [
           ItemBuilder.buildIconButton(
             context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                context,
+                _buildViewConfigContextMenuButtons(),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          ItemBuilder.buildIconButton(
+            context: context,
             icon: const Icon(Icons.category_outlined),
             onTap: () {
               UserInfo? info = HiveUtil.getUserInfo();
               panelScreenState?.pushPage(ListManageScreen(userId: info!.idStr));
             },
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: _buildBody(),
@@ -308,10 +328,47 @@ class ListScreenState extends State<ListScreen>
     refreshLists();
   }
 
+  refreshViewConfig() {
+    setState(() {});
+    HiveUtil.put(HiveUtil.listViewConfigKey, viewConfig.toJson());
+    tabDataList.getViewConfigMixin(currentIndex)?.refreshViewConfig(viewConfig);
+  }
+
+  _buildViewConfigContextMenuButtons() {
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem.checkbox(
+          "包含回复",
+          checked: viewConfig.containReplies,
+          onPressed: () {
+            viewConfig.containReplies = !viewConfig.containReplies;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "包含转推",
+          checked: viewConfig.containRetweets,
+          onPressed: () {
+            viewConfig.containRetweets = !viewConfig.containRetweets;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "只显示媒体",
+          checked: viewConfig.onlyShowMedia,
+          onPressed: () {
+            viewConfig.onlyShowMedia = !viewConfig.onlyShowMedia;
+            refreshViewConfig();
+          },
+        ),
+      ],
+    );
+  }
+
   _buildFloatingButtons() {
     return Column(
       children: [
-        if (ResponsiveUtil.isLandscape())
+        if (ResponsiveUtil.isLandscape()) ...[
           ItemBuilder.buildShadowIconButton(
             context: context,
             icon: RotationTransition(
@@ -323,6 +380,18 @@ class ListScreenState extends State<ListScreen>
               refresh();
             },
           ),
+          const SizedBox(height: 10),
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                  context, _buildViewConfigContextMenuButtons());
+            },
+          ),
+        ],
         const SizedBox(height: 10),
         ItemBuilder.buildShadowIconButton(
           context: context,

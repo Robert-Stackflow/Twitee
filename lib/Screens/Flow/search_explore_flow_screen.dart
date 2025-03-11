@@ -212,9 +212,9 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         child: !_inited || items.isNotEmpty
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
-                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                padding: MyTheme.responsiveCardFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
                 maxCrossAxisExtent: 400,
                 children: List.generate(
                   items.length,
@@ -236,14 +236,11 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
     TimelineTrend trend = item.itemContent as TimelineTrend;
     bool showDot = Utils.isNotEmpty(trend.rank) &&
         Utils.isNotEmpty(trend.trendMetadata?.domainContext);
-    var radius = ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
     return Material(
-      color: MyTheme.itemBackground,
-      borderRadius: radius,
+      color: MyTheme.cardItemBackground,
+      borderRadius: MyTheme.responsiveCardBorderRadius,
       child: InkWell(
-        borderRadius: radius,
+        borderRadius: MyTheme.responsiveCardBorderRadius,
         onTap: () {
           if (Utils.isNotEmpty(trend.name)) {
             searchScreenState?.perfromSearch(trend.name!);
@@ -251,7 +248,9 @@ class _SearchExploreFlowScreenState extends State<SearchExploreFlowScreen>
         },
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: radius, border: MyTheme.responsiveBottomBorder),
+            borderRadius: MyTheme.responsiveCardBorderRadius,
+            border: MyTheme.responsiveCardBottomBorder,
+          ),
           height: 80,
           padding: const EdgeInsets.all(10),
           child: Column(

@@ -118,6 +118,11 @@ class TabItemDataList {
     return keyList[index].currentState as RefreshMixin?;
   }
 
+  ViewConfigMixin? getViewConfigMixin(int index) {
+    if (index < 0 || index >= scrollControllerList.length) return null;
+    return keyList[index].currentState as ViewConfigMixin?;
+  }
+
   OnSelectTopicMixin? getOnSelectTopicMixin(int index) {
     if (index < 0 || index >= scrollControllerList.length) return null;
     return keyList[index].currentState as OnSelectTopicMixin?;

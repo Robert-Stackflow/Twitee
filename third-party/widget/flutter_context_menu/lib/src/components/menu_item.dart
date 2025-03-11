@@ -95,6 +95,7 @@ final class FlutterContextMenuItem<T> extends BaseContextMenuItem<T> {
   final MenuItemStyle? style;
   final MenuItemStatus status;
   final MenuItemType type;
+  final bool checked;
 
   const FlutterContextMenuItem(
     this.label, {
@@ -103,7 +104,8 @@ final class FlutterContextMenuItem<T> extends BaseContextMenuItem<T> {
     super.onPressed,
     this.style,
     this.status = MenuItemStatus.normal,
-  }) : type = MenuItemType.normal;
+  })  : type = MenuItemType.normal,
+        checked = false;
 
   const FlutterContextMenuItem.submenu(
     this.label, {
@@ -113,12 +115,24 @@ final class FlutterContextMenuItem<T> extends BaseContextMenuItem<T> {
     this.style,
     this.status = MenuItemStatus.normal,
   })  : type = MenuItemType.normal,
+        checked = false,
         super.submenu(items: items);
+
+  const FlutterContextMenuItem.checkbox(
+    this.label, {
+    super.value,
+    super.onPressed,
+    this.style,
+    required this.checked,
+    this.status = MenuItemStatus.normal,
+  })  : type = MenuItemType.checkbox,
+        iconData = Icons.check_rounded;
 
   FlutterContextMenuItem.divider()
       : label = '',
         iconData = null,
         style = null,
+        checked = false,
         status = MenuItemStatus.normal,
         type = MenuItemType.divider;
 
@@ -189,12 +203,20 @@ final class FlutterContextMenuItem<T> extends BaseContextMenuItem<T> {
           ),
           child: Row(
             children: [
-              if (iconData != null)
+              if (type != MenuItemType.checkbox && iconData != null)
                 Icon(
                   iconData,
                   size: 20,
                   color: foregroundColor,
                 ),
+              if (type == MenuItemType.checkbox && checked)
+                Icon(
+                  Icons.check_rounded,
+                  size: 20,
+                  color: foregroundColor,
+                ),
+              if (type == MenuItemType.checkbox && !checked)
+                const SizedBox(width: 20, height: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(

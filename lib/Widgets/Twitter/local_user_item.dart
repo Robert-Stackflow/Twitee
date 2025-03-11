@@ -43,22 +43,21 @@ class _LocalUserItemState extends State<LocalUserItem> {
   @override
   Widget build(BuildContext context) {
     String screenName = user.screenName;
-    TextStyle? titleLarge =
-        Theme.of(context).textTheme.titleLarge?.apply(fontSizeDelta: -2);
+    TextStyle? titleLarge = MyTheme.titleLarge.apply(fontSizeDelta: -2);
     return ItemBuilder.buildClickItem(
       Material(
-        color: MyTheme.itemBackground,
-        borderRadius: MyTheme.responsiveBorderRadius,
+        color: MyTheme.cardItemBackground,
+        borderRadius: MyTheme.responsiveCardBorderRadius,
         child: InkWell(
           onTap: () {
             panelScreenState
                 ?.pushPage(UserDetailScreen(screenName: screenName));
           },
-          borderRadius: MyTheme.responsiveBorderRadius,
+          borderRadius: MyTheme.responsiveCardBorderRadius,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: MyTheme.responsiveBorderRadius,
-              border: MyTheme.responsiveBottomBorder,
+              borderRadius: MyTheme.responsiveCardBorderRadius,
+              border: MyTheme.responsiveCardBottomBorder,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(

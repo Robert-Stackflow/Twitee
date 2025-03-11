@@ -25,6 +25,7 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import 'package:twitee/Widgets/WaterfallFlow/scroll_view.dart';
 
 import '../../Api/timeline_api.dart';
+import '../../Models/view_config.dart';
 import '../../Resources/theme.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/enums.dart';
@@ -38,10 +39,12 @@ class ListFlowScreen extends StatefulWidgetForFlow {
     super.nested,
     super.scrollController,
     super.triggerOffset,
+    this.viewConfig,
   });
 
   final String listId;
   final String userId;
+  final ViewConfig? viewConfig;
 
   static const String routeName = "/navigtion/listFlow";
 
@@ -50,15 +53,33 @@ class ListFlowScreen extends StatefulWidgetForFlow {
 }
 
 class _ListFlowScreenState extends State<ListFlowScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        RefreshMixin,
+        ViewConfigMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
+  late ViewConfig? viewConfig = widget.viewConfig;
 
   List<FeedbackActions> _feedbackActions = [];
 
   List<TimelineAddEntry> validEntries = [];
+
+  List<TimelineAddEntry> get filteredEntries {
+    return validEntries
+        .where((entry) => TweetUtil.filterEntry(entry, viewConfig))
+        .toList();
+  }
+
+  @override
+  refreshViewConfig(ViewConfig viewConfig) async {
+    await scrollToTop();
+    this.viewConfig = viewConfig;
+    if (mounted) setState(() {});
+  }
 
   bool _loading = false;
 
@@ -229,21 +250,11 @@ class _ListFlowScreenState extends State<ListFlowScreen>
     for (var entry in entries) {
       if (entry.content is TimelineTimelineItem &&
           (entry.content as TimelineTimelineItem).itemContent
-          is TimelineTweet &&
+              is TimelineTweet &&
           ((entry.content as TimelineTimelineItem).itemContent as TimelineTweet)
-              .promotedMetadata ==
+                  .promotedMetadata ==
               null) {
-        TimelineTweet tweet = (entry.content as TimelineTimelineItem)
-            .itemContent as TimelineTweet;
-        bool add = true;
-        String? screenName = TweetUtil.getTweetScreenName(tweet);
-        if (TweetUtil.isRetweet(tweet) &&
-            appProvider.isBlockRetweetUser(screenName)) {
-          add = false;
-        }
-        if (add) {
-          result.add(entry);
-        }
+        result.add(entry);
       }
     }
     return result;
@@ -314,35 +325,35 @@ class _ListFlowScreenState extends State<ListFlowScreen>
       refreshOnStart: true,
       triggerAxis: Axis.vertical,
       controller: _easyRefreshController,
-      childBuilder: (context, pyhsics) =>
-          ItemBuilder.buildLoadMoreNotification(
-            onLoad: _onLoad,
-            noMore: _noMore,
-            child: validEntries.isNotEmpty
-                ? WaterfallFlow.extent(
-              physics: pyhsics,
-              controller: widget.nested ? null : _scrollController,
-              padding: MyTheme.responsiveListFlowPadding,
-              mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
-              crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-              maxCrossAxisExtent: 600,
-              children: List.generate(
-                validEntries.length,
-                    (index) {
-                  return PostItem(
-                    entry: validEntries[index],
-                    feedbackActions: _getFeedBackActions(validEntries[index]),
-                  );
-                },
+      childBuilder: (context, pyhsics) => ItemBuilder.buildLoadMoreNotification(
+        onLoad: _onLoad,
+        noMore: _noMore,
+        child: filteredEntries.isNotEmpty
+            ? WaterfallFlow.extent(
+                physics: pyhsics,
+                controller: widget.nested ? null : _scrollController,
+                padding: MyTheme.responsiveFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
+                maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
+                children: List.generate(
+                  filteredEntries.length,
+                  (index) {
+                    return PostItem(
+                      entry: filteredEntries[index],
+                      feedbackActions:
+                          _getFeedBackActions(filteredEntries[index]),
+                    );
+                  },
+                ),
+              )
+            : ItemBuilder.buildEmptyPlaceholder(
+                context: context,
+                text: "暂无内容",
+                scrollController: _scrollController,
+                physics: pyhsics,
               ),
-            )
-                : ItemBuilder.buildEmptyPlaceholder(
-              context: context,
-              text: "暂无内容",
-              scrollController: _scrollController,
-              physics: pyhsics,
-            ),
-          ),
+      ),
     );
   }
 }

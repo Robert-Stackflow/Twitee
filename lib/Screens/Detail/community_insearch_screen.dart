@@ -193,7 +193,9 @@ class CommunityInsearchScreenState extends State<CommunityInsearchScreen>
                 ),
           bottomHeight: 56,
         ),
-        body: _buildBody(),
+        body: ItemBuilder.buildConstraintContainer(
+          child: _buildBody(),
+        ),
       ),
     );
   }

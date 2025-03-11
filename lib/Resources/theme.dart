@@ -14,102 +14,23 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:twitee/Utils/responsive_util.dart';
 
 import '../Utils/app_provider.dart';
+import '../Utils/responsive_util.dart';
 import '../Utils/utils.dart';
 import 'colors.dart';
 import 'styles.dart';
+import 'theme_color_data.dart';
 
 class MyTheme {
   MyTheme._();
 
-  static List<BoxShadow> get defaultBoxShadow {
-    return [
-      BoxShadow(
-        color: Theme.of(rootContext).shadowColor,
-        offset: const Offset(0, 4),
-        blurRadius: 10,
-        spreadRadius: 1,
-      ).scale(2),
-    ];
-  }
+  static bool get isDarkMode =>
+      Theme.of(rootContext).brightness == Brightness.dark;
 
-  static BoxDecoration get defaultDecoration {
-    return BoxDecoration(
-      color: Theme.of(rootContext).canvasColor,
-      border: Border.all(color: Theme.of(rootContext).dividerColor, width: 1),
-      boxShadow: defaultBoxShadow,
-      borderRadius: BorderRadius.circular(10),
-    );
-  }
-
-  static BoxDecoration getDefaultDecoration(
-      [double radius = 10, double borderWidth = 1]) {
-    return BoxDecoration(
-      color: Theme.of(rootContext).canvasColor,
-      border: Border.all(
-          color: Theme.of(rootContext).dividerColor, width: borderWidth),
-      boxShadow: defaultBoxShadow,
-      borderRadius: BorderRadius.circular(radius),
-    );
-  }
-
-  static EdgeInsetsGeometry get responsiveListFlowPadding {
-    return ResponsiveUtil.isLandscape()
-        ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
-        : const EdgeInsets.only(bottom: 16);
-  }
-
-  static double get responsiveMainAxisSpacing {
-    return ResponsiveUtil.isLandscape() ? 6 : 0;
-  }
-
-  static double get responsiveCrossAxisSpacing {
-    return ResponsiveUtil.isLandscape() ? 6 : 0;
-  }
-
-  static double get responsiveMainAxisSpacingForMedia {
-    return ResponsiveUtil.isLandscape() ? 6 : 2;
-  }
-
-  static double get responsiveCrossAxisSpacingForMedia {
-    return ResponsiveUtil.isLandscape() ? 6 : 2;
-  }
-
-  static Border get bottomBorder {
-    return Border(
-      bottom: BorderSide(color: Theme.of(rootContext).dividerColor, width: 0.5),
-    );
-  }
-
-  static Border get border {
-    return Border.all(color: Theme.of(rootContext).dividerColor, width: 0.5);
-  }
-
-  static BorderSide get borderSide {
-    return BorderSide(color: Theme.of(rootContext).dividerColor, width: 0.5);
-  }
-
-  static Border? get responsiveBottomBorder {
-    return ResponsiveUtil.isLandscape() ? null : bottomBorder;
-  }
-
-  static BorderRadius get responsiveBorderRadius {
-    return ResponsiveUtil.isLandscape()
-        ? BorderRadius.circular(8)
-        : BorderRadius.zero;
-  }
-
-  static Border get bottomBorderWithCanvas {
-    return Border(
-      bottom: BorderSide(color: MyTheme.itemBackground, width: 1),
-    );
-  }
-
-  bool isDarkMode(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark;
-  }
+  static double maxWidth = 1000;
+  static double postMaxCrossAxisExtent = 1000;
+  static double cardMaxCrossAxisExtent = 600;
 
   static ThemeData getTheme({required bool isDarkMode}) {
     return ThemeData(
@@ -195,97 +116,43 @@ class MyTheme {
     );
   }
 
-  static const TextTheme textTheme = TextTheme(
-    headlineMedium: display1,
-    headlineSmall: headline,
-    titleLarge: title,
-    titleSmall: subtitle,
-    bodyMedium: body2,
-    bodyLarge: body1,
-    bodySmall: caption,
-  );
-  static const TextStyle display1 = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 36,
-    letterSpacing: 0.4,
-    height: 0.9,
-  );
-
-  static const TextStyle headline = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 24,
-    letterSpacing: 0.27,
-  );
-
-  static const TextStyle title = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-    letterSpacing: 0.18,
-  );
-
-  static const TextStyle itemTitle = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 16,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle itemTitleLittle = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 13,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle itemTip = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 13,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle itemTipLittle = TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 11,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle subtitle = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 14,
-    letterSpacing: -0.04,
-  );
-
-  static const TextStyle body2 = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 14,
-    letterSpacing: 0.2,
-  );
-
-  static const TextStyle body1 = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 16,
-    letterSpacing: -0.05,
-  );
-
-  static const TextStyle caption = TextStyle(
-    fontWeight: FontWeight.w400,
-    fontSize: 12,
-    letterSpacing: 0.2,
-  );
-
-  static Color get background {
-    return Theme.of(rootContext).scaffoldBackgroundColor;
-    // return Utils.currentBrightness(rootContext) == Brightness.light
-    //     ? Theme.of(rootContext).scaffoldBackgroundColor
-    //     : Theme.of(rootContext).canvasColor;
+  static EdgeInsetsGeometry get responsiveFlowPadding {
+    return ResponsiveUtil.isLandscape()
+        ? const EdgeInsets.only(bottom: 16)
+        : const EdgeInsets.only(bottom: 16);
   }
 
-  static Color get itemBackground {
-    if (ResponsiveUtil.isLandscape()) {
-      return Theme.of(rootContext).canvasColor;
-    }
-    return Utils.currentBrightness(rootContext) == Brightness.light
-        ? Theme.of(rootContext).canvasColor
-        : Theme.of(rootContext).scaffoldBackgroundColor;
+  static double get responsiveMainAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 0 : 0;
   }
+
+  static double get responsiveCrossAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 0 : 0;
+  }
+
+  static double get responsiveMainAxisSpacingForMedia {
+    return ResponsiveUtil.isLandscape() ? 6 : 2;
+  }
+
+  static double get responsiveCrossAxisSpacingForMedia {
+    return ResponsiveUtil.isLandscape() ? 6 : 2;
+  }
+
+  static EdgeInsetsGeometry get responsiveCardFlowPadding {
+    return ResponsiveUtil.isLandscape()
+        ? const EdgeInsets.all(8).add(const EdgeInsets.only(bottom: 16))
+        : const EdgeInsets.only(bottom: 16);
+  }
+
+  static double get responsiveCardMainAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 6 : 0;
+  }
+
+  static double get responsiveCardCrossAxisSpacing {
+    return ResponsiveUtil.isLandscape() ? 6 : 0;
+  }
+
+  static TextTheme get textTheme => Theme.of(rootContext).textTheme;
 
   static TextStyle get titleSmall => textTheme.titleSmall!;
 
@@ -305,12 +172,183 @@ class MyTheme {
 
   static TextStyle get bodyLarge => textTheme.bodyLarge!;
 
-  static Color get canvasColor => Theme.of(rootContext).canvasColor;
+  static List<BoxShadow> get defaultBoxShadow {
+    return [
+      BoxShadow(
+        color: Theme.of(rootContext).shadowColor,
+        offset: const Offset(0, 4),
+        blurRadius: 10,
+        spreadRadius: 1,
+      ).scale(2),
+    ];
+  }
 
-  static Color get cardColor => Theme.of(rootContext).cardColor;
+  static BoxDecoration get defaultDecoration {
+    return BoxDecoration(
+      color: Theme.of(rootContext).canvasColor,
+      border: MyTheme.border,
+      boxShadow: defaultBoxShadow,
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
+
+  static BoxDecoration getDefaultDecoration([
+    double radius = 8,
+    double borderWidth = 1,
+  ]) {
+    return BoxDecoration(
+      color: Theme.of(rootContext).canvasColor,
+      border: Border.all(color: borderColor, width: borderWidth),
+      boxShadow: defaultBoxShadow,
+      borderRadius: BorderRadius.circular(radius),
+    );
+  }
+
+  static BorderSide dividerSideWithWidth(double width) =>
+      BorderSide(color: Theme.of(rootContext).dividerColor, width: width);
+
+  static BorderSide borderSideWithWidth(double width) =>
+      BorderSide(color: borderColor, width: width);
+
+  static BorderSide get borderSide => borderSideWithWidth(0.8);
+
+  static BorderSide get dividerSide => dividerSideWithWidth(0.5);
+
+  static Border borderWithWidth(double width) =>
+      Border.fromBorderSide(borderSideWithWidth(width));
+
+  static Border dividerWithWidth(double width) =>
+      Border.fromBorderSide(dividerSideWithWidth(width));
+
+  static Border get border => borderWithWidth(0.5);
+
+  static Border get divider => dividerWithWidth(1);
+
+  static Border get topBorder => Border(top: borderSide);
+
+  static Border get bottomBorder => Border(bottom: borderSide);
+
+  static Border get topDivider => Border(top: dividerSide);
+
+  static Border get bottomDivider => Border(bottom: dividerSide);
+
+  static Border bottomDividerWithWidth(double? width) => width != null
+      ? Border(bottom: dividerSideWithWidth(width))
+      : bottomDivider;
+
+  static Border bottomBorderWithWidth(double width) =>
+      Border(bottom: borderSideWithWidth(width));
+
+  static Border get rightBorder => Border(right: borderSide);
+
+  static Border get rightDivider => Border(right: dividerSide);
+
+  static Border? get responsiveBottomBorder {
+    return ResponsiveUtil.isLandscape() ? bottomBorder : bottomBorder;
+  }
+
+  static Border? get responsiveCardBottomBorder {
+    return ResponsiveUtil.isLandscape() ? null : bottomBorder;
+  }
+
+  static BorderRadius get responsiveBorderRadius {
+    return ResponsiveUtil.isLandscape() ? BorderRadius.zero : BorderRadius.zero;
+  }
+
+  static BorderRadius get responsiveCardBorderRadius {
+    return ResponsiveUtil.isLandscape()
+        ? BorderRadius.circular(8)
+        : BorderRadius.zero;
+  }
+
+  static Border get bottomBorderWithCanvas {
+    return Border(
+      bottom: BorderSide(color: MyTheme.itemBackground, width: 1),
+    );
+  }
+
+  static getBackground(BuildContext context) {
+    return Utils.currentBrightness(context) == Brightness.light
+        ? canvasColor
+        : scaffoldBackgroundColor;
+  }
+
+  static getCardBackground(BuildContext context) {
+    return Utils.currentBrightness(context) == Brightness.light
+        ? scaffoldBackgroundColor
+        : canvasColor;
+  }
+
+  static Color get background {
+    return Utils.currentBrightness(rootContext) == Brightness.light
+        ? scaffoldBackgroundColor
+        : scaffoldBackgroundColor;
+  }
+
+  static Color get itemBackground {
+    return Utils.currentBrightness(rootContext) == Brightness.light
+        ? canvasColor
+        : scaffoldBackgroundColor;
+  }
+
+  static Color get cardItemBackground {
+    if (ResponsiveUtil.isLandscape()) {
+      return canvasColor;
+    }
+    return Utils.currentBrightness(rootContext) == Brightness.light
+        ? canvasColor
+        : scaffoldBackgroundColor;
+  }
+
+  static Color get appBarAndTabBarBackground {
+    if (ResponsiveUtil.isLandscape()) {
+      return canvasColor;
+    }
+    return Utils.currentBrightness(rootContext) == Brightness.light
+        ? canvasColor
+        : scaffoldBackgroundColor;
+  }
+
+  static Color get primaryColor => Theme.of(rootContext).primaryColor;
+
+  static Color get primaryColor120 =>
+      Theme.of(rootContext).primaryColor.withAlpha(120);
+
+  static Color get primaryColor60 =>
+      Theme.of(rootContext).primaryColor.withAlpha(60);
+
+  static Color get primaryColor40 =>
+      Theme.of(rootContext).primaryColor.withAlpha(40);
+
+  static Color get primaryColor40WithoutAlpha =>
+      Utils.convertAlphaToOpaque(primaryColor40);
+
+  static Color get canvasColor => Theme.of(rootContext).canvasColor;
 
   static Color get scaffoldBackgroundColor =>
       Theme.of(rootContext).scaffoldBackgroundColor;
 
   static Color get dividerColor => Theme.of(rootContext).dividerColor;
+
+  static ThemeColorData get themeColorData => Utils.isDark(rootContext)
+      ? appProvider.darkTheme
+      : appProvider.lightTheme;
+
+  static Color get borderColor => themeColorData.borderColor;
+
+  static Color get textLightGreyColor => themeColorData.textLightGreyColor;
+
+  static Color get textDarkGreyColor => themeColorData.textDarkGreyColor;
+
+  static Color get successColor => themeColorData.successColor;
+
+  static Color get warningColor => themeColorData.warningColor;
+
+  static Color get errorColor => themeColorData.errorColor;
+
+  static Color get buttonLightHoverColor =>
+      themeColorData.buttonLightHoverColor;
+
+  static Color get barrierColor =>
+      MyTheme.scaffoldBackgroundColor.withValues(alpha: 0.7);
 }

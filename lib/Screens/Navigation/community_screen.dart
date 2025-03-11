@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Screens/Detail/communities_search_screen.dart';
 import 'package:twitee/Screens/Flow/community_discovery_screen.dart';
 import 'package:twitee/Screens/Flow/community_explore_screen.dart';
@@ -26,13 +27,16 @@ import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 import '../../Api/community_api.dart';
 import '../../Models/response_result.dart';
 import '../../Models/tab_item_data.dart';
+import '../../Models/view_config.dart';
 import '../../Openapi/models/topic_context.dart';
 import '../../Utils/app_provider.dart';
 import '../../Utils/constant.dart';
 import '../../Utils/enums.dart';
+import '../../Utils/hive_util.dart';
 import '../../Utils/ilogger.dart';
 import '../../Utils/itoast.dart';
 import '../../Utils/responsive_util.dart';
+import '../../Widgets/BottomSheet/bottom_sheet_builder.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Item/item_builder.dart';
 
@@ -60,6 +64,8 @@ class CommunityScreenState extends State<CommunityScreen>
   TabItemDataList tabDataList = TabItemDataList([]);
 
   int get currentIndex => _tabController.index;
+  ViewConfig viewConfig =
+      ViewConfig.fromJson(HiveUtil.getMap(HiveUtil.communityViewConfigKey) ?? {});
 
   Map<String, TabItemData> idToListFlowMap = {};
 
@@ -113,31 +119,37 @@ class CommunityScreenState extends State<CommunityScreen>
       TabItemData.build(
         context,
         "主页",
-        (key, scrollController) => CommunityHomeScreen(
-          key: key,
-          scrollController: scrollController,
-          triggerOffset: appBarWithTabBarHeight,
-          topics: topics,
+        (key, scrollController) => ItemBuilder.buildConstraintContainer(
+          child: CommunityHomeScreen(
+            key: key,
+            scrollController: scrollController,
+            triggerOffset: appBarWithTabBarHeight,
+            topics: topics,
+          ),
         ),
       ),
       TabItemData.build(
         context,
         "发现社群",
-        (key, scrollController) => CommunityDiscoveryScreen(
-          key: key,
-          scrollController: scrollController,
-          triggerOffset: appBarWithTabBarHeight,
-          topics: topics,
+        (key, scrollController) => ItemBuilder.buildConstraintContainer(
+          child: CommunityDiscoveryScreen(
+            key: key,
+            scrollController: scrollController,
+            triggerOffset: appBarWithTabBarHeight,
+            topics: topics,
+          ),
         ),
       ),
       TabItemData.build(
         context,
         "推荐",
-        (key, scrollController) => CommunityExploreScreen(
-          key: key,
-          scrollController: scrollController,
-          triggerOffset: appBarWithTabBarHeight,
-          topics: topics,
+        (key, scrollController) => ItemBuilder.buildConstraintContainer(
+          child: CommunityExploreScreen(
+            key: key,
+            scrollController: scrollController,
+            triggerOffset: appBarWithTabBarHeight,
+            topics: topics,
+          ),
         ),
       ),
     ]);
@@ -159,7 +171,8 @@ class CommunityScreenState extends State<CommunityScreen>
         spacing: ResponsiveUtil.isLandscape() ? 15 : 10,
         title: "社群",
         bottomHeight: 56,
-        // rightPadding: 46.5,
+        leftPadding: 48,
+        rightPadding: 8,
         centerInMobile: true,
         bottom: _initPhase == InitPhase.successful
             ? ItemBuilder.buildTabBar(
@@ -167,12 +180,24 @@ class CommunityScreenState extends State<CommunityScreen>
                 _tabController,
                 tabDataList.tabList,
                 onTap: onTapTab,
-                forceUnscrollable: true,
                 showBorder: true,
                 width: MediaQuery.of(context).size.width,
               )
             : null,
         actions: [
+          ItemBuilder.buildIconButton(
+            context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                context,
+                _buildViewConfigContextMenuButtons(),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
           ItemBuilder.buildIconButton(
             context: context,
             icon: const Icon(Icons.search_rounded),
@@ -181,7 +206,6 @@ class CommunityScreenState extends State<CommunityScreen>
                   context, const CommunitiesSearchScreen());
             },
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: _buildBody(),
@@ -247,6 +271,43 @@ class CommunityScreenState extends State<CommunityScreen>
     tabDataList.getRefreshMixin(currentIndex)?.refresh();
   }
 
+  refreshViewConfig() {
+    setState(() {});
+    HiveUtil.put(HiveUtil.communityViewConfigKey, viewConfig.toJson());
+    tabDataList.getViewConfigMixin(currentIndex)?.refreshViewConfig(viewConfig);
+  }
+
+  _buildViewConfigContextMenuButtons() {
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem.checkbox(
+          "包含回复",
+          checked: viewConfig.containReplies,
+          onPressed: () {
+            viewConfig.containReplies = !viewConfig.containReplies;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "包含转推",
+          checked: viewConfig.containRetweets,
+          onPressed: () {
+            viewConfig.containRetweets = !viewConfig.containRetweets;
+            refreshViewConfig();
+          },
+        ),
+        FlutterContextMenuItem.checkbox(
+          "只显示媒体",
+          checked: viewConfig.onlyShowMedia,
+          onPressed: () {
+            viewConfig.onlyShowMedia = !viewConfig.onlyShowMedia;
+            refreshViewConfig();
+          },
+        ),
+      ],
+    );
+  }
+
   _buildFloatingButtons() {
     return Column(
       children: [
@@ -262,6 +323,19 @@ class CommunityScreenState extends State<CommunityScreen>
               refresh();
             },
           ),
+        if (ResponsiveUtil.isLandscape() && _tabController.index != 1) ...[
+          const SizedBox(height: 10),
+          ItemBuilder.buildShadowIconButton(
+            context: context,
+            icon: viewConfig.filtered
+                ? const Icon(Icons.filter_alt_off_outlined)
+                : const Icon(Icons.filter_alt_outlined),
+            onTap: () {
+              BottomSheetBuilder.showContextMenu(
+                  context, _buildViewConfigContextMenuButtons());
+            },
+          ),
+        ],
         if (ResponsiveUtil.isLandscape() && _tabController.index == 1) ...[
           const SizedBox(height: 10),
           ItemBuilder.buildShadowIconButton(

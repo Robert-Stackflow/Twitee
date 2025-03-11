@@ -14,9 +14,9 @@
  */
 
 import 'package:blur/blur.dart';
-import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:twitee/Api/list_api.dart';
 import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Flow/list_flow_screen.dart';
@@ -120,7 +120,9 @@ class _ListDetailScreenState extends State<ListDetailScreen>
               title: "列表详情${listInfo != null ? " - ${listInfo!.name}" : ""}",
               showBack: true)
           : null,
-      body: _buildBody(),
+      body: ItemBuilder.buildConstraintContainer(
+        child: _buildBody(),
+      ),
     );
   }
 
@@ -291,8 +293,7 @@ class _ListDetailScreenState extends State<ListDetailScreen>
           const SizedBox(height: 8),
           Text(
             "${user!.name}@${user!.screenName} 创建于 ${Utils.formatTimestamp(listInfo!.createdAt)}",
-            style:
-                Theme.of(context).textTheme.bodySmall?.apply(fontSizeDelta: 1),
+            style: MyTheme.bodySmall.apply(fontSizeDelta: 1),
           ),
         ],
       ),

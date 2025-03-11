@@ -13,10 +13,11 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:twitee/Widgets/Item/input_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:twitee/Widgets/Item/input_item.dart';
 
+import '../../Resources/theme.dart';
 import '../../Utils/responsive_util.dart';
 import '../../Utils/utils.dart';
 import '../../generated/l10n.dart';
@@ -210,9 +211,9 @@ class InputBottomSheetState extends State<InputBottomSheet> {
           if (Utils.isNotEmpty(widget.message))
             Text(
               widget.message,
-              style: Theme.of(context).textTheme.bodyMedium?.apply(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+              style: MyTheme.bodyMedium.apply(
+                color: MyTheme.textDarkGreyColor,
+              ),
             ),
         ],
       ),

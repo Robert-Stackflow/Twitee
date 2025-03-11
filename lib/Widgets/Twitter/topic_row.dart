@@ -112,11 +112,8 @@ class TopicRowState extends State<TopicRow> {
   _buildTopicWrap() {
     return Container(
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      decoration: BoxDecoration(
-        color: MyTheme.background,
-        border: MyTheme.border,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(color: MyTheme.background),
       child: Wrap(
         spacing: 6,
         runSpacing: 4,

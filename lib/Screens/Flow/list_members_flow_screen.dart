@@ -238,10 +238,10 @@ class _ListMembersFlowScreenState extends State<ListMembersFlowScreen>
         child: validEntries.isNotEmpty || !_inited
             ? WaterfallFlow.extent(
                 controller: _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
                 children: List.generate(
                   validEntries.length,
                   (index) {

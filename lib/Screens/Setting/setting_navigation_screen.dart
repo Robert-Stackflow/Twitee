@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitee/Screens/Setting/setting_appearance_screen.dart';
+import 'package:twitee/Screens/Setting/setting_filter_screen.dart';
 import 'package:twitee/Screens/Setting/setting_general_screen.dart';
 import 'package:twitee/Screens/Setting/setting_network_screen.dart';
 import 'package:twitee/Screens/Setting/setting_safe_screen.dart';
@@ -104,6 +105,19 @@ class _SettingNavigationScreenState extends State<SettingNavigationScreen>
                 onTap: () {
                   RouteUtil.pushPanelCupertinoRoute(
                       context, const AppearanceSettingScreen());
+                },
+              ),
+              const SizedBox(height: 10),
+              ItemBuilder.buildEntryItem(
+                context: context,
+                title: "过滤",
+                leading: Icons.filter_list_rounded,
+                showLeading: true,
+                topRadius: true,
+                bottomRadius: true,
+                onTap: () {
+                  RouteUtil.pushPanelCupertinoRoute(
+                      context, const FilterSettingScreen());
                 },
               ),
               const SizedBox(height: 10),

@@ -175,6 +175,46 @@ class AppProvider with ChangeNotifier {
     ProxyUtil.refresh();
   }
 
+  bool _enableFilterContent = HiveUtil.getBool(HiveUtil.enableFilterContentKey);
+
+  bool get enableFilterContent => _enableFilterContent;
+
+  set enableFilterContent(bool value) {
+    _enableFilterContent = value;
+    HiveUtil.put(HiveUtil.enableFilterContentKey, value);
+    notifyListeners();
+  }
+
+  String _filterContentRegExp = HiveUtil.getString(HiveUtil.filterContentRegExpKey) ?? "";
+
+  String get filterContentRegExp => _filterContentRegExp;
+
+  set filterContentRegExp(String value) {
+    _filterContentRegExp = value;
+    HiveUtil.put(HiveUtil.filterContentRegExpKey, value);
+    notifyListeners();
+  }
+
+  bool _enableFilterUser = HiveUtil.getBool(HiveUtil.enableFilterUserKey);
+
+  bool get enableFilterUser => _enableFilterUser;
+
+  set enableFilterUser(bool value) {
+    _enableFilterUser = value;
+    HiveUtil.put(HiveUtil.enableFilterUserKey, value);
+    notifyListeners();
+  }
+
+  String _filterUserRegExp = HiveUtil.getString(HiveUtil.filterUserRegExpKey) ?? "";
+
+  String get filterUserRegExp => _filterUserRegExp;
+
+  set filterUserRegExp(String value) {
+    _filterUserRegExp = value;
+    HiveUtil.put(HiveUtil.filterUserRegExpKey, value);
+    notifyListeners();
+  }
+
   List<LocalUserModel> _blockRetweetUsers =
       HiveUtil.getMapList(HiveUtil.blockRetweetUsersKey)
           .map((e) => LocalUserModel.fromJson(e))

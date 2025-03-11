@@ -82,6 +82,14 @@ class Utils {
     return isEmpty(str) ? defaultValue : str!;
   }
 
+  static Color convertAlphaToOpaque(Color color) {
+    final double alpha = color.a / 255.0;
+    final int red = ((color.r * alpha) + (1 - alpha) * 255).round();
+    final int green = ((color.g * alpha) + (1 - alpha) * 255).round();
+    final int blue = ((color.b * alpha) + (1 - alpha) * 255).round();
+    return Color.fromARGB(255, red, green, blue);
+  }
+
   static String getHeroTag({
     String? tagPrefix,
     String? url,
@@ -336,7 +344,7 @@ class Utils {
         "${date.hour < 10 ? "0${date.hour}" : date.hour}:${date.minute < 10 ? "0${date.minute}" : date.minute}";
     if (date.year != now.year) {
       return dateFormat.format(date);
-    } else if (diff.inDays > 7) {
+    } else if (diff.inDays >= 3) {
       return dateFormat2.format(date);
     } else if (diff.inDays > 0) {
       return S.current.dayAgo(diff.inDays + 1);

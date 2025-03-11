@@ -18,6 +18,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:twitee/Widgets/Item/item_builder.dart';
 
+import '../../../Resources/theme.dart';
 import '../../../Utils/utils.dart';
 import '../../Item/custom_html_widget.dart';
 import '../colors.dart';
@@ -108,8 +109,7 @@ class CustomConfirmDialogWidget extends StatelessWidget {
                     ? CustomHtmlWidget(
                         content: message,
                         style: TextStyle(
-                          color: textColor ??
-                              Theme.of(context).textTheme.bodySmall?.color,
+                          color: textColor ?? MyTheme.textDarkGreyColor,
                           height: 1.5,
                           fontSize: 15,
                         ),
@@ -120,8 +120,7 @@ class CustomConfirmDialogWidget extends StatelessWidget {
                         child: Text(
                           message,
                           style: TextStyle(
-                            color: textColor ??
-                                Theme.of(context).textTheme.bodySmall?.color,
+                            color: textColor ?? MyTheme.textDarkGreyColor,
                             height: 1.5,
                             fontSize: 15,
                           ),

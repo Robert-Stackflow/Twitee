@@ -626,10 +626,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     cursor.displayTreatment?.actionText ?? "",
-                    style: Theme.of(context).textTheme.bodyMedium?.apply(
-                          color: MyColors.getLinkColor(context),
-                          fontWeightDelta: 2,
-                        ),
+                    style: MyTheme.bodyMedium.apply(
+                      color: MyColors.getLinkColor(context),
+                      fontWeightDelta: 2,
+                    ),
                     textAlign: TextAlign.start,
                   ),
                 );
@@ -736,6 +736,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ],
       ),
     );
+    showContextMenu() => BottomSheetBuilder.showContextMenu(
+        context, _buildMoreContextMenuButtons(tweet, user));
     var extendedBody = Material(
       color: MyTheme.itemBackground,
       borderRadius: borderRadius,
@@ -743,10 +745,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         borderRadius: borderRadius,
         onTap: () => panelScreenState
             ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
-        onLongPress: () {
-          BottomSheetBuilder.showContextMenu(
-              context, _buildMoreContextMenuButtons(tweet, user));
-        },
+        onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+        onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
         child: body,
       ),
     );
@@ -764,8 +764,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         socialContext != null && socialContext is TimelineGeneralContext;
     var body = Container(
       decoration: BoxDecoration(
-          borderRadius: MyTheme.responsiveBorderRadius,
-          border: MyTheme.responsiveBottomBorder),
+        borderRadius: MyTheme.responsiveBorderRadius,
+        border: MyTheme.responsiveBottomBorder,
+      ),
       padding: widget.isDetail
           ? const EdgeInsets.symmetric(vertical: 12, horizontal: 10)
           : const EdgeInsets.all(8),
@@ -802,6 +803,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ],
       ),
     );
+    showContextMenu() => BottomSheetBuilder.showContextMenu(
+        context, _buildMoreContextMenuButtons(tweet, user));
     return widget.isDetail
         ? Container(color: MyTheme.itemBackground, child: body)
         : Material(
@@ -811,10 +814,9 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               borderRadius: MyTheme.responsiveBorderRadius,
               onTap: () => panelScreenState
                   ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!)),
-              onLongPress: () {
-                BottomSheetBuilder.showContextMenu(
-                    context, _buildMoreContextMenuButtons(tweet, user));
-              },
+              onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+              onSecondaryTap:
+                  ResponsiveUtil.isDesktop() ? showContextMenu : null,
               child: body,
             ),
           );
@@ -874,71 +876,110 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   Widget _buildCard(TweetCard card) {
     TweetCardLegacy legacy = card.legacy!;
     CardBindings valueList = CardBindings.fromList(legacy.bindingValues);
-    ImageValue? imageValue =
+    String url = valueList.getStringValue(CardBindingKeyEnum.cardUrl);
+    showContextMenu() => BottomSheetBuilder.showContextMenu(
+        context, _buildCardContextMenuButtons(url));
+
+    ImageValue? summaryImageValue =
         valueList.getImageValue(CardBindingKeyEnum.summaryPhotoImageLarge);
+    ImageValue? thumbImageValue =
+        valueList.getImageValue(CardBindingKeyEnum.thumbnailImageLarge);
+    String cover = summaryImageValue?.url ?? thumbImageValue?.url ?? "";
+    bool isThumb = summaryImageValue == null && thumbImageValue != null;
+    double height = min(
+        summaryImageValue?.height.toDouble() ??
+            thumbImageValue?.height.toDouble() ??
+            double.infinity,
+        isThumb ? 144 : 240);
+    double width = min(
+        summaryImageValue?.width.toDouble() ??
+            thumbImageValue?.width.toDouble() ??
+            double.infinity,
+        isThumb ? 144 : double.infinity);
+    var contentWidget = Container(
+      color: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "来自 ${valueList.getStringValue(CardBindingKeyEnum.vanityUrl)}",
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            valueList.getStringValue(CardBindingKeyEnum.title),
+            style: MyTheme.titleMedium.copyWith(),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            valueList.getStringValue(CardBindingKeyEnum.description),
+            style: MyTheme.bodySmall.apply(fontSizeDelta: 1),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      ),
+    );
+    var imageWidget = isThumb
+        ? ClipRRect(
+            borderRadius:
+                const BorderRadius.horizontal(left: Radius.circular(8)),
+            child: ItemBuilder.buildCachedImage(
+              imageUrl: cover,
+              context: context,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+            ),
+          )
+        : ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            child: ItemBuilder.buildCachedImage(
+              imageUrl: cover,
+              context: context,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+            ),
+          );
+    Widget mainWidget = Container();
+    if (cover.isNotEmpty) {
+      if (isThumb) {
+        mainWidget = Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            imageWidget,
+            Expanded(child: contentWidget),
+          ],
+        );
+      } else {
+        mainWidget = Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            imageWidget,
+            contentWidget,
+          ],
+        );
+      }
+    } else {
+      mainWidget = contentWidget;
+    }
     return Material(
-      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          UriUtil.openExternal(
-              valueList.getStringValue(CardBindingKeyEnum.cardUrl));
+          UriUtil.launchUrlUri(context, url);
         },
+        onLongPress: ResponsiveUtil.isDesktop() ? null : showContextMenu,
+        onSecondaryTap: ResponsiveUtil.isDesktop() ? showContextMenu : null,
         child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (imageValue != null)
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: ItemBuilder.buildCachedImage(
-                        imageUrl: imageValue.url,
-                        context: context,
-                      ),
-                    ),
-                    Positioned(
-                      left: 4,
-                      bottom: 4,
-                      child: ItemBuilder.buildTransparentTag(
-                        context,
-                        radius: 4,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        text:
-                            "来自 ${valueList.getStringValue(CardBindingKeyEnum.vanityUrl)}",
-                      ),
-                    ),
-                  ],
-                ),
-              Container(
-                color: Colors.transparent,
-                padding:
-                    const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      valueList.getStringValue(CardBindingKeyEnum.title),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      valueList.getStringValue(CardBindingKeyEnum.description),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.apply(fontSizeDelta: 1),
-                    )
-                  ],
-                ),
-              ),
-            ],
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: MyTheme.border,
           ),
+          child: mainWidget,
         ),
       ),
     );
@@ -960,10 +1001,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
             tweet.isExpanded ? "收起全文" : "查看全文",
-            style: Theme.of(context).textTheme.bodyMedium!.apply(
-                  color: MyColors.getLinkColor(context),
-                  fontWeightDelta: 2,
-                ),
+            style: MyTheme.bodyMedium!.apply(
+              color: MyColors.getLinkColor(context),
+              fontWeightDelta: 2,
+            ),
           ),
         ),
       ),
@@ -985,17 +1026,21 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
         ),
         padding: const EdgeInsets.all(12),
         child: Text("这个引用的帖子不可用",
-            style:
-                Theme.of(context).textTheme.bodySmall?.apply(fontSizeDelta: 3)),
+            style: MyTheme.bodySmall?.apply(fontSizeDelta: 3)),
       );
     } else {
-      String fullText = tweet.legacy!.fullText!;
-      fullText = TweetUtil.processWithEntities(
-        fullText,
-        tweet.legacy!.entities,
-        renderLink: false,
-        replaceNewline: false,
-      );
+      Article? article = tweet.article;
+      String fullText = article?.articleResults!.result.previewText ??
+          tweet.legacy!.fullText!;
+      String title = article?.articleResults!.result.title ?? "";
+      if (article == null) {
+        fullText = TweetUtil.processWithEntities(
+          fullText,
+          tweet.legacy!.entities,
+          renderLink: false,
+          replaceNewline: false,
+        );
+      }
       // String birdwatchText =
       //     (tweet.hasBirdwatchNotes ?? false) && tweet.birdwatchPivot != null
       //         ? TweetUtil.processWithBirdwatchEntities(
@@ -1028,20 +1073,42 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                       ],
                       if (hasText)
                         Expanded(
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                WidgetSpan(
-                                  child: Text(
-                                    fullText,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                          child: Column(
+                            children: [
+                              if (article != null)
+                                Row(
+                                  children: [
+                                    ItemBuilder.buildTransparentTag(
+                                      context,
+                                      text: "文章",
+                                      radius: 4,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              if (title.isNotEmpty)
+                                Text(
+                                  title,
+                                  style: MyTheme.titleMedium
+                                      .apply(fontWeightDelta: 2),
+                                ),
+                              Text(
+                                fullText,
+                                style: article != null
+                                    ? MyTheme.bodySmall.apply(fontSizeDelta: 2)
+                                    : MyTheme.bodyMedium,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              // if (birdwatchText.isNotEmpty)
+                              //   CustomHtmlWidget(
+                              //     content: birdwatchText,
+                              //     style: MyTheme.bodyMedium,
+                              //   ),
+                            ],
                           ),
                         ),
                     ],
@@ -1056,7 +1123,6 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
       );
     }
     return Material(
-      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -1064,6 +1130,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             ? () => panelScreenState
                 ?.pushPage(TweetDetailScreen(tweetId: tweet.restId!))
             : null,
+        onLongPress: () {},
+        onSecondaryTap: () {},
         child: Container(
           constraints: const BoxConstraints(maxWidth: maxMediaOrQuoteWidth),
           child: body,
@@ -1088,7 +1156,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               if (tweet.isTranslationExpanded)
                 CustomHtmlWidget(
                   content: translation,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: MyTheme.bodyMedium,
                 ),
               if (tweet.isTranslationExpanded) const SizedBox(height: 8),
               ItemBuilder.buildClickItem(
@@ -1099,10 +1167,10 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   },
                   child: Text(
                     tweet.isTranslationExpanded ? "收起翻译" : "查看翻译",
-                    style: Theme.of(context).textTheme.bodyMedium!.apply(
-                          fontWeightDelta: 2,
-                          color: MyColors.getLinkColor(context),
-                        ),
+                    style: MyTheme.bodyMedium!.apply(
+                      fontWeightDelta: 2,
+                      color: MyColors.getLinkColor(context),
+                    ),
                   ),
                 ),
               ),
@@ -1129,13 +1197,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             Icon(
               Icons.repeat_rounded,
               size: 16,
-              color: Theme.of(context).textTheme.bodySmall?.color,
+              color: MyTheme.textDarkGreyColor,
             ),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
                 "${retweetedUser.legacy.name} 已转推",
-                style: Theme.of(context).textTheme.bodySmall,
+                style: MyTheme.bodySmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1205,13 +1273,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
             Icon(
               icon,
               size: 16,
-              color: Theme.of(context).textTheme.bodySmall?.color,
+              color: MyTheme.textDarkGreyColor,
             ),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
                 "${socialContext.text}",
-                style: Theme.of(context).textTheme.bodySmall,
+                style: MyTheme.bodySmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1260,7 +1328,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                       Flexible(
                         child: Text(
                           user.legacy.name,
-                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                          style: MyTheme.titleMedium.apply(
                               fontWeightDelta: 2,
                               fontSizeDelta: isQuote ? -2 : 0),
                           maxLines: 1,
@@ -1295,7 +1363,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   if (Utils.isNotEmpty(user.legacy.screenName))
                     Text(
                       "$device${Utils.formatDateString(tweet.legacy!.createdAt!)}",
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: MyTheme.bodySmall,
                     ),
                 ],
               ),
@@ -1310,7 +1378,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                   ? Icons.more_horiz_rounded
                   : Icons.more_vert_rounded,
               size: 20,
-              color: Theme.of(context).textTheme.labelSmall?.color,
+              color: MyTheme.textLightGreyColor,
             ),
             onTap: () {
               BottomSheetBuilder.showContextMenu(
@@ -1342,6 +1410,13 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           },
         ),
         FlutterContextMenuItem(
+          "查看原${TweetUtil.getMediaDescription(media)}",
+          iconData: Icons.open_in_browser_rounded,
+          onPressed: () {
+            UriUtil.launchUrlUri(context, TweetUtil.getPlayUrlByMedia(media));
+          },
+        ),
+        FlutterContextMenuItem(
           "保存${TweetUtil.getMediaDescription(media)}",
           iconData: Icons.save_alt_rounded,
           onPressed: () {
@@ -1356,6 +1431,27 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
               ImageUtil.saveMedias(context, medias);
             },
           ),
+      ],
+    );
+  }
+
+  _buildCardContextMenuButtons(String url) {
+    return FlutterContextMenu(
+      entries: [
+        FlutterContextMenuItem(
+          "复制链接",
+          iconData: Icons.link_rounded,
+          onPressed: () {
+            Utils.copy(context, url);
+          },
+        ),
+        FlutterContextMenuItem(
+          "在浏览器打开",
+          iconData: Icons.open_in_browser_rounded,
+          onPressed: () {
+            UriUtil.launchUrlUri(context, url);
+          },
+        ),
       ],
     );
   }
@@ -1739,7 +1835,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
   }
 
   _buildOperations(Tweet tweet) {
-    Color? labelColor = Theme.of(context).textTheme.bodySmall?.color;
+    Color? labelColor = MyTheme.textDarkGreyColor;
     return Container(
       margin: EdgeInsets.only(left: widget.isDetail ? 8 : 0, right: 8),
       child: Row(
@@ -1892,8 +1988,8 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
           ),
           ItemBuilder.buildIconTextButton(
             context,
-            tooltip: Utils.formatCountWithDot(
-                int.tryParse(tweet.views?.count ?? "") ?? 0),
+            tooltip:
+                "${Utils.formatCountWithDot(int.tryParse(tweet.views?.count ?? "") ?? 0)} 查看",
             icon: Icon(
               Icons.remove_red_eye_outlined,
               size: 18,
@@ -1917,7 +2013,7 @@ class PostItemState extends State<PostItem> with AutomaticKeepAliveClientMixin {
                     ),
                   )
                 : Icon(Icons.translate_rounded, size: 16, color: labelColor),
-            color: Theme.of(context).textTheme.bodySmall?.color,
+            color: MyTheme.textDarkGreyColor,
             fontSizeDelta: -1,
             onTap: () async {
               if (tweet.isTranslating) return;

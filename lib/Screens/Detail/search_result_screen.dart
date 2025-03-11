@@ -166,6 +166,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
     _showSuggestion = false;
     _overlayEntry?.remove();
     _overlayEntry = null;
+    searchFocusNode.unfocus();
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -207,6 +208,7 @@ class SearchResultScreenState extends State<SearchResultScreen>
     return Material(
       child: InkWell(
         onTap: () {
+          _hideSuggestions();
           perfromSearch(e.topic);
         },
         child: Container(

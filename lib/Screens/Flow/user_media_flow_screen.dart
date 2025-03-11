@@ -295,7 +295,7 @@ class _UserMediaFlowScreenState extends State<UserMediaFlowScreen>
               child: GridView.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 crossAxisSpacing: MyTheme.responsiveMainAxisSpacingForMedia,
                 maxCrossAxisExtent: 160,

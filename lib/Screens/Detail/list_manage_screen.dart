@@ -32,6 +32,7 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_timeline_module.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
+import '../../Resources/theme.dart';
 import '../../Widgets/Hidable/scroll_to_hide.dart';
 import '../../Widgets/Twitter/twitter_list_item.dart';
 
@@ -225,13 +226,10 @@ class _ListManageScreenState extends State<ListManageScreen>
                     child: WaterfallFlow.extent(
                       controller: _scrollController,
                       physics: physics,
-                      padding: ResponsiveUtil.isLandscape()
-                          ? const EdgeInsets.all(8)
-                              .add(const EdgeInsets.only(bottom: 16))
-                          : const EdgeInsets.only(bottom: 16),
-                      mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                      maxCrossAxisExtent: 600,
-                      crossAxisSpacing: 6,
+                      padding: MyTheme.responsiveCardFlowPadding,
+                      mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                      crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
+                      maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
                       children: List.generate(
                         validItems.length,
                         (index) {

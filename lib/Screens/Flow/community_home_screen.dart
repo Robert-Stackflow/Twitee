@@ -18,6 +18,8 @@ import 'package:twitee/Openapi/export.dart';
 import 'package:twitee/Screens/Flow/community_list_flow_screen.dart';
 import 'package:twitee/Widgets/Twitter/refresh_interface.dart';
 
+import '../../Models/view_config.dart';
+
 class CommunityHomeScreen extends StatefulWidgetForFlow {
   const CommunityHomeScreen({
     super.key,
@@ -25,30 +27,42 @@ class CommunityHomeScreen extends StatefulWidgetForFlow {
     super.scrollController,
     super.triggerOffset,
     this.topics = const [],
+    this.viewConfig,
   });
 
   final List<CommunityTopic> topics;
 
   static const String routeName = "/navigtion/communityHome";
+  final ViewConfig? viewConfig;
 
   @override
   State<CommunityHomeScreen> createState() => CommunityHomeScreenState();
 }
 
 class CommunityHomeScreenState extends State<CommunityHomeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, RefreshMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        RefreshMixin,
+        ViewConfigMixin {
   @override
   bool get wantKeepAlive => true;
   TimelineTimelineCursor? cursorTop;
   TimelineTimelineCursor? cursorBottom;
-
-  List<TimelineAddEntry> validEntries = [];
+  late ViewConfig? viewConfig = widget.viewConfig;
 
   String? currentTopicId;
 
   late final ScrollController _scrollController;
 
   GlobalKey<CommunityListFlowScreenState> flowKey = GlobalKey();
+
+  @override
+  refreshViewConfig(ViewConfig viewConfig) async {
+    await scrollToTop();
+    this.viewConfig = viewConfig;
+    (flowKey.currentState as ViewConfigMixin?)?.refreshViewConfig(viewConfig);
+  }
 
   @override
   void initState() {
@@ -89,6 +103,7 @@ class CommunityHomeScreenState extends State<CommunityHomeScreen>
             key: flowKey,
             type: CommunityListFlowType.Ranked,
             scrollController: _scrollController,
+            viewConfig: viewConfig,
           ),
         ),
       ],

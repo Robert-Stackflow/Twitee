@@ -35,6 +35,7 @@ import '../../Openapi/models/timeline_add_entry.dart';
 import '../../Openapi/models/timeline_timeline_cursor.dart';
 import '../../Openapi/models/timeline_twitter_list.dart';
 import '../../Openapi/models/user.dart';
+import '../../Resources/theme.dart';
 import '../../Utils/hive_util.dart';
 
 class ListMembershipManageScreen extends StatefulWidget {
@@ -335,13 +336,10 @@ class _ListMembershipManageScreenState extends State<ListMembershipManageScreen>
             ? WaterfallFlow.extent(
                 physics: physics,
                 controller: _scrollController,
-                padding: ResponsiveUtil.isLandscape()
-                    ? const EdgeInsets.all(8)
-                        .add(const EdgeInsets.only(bottom: 16))
-                    : const EdgeInsets.only(bottom: 16),
-                mainAxisSpacing: ResponsiveUtil.isLandscape() ? 6 : 2,
-                maxCrossAxisExtent: 600,
-                crossAxisSpacing: 6,
+                padding: MyTheme.responsiveCardFlowPadding,
+                mainAxisSpacing: MyTheme.responsiveCardMainAxisSpacing,
+                crossAxisSpacing: MyTheme.responsiveCardCrossAxisSpacing,
+                maxCrossAxisExtent: MyTheme.cardMaxCrossAxisExtent,
                 children: List.generate(
                   validItems.length,
                   (index) {

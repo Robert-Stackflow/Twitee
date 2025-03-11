@@ -61,18 +61,18 @@ class TwitterListItemState extends State<TwitterListItem> {
     User user = list.list.userResults.result as User;
     return ItemBuilder.buildClickItem(
       Material(
-        color: MyTheme.itemBackground,
-        borderRadius: MyTheme.responsiveBorderRadius,
+        color: MyTheme.cardItemBackground,
+        borderRadius: MyTheme.responsiveCardBorderRadius,
         child: InkWell(
           onTap: () {
             panelScreenState
                 ?.pushPage(ListDetailScreen(listId: list.list.idStr));
           },
-          borderRadius: MyTheme.responsiveBorderRadius,
+          borderRadius: MyTheme.responsiveCardBorderRadius,
           child: Container(
             decoration: BoxDecoration(
-                borderRadius: MyTheme.responsiveBorderRadius,
-                border: MyTheme.responsiveBottomBorder),
+                borderRadius: MyTheme.responsiveCardBorderRadius,
+                border: MyTheme.responsiveCardBottomBorder),
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             child: Row(
               children: [

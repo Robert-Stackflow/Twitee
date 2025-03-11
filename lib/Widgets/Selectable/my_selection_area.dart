@@ -132,10 +132,10 @@ class _MySelectionAreaState extends State<MySelectionArea> {
         switch (Theme.of(context).platform) {
           TargetPlatform.android ||
           TargetPlatform.fuchsia =>
-          materialTextSelectionHandleControls,
+            materialTextSelectionHandleControls,
           TargetPlatform.linux ||
           TargetPlatform.windows =>
-          desktopTextSelectionHandleControls,
+            desktopTextSelectionHandleControls,
           TargetPlatform.iOS => cupertinoTextSelectionHandleControls,
           TargetPlatform.macOS => cupertinoDesktopTextSelectionHandleControls,
         };

@@ -58,6 +58,14 @@ class HiveUtil {
   static const String proxyConfigKey = "proxyConfig";
   static const String homeTabIndexKey = "homeTabIndex";
   static const String lastViewListIdKey = "lastViewListId";
+  static const String homeViewConfigKey = "homeViewConfig";
+  static const String listViewConfigKey = "listViewConfig";
+  static const String communityViewConfigKey = "communityViewConfig";
+
+  static const String enableFilterContentKey = "enableFilterContent";
+  static const String filterContentRegExpKey = "filterContentRegExp";
+  static const String enableFilterUserKey = "enableFilterUser";
+  static const String filterUserRegExpKey = "filterUserRegExp";
 
   //Appearance
   static const String expandSidebarKey = "expandSidebar";
@@ -407,12 +415,17 @@ class HiveUtil {
     String key, {
     String boxName = HiveUtil.settingsBox,
   }) {
-    final Box box = Hive.box(name: boxName);
-    Map<String, dynamic> res = {};
-    if (box.get(key) != null) {
-      res = Map<String, dynamic>.from(box.get(key));
+    try {
+      final Box box = Hive.box(name: boxName);
+      Map<String, dynamic> res = {};
+      if (box.get(key) != null) {
+        res = Map<String, dynamic>.from(box.get(key));
+      }
+      return res;
+    } catch (e, t) {
+      ILogger.error("Hive", "Failed to get map", e, t);
+      return {};
     }
-    return res;
   }
 
   static List<dynamic> getList(

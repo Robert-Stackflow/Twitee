@@ -53,7 +53,7 @@ class GeneralSettingScreenState extends State<GeneralSettingScreen>
   bool launchAtStartup = HiveUtil.getBool(HiveUtil.launchAtStartupKey);
   bool recordWindowState = HiveUtil.getBool(HiveUtil.recordWindowStateKey);
   bool enableVideoOnDesktop =
-      HiveUtil.getBool(HiveUtil.enableVideoOnDesktopKey,defaultValue: false);
+      HiveUtil.getBool(HiveUtil.enableVideoOnDesktopKey, defaultValue: false);
   bool showTray = HiveUtil.getBool(HiveUtil.showTrayKey);
   bool enableCloseNotice = HiveUtil.getBool(HiveUtil.enableCloseNoticeKey);
   List<Tuple2<String, Locale?>> _supportedLocaleTuples = [];

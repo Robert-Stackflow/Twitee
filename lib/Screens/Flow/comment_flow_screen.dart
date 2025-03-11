@@ -332,10 +332,10 @@ class _CommentFlowScreenState extends State<CommentFlowScreen>
             ? WaterfallFlow.extent(
                 physics: pyhsics,
                 controller: widget.nested ? null : _scrollController,
-                padding: MyTheme.responsiveListFlowPadding,
+                padding: MyTheme.responsiveFlowPadding,
                 mainAxisSpacing: MyTheme.responsiveMainAxisSpacing,
                 crossAxisSpacing: MyTheme.responsiveCrossAxisSpacing,
-                maxCrossAxisExtent: 800,
+                maxCrossAxisExtent: MyTheme.postMaxCrossAxisExtent,
                 lastChildLayoutTypeBuilder: (index) =>
                     index >= validEntries.length
                         ? LastChildLayoutType.foot

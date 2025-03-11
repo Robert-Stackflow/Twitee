@@ -14,6 +14,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:twitee/Resources/theme.dart';
 
 import '../Utils/utils.dart';
 import '../Widgets/Window/window_button.dart';
@@ -98,8 +99,11 @@ class MyColors {
 
   static const Color favoriteButtonColor = Color(0xFFFFD54F);
   static const Color shareButtonColor = Color(0xFF29B6F6);
-
   static const Color likeButtonColor = Color(0xFFF06292);
+
+  static const Color starButtonColor = Color(0xFFf97316);
+  static const Color unreadButtonColor = Color(0xFFff5c00);
+  static const Color readLaterButtonColor = Color(0xff33b5e5);
 
   static getStayOnTopButtonColors(BuildContext context) {
     return WindowButtonColors(
@@ -114,12 +118,13 @@ class MyColors {
 
   static getNormalButtonColors(BuildContext context) {
     return WindowButtonColors(
+      normal: Colors.transparent,
       mouseOver: Theme.of(context).splashColor,
       mouseDown: Theme.of(context).splashColor,
       iconNormal: Theme.of(context).iconTheme.color,
       iconMouseOver: Theme.of(context).iconTheme.color,
       iconMouseDown: Theme.of(context).iconTheme.color,
-      selected: Theme.of(context).primaryColor.withAlpha(25),
+      selected: MyTheme.primaryColor40,
       iconSelected: Theme.of(context).primaryColor,
     );
   }
@@ -138,8 +143,8 @@ class MyColors {
 
   static getLinkColor(BuildContext context) {
     return Utils.currentBrightness(context) == Brightness.light
-        ? Colors.blue
-        : Colors.blueAccent;
+        ? linkColor
+        : linkColorDark;
   }
 
   static getHotTagBackground(BuildContext context) {
@@ -153,26 +158,6 @@ class MyColors {
         ? hotTagTextColor
         : hotTagTextColorDark;
   }
-
-  MaterialColor createMaterialColor(Color color) {
-    List strengths = <double>[.05];
-    Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
-
-    for (int i = 1; i < 10; i++) {
-      strengths.add(0.1 * i);
-    }
-    for (var strength in strengths) {
-      final double ds = 0.5 - strength;
-      swatch[(strength * 1000).round()] = Color.fromRGBO(
-        r + ((ds < 0 ? r : (255 - r)) * ds).round(),
-        g + ((ds < 0 ? g : (255 - g)) * ds).round(),
-        b + ((ds < 0 ? b : (255 - b)) * ds).round(),
-        1,
-      );
-    }
-    return MaterialColor(color.value, swatch);
-  }
 }
 
 extension HexColor on Color {
@@ -184,8 +169,8 @@ extension HexColor on Color {
   }
 
   String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
-      '${alpha.toRadixString(16).padLeft(2, '0')}'
-      '${red.toRadixString(16).padLeft(2, '0')}'
-      '${green.toRadixString(16).padLeft(2, '0')}'
-      '${blue.toRadixString(16).padLeft(2, '0')}';
+      '${a.toInt().toRadixString(16).padLeft(2, '0')}'
+      '${r.toInt().toRadixString(16).padLeft(2, '0')}'
+      '${g.toInt().toRadixString(16).padLeft(2, '0')}'
+      '${b.toInt().toRadixString(16).padLeft(2, '0')}';
 }

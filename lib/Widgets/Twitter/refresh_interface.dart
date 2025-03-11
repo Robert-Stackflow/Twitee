@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:twitee/Models/view_config.dart';
 
 import '../../Openapi/models/topic_context.dart';
 
@@ -25,6 +26,10 @@ mixin RefreshMixin {
   FutureOr scrollToTop();
 
   ScrollController? getScrollController();
+}
+
+mixin ViewConfigMixin {
+  FutureOr refreshViewConfig(ViewConfig viewConfig);
 }
 
 mixin BottomNavgationMixin {
