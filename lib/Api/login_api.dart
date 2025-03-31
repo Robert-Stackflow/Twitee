@@ -203,8 +203,9 @@ class LoginApi {
         ILogger.error("Twitee API",
             "Failed to check username: ${response?.statusCode} ${response?.data}");
         return ResponseResult.error(
-          message: response?.data["errors"][0]["message"] ??
-              "Failed to check username",
+          message: (response?.data["errors"][0]["message"] ??
+                  "Failed to check username")
+              .split("g;")[0].trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -273,8 +274,9 @@ class LoginApi {
       );
       if (response == null || response.statusCode != 200) {
         return ResponseResult.error(
-          message: response?.data["errors"][0]["message"] ??
-              "Failed to check alternative username",
+          message: (response?.data["errors"][0]["message"] ??
+                  "Failed to check alternative username")
+              .split("g;")[0].trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -317,8 +319,9 @@ class LoginApi {
       );
       if (response == null || response.statusCode != 200) {
         return ResponseResult.error(
-          message: response?.data["errors"][0]["message"] ??
-              "Failed to check password",
+          message: (response?.data["errors"][0]["message"] ??
+                  "Failed to check password")
+              .split("g;")[0].trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -330,6 +333,14 @@ class LoginApi {
             return ResponseResult.success(
                 message: "To check 2FA",
                 flag: LoginPhase.check2FA,
+                data: data["flow_token"],
+                data2:
+                    UserInfo.fromJson(subtask['enter_text']['header']['user']));
+          } else if (subtask["subtask_id"] ==
+              LoginPhase.loginAcid.subTaskName) {
+            return ResponseResult.success(
+                message: "To check email",
+                flag: LoginPhase.loginAcid,
                 data: data["flow_token"],
                 data2:
                     UserInfo.fromJson(subtask['enter_text']['header']['user']));
@@ -375,7 +386,8 @@ class LoginApi {
       if (response == null || response.statusCode != 200) {
         return ResponseResult.error(
           message:
-              response?.data["errors"][0]["message"] ?? "Failed to check 2FA",
+              (response?.data["errors"][0]["message"] ?? "Failed to check 2FA")
+                  .split("g;")[0].trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
         );
       }
@@ -389,6 +401,49 @@ class LoginApi {
       return ResponseResult.error(message: "Failed to check 2FA");
     } catch (e, t) {
       ILogger.error("Twitee", "Failed to check 2FA", e, t);
+      return ResponseResult.error(message: e.toString());
+    }
+  }
+
+  static Future<ResponseResult> checkEmail(
+      String guestToken, String flowToken, String code) async {
+    try {
+      ILogger.info("Twitee API", "Checking Email");
+      final response = await RequestUtil.post(
+        "/1.1/onboarding/task.json",
+        data: {
+          "flow_token": flowToken,
+          "subtask_inputs": [
+            {
+              "subtask_id": "LoginAcid",
+              "enter_text": {"text": code, "link": "next_link"}
+            }
+          ]
+        },
+        options: Options(
+          headers: {
+            "x-guest-token": guestToken,
+          },
+        ),
+      );
+      if (response == null || response.statusCode != 200) {
+        return ResponseResult.error(
+          message: (response?.data["errors"][0]["message"] ??
+                  "Failed to check email")
+              .split("g;")[0].trim(),
+          code: response?.data["errors"][0]["code"] ?? 500,
+        );
+      }
+      final data = response.data as Map;
+      if (data.containsKey("flow_token")) {
+        return ResponseResult.success(
+          message: "Checked email",
+          data: data["flow_token"],
+        );
+      }
+      return ResponseResult.error(message: "Failed to check email");
+    } catch (e, t) {
+      ILogger.error("Twitee", "Failed to check email", e, t);
       return ResponseResult.error(message: e.toString());
     }
   }

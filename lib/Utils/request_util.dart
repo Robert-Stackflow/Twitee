@@ -196,7 +196,7 @@ class RequestUtil {
     } on DioException catch (e) {
       _printError(e);
       _preProcessResponse(e.response);
-      rethrow;
+      return e.response;
     }
     return response;
   }
@@ -211,6 +211,7 @@ class RequestUtil {
     options.headers?.addAll({
       "Authorization": RequestHeaderUtil.defaultAuthentication,
       "User-Agent": RequestHeaderUtil.defaultUA,
+      "x-twitter-client-language": "zh-cn",
     });
     if (domainType != DomainType.api || forceCsrfToken) {
       options.headers?.addAll({

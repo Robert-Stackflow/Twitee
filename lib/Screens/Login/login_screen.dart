@@ -37,9 +37,9 @@ import '../../Utils/asset_util.dart';
 import '../../Utils/enums.dart';
 import '../../Utils/request_util.dart';
 import '../../Utils/utils.dart';
-import '../../Widgets/Scaffold/custom_cupertino_route.dart';
 import '../../Widgets/Item/input_item.dart';
 import '../../Widgets/Item/item_builder.dart';
+import '../../Widgets/Scaffold/custom_cupertino_route.dart';
 import '../main_screen.dart';
 
 class LoginByPasswordScreen extends StatefulWidget {
@@ -65,11 +65,13 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
   late InputValidateAsyncController _passwordValidateAsyncController;
   late InputValidateAsyncController _backupCodeValidateAsyncController;
   late PinPutValidateAsyncController _twoFAValidateAsyncController;
+  late InputValidateAsyncController _emailValidateAsyncController;
   String _guestToken = "";
   String _flowToken = "";
   InitPhase _inited = InitPhase.connecting;
   InitPhase _connected = InitPhase.haveNotConnected;
-  final FocusNode _pinFocusNode = FocusNode();
+  final FocusNode _twoFAPinFocusNode = FocusNode();
+  final FocusNode _emailPinFocusNode = FocusNode();
   UserInfo? _userInfo;
   String errorMessage = "";
   bool _isMaximized = false;
@@ -166,6 +168,15 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       },
       controller: TextEditingController(),
     );
+    _emailValidateAsyncController = InputValidateAsyncController(
+      validator: (text) async {
+        if (text.isEmpty) {
+          return "邮箱代码不能为空";
+        }
+        return null;
+      },
+      controller: TextEditingController(),
+    );
     initLogin();
   }
 
@@ -212,7 +223,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       setState(() {
         _connected = InitPhase.connecting;
       });
-      controller.animateToPage(5,
+      controller.animateToPage(6,
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
       await LoginApi.fetchCsrfToken(_guestToken);
       await RequestUtil.shareCookie();
@@ -250,7 +261,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             await LoginApi.checkUsername(_guestToken, _flowToken, account);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _identifierValidateAsyncController.setError("用户不存在");
+            _identifierValidateAsyncController.setError("用户不存在（${res.message}）");
           } else {
             _identifierValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
@@ -301,7 +312,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             _guestToken, _flowToken, account);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _alternativeIdentifierValidateAsyncController.setError("用户名验证失败");
+            _alternativeIdentifierValidateAsyncController.setError("用户名验证失败（${res.message}）");
           } else {
             _alternativeIdentifierValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
@@ -324,7 +335,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             await LoginApi.checkPassword(_guestToken, _flowToken, password);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _passwordValidateAsyncController.setError("密码错误");
+            _passwordValidateAsyncController.setError("密码错误（${res.message}）");
           } else {
             _passwordValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
@@ -336,8 +347,13 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
           }
           ILogger.info("Check password", "Get flow_token: $_flowToken");
           switch (res.flag as LoginPhase) {
-            case LoginPhase.check2FA:
+            case LoginPhase.loginAcid:
               controller.animateToPage(3,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+              break;
+            case LoginPhase.check2FA:
+              controller.animateToPage(4,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut);
               break;
@@ -350,6 +366,26 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         }
         break;
       case 3:
+        bool valid = (await _emailValidateAsyncController.validate()) == null;
+        if (!valid) return;
+        String pin = _emailValidateAsyncController.controller.text;
+        CustomLoadingDialog.showLoading(title: "验证邮箱代码中...");
+        var res = await LoginApi.checkEmail(_guestToken, _flowToken, pin);
+        if (!res.success || res.data.isEmpty) {
+          if (res.code == 399) {
+            _emailValidateAsyncController.setError("邮箱代码错误（${res.message}）");
+          } else {
+            _emailValidateAsyncController
+                .setError("未知错误（code: ${res.code}, message:${res.message}）");
+          }
+          _emailPinFocusNode.requestFocus();
+        } else {
+          _flowToken = res.data;
+          ILogger.info("Check email", "Get flow_token: $_flowToken");
+          success();
+        }
+        break;
+      case 4:
         bool valid = (await _twoFAValidateAsyncController.validate()) == null;
         if (!valid) return;
         String pin = _twoFAValidateAsyncController.controller.text;
@@ -357,12 +393,12 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         var res = await LoginApi.check2FA(_guestToken, _flowToken, pin);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _twoFAValidateAsyncController.setError("一次性代码错误");
+            _twoFAValidateAsyncController.setError("一次性代码错误（${res.message}）");
           } else {
             _twoFAValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
           }
-          _pinFocusNode.requestFocus();
+          _twoFAPinFocusNode.requestFocus();
         } else {
           _flowToken = res.data;
           ILogger.info("Check 2FA", "Get flow_token: $_flowToken");
@@ -556,6 +592,30 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                     );
                   case 3:
                     return _buildPhasePage(
+                      title: "输入你的邮箱代码",
+                      message: "在下方输入你的邮箱代码",
+                      body: ItemBuilder.buildContainerItem(
+                        context: context,
+                        topRadius: true,
+                        bottomRadius: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: InputItem(
+                          hint: "输入邮箱代码",
+                          textInputAction: TextInputAction.done,
+                          tailingType: InputItemTailingType.clear,
+                          leadingIcon: Icons.email_outlined,
+                          leadingType: InputItemLeadingType.icon,
+                          keyboardType: TextInputType.text,
+                          validateAsyncController:
+                              _emailValidateAsyncController,
+                          onSubmit: (_) {
+                            _login();
+                          },
+                        ),
+                      ),
+                    );
+                  case 4:
+                    return _buildPhasePage(
                       title: "输入你的验证码",
                       message: "使用代码生成器应用生成一个代码并在下方输入",
                       body: Container(
@@ -569,29 +629,35 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
                           onCompleted: (_) {
                             _login();
                           },
-                          pinFocusNode: _pinFocusNode,
+                          pinFocusNode: _twoFAPinFocusNode,
                         ),
                       ),
                     );
-                  case 4:
+                  case 5:
                     return _buildPhasePage(
                       title: "输入你的备用码",
                       message: "在下方输入你的备用码",
-                      body: InputItem(
-                        hint: "输入备用码",
-                        textInputAction: TextInputAction.done,
-                        tailingType: InputItemTailingType.clear,
-                        leadingIcon: Icons.backup_outlined,
-                        leadingType: InputItemLeadingType.icon,
-                        keyboardType: TextInputType.text,
-                        validateAsyncController:
-                            _backupCodeValidateAsyncController,
-                        onSubmit: (_) {
-                          _login();
-                        },
+                      body: ItemBuilder.buildContainerItem(
+                        context: context,
+                        topRadius: true,
+                        bottomRadius: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: InputItem(
+                          hint: "输入备用码",
+                          textInputAction: TextInputAction.done,
+                          tailingType: InputItemTailingType.clear,
+                          leadingIcon: Icons.backup_outlined,
+                          leadingType: InputItemLeadingType.icon,
+                          keyboardType: TextInputType.text,
+                          validateAsyncController:
+                              _backupCodeValidateAsyncController,
+                          onSubmit: (_) {
+                            _login();
+                          },
+                        ),
                       ),
                     );
-                  case 5:
+                  case 6:
                     return _buildPhasePage(
                       title: "登录成功",
                       message: "正在准备连接至Twitee...",

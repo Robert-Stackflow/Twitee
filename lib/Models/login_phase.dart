@@ -14,26 +14,27 @@
  */
 
 enum LoginPhase {
-  checkUsername(0, "LoginEnterUserIdentifierSSO"),
-  denyLoginSubtask(-1, "DenyLoginSubtask"),
-  arkoseLogin(-1, "ArkoseLogin"),
-  checkAlternativeUsername(1, "LoginEnterAlternateIdentifierSubtask"),
-  checkPassword(2, "LoginEnterPassword"),
-  resetPassword(-1, "RedirectToPasswordReset"),
-  check2FA(3, "LoginTwoFactorAuthChallenge"),
-  checkAnother2FA(4, "LoginTwoFactorAuthChooseMethod"),
-  cannotAccess2FA(-1, "login_security_key_not_supported_cta"),
-  loginSuccess(5, "LoginSuccessSubtask");
+  checkUsername("LoginEnterUserIdentifierSSO"),
+  denyLoginSubtask("DenyLoginSubtask"),
+  arkoseLogin("ArkoseLogin"),
+  checkAlternativeUsername("LoginEnterAlternateIdentifierSubtask"),
+  checkPassword("LoginEnterPassword"),
+  resetPassword("RedirectToPasswordReset"),
+  check2FA("LoginTwoFactorAuthChallenge"),
+  loginAcid("LoginAcid"),
+  checkAnother2FA("LoginTwoFactorAuthChooseMethod"),
+  cannotAccess2FA("login_security_key_not_supported_cta"),
+  loginSuccess("LoginSuccessSubtask");
 
-  final int phaseIndex;
   final String subTaskName;
 
-  const LoginPhase(this.phaseIndex, this.subTaskName);
+  const LoginPhase(this.subTaskName);
 
   static List<LoginPhase> phases = [
     checkUsername,
     checkAlternativeUsername,
     checkPassword,
+    loginAcid,
     check2FA,
     checkAnother2FA,
     loginSuccess,
