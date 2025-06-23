@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flutter_inappwebview_windows
   fullscreen_window
   hotkey_manager_windows
   isar_flutter_libs

@@ -18,6 +18,7 @@ import 'package:dio/dio.dart';
 import 'package:twitee/Models/response_result.dart';
 import 'package:twitee/Models/user_info.dart';
 import 'package:twitee/Utils/request_util.dart';
+import 'package:twitee/generated/l10n.dart';
 
 import '../Models/login_phase.dart';
 import '../Utils/ilogger.dart';
@@ -124,6 +125,8 @@ class LoginApi {
         return ResponseResult.success(
           message: "Initialized login",
           data: data["flow_token"],
+          data2: (data["subtasks"][0]["js_instrumentation"]['url'] as String?)
+              ?.replaceAll("twitter.com", "x.com"),
         );
       }
       return ResponseResult.error(message: "Failed to initialize login");
@@ -139,7 +142,18 @@ class LoginApi {
       ILogger.info("Twitee API", "Checking login type");
       final response = await RequestUtil.post(
         "/1.1/onboarding/task.json",
-        data: {"flow_token": flowToken, "subtask_inputs": []},
+        data: {
+          "flow_token": flowToken,
+          "subtask_inputs": [
+            {
+              "subtask_id": "LoginJsInstrumentationSubtask",
+              "js_instrumentation": {
+                "response": "{}",
+                "link": "next_link",
+              }
+            }
+          ]
+        },
         options: Options(
           headers: {
             "x-guest-token": guestToken,
@@ -205,7 +219,8 @@ class LoginApi {
         return ResponseResult.error(
           message: (response?.data["errors"][0]["message"] ??
                   "Failed to check username")
-              .split("g;")[0].trim(),
+              .split("g;")[0]
+              .trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -262,7 +277,10 @@ class LoginApi {
           "subtask_inputs": [
             {
               "subtask_id": "LoginEnterAlternateIdentifierSubtask",
-              "enter_text": {"text": account, "link": "next_link"}
+              "enter_text": {
+                "text": account,
+                "link": "next_link",
+              }
             }
           ]
         },
@@ -276,7 +294,8 @@ class LoginApi {
         return ResponseResult.error(
           message: (response?.data["errors"][0]["message"] ??
                   "Failed to check alternative username")
-              .split("g;")[0].trim(),
+              .split("g;")[0]
+              .trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -307,7 +326,10 @@ class LoginApi {
           "subtask_inputs": [
             {
               "subtask_id": "LoginEnterPassword",
-              "enter_password": {"password": password, "link": "next_link"}
+              "enter_password": {
+                "password": password,
+                "link": "next_link",
+              }
             }
           ]
         },
@@ -321,7 +343,8 @@ class LoginApi {
         return ResponseResult.error(
           message: (response?.data["errors"][0]["message"] ??
                   "Failed to check password")
-              .split("g;")[0].trim(),
+              .split("g;")[0]
+              .trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
           statusCode: response?.statusCode ?? 500,
         );
@@ -387,7 +410,8 @@ class LoginApi {
         return ResponseResult.error(
           message:
               (response?.data["errors"][0]["message"] ?? "Failed to check 2FA")
-                  .split("g;")[0].trim(),
+                  .split("g;")[0]
+                  .trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
         );
       }
@@ -430,7 +454,8 @@ class LoginApi {
         return ResponseResult.error(
           message: (response?.data["errors"][0]["message"] ??
                   "Failed to check email")
-              .split("g;")[0].trim(),
+              .split("g;")[0]
+              .trim(),
           code: response?.data["errors"][0]["code"] ?? 500,
         );
       }

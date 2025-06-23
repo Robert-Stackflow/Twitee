@@ -200,12 +200,21 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
       return;
     }
     _guestToken = res.data;
+    await RequestUtil.setCookie("gt", _guestToken);
     res = await LoginApi.initLogin(_guestToken);
     if (!res.success) {
       fail(res.message);
       return;
     }
     _flowToken = res.data;
+    try {
+      var tmpResponse = await RequestUtil.get(res.data2);
+      await RequestUtil.shareCookie();
+      ILogger.debug("Login", tmpResponse?.headers.toString() ?? "");
+    } catch (e) {
+      fail("获取登录页面失败，请检查网络连接");
+      return;
+    }
     res = await LoginApi.checkLoginType(_guestToken, _flowToken);
     if (!res.success) {
       fail(res.message);
@@ -261,7 +270,8 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             await LoginApi.checkUsername(_guestToken, _flowToken, account);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _identifierValidateAsyncController.setError("用户不存在（${res.message}）");
+            _identifierValidateAsyncController
+                .setError("用户不存在（${res.message}）");
           } else {
             _identifierValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
@@ -312,7 +322,8 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
             _guestToken, _flowToken, account);
         if (!res.success || res.data.isEmpty) {
           if (res.code == 399) {
-            _alternativeIdentifierValidateAsyncController.setError("用户名验证失败（${res.message}）");
+            _alternativeIdentifierValidateAsyncController
+                .setError("用户名验证失败（${res.message}）");
           } else {
             _alternativeIdentifierValidateAsyncController
                 .setError("未知错误（code: ${res.code}, message:${res.message}）");
@@ -411,6 +422,11 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
 
   @override
   Widget build(BuildContext context) {
+    // RequestUtil.getCookie("_twitter_sess").then(
+    //   (value) {
+    //     print(value);
+    //   },
+    // );
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

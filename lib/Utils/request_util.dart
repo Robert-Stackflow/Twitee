@@ -70,6 +70,21 @@ class RequestUtil {
     });
   }
 
+  static Future<void> setCookie(
+    String key,
+    String value, {
+    bool force = false,
+  }) async {
+    if (force) {
+      await cookieJar?.deleteAll();
+    }
+    await cookieJar?.saveFromResponse(
+      Uri.parse(apiUrl),
+      [Cookie(key, value)],
+    );
+    await shareCookie();
+  }
+
   static Future<Map> getCookies() async {
     List<Cookie>? cookies = await cookieJar?.loadForRequest(Uri.parse(apiUrl));
     Map<String, String> cookieMap = {};
@@ -212,6 +227,7 @@ class RequestUtil {
       "Authorization": RequestHeaderUtil.defaultAuthentication,
       "User-Agent": RequestHeaderUtil.defaultUA,
       "x-twitter-client-language": "zh-cn",
+      "x-twitter-active-user": "yes",
     });
     if (domainType != DomainType.api || forceCsrfToken) {
       options.headers?.addAll({
@@ -225,14 +241,7 @@ class RequestUtil {
     Map<String, Object?> list = {
       "URL": response.requestOptions.uri,
     };
-    if (response.requestOptions.headers['lofter-phone-login-auth'] != null) {
-      list['Lofter-phone-login-auth'] =
-          response.requestOptions.headers['lofter-phone-login-auth'] != null
-              ? "有"
-              : "无";
-    }
-    list["Cookie"] =
-        response.requestOptions.headers['cookie'] != null ? "有" : "无";
+    list["Cookie"] = response.requestOptions.headers['cookie'];
     list["Content-Length"] = response.requestOptions.headers['Content-Length'];
     list["Content-Type"] = response.requestOptions.contentType;
     if (response.requestOptions.headers['authorization'] != null) {
