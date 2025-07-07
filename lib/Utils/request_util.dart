@@ -228,6 +228,8 @@ class RequestUtil {
       "User-Agent": RequestHeaderUtil.defaultUA,
       "x-twitter-client-language": "zh-cn",
       "x-twitter-active-user": "yes",
+      "x-xp-forwarded-for": RequestHeaderUtil.defaultForward,
+      "x-client-transaction-id":RequestHeaderUtil.generateTransactionId(),
     });
     if (domainType != DomainType.api || forceCsrfToken) {
       options.headers?.addAll({

@@ -723,6 +723,7 @@ class _LoginByPasswordScreenState extends State<LoginByPasswordScreen>
         ),
         const SizedBox(width: 10),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               _userInfo!.name,
